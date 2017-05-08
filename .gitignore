@@ -1,14 +1,26 @@
-.gradle
-build/
+# Package Files 
+*.jar
+*.war
+*.ear
 
-# Ignore Gradle GUI config
-gradle-app.setting
+# Class Files
+*.class
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+# System Files
+*._.DS_Store
+*._.gitignore
+*.DS_Store
+*Thumbs.db
 
-# Cache of project
-.gradletasknamecache
+# gradle
+.gradle/
+/build/
+/classes/
 
-# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
+# Netbeans
+nbproject/
+
+# IDEA
+.idea/
+*.iml
+*.ipr
