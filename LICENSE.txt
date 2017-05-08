@@ -1,6 +1,8 @@
+Most of the source code of this project is avalable under the MIT License.
+
 MIT License
 
-Copyright (c) 2017 
+Copyright (c) 2017 Jumpaku
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +21,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+This project depends on the following libraries:
+  * Apache Commons Math
+  * Kotson
+These libraries are licensed under the Apache License, Version 2.0.
+You can get a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Apache Commons Math includes a "NOTICE" text file as part of its distribution as follows:
+
+Apache Commons Math
+Copyright 2001-2016 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software developed for Orekit by
+CS Systèmes d'Information (http://www.c-s.fr/)
+Copyright 2010-2012 CS Systèmes d'Information
+
+---
