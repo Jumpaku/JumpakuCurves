@@ -12,9 +12,9 @@ import org.apache.commons.math3.util.FastMath;
 fun translation(v: Vector): Transform{
     return Transform(MatrixUtils.createRealMatrix(arrayOf(
             doubleArrayOf(1.0, 0.0, 0.0, v.x),
-            doubleArrayOf(1.0, 0.0, 0.0, v.y),
-            doubleArrayOf(1.0, 0.0, 0.0, v.z),
-            doubleArrayOf(1.0, 0.0, 0.0, 1.0)
+            doubleArrayOf(0.0, 1.0, 0.0, v.y),
+            doubleArrayOf(0.0, 0.0, 1.0, v.z),
+            doubleArrayOf(0.0, 0.0, 0.0, 1.0)
     )))
 }
 
@@ -27,9 +27,9 @@ fun rotation(axis: Vector, radian: Double): Transform{
     val sin = FastMath.sin(radian)
     return Transform(MatrixUtils.createRealMatrix(arrayOf(
         doubleArrayOf(x*x*(1-cos)+cos,   x*y*(1-cos)-z*sin, z*x*(1-cos)+y*sin, 0.0),
-        doubleArrayOf(x*y*(1-cos)+z*sin, y*y*(1-cos)+cos,   y*z*(1-cos)-x*sin, 0.0 ),
-        doubleArrayOf(z*x*(1-cos)-y*sin, y*z*(1-cos)+x*sin, z*z*(1-cos)+cos,   0.0 ),
-        doubleArrayOf(0.0,               0.0,               0.0,               1.0 )
+        doubleArrayOf(x*y*(1-cos)+z*sin, y*y*(1-cos)+cos,   y*z*(1-cos)-x*sin, 0.0),
+        doubleArrayOf(z*x*(1-cos)-y*sin, y*z*(1-cos)+x*sin, z*z*(1-cos)+cos,   0.0),
+        doubleArrayOf(0.0,               0.0,               0.0,               1.0)
     )))
 }
 
@@ -39,7 +39,7 @@ fun scaling(x: Double, y: Double, z: Double): Transform {
 }
 
 fun transformationAt(p: Crisp, a: Transform): Transform {
-    return translation(p.toVector().negate()).concatenate(a).translate(p.toVector());
+    return translation(p.toVector().unaryMinus()).concatenate(a).translate(p.toVector());
 }
 
 fun similarity(ab: Pair<Crisp, Crisp>, cd: Pair<Crisp, Crisp>): Transform{

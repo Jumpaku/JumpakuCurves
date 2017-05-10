@@ -51,7 +51,7 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
             Grade(Vector.equals(toVector(), p.toVector(), 1.0e-10))
         else if (d < rb)
             Grade(Grade.clamp(
-                    FastMath.min(1 - (ra - d) / (ra + rb), 1 - (ra + d) / (ra + rb))))
+                    minOf(1 - (ra - d) / (ra + rb), 1 - (ra + d) / (ra + rb))))
         else
             Grade.FALSE
     }
@@ -95,7 +95,7 @@ class Fuzzy(override val r: Double, private val vector: Vector) : Point {
 
     override fun toCrisp(): Crisp = Crisp(vector)
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = Point.toJson(this)
 }
 
 class Crisp(private val vector: Vector) : Point {
@@ -120,7 +120,7 @@ class Crisp(private val vector: Vector) : Point {
 
     override fun toCrisp(): Crisp = this
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = Point.toJson(this)
 
     /**
      * @return distance |p - this|

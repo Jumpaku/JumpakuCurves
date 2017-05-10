@@ -3,6 +3,7 @@ package org.jumpaku.affine
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
+import org.jumpaku.jsonAssertThat
 import org.junit.Test
 
 /**
@@ -22,105 +23,56 @@ class VectorTest {
     @Test
     fun testPlus() {
         println("Plus")
-        val v = Vector( 1.0,-2.0, 3.0)
-        val u = Vector(-4.0, 5.0, -6.0)
-        assertThat(v.plus(u).x).isEqualTo(-3.0, withPrecision(1.0e-10))
-        assertThat(v.plus(u).y).isEqualTo( 3.0, withPrecision(1.0e-10))
-        assertThat(v.plus(u).z).isEqualTo(-3.0, withPrecision(1.0e-10))
-        assertThat((v+u).x).isEqualTo(-3.0, withPrecision(1.0e-10))
-        assertThat((v+u).y).isEqualTo( 3.0, withPrecision(1.0e-10))
-        assertThat((v+u).z).isEqualTo(-3.0, withPrecision(1.0e-10))
-        val a = 2.0
-        assertThat(v.plus(a, u).x).isEqualTo(-7.0, withPrecision(1.0e-10))
-        assertThat(v.plus(a, u).y).isEqualTo( 8.0, withPrecision(1.0e-10))
-        assertThat(v.plus(a, u).z).isEqualTo(-9.0, withPrecision(1.0e-10))
+        val v = Vector( 1.0,-2.0, 3.0).plus(Vector(-4.0, 5.0, -6.0))
+        vectorAssertThat(v).isEqualToVector(Vector(-3.0, 3.0, -3.0))
+        val u = Vector( 1.0,-2.0, 3.0).plus(2.0, Vector(-4.0, 5.0, -6.0))
+        vectorAssertThat(u).isEqualToVector(Vector(-7.0, 8.0, -9.0))
     }
 
     @Test
     fun testMinus() {
         println("Minus")
-        val v = Vector( 1.0,-2.0, 3.0)
-        val u = Vector(-4.0, 5.0, -6.0)
-        assertThat(v.minus(u).x).isEqualTo( 5.0, withPrecision(1.0e-10))
-        assertThat(v.minus(u).y).isEqualTo(-7.0, withPrecision(1.0e-10))
-        assertThat(v.minus(u).z).isEqualTo( 9.0, withPrecision(1.0e-10))
-        assertThat((v-u).x).isEqualTo( 5.0, withPrecision(1.0e-10))
-        assertThat((v-u).y).isEqualTo(-7.0, withPrecision(1.0e-10))
-        assertThat((v-u).z).isEqualTo( 9.0, withPrecision(1.0e-10))
-        val a = 2.0
-        assertThat(v.minus(a, u).x).isEqualTo(  9.0, withPrecision(1.0e-10))
-        assertThat(v.minus(a, u).y).isEqualTo(-12.0, withPrecision(1.0e-10))
-        assertThat(v.minus(a, u).z).isEqualTo( 15.0, withPrecision(1.0e-10))
+        val v = Vector( 1.0,-2.0, 3.0).minus(Vector(-4.0, 5.0, -6.0))
+        vectorAssertThat(v).isEqualToVector(Vector( 5.0,-7.0,  9.0))
+        val u = Vector( 1.0,-2.0, 3.0).minus(2.0, Vector(-4.0, 5.0, -6.0))
+        vectorAssertThat(u).isEqualToVector(Vector( 9.0,-12.0, 15.0))
     }
 
     @Test
     fun testTimes() {
         println("Times")
-        val v = Vector(1.0, -2.0, 3.0)
-        val s = 5.0
-        assertThat(v.times(s).x).isEqualTo(  5.0, withPrecision(1.0e-10))
-        assertThat(v.times(s).y).isEqualTo(-10.0, withPrecision(1.0e-10))
-        assertThat(v.times(s).z).isEqualTo( 15.0, withPrecision(1.0e-10))
-        assertThat((v*s).x).isEqualTo(  5.0, withPrecision(1.0e-10))
-        assertThat((v*s).y).isEqualTo(-10.0, withPrecision(1.0e-10))
-        assertThat((v*s).z).isEqualTo( 15.0, withPrecision(1.0e-10))
-        assertThat(s.times(v).x).isEqualTo(  5.0, withPrecision(1.0e-10))
-        assertThat(s.times(v).y).isEqualTo(-10.0, withPrecision(1.0e-10))
-        assertThat(s.times(v).z).isEqualTo( 15.0, withPrecision(1.0e-10))
-        assertThat((s*v).x).isEqualTo(  5.0, withPrecision(1.0e-10))
-        assertThat((s*v).y).isEqualTo(-10.0, withPrecision(1.0e-10))
-        assertThat((s*v).z).isEqualTo( 15.0, withPrecision(1.0e-10))
+        val v = Vector(1.0, -2.0, 3.0).times(5.0)
+        val u = 5.0.times(Vector(1.0, -2.0, 3.0))
+        vectorAssertThat(v).isEqualToVector(Vector( 5.0,-10.0, 15.0))
+        vectorAssertThat(u).isEqualToVector(Vector( 5.0,-10.0, 15.0))
     }
 
     @Test
     fun testUnaryPlus() {
         println("UnaryPlus")
-        val v = Vector(1.0, -2.0, 3.0)
-        assertThat(v.unaryPlus().x).isEqualTo( 1.0, withPrecision(1.0e-10))
-        assertThat(v.unaryPlus().y).isEqualTo(-2.0, withPrecision(1.0e-10))
-        assertThat(v.unaryPlus().z).isEqualTo( 3.0, withPrecision(1.0e-10))
-        assertThat((+v).x).isEqualTo( 1.0, withPrecision(1.0e-10))
-        assertThat((+v).y).isEqualTo(-2.0, withPrecision(1.0e-10))
-        assertThat((+v).z).isEqualTo( 3.0, withPrecision(1.0e-10))
+        val v = Vector(1.0, -2.0, 3.0).unaryPlus()
+        vectorAssertThat(v).isEqualToVector(Vector( 1.0, -2.0,  3.0))
     }
 
     @Test
     fun testUnaryMinus() {
         println("UnaryMinus")
-        val v = Vector(1.0, -2.0, 3.0)
-        assertThat(v.unaryMinus().x).isEqualTo(-1.0, withPrecision(1.0e-10))
-        assertThat(v.unaryMinus().y).isEqualTo( 2.0, withPrecision(1.0e-10))
-        assertThat(v.unaryMinus().z).isEqualTo(-3.0, withPrecision(1.0e-10))
-        assertThat((-v).x).isEqualTo(-1.0, withPrecision(1.0e-10))
-        assertThat((-v).y).isEqualTo( 2.0, withPrecision(1.0e-10))
-        assertThat((-v).z).isEqualTo(-3.0, withPrecision(1.0e-10))
-    }
-
-    @Test
-    fun testNegate() {
-        println("Negate")
-        val v = Vector(1.0, -2.0, 3.0)
-        assertThat(v.negate().x).isEqualTo(-1.0, withPrecision(1.0e-10))
-        assertThat(v.negate().y).isEqualTo( 2.0, withPrecision(1.0e-10))
-        assertThat(v.negate().z).isEqualTo(-3.0, withPrecision(1.0e-10))
+        val v = Vector(1.0, -2.0, 3.0).unaryMinus()
+        vectorAssertThat(v).isEqualToVector(Vector(-1.0,  2.0, -3.0))
     }
 
     @Test
     fun testNormalize() {
         println("Normalize")
-        val v = Vector(1.0, -2.0, 3.0)
-        assertThat(v.normalize().x).isEqualTo( 1.0/FastMath.sqrt(14.0), withPrecision(1.0e-10))
-        assertThat(v.normalize().y).isEqualTo(-2.0/FastMath.sqrt(14.0), withPrecision(1.0e-10))
-        assertThat(v.normalize().z).isEqualTo( 3.0/FastMath.sqrt(14.0), withPrecision(1.0e-10))
+        val v = Vector(1.0, -2.0, 3.0).normalize()
+        vectorAssertThat(v).isEqualToVector(Vector( 1.0/FastMath.sqrt(14.0), -2.0/FastMath.sqrt(14.0),  3.0/FastMath.sqrt(14.0)))
     }
 
     @Test
     fun testResize() {
         println("Resize")
-        val v = Vector(1.0, -2.0, 3.0)
-        assertThat(v.resize(2.0).x).isEqualTo( 1.0/FastMath.sqrt(14.0)*2, withPrecision(1.0e-10))
-        assertThat(v.resize(2.0).y).isEqualTo(-2.0/FastMath.sqrt(14.0)*2, withPrecision(1.0e-10))
-        assertThat(v.resize(2.0).z).isEqualTo( 3.0/FastMath.sqrt(14.0)*2, withPrecision(1.0e-10))
+        val v = Vector(1.0, -2.0, 3.0).resize(2.0)
+        vectorAssertThat(v).isEqualToVector(Vector( 1.0/FastMath.sqrt(14.0)*2,-2.0/FastMath.sqrt(14.0)*2, 3.0/FastMath.sqrt(14.0)*2))
     }
 
     @Test
@@ -150,9 +102,7 @@ class VectorTest {
         println("Cross")
         val v = Vector( 1.0,-2.0, 3.0)
         val u = Vector(-4.0, 5.0, -6.0)
-        assertThat(v.cross(u).x).isEqualTo(-3.0, withPrecision(1.0e-10))
-        assertThat(v.cross(u).y).isEqualTo(-6.0, withPrecision(1.0e-10))
-        assertThat(v.cross(u).z).isEqualTo(-3.0, withPrecision(1.0e-10))
+        vectorAssertThat(v.cross(u)).isEqualToVector(Vector(-3.0,-6.0, -3.0))
     }
 
     @Test
@@ -167,21 +117,13 @@ class VectorTest {
     }
 
     @Test
-    fun testToString() {
-        println("ToString")
+    fun testJson() {
+        println("Json")
         val v = Vector(1.0, -2.0, 3.0)
 
-        assertThat(Vector.fromJson("""{"x":1.0, "y":-2.0, "z":3.0}""")!!.x).isEqualTo( 1.0, withPrecision(1.0e-10))
-        assertThat(Vector.fromJson("""{"x":1.0, "y":-2.0, "z":3.0}""")!!.y).isEqualTo(-2.0, withPrecision(1.0e-10))
-        assertThat(Vector.fromJson("""{"x":1.0, "y":-2.0, "z":3.0}""")!!.z).isEqualTo( 3.0, withPrecision(1.0e-10))
-
-        assertThat(Vector.fromJson(Vector.toJson(v))!!.x).isEqualTo( 1.0, withPrecision(1.0e-10))
-        assertThat(Vector.fromJson(Vector.toJson(v))!!.y).isEqualTo(-2.0, withPrecision(1.0e-10))
-        assertThat(Vector.fromJson(Vector.toJson(v))!!.z).isEqualTo( 3.0, withPrecision(1.0e-10))
-
-        assertThat(Vector.fromJson(v.toString())!!.x).isEqualTo( 1.0, withPrecision(1.0e-10))
-        assertThat(Vector.fromJson(v.toString())!!.y).isEqualTo(-2.0, withPrecision(1.0e-10))
-        assertThat(Vector.fromJson(v.toString())!!.z).isEqualTo( 3.0, withPrecision(1.0e-10))
+        vectorAssertThat(Vector.fromJson("""{"x":1.0, "y":-2.0, "z":3.0}""")!!).isEqualToVector(Vector( 1.0,-2.0,  3.0))
+        jsonAssertThat(Vector.toJson(v)).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0}""")
+        jsonAssertThat(v.toString()).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0}""")
 
         assertThat(Vector.fromJson("""{"x":null, "y"-2.0, "z":3.0}""")).isNull()
         assertThat(Vector.fromJson("""{"x":1.0"y"-2.0, "z":3.0}""")).isNull()

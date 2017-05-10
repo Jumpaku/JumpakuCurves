@@ -29,19 +29,17 @@ class Vector private constructor(private val vector: Vector3D) {
 
     operator fun plus(v: Vector): Vector = Vector(vector.add(v.vector))
     
-    operator fun minus(v: Vector): Vector = plus(v.negate())
+    operator fun minus(v: Vector): Vector = plus(v.unaryMinus())
     
     operator fun times(s: Double): Vector = Vector(vector.scalarMultiply(s))
 
     operator fun unaryPlus(): Vector = this
 
-    operator fun unaryMinus(): Vector = negate()
+    operator fun unaryMinus(): Vector = times(-1.0)
 
     fun minus(a: Double, v: Vector): Vector = minus(v.times(a))
 
     fun plus(a: Double, v: Vector): Vector = plus(v.times(a))
-
-    fun negate(): Vector = times(-1.0)
 
     fun normalize(): Vector = times(1.0 / length())
 
@@ -60,7 +58,7 @@ class Vector private constructor(private val vector: Vector3D) {
 
     fun angle(v: Vector): Double = Vector3D.angle(vector, Vector3D(v.x, v.y, v.z))
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = Vector.toJson(this)
 
     companion object {
 
