@@ -9,15 +9,23 @@ class Grade(val value: Double) : Comparable<Grade> {
         }
     }
 
+    constructor(booleanValue: Boolean): this(if (booleanValue) 1.0 else 0.0)
+
+    constructor(intValue: Int): this(when(intValue){
+        1 -> 1.0
+        0 -> 0.0
+        else -> throw IllegalArgumentException("value $intValue is out of [0.0, 1.0].")
+    })
+
     override fun toString(): String = value.toString()
 
-    override fun compareTo(g: Grade): Int = compare(this, g)
+    override fun compareTo(g: Grade): Int = value.compareTo(g.value)
 
-    fun and(g: Grade): Grade = and(this, g)
+    infix fun and(g: Grade): Grade = minOf(this, g)
 
-    fun or(g: Grade): Grade = or(this, g)
+    infix fun or(g: Grade): Grade = maxOf(this, g)
 
-    fun not(): Grade = not(this)
+    operator fun not(): Grade = Grade(1.0 - value)
 
     companion object {
 
@@ -25,13 +33,6 @@ class Grade(val value: Double) : Comparable<Grade> {
 
         val FALSE = Grade(0.0)
 
-        fun and(a: Grade, b: Grade): Grade = minOf(a, b)
-
-        fun or(a: Grade, b: Grade): Grade = maxOf(a, b)
-
-        fun not(g: Grade): Grade = Grade(1.0 - g.value)
-
-        fun compare(a: Grade, b: Grade): Int = java.lang.Double.compare(a.value, b.value)
-
+        fun clamp(value: Double): Double = minOf(1.0, maxOf(0.0, value))
     }
 }

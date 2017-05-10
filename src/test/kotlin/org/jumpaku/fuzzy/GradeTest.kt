@@ -13,6 +13,8 @@ class GradeTest {
         println("ConstructorException")
         assertThatIllegalArgumentException().isThrownBy { Grade(-0.5) }
         assertThatIllegalArgumentException().isThrownBy { Grade(1.5) }
+        assertThatIllegalArgumentException().isThrownBy { Grade(2) }
+        assertThatIllegalArgumentException().isThrownBy { Grade(-1) }
         assertThatIllegalArgumentException().isThrownBy { Grade(Double.NaN) }
         assertThatIllegalArgumentException().isThrownBy { Grade(Double.NEGATIVE_INFINITY) }
         assertThatIllegalArgumentException().isThrownBy { Grade(Double.POSITIVE_INFINITY) }
@@ -32,6 +34,12 @@ class GradeTest {
         assertThat(Grade(0.3).compareTo(Grade(0.8))).isNegative()
         assertThat(Grade(0.9).compareTo(Grade(0.8))).isPositive()
         assertThat(Grade(0.8).compareTo(Grade(0.8))).isZero()
+        assertThat(Grade(0.3) <  Grade(0.8)).isTrue()
+        assertThat(Grade(0.3) <= Grade(0.8)).isTrue()
+        assertThat(Grade(0.9) >  Grade(0.8)).isTrue()
+        assertThat(Grade(0.9) >= Grade(0.8)).isTrue()
+        assertThat(Grade(0.8) <= Grade(0.8)).isTrue()
+        assertThat(Grade(0.8) >= Grade(0.8)).isTrue()
     }
 
     @Test
@@ -40,6 +48,9 @@ class GradeTest {
         assertThat(Grade(0.3).and(Grade(0.8)).value).isEqualTo(0.3, withPrecision(1.0e-10))
         assertThat(Grade(0.9).and(Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
         assertThat(Grade(0.8).and(Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
+        assertThat((Grade(0.3) and Grade(0.8)).value).isEqualTo(0.3, withPrecision(1.0e-10))
+        assertThat((Grade(0.9) and Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
+        assertThat((Grade(0.8) and Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
     }
 
     @Test
@@ -48,6 +59,9 @@ class GradeTest {
         assertThat(Grade(0.3).or(Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
         assertThat(Grade(0.9).or(Grade(0.8)).value).isEqualTo(0.9, withPrecision(1.0e-10))
         assertThat(Grade(0.8).or(Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
+        assertThat((Grade(0.3) or Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
+        assertThat((Grade(0.9) or Grade(0.8)).value).isEqualTo(0.9, withPrecision(1.0e-10))
+        assertThat((Grade(0.8) or Grade(0.8)).value).isEqualTo(0.8, withPrecision(1.0e-10))
     }
 
     @Test
@@ -56,6 +70,9 @@ class GradeTest {
         assertThat(Grade(0.3).not().value).isEqualTo(0.7, withPrecision(1.0e-10))
         assertThat(Grade(0.9).not().value).isEqualTo(0.1, withPrecision(1.0e-10))
         assertThat(Grade(0.8).not().value).isEqualTo(0.2, withPrecision(1.0e-10))
+        assertThat((!Grade(0.3)).value).isEqualTo(0.7, withPrecision(1.0e-10))
+        assertThat((!Grade(0.9)).value).isEqualTo(0.1, withPrecision(1.0e-10))
+        assertThat((!Grade(0.8)).value).isEqualTo(0.2, withPrecision(1.0e-10))
     }
 
     @Test
@@ -64,5 +81,15 @@ class GradeTest {
         assertThat(Grade(1.0).value).isEqualTo(1.0, withPrecision(1.0e-10))
         assertThat(Grade(0.0).value).isEqualTo(0.0, withPrecision(1.0e-10))
         assertThat(Grade(0.5).value).isEqualTo(0.5, withPrecision(1.0e-10))
+    }
+
+    @Test
+    fun testClamp() {
+        println("Clamp")
+        assertThat(Grade.clamp( 1.5)).isEqualTo(1.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamp( 1.0)).isEqualTo(1.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamp( 0.5)).isEqualTo(0.5, withPrecision(1.0e-10))
+        assertThat(Grade.clamp( 0.0)).isEqualTo(0.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamp(-0.5)).isEqualTo(0.0, withPrecision(1.0e-10))
     }
 }
