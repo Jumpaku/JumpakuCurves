@@ -8,6 +8,11 @@ import org.jumpaku.jsonAssertThat
 class IntervalTest {
 
     @Test
+    fun testConstructorException() {
+        println("ConstructorException")
+        assertThatIllegalArgumentException().isThrownBy { Interval( 4.0,-3.0) }
+    }
+    @Test
     fun testProperties() {
         println("Properties")
         val b = Interval(-2.3, 3.4).begin
@@ -57,15 +62,11 @@ class IntervalTest {
         val i2 = Interval(-2.3, 3.4).contains(Interval( 2.0, 4.0))
         val i3 = Interval(-2.3, 3.4).contains(Interval(-2.0, 3.0))
         val i4 = Interval(-2.3, 3.4).contains(Interval(-3.0, 4.0))
-        val i5 = Interval(-2.3, 3.4).contains(Interval( 4.0,-3.0))
-        val i6 = Interval(-2.3, 3.4).contains(Interval( 3.0,-2.0))
         assertThat(i0).isTrue()
         assertThat(i1).isFalse()
         assertThat(i2).isFalse()
         assertThat(i3).isTrue()
         assertThat(i4).isFalse()
-        assertThat(i5).isFalse()
-        assertThat(i6).isFalse()
     }
 
     @Test

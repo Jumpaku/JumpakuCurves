@@ -2,24 +2,33 @@ package org.jumpaku.curve
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.JsonParseException
+import io.vavr.API.*
+import io.vavr.collection.Array
+import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.Precision
 import org.jumpaku.json.prettyGson
 
-val ZERO_ONE = Interval(0.0, 1.0)
 
 class Interval(val begin: Double, val end: Double) {
 
-    fun sample(n: Int): List<Double> {
-        if (n < 2) {
-            throw IllegalArgumentException("n=$n is too small, n >= 2")
+    init {
+        if (begin > end){
+            throw IllegalArgumentException("begin($begin) > end($end)")
         }
-
-        return (0..n-1)
-                .map { (n - 1 - it) * begin / (n - 1) + it * end / (n - 1) }
-                .apply { listOf(toTypedArray()) }
     }
 
-    fun sample(delta: Double): List<Double> = sample(FastMath.ceil((end - begin) / delta).toInt())
+    fun sample(n: Int): Array<Double> {
+        return when{
+            n == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
+            n >= 2 -> Stream.range(0, n)
+                    .map { (n - 1 - it) * begin / (n - 1) + it * end / (n - 1) }
+                    .toArray()
+            else -> throw IllegalArgumentException("n($n) is too small")
+        }
+    }
+
+    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt())
 
     operator fun contains(t: Double): Boolean = t in begin..end
 
@@ -28,6 +37,8 @@ class Interval(val begin: Double, val end: Double) {
     override fun toString(): String = Interval.toJson(this)
 
     companion object {
+
+        val ZERO_ONE = Interval(0.0, 1.0)
 
         data class JsonInterval(val begin: Double, val end: Double)
 
