@@ -50,10 +50,12 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     companion object {
 
-        data class JsonBezierDerivative(val controlVectors: kotlin.Array<Vector>)
+        data class JsonBezierDerivative(val controlVectors: kotlin.Array<Vector.Companion.JsonVector>)
 
         fun toJson(derivative: BezierDerivative): String = prettyGson.toJson(JsonBezierDerivative(
-                derivative.controlVectors.toJavaArray(Vector::class.java)))
+                derivative.controlVectors
+                        .map { Vector.Companion.JsonVector(it.x, it.y, it.z) }
+                        .toJavaArray(Vector.Companion.JsonVector::class.java)))
 
         fun fromJson(json: String): BezierDerivative?{
             return try {
