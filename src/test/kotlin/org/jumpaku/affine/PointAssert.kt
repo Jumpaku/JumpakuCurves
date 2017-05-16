@@ -21,7 +21,7 @@ class PointAssert(actual: Point) : AbstractAssert<PointAssert, Point>(actual, Po
                 || !Precision.equals(actual.x, expected.x, 1.0e-10)
                 || !Precision.equals(actual.y, expected.y, 1.0e-10)
                 || !Precision.equals(actual.z, expected.z, 1.0e-10)){
-            failWithMessage("Expected vector to be <%s> but was <%s>", expected.toString(), actual.toString())
+            failWithMessage("Expected point to be <%s> but was <%s>", expected.toString(), actual.toString())
             return this
         }
 
