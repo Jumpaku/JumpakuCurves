@@ -16,16 +16,19 @@ operator fun Double.times(v: Vector): Vector = v.times(this)
 
 class Vector private constructor(private val vector: Vector3D) {
 
-    constructor(x: Double, y: Double = 0.0, z : Double = 0.0) : this(Vector3D(x, y, z))
+    constructor(x: Double = 0.0, y: Double = 0.0, z : Double = 0.0) : this(Vector3D(x, y, z))
 
-    val x: Double
-        get() = vector.x
+    val x: Double get() = vector.x
 
-    val y: Double
-        get() = vector.y
+    val y: Double get() = vector.y
 
-    val z: Double
-        get() = vector.z
+    val z: Double get() = vector.z
+
+    operator fun component1(): Double = x
+
+    operator fun component2(): Double = y
+
+    operator fun component3(): Double = z
 
     operator fun plus(v: Vector): Vector = Vector(vector.add(v.vector))
     
@@ -66,13 +69,13 @@ class Vector private constructor(private val vector: Vector3D) {
             return Vector(Vector3D(a, v1.vector, b, v2.vector))
         }
 
-        fun equals(v1: Vector, v2: Vector, eps: Double): Boolean {
+        fun equals(v1: Vector, v2: Vector, eps: Double = 1.0e-10): Boolean {
             return Precision.equals(v1.x, v2.x, eps)
                     && Precision.equals(v1.y, v2.y, eps)
                     && Precision.equals(v1.z, v2.z, eps)
         }
 
-        val ZERO = Vector(0.0)
+        val ZERO = Vector()
 
         data class JsonVector(val x: Double, val y: Double, val z: Double)
 
@@ -80,8 +83,8 @@ class Vector private constructor(private val vector: Vector3D) {
 
         fun fromJson(json: String): Vector? {
             return try {
-                val v = prettyGson.fromJson<JsonVector>(json)
-                Vector(v.x, v.y, v.z)
+                val (x, y, z) = prettyGson.fromJson<JsonVector>(json)
+                Vector(x, y, z)
             }catch(e: Exception){
                 when(e){
                     is IllegalArgumentException, is JsonParseException -> null

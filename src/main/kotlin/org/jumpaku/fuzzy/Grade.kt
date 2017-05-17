@@ -11,11 +11,7 @@ class Grade(val value: Double) : Comparable<Grade> {
 
     constructor(booleanValue: Boolean): this(if (booleanValue) 1.0 else 0.0)
 
-    constructor(intValue: Int): this(when(intValue){
-        1 -> 1.0
-        0 -> 0.0
-        else -> throw IllegalArgumentException("value $intValue is out of [0.0, 1.0].")
-    })
+    constructor(intValue: Int): this(intValue.toDouble())
 
     override fun toString(): String = value.toString()
 

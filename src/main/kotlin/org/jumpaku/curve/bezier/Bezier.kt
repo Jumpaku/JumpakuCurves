@@ -8,6 +8,7 @@ import io.vavr.API.Tuple
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import org.jumpaku.affine.Divisible
 import org.jumpaku.util.*
 import org.jumpaku.affine.Fuzzy
 import org.jumpaku.affine.Point
@@ -21,7 +22,7 @@ import org.jumpaku.json.prettyGson
 
 class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
 
-    override val domain: Interval = Interval.ZERO_ONE
+    override val domain: Interval get() = Interval.ZERO_ONE
 
     override val derivative: BezierDerivative by lazy {
         val cp = controlPoints.map(Point::toCrisp)
@@ -29,7 +30,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
         BezierDerivative(vs)
     }
 
-    val degree: Int = controlPoints.size() - 1
+    val degree: Int get() = controlPoints.size() - 1
 
     constructor(controlPoints: Iterable<Point>): this(Array.ofAll(controlPoints))
 
@@ -66,73 +67,14 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
 
     fun reverse(): Bezier = Bezier(controlPoints.reverse())
 
-    fun elevate(): Bezier = Bezier(createElevatedControlPoints())
-
-    private fun createElevatedControlPoints(): Array<Point> {
-        val n = degree
-        val cp = controlPoints
-
-        return Stream.rangeClosed(0, n + 1)
-                .map {
-                    when(it) {
-                        0 -> cp.head()
-                        n + 1 -> cp.last()
-                        else -> cp[it].divide(it / (n + 1).toDouble(), cp[it - 1])
-                    }
-                }
-                .toArray()
-    }
+    fun elevate(): Bezier = Bezier(createElevatedControlPoints(controlPoints))
 
     fun reduce(): Bezier {
         if (degree < 1) {
             throw IllegalStateException("degree is too small")
         }
 
-        return Bezier(createReducedControlPoints())
-    }
-
-    private fun createReducedControlPoints(): Array<Point> {
-        val n = controlPoints.size() - 1
-        val m = n + 1
-
-        val cp = controlPoints
-
-        if (m == 2) {
-            return Array.of(cp[0].divide(0.5, cp[1]))
-        } else if (m % 2 == 0) {
-            val r = (m - 2) / 2
-
-            val first = Stream.iterate(Tuple(cp.head(), 0),
-                    { (qi, i) -> Tuple(cp[i].divide(1 - 1 / (1.0 - i / n), qi), i + 1) })
-                    .take(r).map { it._1() }
-                    .toArray()
-
-            val second = Stream.iterate(Tuple(cp.last(), n - 1),
-                    { (qi, i) -> Tuple(cp[i].divide(1 - 1.0 / i / n, qi), i - 1) })
-                    .take(r).map { it._1() }
-                    .reverse().toArray()
-
-            val al = r / (m - 1.0)
-            val pl = cp[r].divide(-al / (1.0 - al), first.last())
-            val ar = (r + 1) / (m - 1.0)
-            val pr = cp[r + 1].divide((-1.0 + ar) / ar, second.head())
-            val middle = Stream.of(pl.divide(0.5, pr))
-
-            return Stream.concat(first, middle, second).toArray()
-        } else {
-            val r = (m - 3) / 2
-
-            return Stream.concat(
-                    Stream.iterate(Tuple(cp.head(), 0),
-                            { (qi, i) -> Tuple(cp[i].divide(1 - 1 / (1.0 - i / n), qi), i + 1) })
-                            .take(r + 1),
-                    Stream.iterate(Tuple(cp.last(), n - 1),
-                            { (qi, i) -> Tuple(cp[i].divide(1 - 1.0 / i / n, qi), i - 1) })
-                            .take(r + 1)
-                            .reverse())
-                    .map { it._1() }
-                    .toArray()
-        }
+        return Bezier(createReducedControlPoints(controlPoints))
     }
 
     fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
@@ -140,39 +82,96 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
             throw IllegalArgumentException("t($t) is out of domain($domain)")
         }
 
-        return createDividedControlPointsArray(t).map(::Bezier, ::Bezier)
-    }
-
-    private fun createDividedControlPointsArray(t: Double): Tuple2<Array<Point>, Array<Point>> {
-        var cp = controlPoints
-        var first = List(cp.head())
-        var second = List(cp.last())
-
-        while (cp.size() > 1) {
-            cp = decasteljau(t, cp)
-            first = first.prepend(cp.head())
-            second = second.prepend(cp.last())
-        }
-
-        return Tuple(first.reverse().toArray(), second.toArray())
+        return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier, ::Bezier)
     }
 
     companion object {
 
-        fun decasteljau(t: Double, cps: Array<Point>): Array<Point> {
+        fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> {
             return cps.zipWith(cps.tail()) { p0, p1 -> p0.divide(t, p1) }
+        }
+
+        internal fun <P : Divisible<P>> createElevatedControlPoints(cp: Array<P>): Array<P> {
+            val n = cp.size()-1
+
+            return Stream.rangeClosed(0, n + 1)
+                    .map {
+                        when(it) {
+                            0 -> cp.head()
+                            n + 1 -> cp.last()
+                            else -> cp[it].divide(it / (n + 1).toDouble(), cp[it - 1])
+                        }
+                    }
+                    .toArray()
+        }
+
+        internal fun <P : Divisible<P>> createSubdividedControlPointsArrays(t: Double, cp: Array<P>): Tuple2<Array<P>, Array<P>> {
+            var tmp = cp
+            var first = List(tmp.head())
+            var second = List(tmp.last())
+
+            while (tmp.size() > 1) {
+                tmp = decasteljau(t, tmp)
+                first = first.prepend(tmp.head())
+                second = second.prepend(tmp.last())
+            }
+
+            return Tuple(first.reverse().toArray(), second.toArray())
+        }
+
+        internal fun <P : Divisible<P>> createReducedControlPoints(cp: Array<P>): Array<P>  {
+            val m = cp.size()
+            val n = m - 1
+
+            if (m == 2) {
+                return Array.of(cp[0].divide(0.5, cp[1]))
+            } else if(m % 2 == 1){
+                val r = (m - 3) / 2
+
+                return Stream.concat(
+                        Stream.iterate(Tuple(cp.head(), 1),
+                                { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
+                                .take(r + 1),
+                        Stream.iterate(Tuple(cp.last(), n - 2),
+                                { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
+                                .take(r + 1)
+                                .reverse())
+                        .map { it._1() }
+                        .toArray()
+            }
+            else  {
+                val r = (m - 2) / 2
+
+                val first = Stream.iterate(Tuple(cp.head(), 1),
+                        { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
+                        .take(r)
+                        .map { it._1() }
+                        .toArray()
+
+                val second = Stream.iterate(Tuple(cp.last(), n - 2),
+                        { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
+                        .take(r)
+                        .map { it._1() }
+                        .reverse()
+                        .toArray()
+
+                val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
+                val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.head())
+
+                return Stream.concat(first, Stream(pl.divide(0.5, pr)), second).toArray()
+            }
         }
 
         data class JsonBezier(val controlPoints: kotlin.Array<Point.Companion.JsonPoint>)
 
         fun toJson(bezier: Bezier): String = prettyGson.toJson(JsonBezier(
-                bezier.controlPoints.map { Point.Companion.JsonPoint(it.r, it.x, it.y, it.z) }
+                bezier.controlPoints.map { Point.Companion.JsonPoint(it.x, it.y, it.z, it.r) }
                         .toJavaArray(Point.Companion.JsonPoint::class.java)))
 
         fun fromJson(json: String): Bezier?{
             return try {
                 val tmp = prettyGson.fromJson<JsonBezier>(json)
-                Bezier(tmp.controlPoints.map { Fuzzy(it.r, it.x, it.y, it.z) })
+                Bezier(tmp.controlPoints.map { Fuzzy(it.x, it.y, it.z, it.r) })
             }catch(e: Exception){
                 when(e){
                     is IllegalArgumentException, is JsonParseException -> null

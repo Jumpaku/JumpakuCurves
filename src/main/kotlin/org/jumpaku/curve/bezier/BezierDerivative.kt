@@ -17,11 +17,11 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     override val derivative: BezierDerivative by lazy { asBezier.derivative }
 
-    override val domain: Interval = asBezier.domain
+    override val domain: Interval get() = asBezier.domain
 
-    val controlVectors: Array<Vector> = asBezier.controlPoints.map(Point::toVector)
+    val controlVectors: Array<Vector> by lazy { asBezier.controlPoints.map(Point::toVector) }
 
-    val degree: Int = asBezier.degree
+    val degree: Int get() = asBezier.degree
 
     constructor(controlVectors: Array<Vector>): this(Bezier(controlVectors.map(::Crisp)))
 

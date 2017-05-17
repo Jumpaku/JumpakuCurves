@@ -31,9 +31,9 @@ class BezierDerivativeTest {
     fun testToString() {
         println("ToString")
         val p = BezierDerivative.fromJson(
-                """{"controlVectors":[{"x":-2.0,"y":0.0,"z":0.0},{"x":-1.0,"y":0.0,"z":0.0},{"x":0.0,"y":2.0,"z":0.0},{"x":1.0,"y":0.0,"z":0.0},{"x":2.0,"y":0.0,"z":0.0}]}""")!!
+                """{"controlVectors":[{"x":-2.0,"y":0.0},{"x":-1.0,"y":0.0,"z":0.0},{"x":0.0,"y":2.0,"z":0.0},{"x":1.0,"y":0.0,"z":0.0},{"x":2.0,"y":0.0,"z":0.0}]}""")!!
         bezierAssertThat(p.asBezier).isEqualToBezier(
-                Bezier(Crisp(-2.0, 0.0), Crisp(-1.0, 0.0), Crisp(0.0, 2.0), Crisp(1.0, 0.0), Crisp(2.0, 0.0)))
+                Bezier(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))
         jsonAssertThat(BezierDerivative.toJson(p)).isEqualToWithoutWhitespace(
                 """{"controlVectors":[{"x":-2.0,"y":0.0,"z":0.0},{"x":-1.0,"y":0.0,"z":0.0},{"x":0.0,"y":2.0,"z":0.0},{"x":1.0,"y":0.0,"z":0.0},{"x":2.0,"y":0.0,"z":0.0}]}""")
         jsonAssertThat(p.toString()).isEqualToWithoutWhitespace(
@@ -59,7 +59,7 @@ class BezierDerivativeTest {
     fun testDifferentiate() {
         val b = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
         val d = b.derivative
-        bezierAssertThat(d.asBezier).isEqualToBezier(Bezier(Crisp(4.0, 0.0), Crisp(4.0, 8.0), Crisp(4.0, -8.0), Crisp(4.0, 0.0)))
+        bezierAssertThat(d.asBezier).isEqualToBezier(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))
         vectorAssertThat(b.differentiate(0.0 )).isEqualToVector(Vector(4.0, 0.0 ))
         vectorAssertThat(b.differentiate(0.25)).isEqualToVector(Vector(4.0, 2.25))
         vectorAssertThat(b.differentiate(0.5 )).isEqualToVector(Vector(4.0, 0.0 ))
@@ -78,7 +78,7 @@ class BezierDerivativeTest {
         val b = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
                 .restrict(0.25, 0.5)
         bezierAssertThat(b.asBezier).isEqualToBezier(Bezier(
-                Crisp(-1.0, 27/64.0), Crisp(-3/4.0, 9/16.0), Crisp(-1/2.0, 11/16.0), Crisp(-1/4.0, 3/4.0), Crisp(0.0, 3/4.0)))
+                Point.xy(-1.0, 27/64.0), Point.xy(-3/4.0, 9/16.0), Point.xy(-1/2.0, 11/16.0), Point.xy(-1/4.0, 3/4.0), Point.xy(0.0, 3/4.0)))
     }
 
     @Test
@@ -87,41 +87,53 @@ class BezierDerivativeTest {
         val r = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
                 .reverse()
         bezierAssertThat(r.asBezier).isEqualToBezier(Bezier(
-                Crisp(2.0, 0.0), Crisp(1.0, 0.0), Crisp(0.0, 2.0), Crisp(-1.0, 0.0), Crisp(-2.0, 0.0)))
+                Point.xy(2.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(-1.0, 0.0), Point.xy(-2.0, 0.0)))
     }
-
     @Test
     fun testElevate() {
         println("Elevate")
-        val e = BezierDerivative(Vector(0.0, -1.0), Vector(2.0    , 0.0    ), Vector(0.0, 1.0)).elevate()
-        val expected = Bezier(Crisp(0.0, -1.0), Crisp(4 / 3.0,-1 / 3.0), Crisp(4 / 3.0, 1 / 3.0), Crisp(0.0, 1.0))
-        bezierAssertThat(e.asBezier).isEqualToBezier(expected)
+        val instance = BezierDerivative(Vector(-1.0, 0.0), Vector( 0.0, 2.0), Vector(1.0, 0.0))
+                .elevate()
+        val expected = Bezier(Point.xy(-1.0, 0.0), Point.xy(-1 / 3.0, 4 / 3.0), Point.xy(1 / 3.0, 4 / 3.0), Point.xy(1.0, 0.0))
+        bezierAssertThat(instance.asBezier).isEqualToBezier(expected)
     }
 
     @Test
     fun testReduce() {
         println("Reduce")
-        val b1 = BezierDerivative(Vector(-1.0, -1.0), Vector(1.0, 1.0)).reduce()
-        val e1 = Bezier(Crisp(0.0, 0.0))
+        val b1 = BezierDerivative(Vector(-1.0, 2.0), Vector(1.0, 1.0))
+                .reduce()
+        val e1 = Bezier(Point.xy( 0.0, 1.5))
         bezierAssertThat(b1.asBezier).isEqualToBezier(e1)
 
-        val b2 = BezierDerivative(Vector(-1.0, 0.0), Vector(0.0, 0.0), Vector(1.0, 0.0)).reduce()
-        val e2 = Bezier(Crisp(-1.0, 0.0), Crisp(1.0, 0.0))
+        val b2 = BezierDerivative(Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0))
+                .reduce()
+        val e2 = Bezier(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0))
         bezierAssertThat(b2.asBezier).isEqualToBezier(e2)
 
-        val b3 = BezierDerivative(Vector(-1.0, 0.0), Vector(-1 / 3.0, 4 / 3.0), Vector(1 / 3.0, 4 / 3.0), Vector(1.0, 0.0)).reduce()
-        val e3 = Bezier(Crisp(-1.0, 0.0), Crisp(0.0, 2.0), Crisp(1.0, 0.0))
+        val b3 = BezierDerivative(Vector(-1.0, 0.0), Vector(-1/3.0, 4/3.0), Vector(1/3.0, 4/3.0), Vector(1.0, 0.0))
+                .reduce()
+        val e3 = Bezier(Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0))
         bezierAssertThat(b3.asBezier).isEqualToBezier(e3)
-    }
 
+        val b4 = BezierDerivative(Vector(-1.0, 0.0), Vector(-0.5, 1.0), Vector(0.0, 4/3.0), Vector(0.5, 1.0), Vector(1.0, 0.0))
+                .reduce()
+        val e4 = Bezier(Point.xy(-1.0, 0.0), Point.xy(-1/3.0, 4/3.0), Point.xy(1/3.0, 4/3.0), Point.xy(1.0, 0.0))
+        bezierAssertThat(b4.asBezier).isEqualToBezier(e4)
+
+        val b5 = BezierDerivative(Vector(-1.0, 0.0), Vector(-0.6, 0.8), Vector(-0.3, 1.2), Vector(0.3, 1.2), Vector(0.6, 0.8), Vector(1.0, 0.0))
+                .reduce()
+        val e5 = Bezier(Point.xy(-1.0, 0.0), Point.xy(-0.5, 1.0), Point.xy( 0.0, 4/3.0), Point.xy(0.5, 1.0), Point.xy(1.0, 0.0))
+        bezierAssertThat(b5.asBezier).isEqualToBezier(e5)
+    }
     @Test
     fun testSubdivide() {
         println("Subdivide")
         val (front, back) = BezierDerivative(Vector(1.0,-2.0, 0.0), Vector(2.0,-1.0, 0.0), Vector(0.0, 0.0, 2.0), Vector(2.0, 1.0, 0.0), Vector(1.0, 2.0, 0.0))
                 .subdivide(0.25)
         bezierAssertThat(front.asBezier).isEqualToBezier(Bezier(
-                Crisp(1.0,      -2.0, 0.0),     Crisp(5/4.0,  -7/4.0, 0.0),     Crisp(21/16.0,-3/2.0, 1/8.0), Crisp(83/64.0,-5/4.0, 9/32.0), Crisp(322/256.0,-1.0, 27/64.0)))
+                Point.xyz(1.0,      -2.0, 0.0),     Point.xyz(5/4.0,  -7/4.0, 0.0),     Point.xyz(21/16.0,-3/2.0, 1/8.0), Point.xyz(83/64.0,-5/4.0, 9/32.0), Point.xyz(322/256.0,-1.0, 27/64.0)))
         bezierAssertThat(back.asBezier ).isEqualToBezier(Bezier(
-                Crisp(322/256.0,-1.0, 27/64.0), Crisp(73/64.0,-1/4.0, 27/32.0), Crisp(13/16.0, 1/2.0, 9/8.0), Crisp(7/4.0,   5/4.0, 0.0),    Crisp(1.0,       2.0, 0.0)))
+                Point.xyz(322/256.0,-1.0, 27/64.0), Point.xyz(73/64.0,-1/4.0, 27/32.0), Point.xyz(13/16.0, 1/2.0, 9/8.0), Point.xyz(7/4.0,   5/4.0, 0.0),    Point.xyz(1.0,       2.0, 0.0)))
     }
 }

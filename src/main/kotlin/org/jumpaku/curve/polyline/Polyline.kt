@@ -7,15 +7,17 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.List
 import io.vavr.collection.Stream
-import io.vavr.control.Either
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.affine.Fuzzy
-import org.jumpaku.util.*
 import org.jumpaku.affine.Point
-import org.jumpaku.affine.Point.Companion
 import org.jumpaku.affine.times
-import org.jumpaku.curve.*
+import org.jumpaku.curve.Curve
+import org.jumpaku.curve.Differentiable
+import org.jumpaku.curve.FuzzyCurve
+import org.jumpaku.curve.Interval
 import org.jumpaku.json.prettyGson
+import org.jumpaku.util.component1
+import org.jumpaku.util.component2
 
 
 class Polyline (val points: Array<Point>, private val parameters: Array<Double>) : FuzzyCurve {
@@ -127,13 +129,13 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
         data class JsonPolyline(val points: kotlin.Array<Point.Companion.JsonPoint>)
 
         fun toJson(polyline: Polyline): String = prettyGson.toJson(JsonPolyline(polyline.points
-                        .map { Point.Companion.JsonPoint(it.r, it.x, it.y, it.z) }
+                        .map { Point.Companion.JsonPoint(it.x, it.y, it.z, it.r) }
                         .toJavaArray(Point.Companion.JsonPoint::class.java)))
 
         fun fromJson(json: String): Polyline? {
             return try {
-                val ps = prettyGson.fromJson<JsonPolyline>(json)
-                Polyline(ps.points.map { Fuzzy(it.r, it.x, it.y, it.z) })
+                val (ps) = prettyGson.fromJson<JsonPolyline>(json)
+                Polyline(ps.map { Point.xyzr(it.x, it.y, it.z, it.r) })
             }catch(e: Exception){
                 when(e){
                     is IllegalArgumentException, is JsonParseException -> null
