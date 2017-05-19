@@ -2,9 +2,7 @@ package org.jumpaku.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.JsonParseException
-import io.vavr.API.List
-import io.vavr.API.Stream
-import io.vavr.API.Tuple
+import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
@@ -34,7 +32,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
 
     constructor(controlPoints: Iterable<Point>): this(Array.ofAll(controlPoints))
 
-    constructor(vararg controlPoints: Point): this(Stream(*controlPoints))
+    constructor(vararg controlPoints: Point): this(Array(*controlPoints))
 
     override fun toString(): String = toJson(this)
 
