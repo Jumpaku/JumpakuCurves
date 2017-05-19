@@ -1,16 +1,13 @@
 package org.jumpaku.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonParseException
 import io.vavr.API.*
+import io.vavr.control.Option
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import org.jumpaku.affine.Divisible
+import org.jumpaku.affine.*
 import org.jumpaku.util.*
-import org.jumpaku.affine.Fuzzy
-import org.jumpaku.affine.Point
-import org.jumpaku.affine.Vector
 import org.jumpaku.curve.Differentiable
 import org.jumpaku.curve.FuzzyCurve
 import org.jumpaku.curve.Interval
@@ -34,7 +31,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
 
     constructor(vararg controlPoints: Point): this(Array(*controlPoints))
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = BezierJson.toJson(this)
 
     override fun evaluate(t: Double): Point {
         if (t !in domain) {
@@ -159,22 +156,24 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
                 return Stream.concat(first, Stream(pl.divide(0.5, pr)), second).toArray()
             }
         }
+    }
+}
 
-        data class JsonBezier(val controlPoints: kotlin.Array<Point.Companion.JsonPoint>)
+data class BezierJson(val controlPoints: kotlin.Array<PointJson>) {
 
-        fun toJson(bezier: Bezier): String = prettyGson.toJson(JsonBezier(
-                bezier.controlPoints.map { Point.Companion.JsonPoint(it.x, it.y, it.z, it.r) }
-                        .toJavaArray(Point.Companion.JsonPoint::class.java)))
+    companion object {
 
-        fun fromJson(json: String): Bezier?{
+        fun toJson(bezier: Bezier): String = prettyGson.toJson(BezierJson(bezier
+                .controlPoints.map { PointJson(it.x, it.y, it.z, it.r) }
+                .toJavaArray(PointJson::class.java)))
+
+        fun fromJson(json: String): Option<Bezier> {
             return try {
-                val tmp = prettyGson.fromJson<JsonBezier>(json)
-                Bezier(tmp.controlPoints.map { Fuzzy(it.x, it.y, it.z, it.r) })
-            }catch(e: Exception){
-                when(e){
-                    is IllegalArgumentException, is JsonParseException -> null
-                    else -> throw e
-                }
+                Option(prettyGson.fromJson<BezierJson>(json).run {
+                    Bezier(Array.ofAll(controlPoints.asIterable()).map { Fuzzy(it.x, it.y, it.z, it.r) })
+                })
+            } catch(e: Exception) {
+                None()
             }
         }
     }

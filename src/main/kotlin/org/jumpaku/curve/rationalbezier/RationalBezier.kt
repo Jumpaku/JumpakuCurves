@@ -1,15 +1,12 @@
 package org.jumpaku.curve.rationalbezier
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonSyntaxException
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import org.jumpaku.affine.Point
-import org.jumpaku.affine.Vector
-import org.jumpaku.affine.times
-import org.jumpaku.affine.WeightedPoint
+import io.vavr.control.Option
+import org.jumpaku.affine.*
 import org.jumpaku.curve.Derivative
 import org.jumpaku.curve.bezier.BezierDerivative
 import org.jumpaku.curve.bezier.Bezier
@@ -23,13 +20,13 @@ import org.jumpaku.json.prettyGson
 class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable {
 
     init {
-        if(controlPoints.isEmpty){
+        if (controlPoints.isEmpty) {
             throw IllegalArgumentException("empty controlPoints")
         }
-        if(weights.isEmpty){
+        if (weights.isEmpty) {
             throw IllegalArgumentException("empty weights")
         }
-        if(controlPoints.size() != weights.size()){
+        if (controlPoints.size() != weights.size()) {
             throw IllegalArgumentException("controlPoints.size() != weights.size()")
         }
     }
@@ -51,7 +48,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override val derivative: Derivative by lazy {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
-        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector()*w }).derivative
+        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
 
         object : Derivative {
             override fun evaluate(t: Double): Vector {
@@ -64,7 +61,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 val dpt = dp.evaluate(t)
                 val rt = this@RationalBezier.evaluate(t).toVector()
 
-                return (1 / wt)*(dpt - dwt*rt)
+                return (1 / wt) * (dpt - dwt * rt)
             }
 
             override val domain: Interval get() = Interval.ZERO_ONE
@@ -85,7 +82,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = RationalBezierJson.toJson(this)
 
     override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
 
@@ -132,24 +129,28 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         }
 
         fun fromBezier(bezier: Bezier): RationalBezier = RationalBezier(bezier.controlPoints, Stream.fill(bezier.degree + 1, { 1.0 }).toArray())
+    }
+}
 
-        data class JsonRationalBezier(val weightedControlPoints: kotlin.Array<WeightedPoint.Companion.JsonWeightedPoint>)
+data class RationalBezierJson(val weightedControlPoints: kotlin.Array<WeightedPointJson>){
+    companion object{
 
-        fun toJson(bezier: RationalBezier): String = prettyGson.toJson(JsonRationalBezier(
+        fun toJson(bezier: RationalBezier): String = prettyGson.toJson(RationalBezierJson(
                 bezier.weightedControlPoints
-                        .map { (p, w)->WeightedPoint.Companion.JsonWeightedPoint(Point.Companion.JsonPoint(p.x, p.y, p.z, p.r), w) }
-                        .toJavaArray(WeightedPoint.Companion.JsonWeightedPoint::class.java)))
+                        .map { (p, w) -> WeightedPointJson(
+                                PointJson(p.x, p.y, p.z, p.r), w) }
+                        .toJavaArray(WeightedPointJson::class.java)))
 
-        fun fromJson(json: String): RationalBezier? {
+        fun fromJson(json: String): Option<RationalBezier> {
             return try {
-                val tmp = prettyGson.fromJson<JsonRationalBezier>(json)
-                RationalBezier(Array(*tmp.weightedControlPoints).map { (p, w) -> WeightedPoint(Point.xyzr(p.x, p.y, p.z, p.r), w) })
+                prettyGson.fromJson<RationalBezierJson>(json).run {
+                    Option(RationalBezier(Array(*weightedControlPoints)
+                            .map { (p, w) -> WeightedPoint(Point.xyzr(p.x, p.y, p.z, p.r), w) }))
+                }
+
             }
             catch (e: Exception){
-                when(e){
-                    is IllegalArgumentException, is JsonSyntaxException -> null
-                    else -> throw e
-                }
+                None()
             }
         }
     }

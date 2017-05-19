@@ -1,12 +1,14 @@
 package org.jumpaku.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonParseException
+import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
 import org.jumpaku.affine.Crisp
 import org.jumpaku.affine.Point
 import org.jumpaku.affine.Vector
+import org.jumpaku.affine.VectorJson
 import org.jumpaku.curve.Derivative
 import org.jumpaku.curve.Differentiable
 import org.jumpaku.curve.Interval
@@ -33,7 +35,7 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     override fun differentiate(t: Double): Vector = asBezier.differentiate(t)
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = BezierDerivativeJson.toJson(this)
 
     fun restrict(i: Interval): BezierDerivative = BezierDerivative(asBezier.restrict(i))
 
@@ -47,25 +49,22 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     fun subdivide(t: Double): Tuple2<BezierDerivative, BezierDerivative> = asBezier.subdivide(t)
             .map<BezierDerivative, BezierDerivative>(::BezierDerivative, ::BezierDerivative)
+}
 
+data class BezierDerivativeJson(val controlVectors: kotlin.Array<VectorJson>) {
     companion object {
 
-        data class JsonBezierDerivative(val controlVectors: kotlin.Array<Vector.Companion.JsonVector>)
-
-        fun toJson(derivative: BezierDerivative): String = prettyGson.toJson(JsonBezierDerivative(
+        fun toJson(derivative: BezierDerivative): String = prettyGson.toJson(BezierDerivativeJson(
                 derivative.controlVectors
-                        .map { Vector.Companion.JsonVector(it.x, it.y, it.z) }
-                        .toJavaArray(Vector.Companion.JsonVector::class.java)))
+                        .map { VectorJson(it.x, it.y, it.z) }
+                        .toJavaArray(VectorJson::class.java)))
 
-        fun fromJson(json: String): BezierDerivative?{
+        fun fromJson(json: String): Option<BezierDerivative> {
             return try {
-                val tmp = prettyGson.fromJson<JsonBezierDerivative>(json)
-                BezierDerivative(tmp.controlVectors.map { Vector(it.x, it.y, it.z) })
-            }catch(e: Exception){
-                when(e){
-                    is IllegalArgumentException, is JsonParseException -> null
-                    else -> throw e
-                }
+                val tmp = prettyGson.fromJson<BezierDerivativeJson>(json)
+                Option(BezierDerivative(tmp.controlVectors.map { Vector(it.x, it.y, it.z) }))
+            } catch(e: Exception) {
+                None()
             }
         }
     }

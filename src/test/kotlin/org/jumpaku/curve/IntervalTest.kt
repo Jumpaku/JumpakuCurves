@@ -73,12 +73,13 @@ class IntervalTest {
     fun testToString() {
         println("ToString")
         val i = Interval(-2.3, 3.4)
-        assertThat(Interval.fromJson("""{"begin":-2.3,"end":3.4}""")!!.begin).isEqualTo(i.begin, withPrecision(1.0e-10))
-        jsonAssertThat(Interval.toJson(i)).isEqualToWithoutWhitespace("""{"begin":-2.3,"end":3.4}""")
-        jsonAssertThat(i.toString()).isEqualToWithoutWhitespace("""{"begin":-2.3,"end":3.4}""")
+        assertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get().begin).isEqualTo(i.begin, withPrecision(1.0e-10))
+        assertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get().end).isEqualTo(i.end, withPrecision(1.0e-10))
+        assertThat(IntervalJson.fromJson(i.toString()).get().begin).isEqualTo(i.begin, withPrecision(1.0e-10))
+        assertThat(IntervalJson.fromJson(i.toString()).get().end).isEqualTo(i.end, withPrecision(1.0e-10))
 
-        assertThat(Interval.fromJson("""{"begin":null, "end"-2.0}""")).isNull()
-        assertThat(Interval.fromJson("""{"begin":-2.3"end"-2.0}""")).isNull()
-        assertThat(Interval.fromJson(""""begin":1.0, "end":-2.0}""")).isNull()
+        assertThat(IntervalJson.fromJson("""{"begin":null, "end"-2.0}""").isEmpty).isTrue()
+        assertThat(IntervalJson.fromJson("""{"begin":-2.3"end"-2.0}""").isEmpty).isTrue()
+        assertThat(IntervalJson.fromJson(""""begin":1.0, "end":-2.0}""").isEmpty).isTrue()
     }
 }

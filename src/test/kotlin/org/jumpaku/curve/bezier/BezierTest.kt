@@ -26,18 +26,13 @@ class BezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = Bezier.fromJson(
-                """{"controlPoints":[{"x":-2.0,"y":0.0,"z":0.0,"r":1.0},{"x":-1.0,"y":0.0,"z":0.0,"r":2.0},{"x":0.0,"y":2.0,"z":0.0,"r":0.0},{"x":1.0,"y":0.0,"z":0.0,"r":2.0},{"x":2.0,"y":0.0,"z":0.0,"r":1.0}]}""")!!
-        bezierAssertThat(p).isEqualToBezier(
-                Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0)))
-        jsonAssertThat(Bezier.toJson(p)).isEqualToWithoutWhitespace(
-                """{"controlPoints":[{"x":-2.0,"y":0.0,"z":0.0,"r":1.0},{"x":-1.0,"y":0.0,"z":0.0,"r":2.0},{"x":0.0,"y":2.0,"z":0.0,"r":0.0},{"x":1.0,"y":0.0,"z":0.0,"r":2.0},{"x":2.0,"y":0.0,"z":0.0,"r":1.0}]}""")
-        jsonAssertThat(p.toString()).isEqualToWithoutWhitespace(
-                """{"controlPoints":[{"x":-2.0,"y":0.0,"z":0.0,"r":1.0},{"x":-1.0,"y":0.0,"z":0.0,"r":2.0},{"x":0.0,"y":2.0,"z":0.0,"r":0.0},{"x":1.0,"y":0.0,"z":0.0,"r":2.0},{"x":2.0,"y":0.0,"z":0.0,"r":1.0}]}""")
+        val p = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        bezierAssertThat(BezierJson.fromJson(p.toString()).get()).isEqualToBezier(p)
+        bezierAssertThat(BezierJson.fromJson(BezierJson.toJson(p)).get()).isEqualToBezier(p)
 
-        assertThat(Bezier.fromJson("""{"controlPoints":{"r":2.0,"x":null,"y":1.0,"z":0.0}]}""")).isNull()
-        assertThat(Bezier.fromJson("""{"controlPoints":{"r":2.0"x":-1.0"y":1.0,"z":0.0}]}""")).isNull()
-        assertThat(Bezier.fromJson("""{"controlPoints":"r":2.0,"x":-1.0"y":1.0,"z":0.0}]}""")).isNull()
+        assertThat(BezierJson.fromJson("""{"controlPoints":{"r":2.0,"x":null,"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
+        assertThat(BezierJson.fromJson("""{"controlPoints":{"r":2.0"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
+        assertThat(BezierJson.fromJson("""{"controlPoints":"r":2.0,"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
     }
 
     @Test

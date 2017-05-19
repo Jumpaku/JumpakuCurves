@@ -121,12 +121,11 @@ class VectorTest {
         println("Json")
         val v = Vector(1.0, -2.0, 3.0)
 
-        vectorAssertThat(Vector.fromJson("""{"x":1.0, "y":-2.0, "z":3.0}""")!!).isEqualToVector(Vector( 1.0,-2.0,  3.0))
-        jsonAssertThat(Vector.toJson(v)).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0}""")
-        jsonAssertThat(v.toString()).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0}""")
+        vectorAssertThat(VectorJson.fromJson(VectorJson.toJson(v)).get()).isEqualToVector(v)
+        vectorAssertThat(VectorJson.fromJson(v.toString()).get()).isEqualToVector(v)
 
-        assertThat(Vector.fromJson("""{"x":null, "y"-2.0, "z":3.0}""")).isNull()
-        assertThat(Vector.fromJson("""{"x":1.0"y"-2.0, "z":3.0}""")).isNull()
-        assertThat(Vector.fromJson(""""x":1.0, "y":-2.0, "z":3.0}""")).isNull()
+        assertThat(VectorJson.fromJson("""{"x":null, "y"-2.0, "z":3.0}""").isEmpty).isTrue()
+        assertThat(VectorJson.fromJson("""{"x":1.0"y"-2.0, "z":3.0}""").isEmpty).isTrue()
+        assertThat(VectorJson.fromJson(""""x":1.0, "y":-2.0, "z":3.0}""").isEmpty).isTrue()
     }
 }

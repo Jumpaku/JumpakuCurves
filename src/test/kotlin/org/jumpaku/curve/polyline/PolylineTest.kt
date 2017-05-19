@@ -25,18 +25,13 @@ class PolylineTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = Polyline.fromJson(
-                """{"points":[{"x":-1.0,"y":1.0,"z":0.0,"r":2.0},{"x":1.0,"y":1.0,"z":0.0,"r":1.0},{"x":1.0,"y":-3.0,"z":0.0,"r":3.0},{"x":1.0,"y":-3.0,"z":1.5,"r":2.0}]}""")!!
-        polylineAssertThat(p).isEqualToPolyline(
-                Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
-        jsonAssertThat(Polyline.toJson(p)).isEqualToWithoutWhitespace(
-                """{"points":[{"x":-1.0,"y":1.0,"z":0.0,"r":2.0},{"x":1.0,"y":1.0,"z":0.0,"r":1.0},{"x":1.0,"y":-3.0,"z":0.0,"r":3.0},{"x":1.0,"y":-3.0,"z":1.5,"r":2.0}]}""")
-        jsonAssertThat(p.toString()).isEqualToWithoutWhitespace(
-                """{"points":[{"x":-1.0,"y":1.0,"z":0.0,"r":2.0},{"x":1.0,"y":1.0,"z":0.0,"r":1.0},{"x":1.0,"y":-3.0,"z":0.0,"r":3.0},{"x":1.0,"y":-3.0,"z":1.5,"r":2.0}]}""")
+        val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        polylineAssertThat(PolylineJson.fromJson(p.toString()).get()).isEqualToPolyline(p)
+        polylineAssertThat(PolylineJson.fromJson(PolylineJson.toJson(p)).get()).isEqualToPolyline(p)
 
-        assertThat(Polyline.fromJson("""{"points":{"x":null,"y":1.0,"z":0.0,"r":2.0}]}""")).isNull()
-        assertThat(Polyline.fromJson("""{"points":{"x":-1.0"y":1.0,"z":0.0,"r":2.0}]}""")).isNull()
-        assertThat(Polyline.fromJson("""{"points":"x":-1.0"y":1.0,"z":0.0,"r":2.0}]}""")).isNull()
+        assertThat(PolylineJson.fromJson("""{"points":{"x":null,"y":1.0,"z":0.0,"r":2.0}]}""").isEmpty).isTrue()
+        assertThat(PolylineJson.fromJson("""{"points":{"x":-1.0"y":1.0,"z":0.0,"r":2.0}]}""").isEmpty).isTrue()
+        assertThat(PolylineJson.fromJson("""{"points":"x":-1.0"y":1.0,"z":0.0,"r":2.0}]}""").isEmpty).isTrue()
     }
 
     @Test

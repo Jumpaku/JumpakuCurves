@@ -111,37 +111,21 @@ class RationalBezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = RationalBezier.fromJson(
-                """{"weightedControlPoints":[
-                {"point":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"weight":1.0},
-                {"point":{"x":0.58578643762,"y":1.0,"z":0.0,"r":1.58578643762},"weight":0.80473785412},
-                {"point":{"x":1.0,"y":0.58578643762,"z":0.0,"r":2.41421356237},"weight":0.80473785412},
-                {"point":{"x":1.0,"y":0.0,"z":0.0,"r":3.0},"weight":1.0}]}""")!!
-        rationalBezierAssertThat(p).isEqualToRationalBezier(
-                RationalBezier(
-                        WeightedPoint(Point.xyr(0.0,  1.0,  1.0),      1.0),
-                        WeightedPoint(Point.xyr(2-R2, 1.0, 3-R2), (1+R2)/3),
-                        WeightedPoint(Point.xyr(1.0, 2-R2, 1+R2), (1+R2)/3),
-                        WeightedPoint(Point.xyr(1.0,  0.0,  3.0),      1.0)))
-        jsonAssertThat(RationalBezier.toJson(p)).isEqualToWithoutWhitespace(
-                """{"weightedControlPoints":[
-                {"point":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"weight":1.0},
-                {"point":{"x":0.58578643762,"y":1.0,"z":0.0,"r":1.58578643762},"weight":0.80473785412},
-                {"point":{"x":1.0,"y":0.58578643762,"z":0.0,"r":2.41421356237},"weight":0.80473785412},
-                {"point":{"x":1.0,"y":0.0,"z":0.0,"r":3.0},"weight":1.0}]}""")
-        jsonAssertThat(p.toString()).isEqualToWithoutWhitespace(
-                """{"weightedControlPoints":[
-                {"point":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"weight":1.0},
-                {"point":{"x":0.58578643762,"y":1.0,"z":0.0,"r":1.58578643762},"weight":0.80473785412},
-                {"point":{"x":1.0,"y":0.58578643762,"z":0.0,"r":2.41421356237},"weight":0.80473785412},
-                {"point":{"x":1.0,"y":0.0,"z":0.0,"r":3.0},"weight":1.0}]}""")
+        val p = RationalBezier(
+                WeightedPoint(Point.xyr(0.0,  1.0,  1.0),      1.0),
+                WeightedPoint(Point.xyr(2-R2, 1.0, 3-R2), (1+R2)/3),
+                WeightedPoint(Point.xyr(1.0, 2-R2, 1+R2), (1+R2)/3),
+                WeightedPoint(Point.xyr(1.0,  0.0,  3.0),      1.0))
 
-        assertThat(RationalBezier.fromJson(
-                """{"weightedControlPoints":[{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"weight":"abc"}]}""")).isNull()
-        assertThat(RationalBezier.fromJson(
-                """{"weightedControlPoints":{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"weight":1.0}]}""")).isNull()
-        assertThat(RationalBezier.fromJson(
-                """{"weightedControlPoints":[{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"eight":1.0}]}""")).isNull()
+        rationalBezierAssertThat(RationalBezierJson.fromJson(p.toString()).get()).isEqualToRationalBezier(p)
+        rationalBezierAssertThat(RationalBezierJson.fromJson(RationalBezierJson.toJson(p)).get()).isEqualToRationalBezier(p)
+
+        assertThat(RationalBezierJson.fromJson(
+                """{"weightedControlPoints":[{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"weight":"abc"}]}""").isEmpty).isTrue()
+        assertThat(RationalBezierJson.fromJson(
+                """{"weightedControlPoints":{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"weight":1.0}]}""").isEmpty).isTrue()
+        assertThat(RationalBezierJson.fromJson(
+                """{"weightedControlPoints":[{"point":null,"weight":1.0}]}""").isEmpty).isTrue()
     }
 
     @Test

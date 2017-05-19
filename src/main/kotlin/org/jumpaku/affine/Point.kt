@@ -1,7 +1,8 @@
 package org.jumpaku.affine
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonParseException
+import io.vavr.API.*
+import io.vavr.control.Option
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.fuzzy.Grade
 import org.jumpaku.fuzzy.Membership
@@ -73,41 +74,44 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
 
     companion object {
 
-        fun x(x: Double): Crisp = Crisp(x = x)
+        fun x(x: Double): Crisp = Crisp(x, 0.0, 0.0)
 
-        fun xr(x: Double, r: Double): Fuzzy = Fuzzy(x = x, r = r)
+        fun xr(x: Double, r: Double): Fuzzy = Fuzzy(x, 0.0, 0.0, r)
 
-        fun xy(x: Double, y: Double): Crisp = Crisp(x = x, y = y)
+        fun xy(x: Double, y: Double): Crisp = Crisp(x, y)
 
-        fun xyr(x: Double, y: Double, r: Double): Fuzzy = Fuzzy(x = x, y = y, r = r)
+        fun xyr(x: Double, y: Double, r: Double): Fuzzy = Fuzzy(x, y, 0.0, r)
 
-        fun xyz(x: Double, y: Double, z: Double): Crisp = Crisp(x = x, y = y, z = z)
+        fun xyz(x: Double, y: Double, z: Double): Crisp = Crisp(x, y, z)
 
-        fun xyzr(x: Double, y: Double, z: Double, r: Double): Fuzzy = Fuzzy(x = x, y = y, z = z, r = r)
+        fun xyzr(x: Double, y: Double, z: Double, r: Double): Fuzzy = Fuzzy(x, y, z, r)
 
         fun equals(p1: Crisp, p2: Crisp, eps: Double = 1.0e-10): Boolean = Vector.equals(p1.toVector(), p2.toVector(), eps)
+    }
+}
 
-        data class JsonPoint(val x: Double, val y: Double, val z: Double, val r:Double)
+data class PointJson(val x: Double, val y: Double, val z: Double, val r:Double){
+    companion object{
+        fun toJson(p: Point): String = prettyGson.toJson(PointJson(p.x, p.y, p.z, p.r))
 
-        fun toJson(p: Point): String = prettyGson.toJson(JsonPoint(p.x, p.y, p.z, p.r))
-
-        fun fromJson(json: String): Point? {
+        fun fromJson(json: String): Option<Point> {
             return try {
-                val (x, y, z, r) = prettyGson.fromJson<JsonPoint>(json)
-                Point.xyzr(x, y, z, r)
+                val (x, y, z, r) = prettyGson.fromJson<PointJson>(json)
+                Option(Point.xyzr(x, y, z, r))
             } catch(e: Exception) {
-                when (e) {
-                    is IllegalArgumentException, is JsonParseException -> null
-                    else -> throw e
-                }
+                None()
             }
         }
     }
 }
 
-class Fuzzy internal constructor(private val vector: Vector, override val r: Double) : Point {
 
-    internal constructor(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0, r: Double = 0.0): this(Vector(x, y, z), r)
+
+class Fuzzy(private val crisp: Crisp, override val r: Double) : Point {
+
+    constructor(x: Double, y: Double, z: Double, r: Double): this(Crisp(x, y, z), r)
+
+    constructor(vector: Vector, r: Double) : this(Crisp(vector), r)
 
     init {
         if (r < 0){
@@ -115,16 +119,16 @@ class Fuzzy internal constructor(private val vector: Vector, override val r: Dou
         }
     }
 
-    override fun toVector(): Vector = vector
+    override fun toVector(): Vector = crisp.toVector()
 
-    override fun toCrisp(): Crisp = Crisp(vector)
+    override fun toCrisp(): Crisp = crisp
 
-    override fun toString(): String = Point.toJson(this)
+    override fun toString(): String = PointJson.toJson(this)
 }
 
 class Crisp(private val vector: Vector) : Point {
 
-    internal constructor(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0): this(Vector(x, y, z))
+    constructor(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0): this(Vector(x, y, z))
 
     override val r = 0.0
 
@@ -144,7 +148,7 @@ class Crisp(private val vector: Vector) : Point {
 
     override fun toCrisp(): Crisp = this
 
-    override fun toString(): String = Point.toJson(this)
+    override fun toString(): String = PointJson.toJson(this)
 
     /**
      * @return distance |p - this|

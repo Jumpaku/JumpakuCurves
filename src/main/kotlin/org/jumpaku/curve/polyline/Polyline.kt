@@ -1,15 +1,15 @@
 package org.jumpaku.curve.polyline
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonParseException
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.List
 import io.vavr.collection.Stream
+import io.vavr.control.Option
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.affine.Fuzzy
 import org.jumpaku.affine.Point
+import org.jumpaku.affine.PointJson
 import org.jumpaku.affine.times
 import org.jumpaku.curve.Curve
 import org.jumpaku.curve.Differentiable
@@ -43,7 +43,7 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
 
     constructor(vararg points: Point) : this(Array(*points))
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = PolylineJson.toJson(this)
 
     override fun evaluate(t: Double): Point {
         if (t !in domain) {
@@ -125,22 +125,23 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
 
             return Polyline(parameters.map(curve))
         }
+    }
+}
 
-        data class JsonPolyline(val points: kotlin.Array<Point.Companion.JsonPoint>)
+data class PolylineJson(val points: kotlin.Array<PointJson>) {
 
-        fun toJson(polyline: Polyline): String = prettyGson.toJson(JsonPolyline(polyline.points
-                        .map { Point.Companion.JsonPoint(it.x, it.y, it.z, it.r) }
-                        .toJavaArray(Point.Companion.JsonPoint::class.java)))
+    companion object {
 
-        fun fromJson(json: String): Polyline? {
+        fun toJson(polyline: Polyline): String = prettyGson.toJson(PolylineJson(polyline.points
+                .map { PointJson(it.x, it.y, it.z, it.r) }
+                .toJavaArray(PointJson::class.java)))
+
+        fun fromJson(json: String): Option<Polyline> {
             return try {
-                val (ps) = prettyGson.fromJson<JsonPolyline>(json)
-                Polyline(ps.map { Point.xyzr(it.x, it.y, it.z, it.r) })
-            }catch(e: Exception){
-                when(e){
-                    is IllegalArgumentException, is JsonParseException -> null
-                    else -> throw e
-                }
+                val (ps) = prettyGson.fromJson<PolylineJson>(json)
+                Option(Polyline(ps.map { Point.xyzr(it.x, it.y, it.z, it.r) }))
+            } catch(e: Exception) {
+                None()
             }
         }
     }

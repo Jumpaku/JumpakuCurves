@@ -1,7 +1,8 @@
 package org.jumpaku.affine
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonParseException
+import io.vavr.API.*
+import io.vavr.control.Option
 import org.jumpaku.json.prettyGson
 
 
@@ -16,24 +17,22 @@ class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<Weigh
         return WeightedPoint(point.divide(t * wp.weight / w, wp.point), w)
     }
 
-    override fun toString(): String = toJson(this)
+    override fun toString(): String = WeightedPointJson.toJson(this)
+}
+
+data class WeightedPointJson(val point: PointJson, val weight: Double) {
 
     companion object {
 
-        data class JsonWeightedPoint(val point: Point.Companion.JsonPoint, val weight: Double)
+        fun toJson(wp: WeightedPoint): String = prettyGson.toJson(WeightedPointJson(
+                wp.point.run { PointJson(x, y, z, r) }, wp.weight))
 
-        fun toJson(wp: WeightedPoint): String = prettyGson.toJson(JsonWeightedPoint(
-                Point.Companion.JsonPoint(wp.point.x, wp.point.y, wp.point.z, wp.point.r), wp.weight))
-
-        fun fromJson(json: String): WeightedPoint? {
+        fun fromJson(json: String): Option<WeightedPoint> {
             return try {
-                val (p, w) = prettyGson.fromJson<JsonWeightedPoint>(json)
-                WeightedPoint(Point.xyzr(p.x, p.y, p.z, p.r), w)
+                val (p, w) = prettyGson.fromJson<WeightedPointJson>(json)
+                Option(WeightedPoint(Point.xyzr(p.x, p.y, p.z, p.r), w))
             } catch(e: Exception) {
-                when (e) {
-                    is IllegalArgumentException, is JsonParseException -> null
-                    else -> throw e
-                }
+                None()
             }
         }
     }

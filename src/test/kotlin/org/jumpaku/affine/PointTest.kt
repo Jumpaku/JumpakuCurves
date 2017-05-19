@@ -212,15 +212,14 @@ class PointTest {
         println("ToString")
         val f = Point.xyzr(1.0,-2.0, 3.0, 2.0)
         val c = Point.xyz(1.0,-2.0, 3.0)
-        pointAssertThat(Point.fromJson("""{"x":1.0, "y":-2.0, "z":3.0, "r":2.0}""")!!).isEqualToPoint(f)
-        jsonAssertThat(Point.toJson(f)).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0, "r":2.0}""")
-        jsonAssertThat(Point.toJson(c)).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0, "r":0.0}""")
-        jsonAssertThat(f.toString()).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0, "r":2.0}""")
-        jsonAssertThat(c.toString()).isEqualToWithoutWhitespace("""{"x":1.0, "y":-2.0, "z":3.0, "r":0.0}""")
+        pointAssertThat(PointJson.fromJson(PointJson.toJson(f)).get()).isEqualToPoint(f)
+        pointAssertThat(PointJson.fromJson(PointJson.toJson(c)).get()).isEqualToPoint(c)
+        pointAssertThat(PointJson.fromJson(f.toString()).get()).isEqualToPoint(f)
+        pointAssertThat(PointJson.fromJson(c.toString()).get()).isEqualToPoint(c)
 
-        assertThat(Point.fromJson("""{"x":null, "y"-2.0, "z":3.0, "r":2.0}""")).isNull()
-        assertThat(Point.fromJson("""{"x":1.0"y"-2.0, "z":3.0, "r":2.0}""")).isNull()
-        assertThat(Point.fromJson(""""x":1.0, "y":-2.0, "z":3.0, "r":2.0}""")).isNull()
+        assertThat(PointJson.fromJson("""{"x":null, "y"-2.0, "z":3.0, "r":2.0}""").isEmpty).isTrue()
+        assertThat(PointJson.fromJson("""{"x":1.0"y"-2.0, "z":3.0, "r":2.0}""").isEmpty).isTrue()
+        assertThat(PointJson.fromJson(""""x":1.0, "y":-2.0, "z":3.0, "r":2.0}""").isEmpty).isTrue()
     }
 
     @Test

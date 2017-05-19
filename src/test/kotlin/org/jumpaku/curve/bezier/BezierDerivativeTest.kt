@@ -30,18 +30,13 @@ class BezierDerivativeTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = BezierDerivative.fromJson(
-                """{"controlVectors":[{"x":-2.0,"y":0.0},{"x":-1.0,"y":0.0,"z":0.0},{"x":0.0,"y":2.0,"z":0.0},{"x":1.0,"y":0.0,"z":0.0},{"x":2.0,"y":0.0,"z":0.0}]}""")!!
-        bezierAssertThat(p.asBezier).isEqualToBezier(
-                Bezier(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))
-        jsonAssertThat(BezierDerivative.toJson(p)).isEqualToWithoutWhitespace(
-                """{"controlVectors":[{"x":-2.0,"y":0.0,"z":0.0},{"x":-1.0,"y":0.0,"z":0.0},{"x":0.0,"y":2.0,"z":0.0},{"x":1.0,"y":0.0,"z":0.0},{"x":2.0,"y":0.0,"z":0.0}]}""")
-        jsonAssertThat(p.toString()).isEqualToWithoutWhitespace(
-                """{"controlVectors":[{"x":-2.0,"y":0.0,"z":0.0},{"x":-1.0,"y":0.0,"z":0.0},{"x":0.0,"y":2.0,"z":0.0},{"x":1.0,"y":0.0,"z":0.0},{"x":2.0,"y":0.0,"z":0.0}]}""")
+        val p = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
+        bezierAssertThat(BezierDerivativeJson.fromJson(p.toString()).get().asBezier).isEqualToBezier(p.asBezier)
+        bezierAssertThat(BezierDerivativeJson.fromJson(BezierDerivativeJson.toJson(p)).get().asBezier).isEqualToBezier(p.asBezier)
 
-        assertThat(BezierDerivative.fromJson("""{"controlVectors":{"r":2.0,"x":null,"y":1.0,"z":0.0}]}""")).isNull()
-        assertThat(BezierDerivative.fromJson("""{"controlVectors":{"r":2.0"x":-1.0"y":1.0,"z":0.0}]}""")).isNull()
-        assertThat(BezierDerivative.fromJson("""{"controlVectors":"r":2.0,"x":-1.0"y":1.0,"z":0.0}]}""")).isNull()
+        assertThat(BezierDerivativeJson.fromJson("""{"controlVectors":{"r":2.0,"x":null,"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
+        assertThat(BezierDerivativeJson.fromJson("""{"controlVectors":{"r":2.0"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
+        assertThat(BezierDerivativeJson.fromJson("""{"controlVectors":"r":2.0,"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
     }
 
     @Test
