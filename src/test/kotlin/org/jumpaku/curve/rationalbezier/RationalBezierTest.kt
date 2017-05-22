@@ -14,7 +14,7 @@ import org.jumpaku.curve.Interval
 
 class RationalBezierTest {
 
-    val R2 = FastMath.sqrt(2.0)
+    private val R2 = FastMath.sqrt(2.0)
 
     @Test
     fun testProperties() {

@@ -16,11 +16,11 @@ class Vector private constructor(private val vector: Vector3D) {
 
     constructor(x: Double = 0.0, y: Double = 0.0, z : Double = 0.0) : this(Vector3D(x, y, z))
 
-    val x: Double get() = vector.x
+    val x: Double = vector.x
 
-    val y: Double get() = vector.y
+    val y: Double = vector.y
 
-    val z: Double get() = vector.z
+    val z: Double = vector.z
 
     operator fun component1(): Double = x
 

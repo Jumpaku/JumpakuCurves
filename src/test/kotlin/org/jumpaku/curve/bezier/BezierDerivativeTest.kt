@@ -2,6 +2,7 @@ package org.jumpaku.curve.bezier
 
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.affine.*
+import org.jumpaku.curve.Interval
 import org.jumpaku.jsonAssertThat
 import org.jumpaku.util.component1
 import org.jumpaku.util.component2
@@ -71,8 +72,10 @@ class BezierDerivativeTest {
     fun testRestrict() {
         println("Restrict")
         val b = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-                .restrict(0.25, 0.5)
-        bezierAssertThat(b.asBezier).isEqualToBezier(Bezier(
+
+        bezierAssertThat(b.restrict(0.25, 0.5).asBezier).isEqualToBezier(Bezier(
+                Point.xy(-1.0, 27/64.0), Point.xy(-3/4.0, 9/16.0), Point.xy(-1/2.0, 11/16.0), Point.xy(-1/4.0, 3/4.0), Point.xy(0.0, 3/4.0)))
+        bezierAssertThat(b.restrict(Interval(0.25, 0.5)).asBezier).isEqualToBezier(Bezier(
                 Point.xy(-1.0, 27/64.0), Point.xy(-3/4.0, 9/16.0), Point.xy(-1/2.0, 11/16.0), Point.xy(-1/4.0, 3/4.0), Point.xy(0.0, 3/4.0)))
     }
 

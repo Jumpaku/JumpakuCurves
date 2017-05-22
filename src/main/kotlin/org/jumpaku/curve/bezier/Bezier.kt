@@ -19,10 +19,10 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: BezierDerivative by lazy {
+    override val derivative: BezierDerivative get() {
         val cp = controlPoints.map(Point::toCrisp)
         val vs = cp.zipWith(cp.tail(), { pre, post -> (post - pre)*degree.toDouble() })
-        BezierDerivative(vs)
+        return  BezierDerivative(vs)
     }
 
     val degree: Int get() = controlPoints.size() - 1

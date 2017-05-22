@@ -17,11 +17,11 @@ import org.jumpaku.json.prettyGson
 
 class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
-    override val derivative: BezierDerivative by lazy { asBezier.derivative }
+    override val derivative: BezierDerivative get() = asBezier.derivative
 
     override val domain: Interval get() = asBezier.domain
 
-    val controlVectors: Array<Vector> by lazy { asBezier.controlPoints.map(Point::toVector) }
+    val controlVectors: Array<Vector> get() = asBezier.controlPoints.map(Point::toVector)
 
     val degree: Int get() = asBezier.degree
 

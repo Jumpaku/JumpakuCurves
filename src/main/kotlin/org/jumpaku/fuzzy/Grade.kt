@@ -5,7 +5,7 @@ class Grade(val value: Double) : Comparable<Grade> {
 
     init {
         if (!java.lang.Double.isFinite(value) || value < 0.0 || value > 1.0) {
-            throw IllegalArgumentException("value $value is out of [0.0, 1.0].")
+            throw IllegalArgumentException("value($value) is out of [0.0, 1.0].")
         }
     }
 

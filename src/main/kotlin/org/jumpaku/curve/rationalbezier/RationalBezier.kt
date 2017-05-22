@@ -39,18 +39,18 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     constructor(vararg weightedControlPoints: WeightedPoint) : this(Array(*weightedControlPoints))
 
 
-    val weightedControlPoints: Array<WeightedPoint> by lazy { controlPoints.zipWith(weights, ::WeightedPoint) }
+    val weightedControlPoints: Array<WeightedPoint> get() = controlPoints.zipWith(weights, ::WeightedPoint)
 
     val degree: Int get() = weightedControlPoints.size() - 1
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: Derivative by lazy {
+    override val derivative: Derivative get() {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
 
-        object : Derivative {
+        return object : Derivative {
             override fun evaluate(t: Double): Vector {
                 if (t !in domain) {
                     throw IllegalArgumentException("t($t) is out of domain($domain)")
