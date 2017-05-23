@@ -2,7 +2,6 @@ package org.jumpaku.affine
 
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.jsonAssertThat
 import org.junit.Test
 
 

@@ -5,7 +5,6 @@ import org.jumpaku.util.*
 import org.jumpaku.affine.Point
 import org.jumpaku.affine.pointAssertThat
 import org.jumpaku.curve.Interval
-import org.jumpaku.jsonAssertThat
 import org.junit.Test
 
 

@@ -56,8 +56,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                     throw IllegalArgumentException("t($t) is out of domain($domain)")
                 }
 
-                val wt = weightBezier(t, ws)
-                val dwt = weightBezier(t, dws)
+                val wt = bezier1D(t, ws)
+                val dwt = bezier1D(t, dws)
                 val dpt = dp.evaluate(t)
                 val rt = this@RationalBezier.evaluate(t).toVector()
 
@@ -120,7 +120,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     companion object {
 
-        fun weightBezier(t: Double, weights: Array<Double>): Double {
+        fun bezier1D(t: Double, weights: Array<Double>): Double {
             var ws = weights
             while (ws.size() > 1) {
                 ws = ws.zipWith(ws.tail()) { w0, w1 -> (1 - t) * w0 + t * w1 }
@@ -137,8 +137,7 @@ data class RationalBezierJson(val weightedControlPoints: kotlin.Array<WeightedPo
 
         fun toJson(bezier: RationalBezier): String = prettyGson.toJson(RationalBezierJson(
                 bezier.weightedControlPoints
-                        .map { (p, w) -> WeightedPointJson(
-                                PointJson(p.x, p.y, p.z, p.r), w) }
+                        .map { (p, w) -> WeightedPointJson(PointJson(p.x, p.y, p.z, p.r), w) }
                         .toJavaArray(WeightedPointJson::class.java)))
 
         fun fromJson(json: String): Option<RationalBezier> {

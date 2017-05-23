@@ -6,11 +6,7 @@ import io.vavr.control.Option
 import org.jumpaku.json.prettyGson
 
 
-class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint> {
-
-    operator fun component1(): Point = point
-
-    operator fun component2(): Double = weight
+data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint> {
 
     override fun divide(t: Double, wp: WeightedPoint): WeightedPoint {
         val w = (1 - t) * weight + t * wp.weight

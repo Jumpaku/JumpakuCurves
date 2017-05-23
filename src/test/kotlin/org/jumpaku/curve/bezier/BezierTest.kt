@@ -1,9 +1,9 @@
 package org.jumpaku.curve.bezier
 
+import io.vavr.API
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.util.*
 import org.jumpaku.affine.*
-import org.jumpaku.jsonAssertThat
 import org.junit.Test
 
 class BezierTest {
@@ -127,5 +127,15 @@ class BezierTest {
                 Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-7/4.0, 0.0, 5/4.0), Point.xyr(-3/2.0, 1/8.0, 21/16.0), Point.xyr(-5/4.0, 9/32.0, 83/64.0), Point.xyr(-1.0, 27/64.0, 161/128.0)))
         bezierAssertThat(back ).isEqualToBezier(Bezier(
                 Point.xyr(-1.0, 27/64.0,322/256.0), Point.xyr(-1/4.0, 27/32.0, 73/64.0), Point.xyr(1/2.0, 9/8.0, 13/16.0), Point.xyr(5/4.0, 0.0, 7/4.0), Point.xyr(2.0, 0.0, 1.0)))
+    }
+
+    @Test
+    fun testDecasteljau(){
+        println("Decasteljau")
+        val result = Bezier.decasteljau(0.25,
+                API.Array(Point.xyzr(1.0, 0.0, -2.0, 1.0) as Point, Point.xyzr(0.0, 3.0, 4.0, 0.0), Point.xyzr(-1.0, -1.0, 0.0, 2.0)))
+        assertThat(result.size()).isEqualTo(result.size())
+        pointAssertThat(result.get(0)).isEqualToPoint(Point.xyzr(0.75, 0.75, -0.5, 0.75))
+        pointAssertThat(result.get(1)).isEqualToPoint(Point.xyzr(-0.25, 2.0, 3.0, 0.5))
     }
 }

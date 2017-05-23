@@ -1,7 +1,6 @@
 package org.jumpaku.affine
 
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.jsonAssertThat
 import org.junit.Test
 
 /**

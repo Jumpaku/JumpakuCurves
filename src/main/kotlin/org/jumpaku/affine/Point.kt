@@ -90,6 +90,7 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
     }
 }
 
+
 data class PointJson(val x: Double, val y: Double, val z: Double, val r:Double){
     companion object{
         fun toJson(p: Point): String = prettyGson.toJson(PointJson(p.x, p.y, p.z, p.r))

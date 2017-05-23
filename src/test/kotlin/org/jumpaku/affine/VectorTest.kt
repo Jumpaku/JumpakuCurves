@@ -3,7 +3,6 @@ package org.jumpaku.affine
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
-import org.jumpaku.jsonAssertThat
 import org.junit.Test
 
 /**

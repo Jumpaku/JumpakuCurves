@@ -3,7 +3,6 @@ package org.jumpaku.curve.bezier
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.affine.*
 import org.jumpaku.curve.Interval
-import org.jumpaku.jsonAssertThat
 import org.jumpaku.util.component1
 import org.jumpaku.util.component2
 import org.junit.Test

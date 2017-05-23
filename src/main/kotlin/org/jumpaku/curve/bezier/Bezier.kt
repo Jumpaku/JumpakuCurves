@@ -15,7 +15,7 @@ import org.jumpaku.curve.polyline.Polyline
 import org.jumpaku.json.prettyGson
 
 
-class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
+class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -87,7 +87,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
         }
 
         internal fun <P : Divisible<P>> createElevatedControlPoints(cp: Array<P>): Array<P> {
-            val n = cp.size()-1
+            val n = cp.size() - 1
 
             return Stream.rangeClosed(0, n + 1)
                     .map {
@@ -141,14 +141,12 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
                         { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
                         .take(r)
                         .map { it._1() }
-                        .toArray()
 
                 val second = Stream.iterate(Tuple(cp.last(), n - 2),
                         { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
                         .take(r)
                         .map { it._1() }
                         .reverse()
-                        .toArray()
 
                 val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
                 val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.head())
@@ -164,7 +162,8 @@ data class BezierJson(val controlPoints: kotlin.Array<PointJson>) {
     companion object {
 
         fun toJson(bezier: Bezier): String = prettyGson.toJson(BezierJson(bezier
-                .controlPoints.map { PointJson(it.x, it.y, it.z, it.r) }
+                .controlPoints
+                .map { PointJson(it.x, it.y, it.z, it.r) }
                 .toJavaArray(PointJson::class.java)))
 
         fun fromJson(json: String): Option<Bezier> {

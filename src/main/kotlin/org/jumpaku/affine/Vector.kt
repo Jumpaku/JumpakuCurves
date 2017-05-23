@@ -12,21 +12,11 @@ import org.jumpaku.json.prettyGson
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
 
-class Vector private constructor(private val vector: Vector3D) {
+data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0) {
 
-    constructor(x: Double = 0.0, y: Double = 0.0, z : Double = 0.0) : this(Vector3D(x, y, z))
+    private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
 
-    val x: Double = vector.x
-
-    val y: Double = vector.y
-
-    val z: Double = vector.z
-
-    operator fun component1(): Double = x
-
-    operator fun component2(): Double = y
-
-    operator fun component3(): Double = z
+    private val vector: Vector3D = Vector3D(x, y, z)
 
     operator fun plus(v: Vector): Vector = Vector(vector.add(v.vector))
     

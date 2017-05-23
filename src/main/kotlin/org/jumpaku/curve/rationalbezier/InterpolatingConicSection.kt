@@ -51,7 +51,7 @@ class InterpolatingConicSection(val begin: Point, val middle: Point, val end: Po
         val r0 = representPoints[0].r
         val r1 = representPoints[1].r
         val r2 = representPoints[2].r
-        val wt = RationalBezier.weightBezier(t, Array(1.0, weight, 1.0))
+        val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
         val r = FastMath.abs(r0 * (1 - t) * (1 - 2 * t) / wt) +
                 FastMath.abs(r1 * 2 * (weight + 1) * t * (1 - t) / wt) +
                 FastMath.abs(r2 * t * (2 * t - 1) / wt)

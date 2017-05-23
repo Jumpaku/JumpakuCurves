@@ -11,7 +11,7 @@ import org.apache.commons.math3.util.Precision
 import org.jumpaku.json.prettyGson
 
 
-class Interval(val begin: Double, val end: Double) {
+data class Interval(val begin: Double, val end: Double) {
 
     init {
         if (begin > end){

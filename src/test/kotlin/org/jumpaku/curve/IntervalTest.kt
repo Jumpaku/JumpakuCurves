@@ -2,7 +2,6 @@ package org.jumpaku.curve
 
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
-import org.jumpaku.jsonAssertThat
 
 
 class IntervalTest {
