@@ -32,8 +32,8 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
 
     companion object {
 
-        fun clampedUniformKnots(degree: Int, nControlPoints: Int): Array<Knot> {
-            return clampedUniformKnots(0.0, (nControlPoints - degree).toDouble(), degree, nControlPoints)
+        fun clampedUniformKnots(degree: Int, knotSize: Int): Array<Knot> {
+            return clampedUniformKnots(0.0, knotSize - 1.0 - 2 * degree, degree, knotSize)
         }
 
         fun clampedUniformKnots(domain: Interval, degree: Int, knotSize: Int): Array<Knot> {
@@ -42,10 +42,9 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
 
         fun clampedUniformKnots(begin: Double, end: Double, degree: Int, knotSize: Int): Array<Knot> {
             val l = knotSize - 2 * degree - 1
-
             return Stream.of(Knot(begin, degree + 1))
                     .appendAll(Stream.range(1, l).map { Knot((1.0 - it) * begin / l + it * end / l, 1) })
-                    .appendAll(Stream.of(Knot(end, degree + 1)))
+                    .append(Knot(end, degree + 1))
                     .toArray()
         }
     }
