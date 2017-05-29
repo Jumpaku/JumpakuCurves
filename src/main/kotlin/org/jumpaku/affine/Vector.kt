@@ -66,7 +66,9 @@ data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : 
 
 
 
-data class VectorJson(val x: Double, val y: Double, val z: Double){
+data class VectorJson(private val x: Double, private val y: Double, private val z: Double){
+
+    fun vector(): Vector = Vector(x, y, z)
 
     companion object{
 
@@ -74,8 +76,7 @@ data class VectorJson(val x: Double, val y: Double, val z: Double){
 
         fun fromJson(json: String): Option<Vector> {
             return try {
-                val (x, y, z) = prettyGson.fromJson<VectorJson>(json)
-                Option(Vector(x, y, z))
+                Option(prettyGson.fromJson<VectorJson>(json).vector())
             } catch(e: Exception) {
                 None()
             }

@@ -15,7 +15,7 @@ class Grade(val value: Double) : Comparable<Grade> {
 
     override fun toString(): String = value.toString()
 
-    override fun compareTo(g: Grade): Int = value.compareTo(g.value)
+    override fun compareTo(other: Grade): Int = value.compareTo(other.value)
 
     infix fun and(g: Grade): Grade = minOf(this, g)
 

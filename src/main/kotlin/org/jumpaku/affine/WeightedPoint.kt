@@ -8,15 +8,17 @@ import org.jumpaku.json.prettyGson
 
 data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint> {
 
-    override fun divide(t: Double, wp: WeightedPoint): WeightedPoint {
-        val w = (1 - t) * weight + t * wp.weight
-        return WeightedPoint(point.divide(t * wp.weight / w, wp.point), w)
+    override fun divide(t: Double, p: WeightedPoint): WeightedPoint {
+        val w = (1 - t) * weight + t * p.weight
+        return WeightedPoint(point.divide(t * p.weight / w, p.point), w)
     }
 
     override fun toString(): String = WeightedPointJson.toJson(this)
 }
 
-data class WeightedPointJson(val point: PointJson, val weight: Double) {
+data class WeightedPointJson(private val point: PointJson, private val weight: Double) {
+
+    fun weightedPoint() = WeightedPoint(point.point(), weight)
 
     companion object {
 
@@ -25,8 +27,7 @@ data class WeightedPointJson(val point: PointJson, val weight: Double) {
 
         fun fromJson(json: String): Option<WeightedPoint> {
             return try {
-                val (p, w) = prettyGson.fromJson<WeightedPointJson>(json)
-                Option(WeightedPoint(Point.xyzr(p.x, p.y, p.z, p.r), w))
+                Option(prettyGson.fromJson<WeightedPointJson>(json).weightedPoint())
             } catch(e: Exception) {
                 None()
             }

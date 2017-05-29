@@ -18,7 +18,7 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
 
     override val domain: Interval get() = asBSpline.domain
 
-    override val derivative: Derivative get() = asBSpline.derivative
+    override val derivative: BSplineDerivative get() = asBSpline.derivative
 
     val controlVectors: Array<Vector> get() = asBSpline.controlPoints.map(Point::toVector)
 
@@ -54,22 +54,24 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
     }
 }
 
-data class BSplineDerivativeJson(val controlVectors: Array<VectorJson>, val knots: Array<KnotJson>){
+class BSplineDerivativeJson(controlVectors: Array<Vector>, knots: Array<Knot>){
+
+    private val controlVectors: kotlin.Array<VectorJson> = controlVectors.map { VectorJson(it.x, it.y, it.z) }
+            .toJavaArray(VectorJson::class.java)
+
+    private val knots: kotlin.Array<KnotJson> = knots.map { KnotJson(it.value, it.multiplicity) }
+            .toJavaArray(KnotJson::class.java)
+
+    fun bSplineDerivative(): BSplineDerivative = BSplineDerivative(
+            Array(*controlVectors).map(VectorJson::vector), Array(*knots).map(KnotJson::knot))
 
     companion object{
 
-        fun toJson(s: BSplineDerivative): String = prettyGson.toJson(BSplineDerivativeJson(
-                s.controlVectors.map { VectorJson(it.x, it.y, it.z) },
-                s.knots.map { KnotJson(it.value, it.multiplicity) }))
+        fun toJson(s: BSplineDerivative): String = prettyGson.toJson(BSplineDerivativeJson(s.controlVectors, s.knots))
 
         fun fromJson(json: String): Option<BSplineDerivative>{
             return try {
-                Option(prettyGson.fromJson<BSplineDerivativeJson>(json)
-                        .run {
-                            BSplineDerivative(
-                                    controlVectors.map { Vector(it.x, it.y, it.z) },
-                                    knots.map { Knot(it.value, it.multiplicity) })
-                        })
+                Option(prettyGson.fromJson<BSplineDerivativeJson>(json).bSplineDerivative())
             }
             catch (e: Exception){
                 None()

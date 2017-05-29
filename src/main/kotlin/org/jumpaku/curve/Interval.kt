@@ -1,7 +1,6 @@
 package org.jumpaku.curve
 
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.JsonParseException
 import io.vavr.API.*
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
@@ -43,7 +42,8 @@ data class Interval(val begin: Double, val end: Double) {
 }
 
 
-data class IntervalJson(val begin: Double, val end: Double) {
+data class IntervalJson(private val begin: Double, private val end: Double) {
+
     companion object {
 
         fun toJson(i: Interval): String = prettyGson.toJson(IntervalJson(i.begin, i.end))

@@ -66,10 +66,13 @@ class InterpolatingConicSection(val begin: Point, val middle: Point, val end: Po
 }
 
 data class InterpolatingConicSectionJson(
-        val begin: PointJson,
-        val middle: PointJson,
-        val end: PointJson,
-        val weight: Double) {
+        private val begin: PointJson,
+        private val middle: PointJson,
+        private val end: PointJson,
+        private val weight: Double) {
+
+    fun interpolatingConicSection(): InterpolatingConicSection = InterpolatingConicSection(
+                begin.point(), middle.point(), end.point(), weight)
 
     companion object {
 
@@ -82,13 +85,7 @@ data class InterpolatingConicSectionJson(
 
         fun fromJson(json: String): Option<InterpolatingConicSection> {
             return try {
-                prettyGson.fromJson<InterpolatingConicSectionJson>(json).run {
-                    Option(InterpolatingConicSection(
-                            begin.run { Point.xyzr(x, y, z, r) },
-                            middle.run { Point.xyzr(x, y, z, r) },
-                            end.run { Point.xyzr(x, y, z, r) },
-                            weight))
-                }
+                Option(prettyGson.fromJson<InterpolatingConicSectionJson>(json).interpolatingConicSection())
             } catch (e: Exception) {
                 None()
             }

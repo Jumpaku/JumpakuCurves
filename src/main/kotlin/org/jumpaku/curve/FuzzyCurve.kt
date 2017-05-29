@@ -23,12 +23,12 @@ interface FuzzyCurve : Curve {
     fun necessity(other: FuzzyCurve, n: Int = DEFAULT_FUZZY_MATCHING_POINTS): Grade {
         val selfSamples = sampleArcLength(n)
         val otherSamples = sampleArcLength(n)
-        val n = selfSamples.zipWith(otherSamples, Point::necessity)
+        val nes = selfSamples.zipWith(otherSamples, Point::necessity)
                 .reduce(Grade::and)
-        val nr = selfSamples.zipWith(otherSamples.reverse(), Point::necessity)
+        val nesr = selfSamples.zipWith(otherSamples.reverse(), Point::necessity)
                 .reduce(Grade::and)
 
-        return n or nr
+        return nes or nesr
     }
 
     companion object {

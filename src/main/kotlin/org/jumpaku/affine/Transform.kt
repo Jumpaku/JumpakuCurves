@@ -1,14 +1,11 @@
 package org.jumpaku.affine
 
-/**
- * Created by jumpaku on 2017/05/09.
- */
 
 import io.vavr.Tuple2
 import io.vavr.Tuple4
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.linear.MatrixUtils
+import org.apache.commons.math3.linear.RealMatrix
+import org.apache.commons.math3.util.FastMath
 
 
 
@@ -84,7 +81,7 @@ class Transform internal constructor(private val matrix: RealMatrix) : Function1
         }
 
         fun transformationAt(p: Crisp, a: Transform): Transform {
-            return translation(p.toVector().unaryMinus()).andThen(a).translate(p.toVector());
+            return translation(p.toVector().unaryMinus()).andThen(a).translate(p.toVector())
         }
 
         fun similarity(ab: Tuple2<Crisp, Crisp>, cd: Tuple2<Crisp, Crisp>): Transform{
@@ -110,7 +107,7 @@ class Transform internal constructor(private val matrix: RealMatrix) : Function1
                     doubleArrayOf(after._4().x, after._4().y, after._4().z, 1.0)))
                     .transpose()
 
-            return Transform(b.multiply(MatrixUtils.inverse(a)));
+            return Transform(b.multiply(MatrixUtils.inverse(a)))
         }
 
     }

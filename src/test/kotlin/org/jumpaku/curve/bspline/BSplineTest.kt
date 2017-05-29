@@ -61,6 +61,9 @@ class BSplineTest {
         bSplineAssertThat(BSplineJson.fromJson(b.toString()).get()).isEqualToBSpline(b)
         bSplineAssertThat(BSplineJson.fromJson(BSplineJson.toJson(b)).get()).isEqualToBSpline(b)
 
+        assertThat(BSplineJson.fromJson("""{"controlPoints"[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":0.0,"multiplicity":2},{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
+        assertThat(BSplineJson.fromJson("""{"controlPoints":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":0.0,"multiplicity":2},{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
+        assertThat(BSplineJson.fromJson("""{"controlPoints":[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[null,{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
     }
 
     @Test

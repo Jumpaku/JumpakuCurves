@@ -120,7 +120,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
             if (m == 2) {
                 return Array.of(cp[0].divide(0.5, cp[1]))
-            } else if(m % 2 == 1){
+            } else if(m % 2 != 0){
                 val r = (m - 3) / 2
 
                 return Stream.concat(
@@ -157,19 +157,20 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     }
 }
 
-data class BezierJson(val controlPoints: kotlin.Array<PointJson>) {
+class BezierJson(controlPoints: Array<Point>) {
+
+    private val controlPoints: kotlin.Array<PointJson> = controlPoints
+            .map { PointJson(it.x, it.y, it.z, it.r) }
+            .toJavaArray(PointJson::class.java)
 
     companion object {
 
-        fun toJson(bezier: Bezier): String = prettyGson.toJson(BezierJson(bezier
-                .controlPoints
-                .map { PointJson(it.x, it.y, it.z, it.r) }
-                .toJavaArray(PointJson::class.java)))
+        fun toJson(bezier: Bezier): String = prettyGson.toJson(BezierJson(bezier.controlPoints))
 
         fun fromJson(json: String): Option<Bezier> {
             return try {
                 Option(prettyGson.fromJson<BezierJson>(json).run {
-                    Bezier(Array.ofAll(controlPoints.asIterable()).map { Fuzzy(it.x, it.y, it.z, it.r) })
+                    Bezier(Array(*controlPoints).map(PointJson::point))
                 })
             } catch(e: Exception) {
                 None()

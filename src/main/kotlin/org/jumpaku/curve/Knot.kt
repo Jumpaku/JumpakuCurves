@@ -7,9 +7,7 @@ import io.vavr.collection.Stream
 import io.vavr.control.Option
 import org.jumpaku.json.prettyGson
 
-/**
- * Created by jumpaku on 2017/05/22.
- */
+
 data class Knot(val value: Double, val multiplicity: Int = 1) {
 
     init {
@@ -50,15 +48,17 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
     }
 }
 
-data class KnotJson(val value: Double, val multiplicity: Int){
+data class KnotJson(private val value: Double, private val multiplicity: Int){
+
+    fun  knot(): Knot = Knot(value, multiplicity)
 
     companion object{
 
-        fun toJson(knot: Knot): String = prettyGson.toJson(knot.run { KnotJson(value, multiplicity) })
+        fun toJson(knot: Knot): String = prettyGson.toJson(KnotJson(knot.value, knot.multiplicity))
 
         fun fromJson(json: String): Option<Knot> {
             return try {
-                Option(prettyGson.fromJson<KnotJson>(json).run { Knot(value, multiplicity) })
+                Option(prettyGson.fromJson<KnotJson>(json).knot())
             }
             catch (e: Exception){
                 None()

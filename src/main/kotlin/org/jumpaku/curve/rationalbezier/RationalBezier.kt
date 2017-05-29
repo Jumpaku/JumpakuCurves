@@ -132,21 +132,22 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     }
 }
 
-data class RationalBezierJson(val weightedControlPoints: kotlin.Array<WeightedPointJson>){
+class RationalBezierJson(weightedControlPoints: Array<WeightedPoint>){
+
+    private val weightedControlPoints: kotlin.Array<WeightedPointJson> = weightedControlPoints
+            .map { (p, w) -> WeightedPointJson(PointJson(p.x, p.y, p.z, p.r), w) }
+            .toJavaArray(WeightedPointJson::class.java)
+
+    fun rationalBezier(): RationalBezier = RationalBezier(Array(*weightedControlPoints)
+            .map(WeightedPointJson::weightedPoint))
+
     companion object{
 
-        fun toJson(bezier: RationalBezier): String = prettyGson.toJson(RationalBezierJson(
-                bezier.weightedControlPoints
-                        .map { (p, w) -> WeightedPointJson(PointJson(p.x, p.y, p.z, p.r), w) }
-                        .toJavaArray(WeightedPointJson::class.java)))
+        fun toJson(bezier: RationalBezier): String = prettyGson.toJson(RationalBezierJson(bezier.weightedControlPoints))
 
         fun fromJson(json: String): Option<RationalBezier> {
             return try {
-                prettyGson.fromJson<RationalBezierJson>(json).run {
-                    Option(RationalBezier(Array(*weightedControlPoints)
-                            .map { (p, w) -> WeightedPoint(Point.xyzr(p.x, p.y, p.z, p.r), w) }))
-                }
-
+                Option(prettyGson.fromJson<RationalBezierJson>(json).rationalBezier())
             }
             catch (e: Exception){
                 None()

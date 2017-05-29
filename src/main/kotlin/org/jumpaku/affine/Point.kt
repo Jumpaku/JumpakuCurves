@@ -40,23 +40,23 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
         }
     }
 
-    override fun possibility(p: Point): Grade{
-        val d = toCrisp().dist(p.toCrisp())
-        return if (!java.lang.Double.isFinite(d / (r + p.r))) {
-            Grade(equals(toCrisp(), p.toCrisp()))
+    override fun possibility(u: Point): Grade{
+        val d = toCrisp().dist(u.toCrisp())
+        return if (!java.lang.Double.isFinite(d / (r + u.r))) {
+            Grade(equals(toCrisp(), u.toCrisp()))
         }
         else {
-            Grade(Grade.clamp(1 - d / (r + p.r)))
+            Grade(Grade.clamp(1 - d / (r + u.r)))
         }
     }
 
-    override fun necessity(p: Point): Grade{
-        val d = toCrisp().dist(p.toCrisp())
+    override fun necessity(u: Point): Grade{
+        val d = toCrisp().dist(u.toCrisp())
         return when {
-            !java.lang.Double.isFinite(d / (r + p.r)) ->
-                Grade(equals(toCrisp(), p.toCrisp()))
-            d < p.r ->
-                Grade(Grade.clamp(minOf(1 - (r - d) / (r + p.r), 1 - (r + d) / (r + p.r))))
+            !java.lang.Double.isFinite(d / (r + u.r)) ->
+                Grade(equals(toCrisp(), u.toCrisp()))
+            d < u.r ->
+                Grade(Grade.clamp(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r))))
             else ->
                 Grade.FALSE
         }
@@ -91,14 +91,17 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
 }
 
 
-data class PointJson(val x: Double, val y: Double, val z: Double, val r:Double){
+data class PointJson(private val x: Double, private val y: Double, private val z: Double, private val r:Double){
+
+    fun point() = Point.xyzr(x, y, z, r)
+
     companion object{
+
         fun toJson(p: Point): String = prettyGson.toJson(PointJson(p.x, p.y, p.z, p.r))
 
         fun fromJson(json: String): Option<Point> {
             return try {
-                val (x, y, z, r) = prettyGson.fromJson<PointJson>(json)
-                Option(Point.xyzr(x, y, z, r))
+                Option(prettyGson.fromJson<PointJson>(json).point())
             } catch(e: Exception) {
                 None()
             }
@@ -155,20 +158,6 @@ class Crisp(private val vector: Vector) : Point {
      * @return distance |p - this|
      */
     fun dist(p: Crisp): Double = minus(p).length()
-
-    /**
-     * distance between this point and line ab.
-     * @param a
-     * @param b
-     * @return
-     */
-    /*fun dist(a: Crisp, b: Crisp): Double {
-        val p = this
-        val ap = p.diff(a)
-        val ab = b.diff(a)
-        val h = a.move(ab.scale(ap.dot(ab) / ab.square()))
-        return p.dist(h)
-    }*/
 
     fun distSquare(p: Crisp): Double = minus(p).square()
 

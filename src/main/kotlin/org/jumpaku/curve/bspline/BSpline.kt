@@ -95,9 +95,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
             throw IllegalArgumentException("Interval([$begin, $end]) is out of domain($domain)")
         }
 
-        val (a, b) = subdivide(end)
-        val (c, d) = a.subdivide(begin)
-        return d
+        return subdivide(end)._1().subdivide(begin)._2()
     }
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
@@ -241,20 +239,23 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
     }
 }
 
-data class BSplineJson(val controlPoints: kotlin.Array<PointJson>, val knots: kotlin.Array<KnotJson>){
+class BSplineJson(controlPoints: Array<Point>, knots: Array<Knot>){
+
+    private val controlPoints: kotlin.Array<PointJson> = controlPoints.map { PointJson(it.x, it.y, it.z, it.r) }
+            .toJavaArray(PointJson::class.java)
+
+    private val knots: kotlin.Array<KnotJson> = knots.map { KnotJson(it.value, it.multiplicity) }
+            .toJavaArray(KnotJson::class.java)
+
+    fun bSpline(): BSpline = BSpline(controlPoints.map(PointJson::point), knots.map(KnotJson::knot))
 
     companion object{
 
-        fun toJson(s: BSpline): String = prettyGson.toJson(BSplineJson(
-                s.controlPoints.map { PointJson(it.x, it.y, it.z, it.r) }.toJavaArray(PointJson::class.java),
-                s.knots.map { KnotJson(it.value, it.multiplicity) }.toJavaArray(KnotJson::class.java)))
+        fun toJson(s: BSpline): String = prettyGson.toJson(BSplineJson(s.controlPoints, s.knots))
 
         fun fromJson(json: String): Option<BSpline>{
             return try {
-                Option(prettyGson.fromJson<BSplineJson>(json)
-                        .run { BSpline(
-                                controlPoints.map { Point.xyzr(it.x, it.y, it.z, it.r) },
-                                knots.map { Knot(it.value, it.multiplicity) }) })
+                Option(prettyGson.fromJson<BSplineJson>(json).bSpline())
             }
             catch (e: Exception){
                 None()

@@ -1,6 +1,7 @@
 package org.jumpaku.curve.polyline
 
 import com.github.salomonbrys.kotson.fromJson
+import com.github.salomonbrys.kotson.toJsonArray
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
@@ -128,18 +129,20 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
     }
 }
 
-data class PolylineJson(val points: kotlin.Array<PointJson>) {
+class PolylineJson(points: Array<Point>) {
+
+    private val points: kotlin.Array<PointJson> = points.map{ PointJson(it.x, it.y, it.z, it.r) }
+            .toJavaArray(PointJson::class.java)
+
+    fun polyline(): Polyline = Polyline(points.map(PointJson::point))
 
     companion object {
 
-        fun toJson(polyline: Polyline): String = prettyGson.toJson(PolylineJson(polyline.points
-                .map { PointJson(it.x, it.y, it.z, it.r) }
-                .toJavaArray(PointJson::class.java)))
+        fun toJson(polyline: Polyline): String = prettyGson.toJson(PolylineJson(polyline.points))
 
         fun fromJson(json: String): Option<Polyline> {
             return try {
-                val (ps) = prettyGson.fromJson<PolylineJson>(json)
-                Option(Polyline(ps.map { Point.xyzr(it.x, it.y, it.z, it.r) }))
+                Option(prettyGson.fromJson<PolylineJson>(json).polyline())
             } catch(e: Exception) {
                 None()
             }

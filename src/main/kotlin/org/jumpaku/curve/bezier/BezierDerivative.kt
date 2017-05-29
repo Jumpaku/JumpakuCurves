@@ -8,6 +8,7 @@ import io.vavr.control.Option
 import org.jumpaku.affine.Crisp
 import org.jumpaku.affine.Point
 import org.jumpaku.affine.Vector
+import org.jumpaku.affine.VectorJson
 import org.jumpaku.curve.Derivative
 import org.jumpaku.curve.Differentiable
 import org.jumpaku.curve.Interval
@@ -50,17 +51,20 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
             .map<BezierDerivative, BezierDerivative>(::BezierDerivative, ::BezierDerivative)
 }
 
-data class BezierDerivativeJson(val controlVectors: kotlin.Array<Vector>) {
+class BezierDerivativeJson(controlVectors: Array<Vector>){
+
+    private val controlVectors: kotlin.Array<VectorJson> = controlVectors.map { VectorJson(it.x, it.y, it.z) }
+            .toJavaArray(VectorJson::class.java)
+
     companion object {
 
         fun toJson(derivative: BezierDerivative): String = prettyGson.toJson(BezierDerivativeJson(
-                derivative.controlVectors
-                        .toJavaArray(Vector::class.java)))
+                derivative.controlVectors))
 
         fun fromJson(json: String): Option<BezierDerivative> {
             return try {
-                val tmp = prettyGson.fromJson<BezierDerivativeJson>(json)
-                Option(BezierDerivative(tmp.controlVectors.map { Vector(it.x, it.y, it.z) }))
+                Option(BezierDerivative(prettyGson.fromJson<BezierDerivativeJson>(json)
+                        .controlVectors.map(VectorJson::vector)))
             } catch(e: Exception) {
                 None()
             }
