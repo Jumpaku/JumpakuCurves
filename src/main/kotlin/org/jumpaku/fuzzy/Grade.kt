@@ -5,21 +5,17 @@ class Grade(val value: Double) : Comparable<Grade> {
 
     init {
         if (!java.lang.Double.isFinite(value) || value < 0.0 || value > 1.0) {
-            throw IllegalArgumentException("value $value is out of [0.0, 1.0].")
+            throw IllegalArgumentException("value($value) is out of [0.0, 1.0].")
         }
     }
 
     constructor(booleanValue: Boolean): this(if (booleanValue) 1.0 else 0.0)
 
-    constructor(intValue: Int): this(when(intValue){
-        1 -> 1.0
-        0 -> 0.0
-        else -> throw IllegalArgumentException("value $intValue is out of [0.0, 1.0].")
-    })
+    constructor(intValue: Int): this(intValue.toDouble())
 
     override fun toString(): String = value.toString()
 
-    override fun compareTo(g: Grade): Int = value.compareTo(g.value)
+    override fun compareTo(other: Grade): Int = value.compareTo(other.value)
 
     infix fun and(g: Grade): Grade = minOf(this, g)
 
