@@ -182,34 +182,34 @@ class BSplineTest {
     }
 
     @Test
-    fun test_BSplineBasis() {
-        println("BSplineBasis")
+    fun test_Basis() {
+        println("Basis")
         val knots = Knot.clampedUniformKnots(2, 7).flatMap(Knot::toArray)
 
-        assertThat(BSpline.bSplineBasis(0.0, 2, 0, knots)).isEqualTo(1.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(0.0, 2, 1, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(0.0, 2, 2, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(0.0, 2, 3, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.0, 2, 0, knots)).isEqualTo(1.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.0, 2, 1, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.0, 2, 2, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.0, 2, 3, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
 
-        assertThat(BSpline.bSplineBasis(0.5, 2, 0, knots)).isEqualTo(0.25,    withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(0.5, 2, 1, knots)).isEqualTo(5 / 8.0, withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(0.5, 2, 2, knots)).isEqualTo(0.125,   withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(0.5, 2, 3, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.5, 2, 0, knots)).isEqualTo(0.25,    withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.5, 2, 1, knots)).isEqualTo(5 / 8.0, withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.5, 2, 2, knots)).isEqualTo(0.125,   withPrecision(1.0e-10))
+        assertThat(BSpline.basis(0.5, 2, 3, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
 
-        assertThat(BSpline.bSplineBasis(1.0, 2, 0, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(1.0, 2, 1, knots)).isEqualTo(0.5,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(1.0, 2, 2, knots)).isEqualTo(0.5,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(1.0, 2, 3, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.0, 2, 0, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.0, 2, 1, knots)).isEqualTo(0.5,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.0, 2, 2, knots)).isEqualTo(0.5,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.0, 2, 3, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
 
-        assertThat(BSpline.bSplineBasis(1.5, 2, 0, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(1.5, 2, 1, knots)).isEqualTo(0.125,   withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(1.5, 2, 2, knots)).isEqualTo(5 / 8.0, withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(1.5, 2, 3, knots)).isEqualTo(0.25,    withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.5, 2, 0, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.5, 2, 1, knots)).isEqualTo(0.125,   withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.5, 2, 2, knots)).isEqualTo(5 / 8.0, withPrecision(1.0e-10))
+        assertThat(BSpline.basis(1.5, 2, 3, knots)).isEqualTo(0.25,    withPrecision(1.0e-10))
 
-        assertThat(BSpline.bSplineBasis(2.0, 2, 0, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(2.0, 2, 1, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(2.0, 2, 2, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
-        assertThat(BSpline.bSplineBasis(2.0, 2, 3, knots)).isEqualTo(1.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(2.0, 2, 0, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(2.0, 2, 1, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(2.0, 2, 2, knots)).isEqualTo(0.0,     withPrecision(1.0e-10))
+        assertThat(BSpline.basis(2.0, 2, 3, knots)).isEqualTo(1.0,     withPrecision(1.0e-10))
     }
 
 }

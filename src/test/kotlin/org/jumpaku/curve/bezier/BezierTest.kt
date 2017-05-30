@@ -1,6 +1,7 @@
 package org.jumpaku.curve.bezier
 
 import io.vavr.API
+import io.vavr.collection.Array
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.util.*
 import org.jumpaku.affine.*
@@ -137,5 +138,29 @@ class BezierTest {
         assertThat(result.size()).isEqualTo(result.size())
         pointAssertThat(result.get(0)).isEqualToPoint(Point.xyzr(0.75, 0.75, -0.5, 0.75))
         pointAssertThat(result.get(1)).isEqualToPoint(Point.xyzr(-0.25, 2.0, 3.0, 0.5))
+    }
+
+    @Test
+    fun test_Basis(){
+        print("Basis")
+        assertThat(Bezier.basis(2, 0, 0.0 )).isEqualTo(1.0,      withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 1, 0.0 )).isEqualTo(0.0,      withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 2, 0.0 )).isEqualTo(0.0,      withPrecision(1.0e-10))
+
+        assertThat(Bezier.basis(2, 0, 0.25)).isEqualTo(9 / 16.0, withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 1, 0.25)).isEqualTo(6 / 16.0, withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 2, 0.25)).isEqualTo(1 / 16.0, withPrecision(1.0e-10))
+
+        assertThat(Bezier.basis(2, 0, 0.5 )).isEqualTo(0.25,     withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 1, 0.5 )).isEqualTo(0.5,      withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 2, 0.5 )).isEqualTo(0.25,     withPrecision(1.0e-10))
+
+        assertThat(Bezier.basis(2, 0, 0.75)).isEqualTo(1 / 16.0, withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 1, 0.75)).isEqualTo(6 / 16.0, withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 2, 0.75)).isEqualTo(9 / 16.0, withPrecision(1.0e-10))
+
+        assertThat(Bezier.basis(2, 0, 1.0 )).isEqualTo(0.0,      withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 1, 1.0 )).isEqualTo(0.0,      withPrecision(1.0e-10))
+        assertThat(Bezier.basis(2, 2, 1.0 )).isEqualTo(1.0,      withPrecision(1.0e-10))
     }
 }

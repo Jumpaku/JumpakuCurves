@@ -164,11 +164,6 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
 
     companion object {
 
-        /**
-         * degree > 0, knots.head().multiplicity == knots.last().multiplicity == degree + 1
-         * knots.head().value <= knotValue <= knots.last().value
-         * insertionTimes > 0, multiplicity >= 0, insertionTimes + multiplicity < degree
-         */
         internal fun createInsertedKnots(
                 knotValue: Double, insertionTimes: Int, multiplicity: Int, knots: Array<Knot>): Array<Knot> {
             val index = knots.search(Knot(knotValue), Comparator.comparingDouble(Knot::value))
@@ -178,11 +173,6 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
             }
         }
 
-        /**
-         * p = us.size() - cp.size() - 1
-         * knots.head() <= knotValue <= knots.last()
-         * insertionTimes > 0, multiplicity >= 0, insertionTimes + multiplicity < degree
-         */
         internal fun <P : Divisible<P>> createKnotInsertedControlPoints(
                 knotValue: Double, insertionTimes: Int, multiplicity: Int, us: Array<Double>, cp: Array<P>): Array<P> {
             val p = us.size() - cp.size() - 1
@@ -201,7 +191,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
             return Stream.concat(front, middle, back).toArray()
         }
 
-        fun bSplineBasis(t: Double, degree: Int, i: Int, us: Array<Double>): Double {
+        fun basis(t: Double, degree: Int, i: Int, us: Array<Double>): Double {
             if (t !in Interval(us.get(degree), us[us.size() - degree - 1])) {
                 throw IllegalArgumentException("inserted knot($t) is out of domain([${us[degree]}, ${us[us.size() - 1 - degree]}]).")
             }

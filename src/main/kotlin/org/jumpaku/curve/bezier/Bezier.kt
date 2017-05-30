@@ -6,6 +6,9 @@ import io.vavr.control.Option
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import org.apache.commons.math3.util.CombinatoricsUtils
+import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.MathUtils
 import org.jumpaku.affine.*
 import org.jumpaku.util.*
 import org.jumpaku.curve.Differentiable
@@ -35,7 +38,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun evaluate(t: Double): Point {
         if (t !in domain) {
-            throw IllegalArgumentException("t must be in $domain, but t = $t")
+            throw IllegalArgumentException("t($t) is out of domain($domain)")
         }
 
         var cps = controlPoints
@@ -81,6 +84,11 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     }
 
     companion object {
+
+        fun basis(degree: Int, i: Int, t: Double): Double {
+            return CombinatoricsUtils.binomialCoefficientDouble(degree, i)*
+                    FastMath.pow(t, i)*FastMath.pow(1-t, degree-i)
+        }
 
         fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> {
             return cps.zipWith(cps.tail()) { p0, p1 -> p0.divide(t, p1) }
