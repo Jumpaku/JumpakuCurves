@@ -20,7 +20,7 @@ class BSplineFitting(val degree: Int, val knots: Array<Knot>) : Fitting<BSpline>
     override fun fit(data: Array<TimeSeriesPoint>): BSpline {
         val m = data.size() - 1
         val us = knots.flatMap(Knot::toArray)
-        val sortedData = data.sorted(Comparator.comparing(TimeSeriesPoint::time))
+        val sortedData = data.sorted(Comparator.comparing(TimeSeriesPoint::time)).toStream()
         val (d0, _) = sortedData[0]
         val (dm, _) = sortedData[m]
 
@@ -36,7 +36,7 @@ class BSplineFitting(val degree: Int, val knots: Array<Knot>) : Fitting<BSpline>
                         .toJavaArray(DoubleArray::class.java))
         val p = QRDecomposition(b.transpose().multiply(b)).solver
                 .solve(b.transpose().multiply(d))
-                .run { Array(*this.data).map { Point.xyz(it[0], it[1], it[2]) } }
+                .run { Stream(*this.data).map { Point.xyz(it[0], it[1], it[2]) } }
 
         return BSpline(Stream.concat(Stream(d0), p, Stream(dm)), knots)
     }
