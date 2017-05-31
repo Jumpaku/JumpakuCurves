@@ -1,14 +1,14 @@
-package org.jumpaku.curve.rationalbezier
+package org.jumpaku.core.curve.rationalbezier
 
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.affine.*
-import org.jumpaku.curve.rationalrationalBezier.rationalBezierAssertThat
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.rationalrationalBezier.rationalBezierAssertThat
 import org.junit.Test
-import org.jumpaku.util.component1
-import org.jumpaku.util.component2
-import org.jumpaku.affine.WeightedPoint
-import org.jumpaku.curve.Interval
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
+import org.jumpaku.core.affine.WeightedPoint
+import org.jumpaku.core.curve.Interval
 
 
 class RationalBezierTest {

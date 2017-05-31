@@ -1,4 +1,4 @@
-package org.jumpaku.curve.bspline
+package org.jumpaku.core.curve.bspline
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
@@ -7,19 +7,19 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.affine.Divisible
-import org.jumpaku.affine.Point
-import org.jumpaku.affine.PointJson
-import org.jumpaku.affine.Vector
-import org.jumpaku.curve.Differentiable
-import org.jumpaku.curve.FuzzyCurve
-import org.jumpaku.curve.Interval
-import org.jumpaku.curve.Knot
-import org.jumpaku.curve.KnotJson
-import org.jumpaku.curve.bezier.Bezier
-import org.jumpaku.curve.polyline.Polyline
-import org.jumpaku.json.prettyGson
-import org.jumpaku.util.*
+import org.jumpaku.core.affine.Divisible
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.PointJson
+import org.jumpaku.core.affine.Vector
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.FuzzyCurve
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.Knot
+import org.jumpaku.core.curve.KnotJson
+import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.polyline.Polyline
+import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.*
 
 
 class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCurve, Differentiable {

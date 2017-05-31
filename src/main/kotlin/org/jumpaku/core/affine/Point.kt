@@ -1,12 +1,12 @@
-package org.jumpaku.affine
+package org.jumpaku.core.affine
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.control.Option
 import org.apache.commons.math3.util.FastMath
-import org.jumpaku.fuzzy.Grade
-import org.jumpaku.fuzzy.Membership
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.fuzzy.Grade
+import org.jumpaku.core.fuzzy.Membership
+import org.jumpaku.core.json.prettyGson
 
 interface Point : Membership<Point, Crisp>, Divisible<Point> {
 

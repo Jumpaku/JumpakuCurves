@@ -1,16 +1,16 @@
-package org.jumpaku.curve.bspline
+package org.jumpaku.core.curve.bspline
 
 import io.vavr.API.Array
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.affine.Vector
-import org.jumpaku.affine.vectorAssertThat
-import org.jumpaku.curve.Interval
-import org.jumpaku.curve.Knot
-import org.jumpaku.curve.bezier.BezierDerivative
-import org.jumpaku.curve.bezier.bezierAssertThat
-import org.jumpaku.curve.knotAssertThat
-import org.jumpaku.util.component1
-import org.jumpaku.util.component2
+import org.jumpaku.core.affine.Vector
+import org.jumpaku.core.affine.vectorAssertThat
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.Knot
+import org.jumpaku.core.curve.bezier.BezierDerivative
+import org.jumpaku.core.curve.bezier.bezierAssertThat
+import org.jumpaku.core.curve.knotAssertThat
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 import org.junit.Test
 
 /**

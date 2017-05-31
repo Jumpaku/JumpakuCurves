@@ -1,4 +1,4 @@
-package org.jumpaku.curve
+package org.jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
@@ -7,7 +7,7 @@ import io.vavr.collection.Stream
 import io.vavr.control.Option
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.json.prettyGson
 
 
 data class Interval(val begin: Double, val end: Double) {

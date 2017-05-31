@@ -1,4 +1,4 @@
-package org.jumpaku.affine
+package org.jumpaku.core.affine
 
 
 import io.vavr.Tuple2

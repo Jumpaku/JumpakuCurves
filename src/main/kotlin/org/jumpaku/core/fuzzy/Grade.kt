@@ -1,4 +1,4 @@
-package org.jumpaku.fuzzy
+package org.jumpaku.core.fuzzy
 
 
 class Grade(val value: Double) : Comparable<Grade> {

@@ -1,4 +1,4 @@
-package org.jumpaku.fuzzy
+package org.jumpaku.core.fuzzy
 
 
 interface Membership<M : Membership<M, T>, T> {

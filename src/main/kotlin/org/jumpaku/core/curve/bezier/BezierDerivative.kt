@@ -1,18 +1,18 @@
-package org.jumpaku.curve.bezier
+package org.jumpaku.core.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import org.jumpaku.affine.Crisp
-import org.jumpaku.affine.Point
-import org.jumpaku.affine.Vector
-import org.jumpaku.affine.VectorJson
-import org.jumpaku.curve.Derivative
-import org.jumpaku.curve.Differentiable
-import org.jumpaku.curve.Interval
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.affine.Crisp
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.Vector
+import org.jumpaku.core.affine.VectorJson
+import org.jumpaku.core.curve.Derivative
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.json.prettyGson
 
 
 class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {

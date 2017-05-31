@@ -1,11 +1,8 @@
-package org.jumpaku.curve.polyline
+package org.jumpaku.core.curve.polyline
 
-import io.vavr.API
-import io.vavr.Tuple2
 import org.assertj.core.api.AbstractAssert
-import org.jumpaku.affine.Point
-import org.jumpaku.affine.pointAssertThat
-import org.jumpaku.util.*
+import org.jumpaku.core.affine.pointAssertThat
+import org.jumpaku.core.util.*
 
 /**
  * Created by jumpaku on 2017/05/15.

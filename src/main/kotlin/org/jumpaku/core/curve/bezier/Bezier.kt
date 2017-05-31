@@ -1,4 +1,4 @@
-package org.jumpaku.curve.bezier
+package org.jumpaku.core.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
@@ -8,14 +8,13 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
-import org.apache.commons.math3.util.MathUtils
-import org.jumpaku.affine.*
-import org.jumpaku.util.*
-import org.jumpaku.curve.Differentiable
-import org.jumpaku.curve.FuzzyCurve
-import org.jumpaku.curve.Interval
-import org.jumpaku.curve.polyline.Polyline
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.util.*
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.FuzzyCurve
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.polyline.Polyline
+import org.jumpaku.core.json.prettyGson
 
 
 class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{

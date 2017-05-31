@@ -1,10 +1,10 @@
-package org.jumpaku.fitting
+package org.jumpaku.core.fitting
 
 import io.vavr.API
-import org.jumpaku.affine.Point
-import org.jumpaku.curve.Knot
-import org.jumpaku.curve.bspline.BSpline
-import org.jumpaku.curve.bspline.bSplineAssertThat
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.Knot
+import org.jumpaku.core.curve.bspline.BSpline
+import org.jumpaku.core.curve.bspline.bSplineAssertThat
 import org.junit.Test
 
 

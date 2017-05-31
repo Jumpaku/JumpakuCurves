@@ -1,18 +1,18 @@
-package org.jumpaku.curve.rationalbezier
+package org.jumpaku.core.curve.rationalbezier
 
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import org.jumpaku.curve.Derivative
-import org.jumpaku.curve.Differentiable
-import org.jumpaku.curve.FuzzyCurve
-import org.jumpaku.curve.Interval
+import org.jumpaku.core.curve.Derivative
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.FuzzyCurve
+import org.jumpaku.core.curve.Interval
 import org.apache.commons.math3.util.FastMath
-import org.jumpaku.affine.*
-import org.jumpaku.curve.polyline.Polyline
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.polyline.Polyline
+import org.jumpaku.core.json.prettyGson
 
 
 class InterpolatingConicSection(val begin: Point, val middle: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable {

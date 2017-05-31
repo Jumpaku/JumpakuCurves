@@ -1,10 +1,10 @@
-package org.jumpaku.curve.bezier
+package org.jumpaku.core.curve.bezier
 
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.affine.*
-import org.jumpaku.curve.Interval
-import org.jumpaku.util.component1
-import org.jumpaku.util.component2
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 import org.junit.Test
 
 /**

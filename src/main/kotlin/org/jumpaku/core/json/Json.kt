@@ -1,4 +1,4 @@
-package org.jumpaku.json
+package org.jumpaku.core.json
 
 import com.google.gson.GsonBuilder
 

@@ -1,8 +1,8 @@
-package org.jumpaku.curve
+package org.jumpaku.core.curve
 
 import io.vavr.collection.Array
-import org.jumpaku.affine.Point
-import org.jumpaku.fuzzy.Grade
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.fuzzy.Grade
 
 
 interface FuzzyCurve : Curve {

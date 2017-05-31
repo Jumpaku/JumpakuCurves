@@ -1,4 +1,4 @@
-package org.jumpaku.affine
+package org.jumpaku.core.affine
 
 import org.assertj.core.api.Assertions.*
 import org.junit.Test

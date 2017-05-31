@@ -1,15 +1,15 @@
-package org.jumpaku.fitting
+package org.jumpaku.core.fitting
 
 import io.vavr.API.*
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
-import org.jumpaku.affine.Point
-import org.jumpaku.curve.Knot
-import org.jumpaku.curve.bspline.BSpline
-import org.jumpaku.util.component1
-import org.jumpaku.util.component2
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.Knot
+import org.jumpaku.core.curve.bspline.BSpline
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 import java.util.Comparator
 
 

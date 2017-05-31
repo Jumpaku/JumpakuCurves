@@ -1,9 +1,9 @@
-package org.jumpaku.affine
+package org.jumpaku.core.affine
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.control.Option
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.json.prettyGson
 
 
 data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint> {

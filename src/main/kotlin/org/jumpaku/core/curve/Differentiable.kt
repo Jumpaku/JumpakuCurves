@@ -1,6 +1,6 @@
-package org.jumpaku.curve
+package org.jumpaku.core.curve
 
-import org.jumpaku.affine.Vector
+import org.jumpaku.core.affine.Vector
 
 
 

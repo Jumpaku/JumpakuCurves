@@ -1,10 +1,10 @@
-package org.jumpaku.curve.rationalrationalBezier
+package org.jumpaku.core.curve.rationalrationalBezier
 
 import org.assertj.core.api.AbstractAssert
-import org.jumpaku.affine.weightedPointAssertThat
-import org.jumpaku.curve.rationalbezier.RationalBezier
-import org.jumpaku.util.component1
-import org.jumpaku.util.component2
+import org.jumpaku.core.affine.weightedPointAssertThat
+import org.jumpaku.core.curve.rationalbezier.RationalBezier
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 
 /**
  * Created by jumpaku on 2017/05/18.

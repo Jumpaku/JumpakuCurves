@@ -1,11 +1,11 @@
-package org.jumpaku.curve
+package org.jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.json.prettyGson
 
 
 data class Knot(val value: Double, val multiplicity: Int = 1) {

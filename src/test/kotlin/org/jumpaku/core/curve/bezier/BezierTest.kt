@@ -1,10 +1,9 @@
-package org.jumpaku.curve.bezier
+package org.jumpaku.core.curve.bezier
 
 import io.vavr.API
-import io.vavr.collection.Array
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.util.*
-import org.jumpaku.affine.*
+import org.jumpaku.core.util.*
+import org.jumpaku.core.affine.*
 import org.junit.Test
 
 class BezierTest {

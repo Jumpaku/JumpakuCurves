@@ -1,4 +1,4 @@
-package org.jumpaku.curve.rationalbezier
+package org.jumpaku.core.curve.rationalbezier
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
@@ -6,15 +6,15 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
-import org.jumpaku.affine.*
-import org.jumpaku.curve.Derivative
-import org.jumpaku.curve.bezier.BezierDerivative
-import org.jumpaku.curve.bezier.Bezier
-import org.jumpaku.curve.Differentiable
-import org.jumpaku.curve.FuzzyCurve
-import org.jumpaku.curve.Interval
-import org.jumpaku.curve.polyline.Polyline
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.Derivative
+import org.jumpaku.core.curve.bezier.BezierDerivative
+import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.FuzzyCurve
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.polyline.Polyline
+import org.jumpaku.core.json.prettyGson
 
 
 class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable {

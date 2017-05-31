@@ -1,10 +1,10 @@
-package org.jumpaku.curve.bspline
+package org.jumpaku.core.curve.bspline
 
 import org.assertj.core.api.AbstractAssert
-import org.jumpaku.affine.pointAssertThat
-import org.jumpaku.curve.knotAssertThat
-import org.jumpaku.util.component1
-import org.jumpaku.util.component2
+import org.jumpaku.core.affine.pointAssertThat
+import org.jumpaku.core.curve.knotAssertThat
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 
 
 fun bSplineAssertThat(actual: BSpline): BSplineAssert = BSplineAssert(actual)

@@ -1,10 +1,10 @@
-package org.jumpaku.curve.polyline
+package org.jumpaku.core.curve.polyline
 
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.util.*
-import org.jumpaku.affine.Point
-import org.jumpaku.affine.pointAssertThat
-import org.jumpaku.curve.Interval
+import org.jumpaku.core.util.*
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.pointAssertThat
+import org.jumpaku.core.curve.Interval
 import org.junit.Test
 
 

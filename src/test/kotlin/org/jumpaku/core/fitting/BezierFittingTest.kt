@@ -1,8 +1,8 @@
-package org.jumpaku.fitting
+package org.jumpaku.core.fitting
 
-import org.jumpaku.affine.Point
-import org.jumpaku.curve.bezier.Bezier
-import org.jumpaku.curve.bezier.bezierAssertThat
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.junit.Test
 
 

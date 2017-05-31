@@ -1,4 +1,4 @@
-package org.jumpaku.util
+package org.jumpaku.core.util
 
 import io.vavr.*
 

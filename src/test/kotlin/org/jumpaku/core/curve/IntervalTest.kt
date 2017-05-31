@@ -1,4 +1,4 @@
-package org.jumpaku.curve
+package org.jumpaku.core.curve
 
 import org.assertj.core.api.Assertions.*
 import org.junit.Test

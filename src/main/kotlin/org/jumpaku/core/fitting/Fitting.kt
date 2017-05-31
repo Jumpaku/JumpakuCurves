@@ -1,8 +1,8 @@
-package org.jumpaku.fitting
+package org.jumpaku.core.fitting
 
 import io.vavr.collection.Array
-import org.jumpaku.affine.Point
-import org.jumpaku.curve.Curve
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.Curve
 
 
 

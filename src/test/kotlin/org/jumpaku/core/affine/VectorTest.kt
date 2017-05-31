@@ -1,4 +1,4 @@
-package org.jumpaku.affine
+package org.jumpaku.core.affine
 
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.assertThat

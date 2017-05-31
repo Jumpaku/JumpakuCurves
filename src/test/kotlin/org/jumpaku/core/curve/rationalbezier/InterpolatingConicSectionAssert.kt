@@ -1,8 +1,8 @@
-package org.jumpaku.curve.rationalbezier
+package org.jumpaku.core.curve.rationalbezier
 
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
-import org.jumpaku.affine.pointAssertThat
+import org.jumpaku.core.affine.pointAssertThat
 
 
 fun interpolatingConicSectionAssertThat(actual: InterpolatingConicSection): InterpolatingConicSectionAssert = InterpolatingConicSectionAssert(actual)

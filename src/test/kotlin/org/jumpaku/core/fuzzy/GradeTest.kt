@@ -1,4 +1,4 @@
-package org.jumpaku.fuzzy
+package org.jumpaku.core.fuzzy
 
 import org.assertj.core.api.Assertions.*
 import org.junit.Test

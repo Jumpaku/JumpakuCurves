@@ -1,14 +1,14 @@
-package org.jumpaku.curve.bspline
+package org.jumpaku.core.curve.bspline
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import org.jumpaku.affine.*
-import org.jumpaku.curve.*
-import org.jumpaku.curve.bezier.BezierDerivative
-import org.jumpaku.json.prettyGson
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.bezier.BezierDerivative
+import org.jumpaku.core.json.prettyGson
 
 
 class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
