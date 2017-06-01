@@ -13,14 +13,14 @@
 *Thumbs.db
 
 # gradle
-*/.gradle/
-*/build/
-*/classes/
+*.gradle/
+*build/
+*classes/
 
 # Netbeans
-*/nbproject/
+nbproject/
 
 # IDEA
-*/.idea/
+*.idea/
 *.iml
 *.ipr
