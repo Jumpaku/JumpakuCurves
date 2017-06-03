@@ -11,8 +11,8 @@ import org.jumpaku.core.util.*
  */
 fun interpolate(data: Array<TimeSeriesPoint>, delta: Double): Array<TimeSeriesPoint> {
     return data.zip(data.tail()).flatMap { (a, b) ->
-        val n = FastMath.ceil((a.time - b.time)/delta).toInt()
-        (0..n).map { a.divide(it.toDouble()/n, b) }
+        val n = FastMath.ceil((b.time - a.time)/delta).toInt()
+        (0..n).map { a.divide(it.toDouble()/(n+1), b) }
     }
 }
 

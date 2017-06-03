@@ -192,7 +192,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         }
 
         fun basis(t: Double, degree: Int, i: Int, us: Array<Double>): Double {
-            if (t !in Interval(us.get(degree), us[us.size() - degree - 1])) {
+            if (t !in Interval(us[degree], us[us.size() - degree - 1])) {
                 throw IllegalArgumentException("inserted knot($t) is out of domain([${us[degree]}, ${us[us.size() - 1 - degree]}]).")
             }
             if (Precision.equals(t, us.get(degree), 1.0e-10)) {

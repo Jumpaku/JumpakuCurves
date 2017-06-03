@@ -1,14 +1,9 @@
 package org.jumpaku.core.fitting
 
 import io.vavr.collection.Array
-import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.Curve
 
-
-
-data class TimeSeriesPoint(
-        val point: Point,
-        val time: Double = System.nanoTime()*1.0e-9)
 
 interface Fitting<out C : Curve> {
 

@@ -6,6 +6,7 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2

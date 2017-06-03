@@ -48,3 +48,12 @@ subprojects {
 project(':core') {
 
 }
+
+project(':examples'){
+    dependencies {
+        compile project(':core')
+
+        // https://mvnrepository.com/artifact/no.tornado/tornadofx
+        compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
+    }
+}

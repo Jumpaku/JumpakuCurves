@@ -6,6 +6,8 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.TimeSeriesPoint
+import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.Knot
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.util.component1
@@ -15,6 +17,8 @@ import java.util.Comparator
 
 class BSplineFitting(val degree: Int, val knots: Array<Knot>) : Fitting<BSpline>{
 
+    constructor(degree: Int, domain: Interval, delta: Double) : this(degree, Knot.clampedUniformKnots(domain, degree, domain.sample(delta).size() + degree*2))
+
     fun basis(knotValues: Array<Double>, i: Int, t: Double): Double = BSpline.basis(t, degree, i, knotValues)
 
     override fun fit(data: Array<TimeSeriesPoint>): BSpline {
@@ -23,15 +27,15 @@ class BSplineFitting(val degree: Int, val knots: Array<Knot>) : Fitting<BSpline>
         val sortedData = data.sorted(Comparator.comparing(TimeSeriesPoint::time)).toStream()
         val (d0, _) = sortedData[0]
         val (dm, _) = sortedData[m]
-
+        val n = us.size() - degree - 1
         val (ds, ts) = sortedData.subSequence(1, m)
                 .unzip { (v, t) -> Tuple(
-                        v.toVector() - d0.toVector() * basis(us, 0, t) - dm.toVector() * basis(us, (us.size() - degree - 1) - 1, t), t) }
+                        v.toVector() - d0.toVector() * basis(us, 0, t) - dm.toVector() * basis(us, n - 1, t), t) }
         val d = MatrixUtils.createRealMatrix(
                 ds.map { doubleArrayOf(it.x, it.y, it.z) }
                         .toJavaArray(DoubleArray::class.java))
         val b = MatrixUtils.createRealMatrix(
-                ts.map { t -> (1..((us.size() - degree - 1) - 2)).map { basis(us, it, t) } }
+                ts.map { t -> (1..(n - 2)).map { basis(us, it, t) } }
                         .map(List<Double>::toDoubleArray)
                         .toJavaArray(DoubleArray::class.java))
         val p = QRDecomposition(b.transpose().multiply(b)).solver
