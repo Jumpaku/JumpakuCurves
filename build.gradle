@@ -46,12 +46,22 @@ subprojects {
 }
 
 project(':core') {
+}
 
+project(':fxcomponents') {
+    dependencies {
+        compile project(':core')
+
+        // https://mvnrepository.com/artifact/no.tornado/tornadofx
+        compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
+    }
 }
 
 project(':examples'){
     dependencies {
         compile project(':core')
+
+        compile project(':fxcomponents')
 
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
