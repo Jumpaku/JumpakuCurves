@@ -9,17 +9,13 @@ fun interpolatingConicSectionAssertThat(actual: InterpolatingConicSection): Inte
 
 class InterpolatingConicSectionAssert(actual: InterpolatingConicSection) : AbstractAssert<InterpolatingConicSectionAssert, InterpolatingConicSection>(actual, InterpolatingConicSectionAssert::class.java) {
 
-    companion object{
-        fun assertThat(actual: InterpolatingConicSection): InterpolatingConicSectionAssert = InterpolatingConicSectionAssert(actual)
-    }
-
-    fun isEqualToInterpolatingConicSection(expected: InterpolatingConicSection): InterpolatingConicSectionAssert {
+    fun isEqualToInterpolatingConicSection(expected: InterpolatingConicSection, eps: Double = 1.0e-10): InterpolatingConicSectionAssert {
         isNotNull
 
-        pointAssertThat(actual.begin).`as`("begin").isEqualToPoint(expected.begin)
-        pointAssertThat(actual.middle).`as`("middle").isEqualToPoint(expected.middle)
-        pointAssertThat(actual.end).`as`("end").isEqualToPoint(expected.end)
-        Assertions.assertThat(actual.weight).`as`("weight").isEqualTo(expected.weight, Assertions.withPrecision(1.0e-10))
+        pointAssertThat(actual.begin).`as`("begin").isEqualToPoint(expected.begin, eps)
+        pointAssertThat(actual.middle).`as`("middle").isEqualToPoint(expected.middle, eps)
+        pointAssertThat(actual.end).`as`("end").isEqualToPoint(expected.end, eps)
+        Assertions.assertThat(actual.weight).`as`("weight").isEqualTo(expected.weight, Assertions.withPrecision(eps))
 
         return this
     }

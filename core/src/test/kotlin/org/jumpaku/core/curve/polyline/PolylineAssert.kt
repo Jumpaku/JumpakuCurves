@@ -12,11 +12,7 @@ fun polylineAssertThat(actual: Polyline): PolylineAssert = PolylineAssert(actual
 
 class PolylineAssert(actual: Polyline) : AbstractAssert<PolylineAssert, Polyline>(actual, PolylineAssert::class.java) {
 
-    companion object{
-        fun assertThat(actual: Polyline): PolylineAssert = PolylineAssert(actual)
-    }
-
-    fun isEqualToPolyline(expected: Polyline): PolylineAssert {
+    fun isEqualToPolyline(expected: Polyline, eps: Double = 1.0e-10): PolylineAssert {
         isNotNull
 
         if (actual.points.size() != expected.points.size()){
@@ -26,7 +22,7 @@ class PolylineAssert(actual: Polyline) : AbstractAssert<PolylineAssert, Polyline
 
         actual.points.zip(expected.points)
                 .forEachIndexed {
-                    i, (a, e) -> pointAssertThat(a).`as`("polyline.points[%d]", i).isEqualToPoint(e)
+                    i, (a, e) -> pointAssertThat(a).`as`("polyline.points[%d]", i).isEqualToPoint(e, eps)
                 }
 
         return this

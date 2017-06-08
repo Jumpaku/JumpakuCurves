@@ -7,6 +7,7 @@ import io.vavr.collection.Stream
 import io.vavr.control.Option
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
+import org.jumpaku.core.affine.divide
 import org.jumpaku.core.json.prettyGson
 
 
@@ -22,7 +23,7 @@ data class Interval(val begin: Double, val end: Double) {
         return when{
             n == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
             n >= 2 -> Stream.range(0, n)
-                    .map { (n - 1.0 - it) / (n - 1.0) * begin  + it / (n - 1.0) * end  }
+                    .map { begin.divide(it/(n - 1.0), end)  }
                     .toArray()
             else -> throw IllegalArgumentException("n($n) is too small")
         }
@@ -30,7 +31,15 @@ data class Interval(val begin: Double, val end: Double) {
 
     fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt())
 
-    operator fun contains(t: Double): Boolean = t in begin..end
+    fun subInterval(begin: Double, end: Double): Interval {
+        val i = Interval(begin, end)
+        if (i !in this){
+            throw IllegalArgumentException("t=$i is out of interval($this)")
+        }
+        return i
+    }
+
+            operator fun contains(t: Double): Boolean = t in begin..end
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 

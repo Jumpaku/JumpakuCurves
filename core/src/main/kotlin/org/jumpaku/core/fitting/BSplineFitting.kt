@@ -25,8 +25,7 @@ class BSplineFitting(
     private val knotValues: Array<Double> = knots.flatMap(Knot::toArray)
 
     override fun fit(data: Array<TimeSeriesPoint>): BSpline {
-        val (d, b) = data
-                .unzip { (p, t) -> Tuple(p, t) }
+        val (d, b) = data.unzip { (p, t) -> Tuple(p, t) }
                 .map(this::createDataMatrix, this::createBasisMatrix)
         val w = createWeightMatrix(data)
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver

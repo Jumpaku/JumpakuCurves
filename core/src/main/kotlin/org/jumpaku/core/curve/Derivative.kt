@@ -8,7 +8,7 @@ interface Derivative {
 
     operator fun invoke(t: Double): Vector {
         if (t !in domain) {
-            throw IllegalArgumentException("t=$t is out of $domain")
+            throw IllegalArgumentException("t($t) is out of domain($domain)")
         }
 
         return evaluate(t)

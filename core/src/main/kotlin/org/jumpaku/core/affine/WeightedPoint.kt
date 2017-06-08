@@ -9,7 +9,7 @@ import org.jumpaku.core.json.prettyGson
 data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint> {
 
     override fun divide(t: Double, p: WeightedPoint): WeightedPoint {
-        val w = (1 - t) * weight + t * p.weight
+        val w = weight.divide(t, p.weight)
         return WeightedPoint(point.divide(t * p.weight / w, p.point), w)
     }
 

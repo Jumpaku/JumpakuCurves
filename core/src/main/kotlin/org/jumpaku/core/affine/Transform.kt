@@ -49,6 +49,7 @@ class Transform internal constructor(private val matrix: RealMatrix) : Function1
     fun translate(x: Double, y: Double, z: Double): Transform = translate(Vector(x, y, z))
 
     companion object {
+
         val ID = Transform(MatrixUtils.createRealIdentityMatrix(4))
 
         fun translation(v: Vector): Transform{

@@ -1,6 +1,7 @@
 package org.jumpaku.core.curve.rationalrationalBezier
 
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 import org.jumpaku.core.affine.weightedPointAssertThat
 import org.jumpaku.core.curve.rationalbezier.RationalBezier
 import org.jumpaku.core.util.component1
@@ -14,21 +15,14 @@ fun rationalBezierAssertThat(actual: RationalBezier): RationalBezierAssert = Rat
 
 class RationalBezierAssert(actual: RationalBezier) : AbstractAssert<RationalBezierAssert, RationalBezier>(actual, RationalBezierAssert::class.java) {
 
-    companion object{
-        fun assertThat(actual: RationalBezier): RationalBezierAssert = RationalBezierAssert(actual)
-    }
-
-    fun isEqualToRationalBezier(expected: RationalBezier): RationalBezierAssert {
+    fun isEqualToRationalBezier(expected: RationalBezier, eps: Double = 1.0e-10): RationalBezierAssert {
         isNotNull
 
-        if (actual.controlPoints.size() != expected.controlPoints.size()){
-            failWithMessage("Expected rationalBezier size to be <%s> but was <%s>", expected.controlPoints.size(), actual.controlPoints.size())
-            return this
-        }
+        Assertions.assertThat(actual.controlPoints.size()).`as`("size of control points of rational bezier").isEqualTo(expected.controlPoints.size())
 
         actual.weightedControlPoints.zip(expected.weightedControlPoints)
                 .forEachIndexed {
-                    i, (a, e) -> weightedPointAssertThat(a).`as`("rationalBezier.weightedControlPoints[%d]", i).isEqualToWeightedPoint(e)
+                    i, (a, e) -> weightedPointAssertThat(a).`as`("rationalBezier.weightedControlPoints[%d]", i).isEqualToWeightedPoint(e, eps)
                 }
 
         return this
