@@ -8,6 +8,7 @@ import javafx.scene.Group
 import javafx.scene.paint.Color
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.TimeSeriesPoint
+import org.jumpaku.core.curve.polyline.Polyline
 import tornadofx.*
 
 
@@ -52,15 +53,13 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
     }
 
     private fun render() : Unit {
+        if(points.size() <= 2){
+            return Unit
+        }
         with(polyline) {
-            val ps = points.reverse().map(TimeSeriesPoint::point).toArray()
             children.clear()
-            if(!points.isEmpty) {
-                path {
-                    stroke = Color.RED
-                    moveTo(ps[0].x, ps[0].y)
-                    ps.forEach { lineTo(it.x, it.y) }
-                }
+            polyline(Polyline(points.map(TimeSeriesPoint::point))) {
+                stroke = Color.RED
             }
         }
     }
