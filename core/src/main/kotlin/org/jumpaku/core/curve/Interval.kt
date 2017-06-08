@@ -22,7 +22,7 @@ data class Interval(val begin: Double, val end: Double) {
         return when{
             n == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
             n >= 2 -> Stream.range(0, n)
-                    .map { (n - 1 - it) * begin / (n - 1) + it * end / (n - 1) }
+                    .map { (n - 1.0 - it) / (n - 1.0) * begin  + it / (n - 1.0) * end  }
                     .toArray()
             else -> throw IllegalArgumentException("n($n) is too small")
         }

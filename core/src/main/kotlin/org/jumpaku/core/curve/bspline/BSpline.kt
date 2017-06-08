@@ -144,14 +144,19 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         }
 
         val index = knotValues.indexWhere { Precision.equals(it, knotValue, 1.0e-10) }
+
         val multiplicity = when{
             index < 0 -> 0
             else -> knots.flatMap { (_, m) -> Stream.fill(m, { m }) }[index]
         }
+        if (multiplicity >= degree + 1){
+            return this
+        }
+
         val clampedInsertionTimes = minOf(degree - multiplicity + 1, maxOf(0, insertionTimes))
 
         assert(multiplicity in 0..degree, { "multiplicity($multiplicity) is out of 0..degree($degree)" })
-        assert(clampedInsertionTimes in 0..degree - multiplicity+1,
+        assert(clampedInsertionTimes in 0..degree - multiplicity + 1,
                 { "clampedInsertionTimes($clampedInsertionTimes) is out of 0..(degree($degree) - multiplicity($multiplicity))"})
 
         val cp = createKnotInsertedControlPoints(knotValue, clampedInsertionTimes, multiplicity, knotValues, controlPoints)
@@ -192,7 +197,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         }
 
         fun basis(t: Double, degree: Int, i: Int, us: Array<Double>): Double {
-            if (t !in Interval(us.get(degree), us[us.size() - degree - 1])) {
+            if (t !in Interval(us[degree], us[us.size() - degree - 1])) {
                 throw IllegalArgumentException("inserted knot($t) is out of domain([${us[degree]}, ${us[us.size() - 1 - degree]}]).")
             }
             if (Precision.equals(t, us.get(degree), 1.0e-10)) {
