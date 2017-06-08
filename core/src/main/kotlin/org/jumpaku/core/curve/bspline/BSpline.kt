@@ -144,14 +144,19 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         }
 
         val index = knotValues.indexWhere { Precision.equals(it, knotValue, 1.0e-10) }
+
         val multiplicity = when{
             index < 0 -> 0
             else -> knots.flatMap { (_, m) -> Stream.fill(m, { m }) }[index]
         }
+        if (multiplicity >= degree + 1){
+            return this
+        }
+
         val clampedInsertionTimes = minOf(degree - multiplicity + 1, maxOf(0, insertionTimes))
 
         assert(multiplicity in 0..degree, { "multiplicity($multiplicity) is out of 0..degree($degree)" })
-        assert(clampedInsertionTimes in 0..degree - multiplicity+1,
+        assert(clampedInsertionTimes in 0..degree - multiplicity + 1,
                 { "clampedInsertionTimes($clampedInsertionTimes) is out of 0..(degree($degree) - multiplicity($multiplicity))"})
 
         val cp = createKnotInsertedControlPoints(knotValue, clampedInsertionTimes, multiplicity, knotValues, controlPoints)

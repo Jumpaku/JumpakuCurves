@@ -9,12 +9,11 @@ data class TimeSeriesPoint(
         val point: Point,
         val time: Double = System.nanoTime()*1.0e-9) : Divisible<TimeSeriesPoint> {
 
-    override fun divide(t: Double, p: TimeSeriesPoint): TimeSeriesPoint = TimeSeriesPoint(
-            point.divide(t, p.point), (1 - t) * time + t * p.time)
+    override fun divide(t: Double, p: TimeSeriesPoint): TimeSeriesPoint {
+        return TimeSeriesPoint(point.divide(t, p.point), (1 - t) * time + t * p.time)
+    }
 
     override fun toString(): String = TimeSeriesPointJson.toJson(this)
-
-
 }
 
 data class TimeSeriesPointJson(
