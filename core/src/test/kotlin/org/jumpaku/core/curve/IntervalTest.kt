@@ -43,6 +43,15 @@ class IntervalTest {
         assertThat(i1[6]).isEqualTo( 0.5, withPrecision(1.0e-10))
     }
 
+
+    @Test
+    fun testSubInterval() {
+        println("SubInterval")
+        val i = Interval(0.6, 9.7).subInterval(0.7, 0.9)
+        intervalAssertThat(i).isEqualTo(Interval(0.7, 0.9))
+        assertThat(i.end).isEqualTo(0.9, withPrecision(1.0e-10))
+    }
+
     @Test
     fun testContains() {
         println("Contains")
@@ -72,10 +81,8 @@ class IntervalTest {
     fun testToString() {
         println("ToString")
         val i = Interval(-2.3, 3.4)
-        assertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get().begin).isEqualTo(i.begin, withPrecision(1.0e-10))
-        assertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get().end).isEqualTo(i.end, withPrecision(1.0e-10))
-        assertThat(IntervalJson.fromJson(i.toString()).get().begin).isEqualTo(i.begin, withPrecision(1.0e-10))
-        assertThat(IntervalJson.fromJson(i.toString()).get().end).isEqualTo(i.end, withPrecision(1.0e-10))
+        intervalAssertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get()).isEqualTo(i)
+        intervalAssertThat(IntervalJson.fromJson(i.toString()).get()).isEqualTo(i)
 
         assertThat(IntervalJson.fromJson("""{"begin":null, "end"-2.0}""").isEmpty).isTrue()
         assertThat(IntervalJson.fromJson("""{"begin":-2.3"end"-2.0}""").isEmpty).isTrue()

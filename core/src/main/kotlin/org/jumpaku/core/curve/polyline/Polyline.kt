@@ -10,6 +10,7 @@ import io.vavr.control.Option
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.PointJson
+import org.jumpaku.core.affine.divide
 import org.jumpaku.core.affine.times
 import org.jumpaku.core.curve.Curve
 import org.jumpaku.core.curve.Differentiable
@@ -109,14 +110,14 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
 
     companion object {
 
-        fun <C>approximate(curve: C, eps: Double = 1.0): Polyline where C : Curve, C : Differentiable {
+        fun <C> approximate(curve: C, eps: Double = 1.0): Polyline where C : Curve, C : Differentiable {
             val derivative = curve.derivative
             fun bisection(a: Double, b: Double): List<Double> {
                 val error = (curve(a).toCrisp() - curve(b).toCrisp() - (b - a) * derivative(a)).length()
                 return if (error < eps) {
                     List(a, b)
                 } else {
-                    val c = 0.5 * a + 0.5 * b
+                    val c = a.divide(0.5, b)
                     bisection(c, b).prependAll(bisection(a, c).init())
                 }
             }

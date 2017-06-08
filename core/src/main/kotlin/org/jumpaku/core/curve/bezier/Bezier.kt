@@ -68,7 +68,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     fun reduce(): Bezier {
         if (degree < 1) {
-            throw IllegalStateException("degree is too small")
+            throw IllegalStateException("degree($degree) is too small")
         }
 
         return Bezier(createReducedControlPoints(controlPoints))
@@ -85,8 +85,8 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     companion object {
 
         fun basis(degree: Int, i: Int, t: Double): Double {
-            return CombinatoricsUtils.binomialCoefficientDouble(degree, i)*
-                    FastMath.pow(t, i)*FastMath.pow(1-t, degree-i)
+            val comb = CombinatoricsUtils::binomialCoefficientDouble
+            return comb(degree, i) * FastMath.pow(t, i)*FastMath.pow(1 - t, degree - i)
         }
 
         fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> {

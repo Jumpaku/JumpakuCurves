@@ -5,6 +5,7 @@ import io.vavr.API.*
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
+import org.jumpaku.core.affine.divide
 import org.jumpaku.core.json.prettyGson
 
 
@@ -40,8 +41,8 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
 
         fun clampedUniformKnots(begin: Double, end: Double, degree: Int, knotSize: Int): Array<Knot> {
             val l = knotSize - 2 * degree - 1
-            return Stream.of(Knot(begin, degree + 1))
-                    .appendAll(Stream.range(1, l).map { Knot((l - it) * begin / l + it * end / l, 1) })
+            return Stream(Knot(begin, degree + 1))
+                    .appendAll(Stream.range(1, l).map { Knot(begin.divide(it/l.toDouble(), end))})
                     .append(Knot(end, degree + 1))
                     .toArray()
         }

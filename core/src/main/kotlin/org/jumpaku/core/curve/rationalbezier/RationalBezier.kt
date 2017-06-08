@@ -38,7 +38,6 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     constructor(vararg weightedControlPoints: WeightedPoint) : this(Array(*weightedControlPoints))
 
-
     val weightedControlPoints: Array<WeightedPoint> get() = controlPoints.zipWith(weights, ::WeightedPoint)
 
     val degree: Int get() = weightedControlPoints.size() - 1
@@ -123,7 +122,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         fun bezier1D(t: Double, weights: Array<Double>): Double {
             var ws = weights
             while (ws.size() > 1) {
-                ws = ws.zipWith(ws.tail()) { w0, w1 -> (1 - t) * w0 + t * w1 }
+                ws = ws.zipWith(ws.tail(), { w0, w1 -> w0.divide(t, w1) })
             }
             return ws.head()
         }

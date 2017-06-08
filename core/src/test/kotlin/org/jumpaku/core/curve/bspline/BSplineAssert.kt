@@ -11,11 +11,7 @@ fun bSplineAssertThat(actual: BSpline): BSplineAssert = BSplineAssert(actual)
 
 class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(actual, BSplineAssert::class.java) {
 
-    companion object{
-        fun assertThat(actual: BSpline): BSplineAssert = BSplineAssert(actual)
-    }
-
-    fun isEqualToBSpline(expected: BSpline): BSplineAssert {
+    fun isEqualToBSpline(expected: BSpline, eps: Double = 1.0e-10): BSplineAssert {
         isNotNull
 
         if (actual.controlPoints.size() != expected.controlPoints.size()){
@@ -25,7 +21,7 @@ class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(ac
 
         actual.controlPoints.zip(expected.controlPoints)
                 .forEachIndexed {
-                    i, (a, e) -> pointAssertThat(a).`as`("bSpline.controlPoints[%d]", i).isEqualToPoint(e)
+                    i, (a, e) -> pointAssertThat(a).`as`("bSpline.controlPoints[%d]", i).isEqualToPoint(e, eps)
                 }
 
         if (actual.knots.size() != expected.knots.size()){
@@ -35,7 +31,7 @@ class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(ac
 
         actual.knots.zip(expected.knots)
                 .forEachIndexed {
-                    i, (a, e) -> knotAssertThat(a).`as`("bSpline.knots[%d]", i).isEqualToKnot(e)
+                    i, (a, e) -> knotAssertThat(a).`as`("bSpline.knots[%d]", i).isEqualToKnot(e, eps)
                 }
 
         return this
