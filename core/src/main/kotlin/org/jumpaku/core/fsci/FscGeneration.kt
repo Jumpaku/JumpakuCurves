@@ -23,7 +23,7 @@ class FscGeneration(val degree: Int = 3, val knotSpan: Double = 0.1) {
 
     fun generate(data: Array<TimeSeriesPoint>): BSpline {
         val sortedData = data.sortBy(TimeSeriesPoint::time)
-        val modifiedData = DataModification(knotSpan / 10, knotSpan, knotSpan, degree - 1)
+        val modifiedData = DataModification(knotSpan / degree, knotSpan, knotSpan, degree - 1)
                 .modify(data)
         val modifiedDomain = Interval(modifiedData.head().time, modifiedData.last().time)
 

@@ -2,7 +2,9 @@ package org.jumpaku.core.fitting
 
 import io.vavr.API.*
 import io.vavr.collection.Array
+import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.*
+import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.Interval
@@ -12,20 +14,27 @@ import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotValues: Array<Double>): RealMatrix {
-    return sortedDataTimes
+    val sparse = OpenMapRealMatrix(sortedDataTimes.size(), knotValues.size() - degree - 1)
+    sortedDataTimes
             .map { t ->
                 (0..(knotValues.size() - degree - 2)).map { BSpline.basis(t, degree, it, knotValues) }
             }
-            .map(List<Double>::toDoubleArray)
-            .toJavaArray(DoubleArray::class.java)
-            .run(MatrixUtils::createRealMatrix)
+            .forEachIndexed { i, row ->
+                row.forEachIndexed { j, value ->
+                    if (!Precision.equals(value, 0.0, 1.0e-10)){
+                        sparse.setEntry(i, j, value)
+                    }
+                }
+            }
+    return sparse
 }
 
 class BSplineFitting(
         val degree: Int,
         val knots: Array<Knot>,
-        val createWeightMatrix: (Array<TimeSeriesPoint>) -> RealMatrix = { MatrixUtils.createRealIdentityMatrix(it.size()) }
-) : Fitting<BSpline>{
+        val createWeightMatrix: (Array<TimeSeriesPoint>) -> DiagonalMatrix = {
+            DiagonalMatrix(Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
+        }) : Fitting<BSpline>{
 
     constructor(degree: Int, domain: Interval, delta: Double) : this(degree, Knot.clampedUniformKnots(domain, degree, domain.sample(delta).size() + degree*2))
 

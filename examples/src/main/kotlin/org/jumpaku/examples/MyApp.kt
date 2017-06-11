@@ -28,12 +28,12 @@ class TestView : View(){
 
     init {
         subscribe<CurveInput.CurveDoneEvent> {
-            renderBSpline(FscGeneration(3, 0.1).generate(it.data))
+            render(FscGeneration(3, 0.1).generate(it.data))
         }
     }
 
 
-    private fun renderBSpline(bSpline: BSpline): Unit {
+    private fun render(bSpline: BSpline): Unit {
         with(curveInput.contents) {
             cubicBSpline(bSpline) {
                 stroke = Color.BLUE
