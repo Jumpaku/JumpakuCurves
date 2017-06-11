@@ -2,14 +2,22 @@ package org.jumpaku.fxcomponents.view
 
 import javafx.scene.Parent
 import javafx.scene.shape.Shape
+import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import tornadofx.circle
 import tornadofx.cubiccurve
 import tornadofx.group
 import tornadofx.line
 
+
+fun Parent.fuzzyPoint(point: Point, op: (Shape.() -> Unit) = { Unit }): Unit {
+    group {
+        circle(point.x, point.y, point.r, op)
+    }
+}
 
 fun Parent.cubicBSpline(bSpline: BSpline, op: (Shape.() -> Unit) = { Unit }): Unit {
     group {
@@ -32,8 +40,6 @@ fun Parent.cubicBSpline(bSpline: BSpline, op: (Shape.() -> Unit) = { Unit }): Un
 fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit) = { Unit }): Unit {
     group {
         polyline.points.zip(polyline.points.tail())
-                .forEach { (a, b) ->
-                    line(a.x, a.y, b.x, b.y, op)
-                }
+                .forEach { (a, b) -> line(a.x, a.y, b.x, b.y, op) }
     }
 }

@@ -2,9 +2,7 @@ package org.jumpaku.core.fitting
 
 import io.vavr.API.*
 import io.vavr.collection.Array
-import org.apache.commons.math3.linear.MatrixUtils
-import org.apache.commons.math3.linear.QRDecomposition
-import org.apache.commons.math3.linear.RealMatrix
+import org.apache.commons.math3.linear.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.Interval
@@ -13,6 +11,15 @@ import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
+fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotValues: Array<Double>): RealMatrix {
+    return sortedDataTimes
+            .map { t ->
+                (0..(knotValues.size() - degree - 2)).map { BSpline.basis(t, degree, it, knotValues) }
+            }
+            .map(List<Double>::toDoubleArray)
+            .toJavaArray(DoubleArray::class.java)
+            .run(MatrixUtils::createRealMatrix)
+}
 
 class BSplineFitting(
         val degree: Int,
@@ -35,18 +42,14 @@ class BSplineFitting(
         return BSpline(p, knots)
     }
 
-    fun basis(i: Int, t: Double): Double = BSpline.basis(t, degree, i, knotValues)
-
-    private fun createBasisMatrix(sortedDataTimes: Array<Double>): RealMatrix {
-        return MatrixUtils.createRealMatrix(
-                sortedDataTimes.map { t -> (0..(knotValues.size() - degree - 2)).map { basis(it, t) } }
-                        .map(List<Double>::toDoubleArray)
-                        .toJavaArray(DoubleArray::class.java))
+    fun createBasisMatrix(sortedDataTimes: Array<Double>): RealMatrix {
+        return createModelMatrix(sortedDataTimes, degree, knotValues)
     }
 
-    private fun createDataMatrix(sortedDataPoints: Array<Point>): RealMatrix {
+    fun createDataMatrix(sortedDataPoints: Array<Point>): RealMatrix {
         return MatrixUtils.createRealMatrix(
                 sortedDataPoints.map { doubleArrayOf(it.x, it.y, it.z) }
                         .toJavaArray(DoubleArray::class.java))
     }
 }
+
