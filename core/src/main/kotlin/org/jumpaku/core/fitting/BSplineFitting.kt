@@ -14,10 +14,11 @@ import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotValues: Array<Double>): RealMatrix {
-    val sparse = OpenMapRealMatrix(sortedDataTimes.size(), knotValues.size() - degree - 1)
+    val n = knotValues.size() - degree - 1
+    val sparse = OpenMapRealMatrix(sortedDataTimes.size(), n)
     sortedDataTimes
             .map { t ->
-                (0..(knotValues.size() - degree - 2)).map { BSpline.basis(t, degree, it, knotValues) }
+                (0..(n - 1)).map { BSpline.basis(t, degree, it, knotValues) }
             }
             .forEachIndexed { i, row ->
                 row.forEachIndexed { j, value ->
@@ -36,7 +37,8 @@ class BSplineFitting(
             DiagonalMatrix(Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
         }) : Fitting<BSpline>{
 
-    constructor(degree: Int, domain: Interval, delta: Double) : this(degree, Knot.clampedUniformKnots(domain, degree, domain.sample(delta).size() + degree*2))
+    constructor(degree: Int, domain: Interval, delta: Double) : this(
+            degree, Knot.clampedUniformKnots(domain, degree, domain.sample(delta).size() + degree*2))
 
     private val knotValues: Array<Double> = knots.flatMap(Knot::toArray)
 
@@ -56,9 +58,10 @@ class BSplineFitting(
     }
 
     fun createDataMatrix(sortedDataPoints: Array<Point>): RealMatrix {
-        return MatrixUtils.createRealMatrix(
-                sortedDataPoints.map { doubleArrayOf(it.x, it.y, it.z) }
-                        .toJavaArray(DoubleArray::class.java))
+        return sortedDataPoints
+                .map { doubleArrayOf(it.x, it.y, it.z) }
+                .toJavaArray(DoubleArray::class.java)
+                .run(MatrixUtils::createRealMatrix)
     }
 }
 

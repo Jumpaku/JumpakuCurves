@@ -20,7 +20,11 @@ class DataModificationTest {
     @Test
     fun testModify() {
         println("Modify")
-        //fail("Modify not implemented.")
+        val knots = Knot.clampedUniformKnots(2, 8)
+        val b = BSpline(API.Array<Point>(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
+        val data = Interval(0.5, 2.5).sample(100).map { TimeSeriesPoint(b(it), it) }
+        val a = BSplineFitting(2, knots).fit(DataModification(0.1, 0.5, 0.5, 2).modify(data))
+        bSplineAssertThat(a).isEqualToBSpline(b)
     }
 
     @Test

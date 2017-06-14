@@ -23,17 +23,18 @@ class FscGeneration(val degree: Int = 3, val knotSpan: Double = 0.1) {
 
     fun generate(data: Array<TimeSeriesPoint>): BSpline {
         val sortedData = data.sortBy(TimeSeriesPoint::time)
-        val modifiedData = DataModification(knotSpan / degree, knotSpan, knotSpan, degree - 1)
-                .modify(data)
-        val modifiedDomain = Interval(modifiedData.head().time, modifiedData.last().time)
+        val modifiedData = DataModification(knotSpan / degree, knotSpan*1, knotSpan*1, degree - 1).modify(sortedData)
+        val bSpline = BSplineFitting(
+                degree, Interval(modifiedData.head().time, modifiedData.last().time), knotSpan).fit(modifiedData)
 
-        val bSpline = BSplineFitting(degree, modifiedDomain, knotSpan).fit(modifiedData)
         val targetVector = createFuzzinessDataVector(modifiedData.map(TimeSeriesPoint::time), bSpline)
         val modelMatrix = createModelMatrix(modifiedData.map(TimeSeriesPoint::time), degree, bSpline.knotValues)
         val fuzzyControlPoints = nonNegativeLinearLeastSquare(modelMatrix, targetVector).toArray()
                 .zip(bSpline.controlPoints, { r, (x, y, z) -> Point.xyzr(x, y, z, r) })
-        return BSpline(fuzzyControlPoints, bSpline.knots)
-                .restrict(Interval(sortedData.head().time, sortedData.last().time))
+
+        val fsc = BSpline(fuzzyControlPoints, bSpline.knots)
+        return fsc
+                .restrict(fsc.knots.tail().head().value, fsc.knots.init().last().value)
     }
 
     fun createFuzzinessDataVector(modifiedDataTimes: Array<Double>, crispBSpline: BSpline): RealVector {

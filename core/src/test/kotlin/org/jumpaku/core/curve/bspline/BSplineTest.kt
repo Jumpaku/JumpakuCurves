@@ -20,7 +20,7 @@ class BSplineTest {
         println("Properties")
         val b = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
 
         pointAssertThat(b.controlPoints[0]).isEqualToPoint(Point.xyr(-1.0, 0.0, 0.0))
         pointAssertThat(b.controlPoints[1]).isEqualToPoint(Point.xyr(-1.0, 1.0, 1.0))
@@ -29,20 +29,20 @@ class BSplineTest {
         pointAssertThat(b.controlPoints[4]).isEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
         assertThat(5).isEqualTo(b.controlPoints.size())
 
-        knotAssertThat(b.knots[0]).isEqualToKnot(Knot(0.0, 4))
-        knotAssertThat(b.knots[1]).isEqualToKnot(Knot(1.0, 1))
-        knotAssertThat(b.knots[2]).isEqualToKnot(Knot(2.0, 4))
+        knotAssertThat(b.knots[0]).isEqualToKnot(Knot(3.0, 4))
+        knotAssertThat(b.knots[1]).isEqualToKnot(Knot(3.5, 1))
+        knotAssertThat(b.knots[2]).isEqualToKnot(Knot(4.0, 4))
         assertThat(b.knots.size()).isEqualTo(3)
 
-        assertThat(b.knotValues[0]).isEqualTo(0.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[1]).isEqualTo(0.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[2]).isEqualTo(0.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[3]).isEqualTo(0.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[4]).isEqualTo(1.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[5]).isEqualTo(2.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[6]).isEqualTo(2.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[7]).isEqualTo(2.0, withPrecision(1.0e-10))
-        assertThat(b.knotValues[8]).isEqualTo(2.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[0]).isEqualTo(3.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[1]).isEqualTo(3.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[2]).isEqualTo(3.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[3]).isEqualTo(3.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[4]).isEqualTo(3.5, withPrecision(1.0e-10))
+        assertThat(b.knotValues[5]).isEqualTo(4.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[6]).isEqualTo(4.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[7]).isEqualTo(4.0, withPrecision(1.0e-10))
+        assertThat(b.knotValues[8]).isEqualTo(4.0, withPrecision(1.0e-10))
         assertThat(b.knotValues.size()).isEqualTo(9)
 
         assertThat(b.domain.begin).isEqualTo(b.knots[0].value)
@@ -57,12 +57,12 @@ class BSplineTest {
         println("ToString")
         val b = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
         bSplineAssertThat(BSplineJson.fromJson(b.toString()).get()).isEqualToBSpline(b)
         bSplineAssertThat(BSplineJson.fromJson(BSplineJson.toJson(b)).get()).isEqualToBSpline(b)
 
-        assertThat(BSplineJson.fromJson("""{"controlPoints"[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":0.0,"multiplicity":2},{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
-        assertThat(BSplineJson.fromJson("""{"controlPoints":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":0.0,"multiplicity":2},{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
+        assertThat(BSplineJson.fromJson("""{"controlPoints"[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":3.0,"multiplicity":2},{"value":4.0,"multiplicity":2}]}""").isEmpty).isTrue()
+        assertThat(BSplineJson.fromJson("""{"controlPoints":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":3.0,"multiplicity":2},{"value":4.0,"multiplicity":2}]}""").isEmpty).isTrue()
         assertThat(BSplineJson.fromJson("""{"controlPoints":[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[null,{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
     }
 
@@ -71,13 +71,13 @@ class BSplineTest {
         println("Evaluate")
         val bSpline = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
 
-        pointAssertThat(bSpline.evaluate(0.0)).isEqualToPoint(Point.xyr(-1.0, 0.0, 0.0))
-        pointAssertThat(bSpline.evaluate(0.5)).isEqualToPoint(Point.xyr(-23 / 32.0, 27 / 32.0, 9 / 8.0))
-        pointAssertThat(bSpline.evaluate(1.0)).isEqualToPoint(Point.xyr(-1 / 4.0, 3 / 4.0, 1.5))
-        pointAssertThat(bSpline.evaluate(1.5)).isEqualToPoint(Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0))
-        pointAssertThat(bSpline.evaluate(2.0)).isEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
+        pointAssertThat(bSpline.evaluate(3.0)).isEqualToPoint(Point.xyr(-1.0, 0.0, 0.0))
+        pointAssertThat(bSpline.evaluate(3.25)).isEqualToPoint(Point.xyr(-23 / 32.0, 27 / 32.0, 9 / 8.0))
+        pointAssertThat(bSpline.evaluate(3.5)).isEqualToPoint(Point.xyr(-1 / 4.0, 3 / 4.0, 1.5))
+        pointAssertThat(bSpline.evaluate(3.75)).isEqualToPoint(Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0))
+        pointAssertThat(bSpline.evaluate(4.0)).isEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
     }
 
     @Test
@@ -85,10 +85,10 @@ class BSplineTest {
         println("Differentiate")
         val b = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
         val e = BSpline(
-               Array(Point.xy(0.0, 3.0), Point.xy(1.5, 0.0), Point.xy(0.0, -1.5), Point.xy(3.0, 0.0)),
-                Knot.clampedUniformKnots(2, 7))
+               Array(Point.xy(0.0, 6.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(6.0, 0.0)),
+                Knot.clampedUniformKnots(3.0, 4.0, 2, 7))
 
         bSplineAssertThat(b.derivative.asBSpline).isEqualToBSpline(e)
     }
@@ -98,20 +98,20 @@ class BSplineTest {
         println("Restrict")
         val b0 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
-                .restrict(Interval(1.0, 1.5))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
+                .restrict(Interval(3.5, 3.75))
         val e0 = BSpline(
                 Array(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(-0.125, 5 / 8.0, 1.5), Point.xyr(-1 / 16.0, 7 / 16.0, 11 / 8.0), Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0)),
-                Knot.clampedUniformKnots(1.0, 1.5, 3, 8))
+                Knot.clampedUniformKnots(3.5, 3.75, 3, 8))
         bSplineAssertThat(b0).isEqualToBSpline(e0)
 
         val b1 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
-                .restrict(1.0, 1.5)
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
+                .restrict(3.5, 3.75)
         val e1 = BSpline(
                 Array(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(-0.125, 5 / 8.0, 1.5), Point.xyr(-1 / 16.0, 7 / 16.0, 11 / 8.0), Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0)),
-                Knot.clampedUniformKnots(1.0, 1.5, 3, 8))
+                Knot.clampedUniformKnots(3.5, 3.75, 3, 8))
         bSplineAssertThat(b1).isEqualToBSpline(e1)
     }
 
@@ -134,7 +134,7 @@ class BSplineTest {
         println("ToBeziers")
         val beziers = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
                 .toBeziers()
         bezierAssertThat(beziers.get(0)).isEqualToBezier(Bezier(
                 Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)))
@@ -148,14 +148,14 @@ class BSplineTest {
         println("Subdivide")
         val (b0, b1) = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
-                .subdivide(1.0)
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
+                .subdivide(3.5)
         bSplineAssertThat(b0).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
-                Knot.clampedUniformKnots(3, 8)))
+                Knot.clampedUniformKnots(3.0, 3.5, 3, 8)))
         bSplineAssertThat(b1).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(1.0, 2.0, 3, 8)))
+                Knot.clampedUniformKnots(3.5, 4.0, 3, 8)))
     }
 
     @Test
@@ -163,20 +163,20 @@ class BSplineTest {
         println("InsertKnot")
         val b0 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
-                .insertKnot(0.5)
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
+                .insertKnot(3.25)
         val e0 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 0.5, 0.5), Point.xyr(-0.75, 1.0, 1.25), Point.xyr(0.0, 0.75, 1.75), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Array(Knot(0.0, 4), Knot(0.5, 1), Knot(1.0, 1), Knot(2.0, 4)))
+                Array(Knot(3.0, 4), Knot(3.25, 1), Knot(3.5, 1), Knot(4.0, 4)))
         bSplineAssertThat(b0).isEqualToBSpline(e0)
 
         val b1 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Knot.clampedUniformKnots(3, 9))
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
                 .insertKnot(4, 2)
         val e1 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                Array(Knot(0.0, 4), Knot(1.0, 3), Knot(2.0, 4)))
+                Array(Knot(3.0, 4), Knot(3.5, 3), Knot(4.0, 4)))
 
         bSplineAssertThat(b1).isEqualToBSpline(e1)
     }

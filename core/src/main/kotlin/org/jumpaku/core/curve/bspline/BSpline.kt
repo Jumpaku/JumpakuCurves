@@ -28,7 +28,6 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
     override val domain: Interval = Interval(knots.head().value, knots.last().value)
 
     override val derivative: BSplineDerivative get() {
-        val d = degree
         val knots = knots.zipWithIndex { knot, i -> if (i == 0 || i == knots.size() - 1){
                 knot.reduceMultiplicity()
             } else{
@@ -38,7 +37,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         val ts = knotValues
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
-                .zipWithIndex({ v, i -> v*(d / (ts[d + i + 1] - ts[i + 1])) })
+                .zipWithIndex({ v, i -> v*(degree / (ts[degree + i + 1] - ts[i + 1])) })
 
         return BSplineDerivative(cvs, knots)
     }
@@ -95,7 +94,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
             throw IllegalArgumentException("Interval([$begin, $end]) is out of domain($domain)")
         }
 
-        return subdivide(end)._1().subdivide(begin)._2()
+        return subdivide(begin)._2().subdivide(end)._1()
     }
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
@@ -122,13 +121,20 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
 
     fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
         val i = knotValues.lastIndexWhere { Precision.equals(it, t, 1.0e-10) }
+        if(i == 0){
+            Tuple(BSpline(Array.of(controlPoints.head()), Array.of(knots.head())), this)
+        }
+        if(i == knotValues.size() - 1){
+            Tuple(this, BSpline(Array.of(controlPoints.last()), Array.of(knots.last())))
+        }
+
         val u = if (i < 0) t else knotValues[i]
 
         val inserted = insertKnot(u, degree + 1)
 
-        val firstKnots =  inserted.knots.takeWhile { it.value <= u }
+        val firstKnots = inserted.knots.takeWhile { it.value <= u }
         val firstControlPoints = inserted.controlPoints.take(firstKnots.flatMap(Knot::toArray).size() - degree - 1)
-        val secondKnots =  inserted.knots.dropWhile { it.value < u }
+        val secondKnots = inserted.knots.dropWhile { it.value < u }
         val secondControlPoints = inserted.controlPoints.drop(firstKnots.flatMap(Knot::toArray).size() - degree - 1)
 
         return Tuple(BSpline(firstControlPoints, firstKnots), BSpline(secondControlPoints, secondKnots))

@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve
 
+import io.vavr.collection.Array
 import org.jumpaku.core.affine.Point
 
 /**
@@ -24,4 +25,8 @@ interface Curve : Function1<Double, Point> {
      * @throws IllegalArgumentException t !in domain
      */
     fun evaluate(t: Double): Point
+
+    fun evaluateAll(n: Int): Array<Point> = domain.sample(n).map(this)
+
+    fun evaluateAll(delta: Double): Array<Point> = domain.sample(delta).map(this)
 }

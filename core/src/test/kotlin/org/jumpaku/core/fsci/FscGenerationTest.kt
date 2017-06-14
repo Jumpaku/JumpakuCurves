@@ -1,19 +1,27 @@
 package org.jumpaku.core.fsci
 
-import io.vavr.API.Array
-import org.assertj.core.api.Assertions.*
-import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPoint
-import org.jumpaku.core.affine.timeSeriesDataAssertThat
-import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.Knot
-import org.jumpaku.core.curve.bspline.BSpline
-import org.jumpaku.core.curve.bspline.bSplineAssertThat
-import org.jumpaku.core.fitting.BSplineFitting
+import org.assertj.core.api.Assertions.fail
 import org.junit.Test
+import java.nio.file.Path
+import java.nio.file.Paths
 
 
 class FscGenerationTest {
+
+    val path: Path = Paths.get(".").resolve("src/test/kotlin/org/jumpaku/core/fsci")
+
+    @Test
+    fun testGenerate() {
+        println("Generate")
+        println(path.toFile().exists())
+        fail("Generate not implemented.")
+    }
+
+    @Test
+    fun testCreateFuzzinessDataVector() {
+        println("CreateFuzzinessDataVector")
+        fail("CreateFuzzinessDataVector not implemented.")
+    }
 
 
 }
