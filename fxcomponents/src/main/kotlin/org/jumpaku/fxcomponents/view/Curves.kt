@@ -7,10 +7,12 @@ import javafx.scene.shape.Circle
 import javafx.scene.shape.CubicCurve
 import javafx.scene.shape.Line
 import javafx.scene.shape.Shape
+import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import tornadofx.circle
 import tornadofx.cubiccurve
 import tornadofx.group
 import tornadofx.line

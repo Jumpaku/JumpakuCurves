@@ -32,7 +32,7 @@ class IntervalTest {
         assertThat(i0[4]).isEqualTo( 0.3, withPrecision(1.0e-10))
         assertThat(i0[5]).isEqualTo( 0.4, withPrecision(1.0e-10))
         assertThat(i0[6]).isEqualTo( 0.5, withPrecision(1.0e-10))
-        val i1 = Interval(-0.1, 0.5).sample(0.09)
+        val i1 = Interval(-0.1, 0.5).sample(0.11)
         assertThat(i1).hasSize(7)
         assertThat(i1[0]).isEqualTo(-0.1, withPrecision(1.0e-10))
         assertThat(i1[1]).isEqualTo( 0.0, withPrecision(1.0e-10))

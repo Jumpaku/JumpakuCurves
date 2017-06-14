@@ -19,17 +19,17 @@ data class Interval(val begin: Double, val end: Double) {
         }
     }
 
-    fun sample(n: Int): Array<Double> {
+    fun sample(nSamples: Int): Array<Double> {
         return when{
-            n == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
-            n >= 2 -> Stream.range(0, n)
-                    .map { begin.divide(it/(n - 1.0), end)  }
+            nSamples == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
+            nSamples >= 2 -> Stream.range(0, nSamples)
+                    .map { begin.divide(it/(nSamples - 1.0), end)  }
                     .toArray()
-            else -> throw IllegalArgumentException("n($n) is too small")
+            else -> throw IllegalArgumentException("n($nSamples) is too small")
         }
     }
 
-    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt())
+    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt() + 1)
 
     fun subInterval(begin: Double, end: Double): Interval {
         val i = Interval(begin, end)

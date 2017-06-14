@@ -1,6 +1,7 @@
 package org.jumpaku.core.curve.bspline
 
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.knotAssertThat
 import org.jumpaku.core.util.component1
@@ -14,20 +15,14 @@ class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(ac
     fun isEqualToBSpline(expected: BSpline, eps: Double = 1.0e-10): BSplineAssert {
         isNotNull
 
-        if (actual.controlPoints.size() != expected.controlPoints.size()){
-            failWithMessage("Expected controlPoints size to be <%s> but was <%s>", expected.controlPoints.size(), actual.controlPoints.size())
-            return this
-        }
+        Assertions.assertThat(actual.controlPoints.size()).`as`("controlPoints size").isEqualTo(expected.controlPoints.size())
 
         actual.controlPoints.zip(expected.controlPoints)
                 .forEachIndexed {
                     i, (a, e) -> pointAssertThat(a).`as`("bSpline.controlPoints[%d]", i).isEqualToPoint(e, eps)
                 }
 
-        if (actual.knots.size() != expected.knots.size()){
-            failWithMessage("Expected knots size to be <%s> but was <%s>", expected.controlPoints.size(), actual.controlPoints.size())
-            return this
-        }
+        Assertions.assertThat(actual.knots.size()).`as`("knots size").isEqualTo(expected.knots.size())
 
         actual.knots.zip(expected.knots)
                 .forEachIndexed {
