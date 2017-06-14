@@ -1,14 +1,19 @@
 package org.jumpaku.examples
 
+import io.vavr.API
+import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.paint.Color
+import org.jumpaku.core.affine.Fuzzy
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.TimeSeriesPoint
+import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.Knot
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.polyline.Polyline
+import org.jumpaku.core.fsci.DataModification
 import org.jumpaku.core.fsci.FscGeneration
-import org.jumpaku.fxcomponents.view.CurveInput
-import org.jumpaku.fxcomponents.view.cubicBSpline
-import org.jumpaku.fxcomponents.view.fuzzyPoint
-import org.jumpaku.fxcomponents.view.polyline
+import org.jumpaku.fxcomponents.view.*
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
@@ -28,26 +33,14 @@ class TestView : View(){
 
     init {
         subscribe<CurveInput.CurveDoneEvent> {
-            render(FscGeneration(3, 0.1).generate(it.data))
+            render(it.data)
         }
     }
 
-
-    private fun render(bSpline: BSpline): Unit {
+    private fun render(data: Array<TimeSeriesPoint>): Unit {
         with(curveInput.contents) {
-            cubicBSpline(bSpline) {
+            cubicFsc(FscGeneration(3, 0.1).generate(data)){
                 stroke = Color.BLUE
-                fill = Color.gray(0.0, 0.0)
-            }
-            bSpline.domain.sample(0.01).map(bSpline)
-                    .forEach {
-                        fuzzyPoint(it) {
-                            stroke = Color.BLUE
-                            fill = Color.gray(0.0, 0.0)
-                        }
-                    }
-            polyline(Polyline(bSpline.controlPoints)){
-                stroke = Color.ORANGE
             }
         }
     }
