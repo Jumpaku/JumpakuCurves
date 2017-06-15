@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve.bspline
 
+import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Vector
@@ -9,6 +10,7 @@ import org.jumpaku.core.curve.Knot
 import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.jumpaku.core.curve.knotAssertThat
+import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 import org.junit.Test
@@ -59,13 +61,7 @@ class BSplineDerivativeTest {
         val b = BSplineDerivative(
                 Array(Vector(-1.0, 0.0, 0.0), Vector(-1.0, 1.0, 1.0), Vector(0.0, 1.0, 2.0), Vector(0.0, 0.0, 1.0), Vector(1.0, 0.0, 0.0)),
                 Knot.clampedUniformKnots(3, 9))
-        bSplineAssertThat(BSplineDerivativeJson.fromJson(b.toString()).get().asBSpline).isEqualToBSpline(b.asBSpline)
-        bSplineAssertThat(BSplineDerivativeJson.fromJson(BSplineDerivativeJson.toJson(b)).get().asBSpline).isEqualToBSpline(b.asBSpline)
-
-        assertThat(BSplineJson.fromJson("""{"controlVectors"[{"x":0.0,"y":1.0,"z":0.0},{"x":0.0,"y":1.0,"z":0.0}],"knots":[{"value":0.0,"multiplicity":2},{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
-        assertThat(BSplineJson.fromJson("""{"controlVectors":{"x":0.0,"y":1.0,"z":0.0},{"x":0.0,"y":1.0,"z":0.0}],"knots":[{"value":0.0,"multiplicity":2},{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
-        assertThat(BSplineJson.fromJson("""{"controlVectors":[{"x":0.0,"y":1.0,"z":0.0},{"x":0.0,"y":1.0,"z":0.0}],"knots":[null,{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
-
+        bSplineAssertThat(prettyGson.fromJson<BSplineDerivativeJson>(b.toString()).bSplineDerivative().asBSpline).isEqualToBSpline(b.asBSpline)
     }
 
     @Test

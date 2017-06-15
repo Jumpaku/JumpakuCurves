@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve.rationalbezier
 
+import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
@@ -9,6 +10,7 @@ import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 import org.jumpaku.core.affine.WeightedPoint
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.json.prettyGson
 
 
 class RationalBezierTest {
@@ -116,15 +118,24 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, 2-R2, 1+R2), (1+R2)/3),
                 WeightedPoint(Point.xyr(1.0,  0.0,  3.0),      1.0))
 
-        rationalBezierAssertThat(RationalBezierJson.fromJson(p.toString()).get()).isEqualToRationalBezier(p)
-        rationalBezierAssertThat(RationalBezierJson.fromJson(RationalBezierJson.toJson(p)).get()).isEqualToRationalBezier(p)
+        rationalBezierAssertThat(prettyGson.fromJson<RationalBezierJson>(p.toString()).rationalBezier()).isEqualToRationalBezier(p)
+    }
 
-        assertThat(RationalBezierJson.fromJson(
-                """{"weightedControlPoints":[{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"weight":"abc"}]}""").isEmpty).isTrue()
-        assertThat(RationalBezierJson.fromJson(
-                """{"weightedControlPoints":{"point":{"x":1.0,"y":0.0,"z":0.0,"r":2.0},"weight":1.0}]}""").isEmpty).isTrue()
-        assertThat(RationalBezierJson.fromJson(
-                """{"weightedControlPoints":[{"point":null,"weight":1.0}]}""").isEmpty).isTrue()
+    @Test
+    fun testCrispTransform() {
+        println("CrispTransform")
+        val i = RationalBezier(
+                WeightedPoint(Point.xyr(0.0,  1.0,  1.0),      1.0),
+                WeightedPoint(Point.xyr(2-R2, 1.0, 3-R2), (1+R2)/3),
+                WeightedPoint(Point.xyr(1.0, 2-R2, 1+R2), (1+R2)/3),
+                WeightedPoint(Point.xyr(1.0,  0.0,  3.0),      1.0))
+        val a = i.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val e = RationalBezier(
+                WeightedPoint(Point.xy(-1.0,    1.0),      1.0),
+                WeightedPoint(Point.xy(-1.0, 5-2*R2), (1+R2)/3),
+                WeightedPoint(Point.xy(2*R2-3,  3.0), (1+R2)/3),
+                WeightedPoint(Point.xy(1.0,     3.0),      1.0))
+        rationalBezierAssertThat(a).isEqualToRationalBezier(e)
     }
 
     @Test

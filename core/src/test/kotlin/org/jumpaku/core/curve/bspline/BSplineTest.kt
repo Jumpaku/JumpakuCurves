@@ -1,14 +1,19 @@
 package org.jumpaku.core.curve.bspline
 
+import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
+import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.Transform
+import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.Knot
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.jumpaku.core.curve.knotAssertThat
+import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 import org.junit.Test
@@ -58,12 +63,7 @@ class BSplineTest {
         val b = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
-        bSplineAssertThat(BSplineJson.fromJson(b.toString()).get()).isEqualToBSpline(b)
-        bSplineAssertThat(BSplineJson.fromJson(BSplineJson.toJson(b)).get()).isEqualToBSpline(b)
-
-        assertThat(BSplineJson.fromJson("""{"controlPoints"[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":3.0,"multiplicity":2},{"value":4.0,"multiplicity":2}]}""").isEmpty).isTrue()
-        assertThat(BSplineJson.fromJson("""{"controlPoints":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[{"value":3.0,"multiplicity":2},{"value":4.0,"multiplicity":2}]}""").isEmpty).isTrue()
-        assertThat(BSplineJson.fromJson("""{"controlPoints":[{"x":0.0,"y":1.0,"z":0.0,"r":1.0},{"x":0.0,"y":1.0,"z":0.0,"r":1.0}],"knots":[null,{"value":1.0,"multiplicity":2}]}""").isEmpty).isTrue()
+        bSplineAssertThat(prettyGson.fromJson<BSplineJson>(b.toString()).bSpline()).isEqualToBSpline(b)
     }
 
     @Test
@@ -93,6 +93,18 @@ class BSplineTest {
         bSplineAssertThat(b.derivative.asBSpline).isEqualToBSpline(e)
     }
 
+    @Test
+    fun testCrispTransform() {
+        println("CrispTransform")
+        val b = BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
+        val a = b.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val e = BSpline(
+                Array(Point.xy(1.0, -1.0), Point.xy(-1.0, -1.0), Point.xy(-1.0, 1.0), Point.xy(1.0, 1.0), Point.xy(1.0, 3.0)),
+                Knot.clampedUniformKnots(3.0, 4.0, 3, 9))
+        bSplineAssertThat(a).isEqualToBSpline(e)
+    }
     @Test
     fun testRestrict() {
         println("Restrict")

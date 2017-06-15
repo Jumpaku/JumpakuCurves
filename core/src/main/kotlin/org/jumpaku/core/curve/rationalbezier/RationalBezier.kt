@@ -7,28 +7,19 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.Derivative
+import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, CrispTransformable {
 
     init {
-        if (controlPoints.isEmpty) {
-            throw IllegalArgumentException("empty controlPoints")
-        }
-        if (weights.isEmpty) {
-            throw IllegalArgumentException("empty weights")
-        }
-        if (controlPoints.size() != weights.size()) {
-            throw IllegalArgumentException("controlPoints.size() != weights.size()")
-        }
+        require(controlPoints.nonEmpty()) { "empty controlPoints" }
+        require(weights.nonEmpty()) { "empty weights" }
+        require(controlPoints.size() == weights.size()) { "controlPoints.size() != weights.size()" }
     }
 
     constructor(weightedControlPoints: Array<WeightedPoint>) : this(
@@ -51,9 +42,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
         return object : Derivative {
             override fun evaluate(t: Double): Vector {
-                if (t !in domain) {
-                    throw IllegalArgumentException("t($t) is out of domain($domain)")
-                }
+                require(t in domain) { "t($t) is out of domain($domain)" }
 
                 val wt = bezier1D(t, ws)
                 val dwt = bezier1D(t, dws)
@@ -68,9 +57,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     }
 
     override fun evaluate(t: Double): Point {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain($domain)")
-        }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         var wcp = weightedControlPoints
         while (wcp.size() > 1) {
@@ -81,16 +68,19 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun toString(): String = RationalBezierJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): RationalBezierJson = RationalBezierJson(this)
 
     override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
+
+    override fun crispTransform(a: Transform): RationalBezier = RationalBezier(
+            weightedControlPoints.map { it.copy(point = a(it.point.toCrisp())) })
 
     fun restrict(i: Interval): RationalBezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): RationalBezier {
-        if (Interval(begin, end) !in domain) {
-            throw IllegalArgumentException("Interval($begin, $end) is out of domain($domain)")
-        }
+        require(Interval(begin, end) in domain) { "Interval($begin, $end) is out of domain($domain)" }
 
         return subdivide(end)._1().subdivide(begin / end)._2()
     }
@@ -101,17 +91,13 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     fun elevate(): RationalBezier = RationalBezier(Bezier.createElevatedControlPoints(weightedControlPoints))
 
     fun reduce(): RationalBezier {
-        if (degree < 1) {
-            throw IllegalStateException("degree($degree) is too small")
-        }
+        require(degree >= 1) { "degree($degree) is too small" }
 
         return RationalBezier(Bezier.createReducedControlPoints(weightedControlPoints))
     }
 
     fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain()$domain")
-        }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         return Bezier.createSubdividedControlPointsArrays(t, weightedControlPoints)
                 .map(::RationalBezier, ::RationalBezier)
@@ -126,31 +112,12 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
             }
             return ws.head()
         }
-
-        fun fromBezier(bezier: Bezier): RationalBezier = RationalBezier(bezier.controlPoints, Stream.fill(bezier.degree + 1, { 1.0 }).toArray())
     }
 }
 
-class RationalBezierJson(weightedControlPoints: Array<WeightedPoint>){
+data class RationalBezierJson(private val weightedControlPoints: List<WeightedPointJson>){
 
-    private val weightedControlPoints: kotlin.Array<WeightedPointJson> = weightedControlPoints
-            .map { (p, w) -> WeightedPointJson(PointJson(p.x, p.y, p.z, p.r), w) }
-            .toJavaArray(WeightedPointJson::class.java)
+    constructor(rationalBezier: RationalBezier) : this(rationalBezier.weightedControlPoints.map(WeightedPoint::json).toJavaList())
 
-    fun rationalBezier(): RationalBezier = RationalBezier(Array(*weightedControlPoints)
-            .map(WeightedPointJson::weightedPoint))
-
-    companion object{
-
-        fun toJson(bezier: RationalBezier): String = prettyGson.toJson(RationalBezierJson(bezier.weightedControlPoints))
-
-        fun fromJson(json: String): Option<RationalBezier> {
-            return try {
-                Option(prettyGson.fromJson<RationalBezierJson>(json).rationalBezier())
-            }
-            catch (e: Exception){
-                None()
-            }
-        }
-    }
+    fun rationalBezier(): RationalBezier = RationalBezier(weightedControlPoints.map(WeightedPointJson::weightedPoint))
 }

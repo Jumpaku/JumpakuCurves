@@ -1,9 +1,11 @@
 package org.jumpaku.core.curve.rationalbezier
 
+import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.rationalrationalBezier.rationalBezierAssertThat
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 /**
@@ -37,18 +39,8 @@ class InterpolatingConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = InterpolatingConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2/2, R2/2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2/2)
-
-        interpolatingConicSectionAssertThat(InterpolatingConicSectionJson.fromJson(i.toString()).get())
+        interpolatingConicSectionAssertThat(prettyGson.fromJson<InterpolatingConicSectionJson>(i.toString()).interpolatingConicSection())
                 .isEqualToInterpolatingConicSection(i)
-        interpolatingConicSectionAssertThat(InterpolatingConicSectionJson.fromJson(InterpolatingConicSectionJson.toJson(i)).get())
-                .isEqualToInterpolatingConicSection(i)
-
-        assertThat(InterpolatingConicSectionJson.fromJson(
-                """{"begin":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"middle":{"x":0.0,"y":1.0,"z":0.0,"r":2.0},"end":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"weight":"abc"}]}""").isEmpty).isTrue()
-        assertThat(InterpolatingConicSectionJson.fromJson(
-                """{"begin":{"x":0.0,"y":1.0,"z":0.0,"r":1.0,"middle":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"end":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"weight":"abc"}]}""").isEmpty).isTrue()
-        assertThat(InterpolatingConicSectionJson.fromJson(
-                """{"begin":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"middle":null,"end":{"x":0.0,"y":1.0,"z":0.0,"r":1.0},"weight":"abc"}]}""").isEmpty).isTrue()
     }
 
     @Test
@@ -95,6 +87,15 @@ class InterpolatingConicSectionTest {
                 Point.xyr((3*R2+9)/(3*R2+10), (3*R2+1)/(3*R2+10), (32+6*R2)/(10+3*R2)))
         pointAssertThat(i.evaluate(1.0 )).isEqualToPoint(
                 Point.xyr(1.0, 0.0, 3.0))
+    }
+
+    @Test
+    fun testCrispTransform() {
+        println("CrispTransform")
+        val i = InterpolatingConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2/2, R2/2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2/2)
+        val a = i.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val e = InterpolatingConicSection(Point.xy(-1.0, 1.0), Point.xy(1-R2, 1+R2), Point.xy(1.0, 3.0), R2/2)
+        interpolatingConicSectionAssertThat(a).isEqualToInterpolatingConicSection(e)
     }
 
     @Test

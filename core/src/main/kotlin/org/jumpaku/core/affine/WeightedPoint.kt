@@ -13,24 +13,14 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<
         return WeightedPoint(point.divide(t * p.weight / w, p.point), w)
     }
 
-    override fun toString(): String = WeightedPointJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): WeightedPointJson = WeightedPointJson(this)
 }
 
 data class WeightedPointJson(private val point: PointJson, private val weight: Double) {
 
+    constructor(weightedPoint: WeightedPoint) : this(weightedPoint.point.json(), weightedPoint.weight)
+
     fun weightedPoint() = WeightedPoint(point.point(), weight)
-
-    companion object {
-
-        fun toJson(wp: WeightedPoint): String = prettyGson.toJson(WeightedPointJson(
-                wp.point.run { PointJson(x, y, z, r) }, wp.weight))
-
-        fun fromJson(json: String): Option<WeightedPoint> {
-            return try {
-                Option(prettyGson.fromJson<WeightedPointJson>(json).weightedPoint())
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
 }

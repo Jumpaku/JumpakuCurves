@@ -48,7 +48,7 @@ class TestView : View(){
         File("./FscGenerationFsc.json").writeText(fsc.toString())
 
         with(curveInput.contents) {
-            cubicFsc(fsc){
+            cubicFsc(fsc) {
                 stroke = Color.BLUE
             }
         }

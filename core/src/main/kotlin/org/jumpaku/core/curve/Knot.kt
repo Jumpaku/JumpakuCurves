@@ -27,7 +27,9 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
 
     fun elevateMultiplicity(m: Int): Knot = Knot(value, multiplicity + m)
 
-    override fun toString(): String = KnotJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): KnotJson = KnotJson(this)
 
     companion object {
 
@@ -51,19 +53,7 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
 
 data class KnotJson(private val value: Double, private val multiplicity: Int){
 
+    constructor(knot: Knot) : this(knot.value, knot.multiplicity)
+
     fun  knot(): Knot = Knot(value, multiplicity)
-
-    companion object{
-
-        fun toJson(knot: Knot): String = prettyGson.toJson(KnotJson(knot.value, knot.multiplicity))
-
-        fun fromJson(json: String): Option<Knot> {
-            return try {
-                Option(prettyGson.fromJson<KnotJson>(json).knot())
-            }
-            catch (e: Exception){
-                None()
-            }
-        }
-    }
 }

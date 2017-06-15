@@ -13,7 +13,7 @@ import org.jumpaku.core.json.prettyGson
 
 class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
 
-    constructor(controlVectors: Array<Vector>, knots: Array<Knot>) : this(
+    constructor(controlVectors: Iterable<Vector>, knots: Iterable<Knot>) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
 
     override val domain: Interval get() = asBSpline.domain
@@ -28,7 +28,9 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
 
     val degree: Int get() = asBSpline.degree
 
-    override fun toString(): String = BSplineDerivativeJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): BSplineDerivativeJson = BSplineDerivativeJson(this)
 
     override fun evaluate(t: Double): Vector = asBSpline.evaluate(t).toVector()
 
@@ -54,28 +56,11 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
     }
 }
 
-class BSplineDerivativeJson(controlVectors: Array<Vector>, knots: Array<Knot>){
+data class BSplineDerivativeJson(private val controlVectors: List<VectorJson>, private val knots: List<KnotJson>){
 
-    private val controlVectors: kotlin.Array<VectorJson> = controlVectors.map { VectorJson(it.x, it.y, it.z) }
-            .toJavaArray(VectorJson::class.java)
+    constructor(bSplineDerivative: BSplineDerivative) : this(
+            bSplineDerivative.controlVectors.map(Vector::json).toJavaList(),
+            bSplineDerivative.knots.map(Knot::json).toJavaList())
 
-    private val knots: kotlin.Array<KnotJson> = knots.map { KnotJson(it.value, it.multiplicity) }
-            .toJavaArray(KnotJson::class.java)
-
-    fun bSplineDerivative(): BSplineDerivative = BSplineDerivative(
-            Array(*controlVectors).map(VectorJson::vector), Array(*knots).map(KnotJson::knot))
-
-    companion object{
-
-        fun toJson(s: BSplineDerivative): String = prettyGson.toJson(BSplineDerivativeJson(s.controlVectors, s.knots))
-
-        fun fromJson(json: String): Option<BSplineDerivative>{
-            return try {
-                Option(prettyGson.fromJson<BSplineDerivativeJson>(json).bSplineDerivative())
-            }
-            catch (e: Exception){
-                None()
-            }
-        }
-    }
+    fun bSplineDerivative(): BSplineDerivative = BSplineDerivative(controlVectors.map(VectorJson::vector), knots.map(KnotJson::knot))
 }

@@ -28,6 +28,10 @@ data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : 
 
     operator fun unaryMinus(): Vector = times(-1.0)
 
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): VectorJson = VectorJson(this)
+
     fun minus(a: Double, v: Vector): Vector = minus(v.times(a))
 
     fun plus(a: Double, v: Vector): Vector = plus(v.times(a))
@@ -46,7 +50,6 @@ data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : 
 
     fun angle(v: Vector): Double = Vector3D.angle(vector, Vector3D(v.x, v.y, v.z))
 
-    override fun toString(): String = VectorJson.toJson(this)
 
     companion object {
 
@@ -68,18 +71,7 @@ data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : 
 
 data class VectorJson(private val x: Double, private val y: Double, private val z: Double){
 
+    constructor(vector: Vector) : this(vector.x, vector.y, vector.z)
+
     fun vector(): Vector = Vector(x, y, z)
-
-    companion object{
-
-        fun toJson(v: Vector): String = prettyGson.toJson(VectorJson(v.x, v.y, v.z))
-
-        fun fromJson(json: String): Option<Vector> {
-            return try {
-                Option(prettyGson.fromJson<VectorJson>(json).vector())
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
 }

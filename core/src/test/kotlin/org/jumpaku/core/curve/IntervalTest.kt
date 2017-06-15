@@ -1,6 +1,8 @@
 package org.jumpaku.core.curve
 
+import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 
@@ -81,11 +83,6 @@ class IntervalTest {
     fun testToString() {
         println("ToString")
         val i = Interval(-2.3, 3.4)
-        intervalAssertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get()).isEqualTo(i)
-        intervalAssertThat(IntervalJson.fromJson(i.toString()).get()).isEqualTo(i)
-
-        assertThat(IntervalJson.fromJson("""{"begin":null, "end"-2.0}""").isEmpty).isTrue()
-        assertThat(IntervalJson.fromJson("""{"begin":-2.3"end"-2.0}""").isEmpty).isTrue()
-        assertThat(IntervalJson.fromJson(""""begin":1.0, "end":-2.0}""").isEmpty).isTrue()
+        intervalAssertThat(prettyGson.fromJson<IntervalJson>(i.toString()).interval()).isEqualTo(i)
     }
 }

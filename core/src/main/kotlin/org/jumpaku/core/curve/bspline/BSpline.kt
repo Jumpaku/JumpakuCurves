@@ -1,29 +1,21 @@
 package org.jumpaku.core.curve.bspline
 
-import com.github.salomonbrys.kotson.fromJson
-import io.vavr.API.*
+import io.vavr.API.List
+import io.vavr.API.Tuple
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.affine.Divisible
-import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.PointJson
-import org.jumpaku.core.affine.Vector
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.Knot
-import org.jumpaku.core.curve.KnotJson
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
-import org.jumpaku.core.util.*
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 
 
-class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCurve, Differentiable {
-
+class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCurve, Differentiable, CrispTransformable {
 
     override val domain: Interval = Interval(knots.head().value, knots.last().value)
 
@@ -47,21 +39,15 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
     val degree: Int = knotValues.size() - controlPoints.size() - 1
 
     init {
-        if (knots.zip(knots.tail()).exists({ (a, b) -> a.value > b.value }))
-            throw IllegalArgumentException("knots is not ordered in acceding")
-
-        if (!(knots.head().multiplicity == degree + 1 && knots.last().multiplicity == degree + 1))
-            throw IllegalArgumentException("knots is not clamped (degree($degree))")
-
-        if (controlPoints.size() <= degree)
-            throw IllegalArgumentException("controlPoints.size()(${controlPoints.size()}) <= degree($degree)")
+        require(knots.zip(knots.tail()).forAll({ (a, b) -> a.value <= b.value })) { "knots is not ordered in acceding" }
+        require(knots.head().multiplicity == degree + 1 && knots.last().multiplicity == degree + 1) { "knots is not clamped (degree($degree))" }
+        require(controlPoints.size() > degree) { "controlPoints.size()(${controlPoints.size()}) <= degree($degree)" }
     }
 
     constructor(controlPoints: Iterable<Point>, knots: Iterable<Knot>) : this(Array.ofAll(controlPoints), Array.ofAll(knots))
 
     override fun evaluate(t: Double): Point {
-        if (t !in domain)
-            throw IllegalArgumentException("t($t) is out of domain($domain)")
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         if (Precision.equals(t, domain.begin, 1.0e-10)) {
             return controlPoints.head()
@@ -89,10 +75,10 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
 
     override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
 
+    override fun crispTransform(a: Transform): BSpline = BSpline(controlPoints.map { a(it.toCrisp())}, knots)
+
     fun restrict(begin: Double, end: Double): BSpline {
-        if (Interval(begin, end) !in domain) {
-            throw IllegalArgumentException("Interval([$begin, $end]) is out of domain($domain)")
-        }
+        require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
         return subdivide(begin)._2().subdivide(end)._1()
     }
@@ -100,13 +86,14 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
 
     fun reverse(): BSpline {
-        val ks = knots.reverse()
-                .map { (v, m) -> Knot(knots.last().value - v + knots.head().value, m) }
+        val ks = knots.map { (v, m) -> Knot(knots.last().value - v + knots.head().value, m) } .reverse()
 
         return BSpline(controlPoints.reverse(), ks)
     }
 
-    override fun toString(): String = BSplineJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): BSplineJson = BSplineJson(this)
 
     fun toBeziers(): Array<Bezier> {
         var heads = List<Bezier>()
@@ -141,13 +128,8 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
     }
 
     fun insertKnot(knotValue: Double, insertionTimes: Int = 1): BSpline {
-
-        if (insertionTimes < 0) {
-            throw IllegalArgumentException("negative insertionTimes($insertionTimes)")
-        }
-        if (knotValue !in domain) {
-            throw IllegalArgumentException("inserted knotValue($knotValue) is out of domain($domain).")
-        }
+        require(insertionTimes >= 0) { "negative insertionTimes($insertionTimes)" }
+        require(knotValue in domain) { "inserted knotValue($knotValue) is out of domain($domain)." }
 
         val index = knotValues.indexWhere { Precision.equals(it, knotValue, 1.0e-10) }
 
@@ -203,9 +185,8 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         }
 
         fun basis(t: Double, degree: Int, i: Int, us: Array<Double>): Double {
-            if (t !in Interval(us[degree], us[us.size() - degree - 1])) {
-                throw IllegalArgumentException("inserted knot($t) is out of domain([${us[degree]}, ${us[us.size() - 1 - degree]}]).")
-            }
+            require(t in Interval(us[degree], us[us.size() - degree - 1])) { "knot($t) is out of domain([${us[degree]}, ${us[us.size() - 1 - degree]}])." }
+
             if (Precision.equals(t, us.get(degree), 1.0e-10)) {
                 return if (i == 0) 1.0 else 0.0
             }
@@ -230,7 +211,7 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
         }
 
         private fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double {
-            return if (java.lang.Double.isFinite((a - b) / (c - d))) {
+            return if (((a - b) / (c - d)).isFinite()) {
                 (a - b) / (c - d)
             }
             else {
@@ -240,27 +221,9 @@ class BSpline(val controlPoints: Array<Point>, val knots: Array<Knot>) : FuzzyCu
     }
 }
 
-class BSplineJson(controlPoints: Array<Point>, knots: Array<Knot>){
+data class BSplineJson(private val controlPoints: List<PointJson>, private val knots: List<KnotJson>){
 
-    private val controlPoints: kotlin.Array<PointJson> = controlPoints.map { PointJson(it.x, it.y, it.z, it.r) }
-            .toJavaArray(PointJson::class.java)
-
-    private val knots: kotlin.Array<KnotJson> = knots.map { KnotJson(it.value, it.multiplicity) }
-            .toJavaArray(KnotJson::class.java)
+    constructor(bSpline: BSpline) : this(bSpline.controlPoints.map(Point::json).toJavaList(), bSpline.knots.map(Knot::json).toJavaList())
 
     fun bSpline(): BSpline = BSpline(controlPoints.map(PointJson::point), knots.map(KnotJson::knot))
-
-    companion object{
-
-        fun toJson(s: BSpline): String = prettyGson.toJson(BSplineJson(s.controlPoints, s.knots))
-
-        fun fromJson(json: String): Option<BSpline>{
-            return try {
-                Option(prettyGson.fromJson<BSplineJson>(json).bSpline())
-            }
-            catch (e: Exception){
-                None()
-            }
-        }
-    }
 }

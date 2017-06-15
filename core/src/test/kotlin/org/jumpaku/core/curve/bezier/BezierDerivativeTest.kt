@@ -1,8 +1,10 @@
 package org.jumpaku.core.curve.bezier
 
+import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 import org.junit.Test
@@ -31,12 +33,7 @@ class BezierDerivativeTest {
     fun testToString() {
         println("ToString")
         val p = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-        bezierAssertThat(BezierDerivativeJson.fromJson(p.toString()).get().asBezier).isEqualToBezier(p.asBezier)
-        bezierAssertThat(BezierDerivativeJson.fromJson(BezierDerivativeJson.toJson(p)).get().asBezier).isEqualToBezier(p.asBezier)
-
-        assertThat(BezierDerivativeJson.fromJson("""{"controlVectors":{"r":2.0,"x":null,"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
-        assertThat(BezierDerivativeJson.fromJson("""{"controlVectors":{"r":2.0"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
-        assertThat(BezierDerivativeJson.fromJson("""{"controlVectors":"r":2.0,"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
+        bezierAssertThat(prettyGson.fromJson<BezierDerivativeJson>(p.toString()).bezierDerivative().asBezier).isEqualToBezier(p.asBezier)
     }
 
     @Test

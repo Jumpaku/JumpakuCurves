@@ -1,6 +1,8 @@
 package org.jumpaku.core.curve
 
+import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 
@@ -49,11 +51,6 @@ class KnotTest {
     fun testToString() {
         println("ToString")
         val k = Knot(2.0, 4)
-        knotAssertThat(KnotJson.fromJson(k.toString()).get()).isEqualToKnot(k)
-        knotAssertThat(KnotJson.fromJson(KnotJson.toJson(k)).get()).isEqualToKnot(k)
-
-        assertThat(KnotJson.fromJson("""{"value":2.0 "multiplicity":4}""").isEmpty).isTrue()
-        assertThat(KnotJson.fromJson("""{"value":"aaa", "multiplicity":4}""").isEmpty).isTrue()
-        assertThat(KnotJson.fromJson("""{"value":", "multiplicity":4}""").isEmpty).isTrue()
+        knotAssertThat(prettyGson.fromJson<KnotJson>(k.toString()).knot()).isEqualToKnot(k)
     }
 }

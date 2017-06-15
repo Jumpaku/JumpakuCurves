@@ -12,9 +12,7 @@ interface Curve : Function1<Double, Point> {
     val domain: Interval
 
     override fun invoke(t: Double): Point {
-        if (t !in domain) {
-            throw IllegalArgumentException("t=$t is out of $domain")
-        }
+        require(t in domain) { "t=$t is out of $domain" }
 
         return evaluate(t)
     }

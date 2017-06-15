@@ -39,11 +39,13 @@ data class Interval(val begin: Double, val end: Double) {
         return i
     }
 
-            operator fun contains(t: Double): Boolean = t in begin..end
+    operator fun contains(t: Double): Boolean = t in begin..end
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 
-    override fun toString(): String = IntervalJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): IntervalJson = IntervalJson(this)
 
     companion object{
         val ZERO_ONE = Interval(0.0, 1.0)
@@ -53,17 +55,7 @@ data class Interval(val begin: Double, val end: Double) {
 
 data class IntervalJson(private val begin: Double, private val end: Double) {
 
-    companion object {
+    constructor(interval: Interval) : this(interval.begin, interval.end)
 
-        fun toJson(i: Interval): String = prettyGson.toJson(IntervalJson(i.begin, i.end))
-
-        fun fromJson(json: String): Option<Interval> {
-            return try {
-                val v = prettyGson.fromJson<IntervalJson>(json)
-                Option(Interval(v.begin, v.end))
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
+    fun interval(): Interval = Interval(begin, end)
 }

@@ -1,23 +1,20 @@
 package org.jumpaku.core.curve.bezier
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
-import io.vavr.control.Option
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.util.*
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
 
 
-class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable{
+class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, CrispTransformable {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -33,12 +30,12 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     constructor(vararg controlPoints: Point): this(Array(*controlPoints))
 
-    override fun toString(): String = BezierJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): BezierJson = BezierJson(this)
 
     override fun evaluate(t: Double): Point {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain($domain)")
-        }
+        require(t in domain) { "t=($t) is out of domain($domain)" }
 
         var cps = controlPoints
         while (cps.size() > 1) {
@@ -52,12 +49,12 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
 
+    override fun crispTransform(a: Transform): Bezier = Bezier(controlPoints.map { a(it.toCrisp()) })
+
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): Bezier {
-        if (Interval(begin, end) !in domain) {
-            throw IllegalArgumentException("Interval i must be a subset of this domain")
-        }
+        require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain" }
 
         return subdivide(end)._1().subdivide(begin / end)._2()
     }
@@ -67,17 +64,13 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     fun elevate(): Bezier = Bezier(createElevatedControlPoints(controlPoints))
 
     fun reduce(): Bezier {
-        if (degree < 1) {
-            throw IllegalStateException("degree($degree) is too small")
-        }
+        require(degree >= 1) { "degree($degree) is too small" }
 
         return Bezier(createReducedControlPoints(controlPoints))
     }
 
     fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain($domain)")
-        }
+        require(t in domain) { "t=$t is out of $domain" }
 
         return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier, ::Bezier)
     }
@@ -164,24 +157,9 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     }
 }
 
-class BezierJson(controlPoints: Array<Point>) {
+data class BezierJson(private val controlPoints: List<PointJson>) {
 
-    private val controlPoints: kotlin.Array<PointJson> = controlPoints
-            .map { PointJson(it.x, it.y, it.z, it.r) }
-            .toJavaArray(PointJson::class.java)
+    constructor(bezier: Bezier) : this(bezier.controlPoints.map(Point::json).toJavaList())
 
-    companion object {
-
-        fun toJson(bezier: Bezier): String = prettyGson.toJson(BezierJson(bezier.controlPoints))
-
-        fun fromJson(json: String): Option<Bezier> {
-            return try {
-                Option(prettyGson.fromJson<BezierJson>(json).run {
-                    Bezier(Array(*controlPoints).map(PointJson::point))
-                })
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
+    fun bezier() = Bezier(controlPoints.map(PointJson::point))
 }

@@ -1,9 +1,12 @@
 package org.jumpaku.core.curve.bezier
 
+import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
+import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.util.*
 import org.jumpaku.core.affine.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 class BezierTest {
@@ -27,12 +30,7 @@ class BezierTest {
     fun testToString() {
         println("ToString")
         val p = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-        bezierAssertThat(BezierJson.fromJson(p.toString()).get()).isEqualToBezier(p)
-        bezierAssertThat(BezierJson.fromJson(BezierJson.toJson(p)).get()).isEqualToBezier(p)
-
-        assertThat(BezierJson.fromJson("""{"controlPoints":{"r":2.0,"x":null,"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
-        assertThat(BezierJson.fromJson("""{"controlPoints":{"r":2.0"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
-        assertThat(BezierJson.fromJson("""{"controlPoints":"r":2.0,"x":-1.0"y":1.0,"z":0.0}]}""").isEmpty).isTrue()
+        bezierAssertThat(prettyGson.fromJson<BezierJson>(p.toString()).bezier()).isEqualToBezier(p)
     }
 
     @Test
@@ -64,6 +62,14 @@ class BezierTest {
         vectorAssertThat(d.evaluate(1.0 )).isEqualToVector(Vector(4.0, 0.0 ))
     }
 
+    @Test
+    fun testCrispTransform() {
+        print("CrispTransform")
+        val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        val a = b.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0, 0.0)))
+        val e = Bezier(Point.xy(1.0, -3.0), Point.xy(1.0, -1.0), Point.xy(-3.0, 1.0), Point.xy(1.0, 3.0), Point.xy(1.0, 5.0))
+        bezierAssertThat(a).isEqualToBezier(e)
+    }
     @Test
     fun testRestrict() {
         println("Restrict")
