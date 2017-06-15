@@ -22,6 +22,16 @@ fun nonNegativeLinearLeastSquare(
         targetVector: RealVector,
         weightMatrix: DiagonalMatrix = DiagonalMatrix(Stream.fill(targetVector.dimension, { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
 ): RealVector {
+    class NonNegativeLinearModel(val a: RealMatrix) : MultivariateJacobianFunction {
+
+        override fun value(point: RealVector): Pair<RealVector, RealMatrix> {
+            val ep = point.map(FastMath::exp)
+            val value = a.operate(ep)
+            val derivativeEp = DiagonalMatrix(ep.toArray())
+            val jacobian = a.multiply(derivativeEp)
+            return Pair(value, jacobian)
+        }
+    }
     val problem = LeastSquaresBuilder()
             .start(ArrayRealVector(modelMatrix.columnDimension, 4.0))
             .model(NonNegativeLinearModel(modelMatrix))
@@ -37,15 +47,4 @@ fun nonNegativeLinearLeastSquare(
             .withCostRelativeTolerance(targetVector.dimension * 1.0e-4)
             .optimize(problem)
     return result.point.map(FastMath::exp)
-}
-
-class NonNegativeLinearModel(val a: RealMatrix) : MultivariateJacobianFunction {
-
-    override fun value(point: RealVector): Pair<RealVector, RealMatrix> {
-        val ep = point.map(FastMath::exp)
-        val value = a.operate(ep)
-        val derivativeEp = DiagonalMatrix(ep.toArray())
-        val jacobian = a.multiply(derivativeEp)
-        return Pair(value, jacobian)
-    }
 }
