@@ -70,9 +70,20 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     }
 
     fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
-        require(t in domain) { "t=$t is out of $domain" }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier, ::Bezier)
+    }
+
+    fun extend(t: Double): Bezier {
+        require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
+        val controlPoints = createSubdividedControlPointsArrays(t, controlPoints)
+        return if(t <= domain.begin) {
+            Bezier(controlPoints._2())
+        }
+        else {
+            Bezier(controlPoints._1())
+        }
     }
 
     companion object {
