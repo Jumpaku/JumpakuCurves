@@ -1,6 +1,8 @@
 package org.jumpaku.core.curve
 
+import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 
@@ -16,8 +18,10 @@ class IntervalTest {
         println("Properties")
         val b = Interval(-2.3, 3.4).begin
         val e = Interval(-2.3, 3.4).end
+        val s = Interval(-2.3, 3.4).span
         assertThat(b).isEqualTo(-2.3, withPrecision(1.0e-10))
-        assertThat(e).isEqualTo(   3.4, withPrecision(1.0e-10))
+        assertThat(e).isEqualTo( 3.4, withPrecision(1.0e-10))
+        assertThat(s).isEqualTo( 5.7, withPrecision(1.0e-10))
     }
 
     @Test
@@ -32,7 +36,7 @@ class IntervalTest {
         assertThat(i0[4]).isEqualTo( 0.3, withPrecision(1.0e-10))
         assertThat(i0[5]).isEqualTo( 0.4, withPrecision(1.0e-10))
         assertThat(i0[6]).isEqualTo( 0.5, withPrecision(1.0e-10))
-        val i1 = Interval(-0.1, 0.5).sample(0.09)
+        val i1 = Interval(-0.1, 0.5).sample(0.11)
         assertThat(i1).hasSize(7)
         assertThat(i1[0]).isEqualTo(-0.1, withPrecision(1.0e-10))
         assertThat(i1[1]).isEqualTo( 0.0, withPrecision(1.0e-10))
@@ -41,15 +45,6 @@ class IntervalTest {
         assertThat(i1[4]).isEqualTo( 0.3, withPrecision(1.0e-10))
         assertThat(i1[5]).isEqualTo( 0.4, withPrecision(1.0e-10))
         assertThat(i1[6]).isEqualTo( 0.5, withPrecision(1.0e-10))
-    }
-
-
-    @Test
-    fun testSubInterval() {
-        println("SubInterval")
-        val i = Interval(0.6, 9.7).subInterval(0.7, 0.9)
-        intervalAssertThat(i).isEqualTo(Interval(0.7, 0.9))
-        assertThat(i.end).isEqualTo(0.9, withPrecision(1.0e-10))
     }
 
     @Test
@@ -81,11 +76,6 @@ class IntervalTest {
     fun testToString() {
         println("ToString")
         val i = Interval(-2.3, 3.4)
-        intervalAssertThat(IntervalJson.fromJson(IntervalJson.toJson(i)).get()).isEqualTo(i)
-        intervalAssertThat(IntervalJson.fromJson(i.toString()).get()).isEqualTo(i)
-
-        assertThat(IntervalJson.fromJson("""{"begin":null, "end"-2.0}""").isEmpty).isTrue()
-        assertThat(IntervalJson.fromJson("""{"begin":-2.3"end"-2.0}""").isEmpty).isTrue()
-        assertThat(IntervalJson.fromJson(""""begin":1.0, "end":-2.0}""").isEmpty).isTrue()
+        intervalAssertThat(prettyGson.fromJson<IntervalJson>(i.toString()).interval()).isEqualTo(i)
     }
 }

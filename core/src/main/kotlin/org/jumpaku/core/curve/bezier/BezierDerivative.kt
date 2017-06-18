@@ -35,7 +35,9 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     override fun differentiate(t: Double): Vector = asBezier.differentiate(t)
 
-    override fun toString(): String = BezierDerivativeJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): BezierDerivativeJson = BezierDerivativeJson(this)
 
     fun restrict(i: Interval): BezierDerivative = BezierDerivative(asBezier.restrict(i))
 
@@ -51,23 +53,9 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
             .map<BezierDerivative, BezierDerivative>(::BezierDerivative, ::BezierDerivative)
 }
 
-class BezierDerivativeJson(controlVectors: Array<Vector>){
+data class BezierDerivativeJson(private val controlVectors: List<Vector>){
 
-    private val controlVectors: kotlin.Array<VectorJson> = controlVectors.map { VectorJson(it.x, it.y, it.z) }
-            .toJavaArray(VectorJson::class.java)
+    constructor(bezierDerivative: BezierDerivative) : this(bezierDerivative.controlVectors.toJavaList())
 
-    companion object {
-
-        fun toJson(derivative: BezierDerivative): String = prettyGson.toJson(BezierDerivativeJson(
-                derivative.controlVectors))
-
-        fun fromJson(json: String): Option<BezierDerivative> {
-            return try {
-                Option(BezierDerivative(prettyGson.fromJson<BezierDerivativeJson>(json)
-                        .controlVectors.map(VectorJson::vector)))
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
+    fun bezierDerivative(): BezierDerivative = BezierDerivative(controlVectors)
 }

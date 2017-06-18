@@ -1,18 +1,16 @@
 package org.jumpaku.core.affine
 
-import com.github.salomonbrys.kotson.fromJson
-import io.vavr.API.*
-import io.vavr.control.Option
 import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.fuzzy.Membership
 import org.jumpaku.core.json.prettyGson
 
-interface Point : Membership<Point, Crisp>, Divisible<Point> {
+sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
 
-    fun toVector(): Vector
+    abstract fun toVector(): Vector
 
-    fun toCrisp(): Crisp
+    abstract fun toCrisp(): Crisp
 
     val x: Double get() = toVector().x
 
@@ -20,7 +18,7 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
 
     val z: Double get() = toVector().z
 
-    val r: Double
+    abstract val r: Double
 
     operator fun component1(): Double = x
 
@@ -32,7 +30,7 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
 
     override fun membership(p: Crisp): Grade{
         val d = toCrisp().dist(p)
-        return if (java.lang.Double.isFinite(d / r)) {
+        return if ((d / r).isFinite()) {
             Grade(Grade.clamp(1.0 - d / r))
         }
         else {
@@ -42,7 +40,7 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
 
     override fun possibility(u: Point): Grade{
         val d = toCrisp().dist(u.toCrisp())
-        return if (!java.lang.Double.isFinite(d / (r + u.r))) {
+        return if (!(d / (r + u.r)).isFinite()) {
             Grade(equals(toCrisp(), u.toCrisp()))
         }
         else {
@@ -53,7 +51,7 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
     override fun necessity(u: Point): Grade{
         val d = toCrisp().dist(u.toCrisp())
         return when {
-            !java.lang.Double.isFinite(d / (r + u.r)) ->
+            !(d / (r + u.r)).isFinite() ->
                 Grade(equals(toCrisp(), u.toCrisp()))
             d < u.r ->
                 Grade(Grade.clamp(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r))))
@@ -72,6 +70,16 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
                 FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
     }
 
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): PointJson = PointJson(this)
+
+    private fun equals(p1: Crisp, p2: Crisp, eps: Double = 1.0e-10): Boolean {
+        return Precision.equals(p1.x, p2.x, eps)
+                && Precision.equals(p1.y, p2.y, eps)
+                && Precision.equals(p1.z, p2.z, eps)
+    }
+
     companion object {
 
         fun x(x: Double): Crisp = Crisp(x, 0.0, 0.0)
@@ -85,33 +93,20 @@ interface Point : Membership<Point, Crisp>, Divisible<Point> {
         fun xyz(x: Double, y: Double, z: Double): Crisp = Crisp(x, y, z)
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Fuzzy = Fuzzy(x, y, z, r)
-
-        fun equals(p1: Crisp, p2: Crisp, eps: Double = 1.0e-10): Boolean = Vector.equals(p1.toVector(), p2.toVector(), eps)
     }
 }
 
 
 data class PointJson(private val x: Double, private val y: Double, private val z: Double, private val r:Double){
 
+    constructor(point: Point) : this(point.x, point.y, point.z, point.r)
+
     fun point() = Point.xyzr(x, y, z, r)
-
-    companion object{
-
-        fun toJson(p: Point): String = prettyGson.toJson(PointJson(p.x, p.y, p.z, p.r))
-
-        fun fromJson(json: String): Option<Point> {
-            return try {
-                Option(prettyGson.fromJson<PointJson>(json).point())
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
 }
 
 
 
-class Fuzzy(private val crisp: Crisp, override val r: Double) : Point {
+class Fuzzy(private val crisp: Crisp, override val r: Double) : Point() {
 
     constructor(x: Double, y: Double, z: Double, r: Double): this(Crisp(x, y, z), r)
 
@@ -126,11 +121,9 @@ class Fuzzy(private val crisp: Crisp, override val r: Double) : Point {
     override fun toVector(): Vector = crisp.toVector()
 
     override fun toCrisp(): Crisp = crisp
-
-    override fun toString(): String = PointJson.toJson(this)
 }
 
-class Crisp(private val vector: Vector) : Point {
+class Crisp(private val vector: Vector) : Point() {
 
     constructor(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0): this(Vector(x, y, z))
 
@@ -151,8 +144,6 @@ class Crisp(private val vector: Vector) : Point {
     override fun toVector(): Vector = vector
 
     override fun toCrisp(): Crisp = this
-
-    override fun toString(): String = PointJson.toJson(this)
 
     /**
      * @return distance |p - this|

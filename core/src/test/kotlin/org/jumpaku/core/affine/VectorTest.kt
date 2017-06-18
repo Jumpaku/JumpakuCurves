@@ -1,8 +1,10 @@
 package org.jumpaku.core.affine
 
+import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 /**
@@ -120,11 +122,6 @@ class VectorTest {
         println("Json")
         val v = Vector(1.0, -2.0, 3.0)
 
-        vectorAssertThat(VectorJson.fromJson(VectorJson.toJson(v)).get()).isEqualToVector(v)
-        vectorAssertThat(VectorJson.fromJson(v.toString()).get()).isEqualToVector(v)
-
-        assertThat(VectorJson.fromJson("""{"x":null, "y"-2.0, "z":3.0}""").isEmpty).isTrue()
-        assertThat(VectorJson.fromJson("""{"x":1.0"y"-2.0, "z":3.0}""").isEmpty).isTrue()
-        assertThat(VectorJson.fromJson(""""x":1.0, "y":-2.0, "z":3.0}""").isEmpty).isTrue()
+        vectorAssertThat(prettyGson.fromJson<VectorJson>(v.toString()).vector()).isEqualToVector(v)
     }
 }

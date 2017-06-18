@@ -1,6 +1,8 @@
 package org.jumpaku.core.affine
 
+import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 class TimeSeriesPointTest {
@@ -21,13 +23,7 @@ class TimeSeriesPointTest {
     fun testToString() {
         println("ToString")
         val t = TimeSeriesPoint(Point.xr(1.0, 10.0), 1.0)
-        timeSeriesDataAssertThat(TimeSeriesPointJson.fromJson(TimeSeriesPointJson.toJson(t)).get()).isEqualToTimeSeriesData(t)
-
-        assertThat(TimeSeriesPointJson.fromJson("""{"point":"x": 405.0,"y": 319.0,"z": 0.0,"r": 0.0},"time": 40683.649914965004}""").isEmpty).isTrue()
-        assertThat(TimeSeriesPointJson.fromJson("""{"point":null,"time": 40683.649914965004}""").isEmpty).isTrue()
-        assertThat(TimeSeriesPointJson.fromJson("""point":null,"time": 40683.649914965004}""").isEmpty).isTrue()
-
-
+        timeSeriesDataAssertThat(prettyGson.fromJson<TimeSeriesPointJson>(t.toString()).timeSeriesPoint()).isEqualToTimeSeriesData(t)
     }
 
 }

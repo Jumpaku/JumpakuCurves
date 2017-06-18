@@ -1,7 +1,9 @@
 package org.jumpaku.core.affine
 
+import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 
@@ -211,14 +213,8 @@ class PointTest {
         println("ToString")
         val f = Point.xyzr(1.0,-2.0, 3.0, 2.0)
         val c = Point.xyz(1.0,-2.0, 3.0)
-        pointAssertThat(PointJson.fromJson(PointJson.toJson(f)).get()).isEqualToPoint(f)
-        pointAssertThat(PointJson.fromJson(PointJson.toJson(c)).get()).isEqualToPoint(c)
-        pointAssertThat(PointJson.fromJson(f.toString()).get()).isEqualToPoint(f)
-        pointAssertThat(PointJson.fromJson(c.toString()).get()).isEqualToPoint(c)
-
-        assertThat(PointJson.fromJson("""{"x":null, "y"-2.0, "z":3.0, "r":2.0}""").isEmpty).isTrue()
-        assertThat(PointJson.fromJson("""{"x":1.0"y"-2.0, "z":3.0, "r":2.0}""").isEmpty).isTrue()
-        assertThat(PointJson.fromJson(""""x":1.0, "y":-2.0, "z":3.0, "r":2.0}""").isEmpty).isTrue()
+        pointAssertThat(prettyGson.fromJson<PointJson>(f.toString()).point()).isEqualToPoint(f)
+        pointAssertThat(prettyGson.fromJson<PointJson>(c.toString()).point()).isEqualToPoint(c)
     }
 
     @Test

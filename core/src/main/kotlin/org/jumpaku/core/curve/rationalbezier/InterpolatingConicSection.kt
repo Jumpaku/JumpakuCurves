@@ -5,17 +5,15 @@ import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import org.jumpaku.core.curve.Derivative
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 
 
-class InterpolatingConicSection(val begin: Point, val middle: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable {
+class InterpolatingConicSection(
+        val begin: Point, val middle: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, CrispTransformable {
 
     val asCrispRationalBezier: RationalBezier get() {
         if (!java.lang.Double.isFinite(1.0 / weight)) {
@@ -37,16 +35,16 @@ class InterpolatingConicSection(val begin: Point, val middle: Point, val end: Po
 
     override val derivative: Derivative get() = asCrispRationalBezier.derivative
 
-    override fun toString(): String = InterpolatingConicSectionJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): InterpolatingConicSectionJson = InterpolatingConicSectionJson(this)
 
     override fun differentiate(t: Double): Vector = asCrispRationalBezier.differentiate(t)
 
     override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
 
     override fun evaluate(t: Double): Point {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain$domain")
-        }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         val r0 = representPoints[0].r
         val r1 = representPoints[1].r
@@ -60,6 +58,9 @@ class InterpolatingConicSection(val begin: Point, val middle: Point, val end: Po
         return Fuzzy(p.toCrisp(), r)
     }
 
+    override fun crispTransform(a: Transform): InterpolatingConicSection = InterpolatingConicSection(
+            a(begin.toCrisp()), a(middle.toCrisp()), a(end.toCrisp()), weight)
+
     fun reverse(): InterpolatingConicSection = InterpolatingConicSection(end, middle, begin, weight)
 
     fun complement(): InterpolatingConicSection = InterpolatingConicSection(begin, middle, end, -weight)
@@ -71,24 +72,12 @@ data class InterpolatingConicSectionJson(
         private val end: PointJson,
         private val weight: Double) {
 
+    constructor(interpolatingConicSection: InterpolatingConicSection) : this(
+            interpolatingConicSection.begin.json(),
+            interpolatingConicSection.middle.json(),
+            interpolatingConicSection.end.json(),
+            interpolatingConicSection.weight)
+
     fun interpolatingConicSection(): InterpolatingConicSection = InterpolatingConicSection(
                 begin.point(), middle.point(), end.point(), weight)
-
-    companion object {
-
-        fun toJson(bezier: InterpolatingConicSection): String = prettyGson
-                .toJson(InterpolatingConicSectionJson(
-                        bezier.begin.run { PointJson(x, y, z, r) },
-                        bezier.middle.run { PointJson(x, y, z, r) },
-                        bezier.end.run { PointJson(x, y, z, r) },
-                        bezier.weight))
-
-        fun fromJson(json: String): Option<InterpolatingConicSection> {
-            return try {
-                Option(prettyGson.fromJson<InterpolatingConicSectionJson>(json).interpolatingConicSection())
-            } catch (e: Exception) {
-                None()
-            }
-        }
-    }
 }

@@ -1,20 +1,30 @@
 package org.jumpaku.examples
 
+import com.github.salomonbrys.kotson.fromJson
+import io.vavr.API
 import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.paint.Color
+import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.TimeSeriesPoint
+import org.jumpaku.core.affine.TimeSeriesPointJson
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.Knot
 import org.jumpaku.core.curve.bspline.BSpline
+import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.fitting.BSplineFitting
-import org.jumpaku.core.fsci.extrapolateBack
-import org.jumpaku.core.fsci.extrapolateFront
-import org.jumpaku.core.fsci.interpolate
-import org.jumpaku.fxcomponents.view.CurveInput
-import org.jumpaku.fxcomponents.view.cubicBSpline
-import org.jumpaku.fxcomponents.view.polyline
-import tornadofx.*
+import org.jumpaku.core.fsci.DataPreparing
+import org.jumpaku.core.fsci.FscGeneration
+import org.jumpaku.core.json.prettyGson
+import org.jumpaku.fxcomponents.view.*
+import tornadofx.App
+import tornadofx.Scope
+import tornadofx.View
+import java.io.File
+import java.io.FileReader
+import java.io.FileWriter
+import java.io.PrintWriter
 
 
 fun main(args: kotlin.Array<String>): Unit = Application.launch(MyApp::class.java, *args)
@@ -30,32 +40,22 @@ class TestView : View(){
     override val root = curveInput.root
 
     init {
+        //val data = prettyGson.fromJson<List<TimeSeriesPointJson>>(FileReader("./Data.json")).map(TimeSeriesPointJson::timeSeriesPoint)
+        //val fsc = FscGeneration(3, 0.1).generate(Array.ofAll(data))
+        //FileWriter("./Fsc.json").use { prettyGson.toJson(fsc.json(), it) }
+        //prettyGson.fromJson<BSplineJson>(FileReader("./Fsc"))
+        //with(curveInput.contents) {
+            //cubicFsc(prettyGson.fromJson<BSplineJson>(FileReader("./Fsc.json")).bSpline()) {
+              //  stroke = Color.BLUE
+            //}
+        //}
         subscribe<CurveInput.CurveDoneEvent> {
-            val sorted = it.data.sorted(Comparator.comparing(TimeSeriesPoint::time))
-            val data = modifyData(sorted)
-            val bSpline = BSplineFitting(3, Interval(data.head().time, data.last().time), 0.1)
-                    .fit(data).restrict(sorted.head().time, sorted.last().time)
-            renderBSpline(bSpline)
+            render(it.data)
         }
     }
 
-    private fun modifyData(data: Array<TimeSeriesPoint>): Array<TimeSeriesPoint> {
-        val sorted = data.sorted(Comparator.comparing(TimeSeriesPoint::time))
-        val interpolated = interpolate(sorted, 0.1/10)
-        val extrapolatedFront = extrapolateFront(interpolated, 0.1)
-        val extrapolatedBack = extrapolateBack(extrapolatedFront, 0.1)
-        return extrapolatedBack
-    }
+    private fun render(data: Array<TimeSeriesPoint>): Unit {
 
-    private fun renderBSpline(bSpline: BSpline): Unit {
-        with(curveInput.contents) {
-            cubicBSpline(bSpline) {
-                stroke = Color.BLUE
-                fill = Color.gray(0.0, 0.0)
-            }
-            polyline(Polyline(bSpline.controlPoints)){
-                stroke = Color.ORANGE
-            }
-        }
+        //File("./FscGenerationFsc.json").writeText(fsc.toString())
     }
 }

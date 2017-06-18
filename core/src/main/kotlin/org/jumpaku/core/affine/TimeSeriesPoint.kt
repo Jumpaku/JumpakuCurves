@@ -13,26 +13,16 @@ data class TimeSeriesPoint(
         return TimeSeriesPoint(point.divide(t, p.point), time.divide(t, p.time))
     }
 
-    override fun toString(): String = TimeSeriesPointJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): TimeSeriesPointJson = TimeSeriesPointJson(this)
 }
 
 data class TimeSeriesPointJson(
         val point: PointJson,
         val time: Double){
 
+    constructor(timeSeriesPoint: TimeSeriesPoint) : this(timeSeriesPoint.point.json(), timeSeriesPoint.time)
+
     fun timeSeriesPoint(): TimeSeriesPoint = TimeSeriesPoint(point.point(), time)
-
-    companion object {
-
-        fun toJson(p: TimeSeriesPoint): String = prettyGson.toJson(TimeSeriesPointJson(
-                p.point.run { PointJson(x, y, z, r) }, p.time))
-
-        fun fromJson(json: String): Option<TimeSeriesPoint> {
-            return try {
-                API.Option(prettyGson.fromJson<TimeSeriesPointJson>(json).timeSeriesPoint())
-            } catch(e: Exception) {
-                API.None()
-            }
-        }
-    }
 }
