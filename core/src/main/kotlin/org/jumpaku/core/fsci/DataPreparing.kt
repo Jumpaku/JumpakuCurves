@@ -44,7 +44,7 @@ class DataPreparing(
                     .let { fill(it, bezierSubDomain.span/degree) }
             val bezier = BezierFitting(degree).fit(chordalData)
             val extrapolated = bezier
-                    .subdivide(outerSpan/(outerSpan+innerSpan))._1()
+                    .subdivide(outerSpan/(outerSpan+innerSpan)).head()
                     .evaluateAll(Math.ceil(chordalData.size()*innerSpan/outerSpan).toInt())
             return chordalParametrize(extrapolated, Interval(begin, begin + outerSpan))
                     .let { fill(it, bezierSubDomain.span/degree) }
@@ -63,7 +63,7 @@ class DataPreparing(
                     .let { fill(it, bezierSubDomain.span/degree) }
             val bezier = BezierFitting(degree).fit(chordalData)
             val extrapolated = bezier
-                    .subdivide(innerSpan/(innerSpan+outerSpan))._2()
+                    .subdivide(innerSpan/(innerSpan+outerSpan)).last()
                     .evaluateAll(Math.ceil(innerPoints.size()/innerSpan*outerSpan).toInt())
             return chordalParametrize(extrapolated, Interval(end - outerSpan, end))
                     .let { fill(it, bezierSubDomain.span/degree) }

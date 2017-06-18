@@ -82,7 +82,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     fun restrict(begin: Double, end: Double): RationalBezier {
         require(Interval(begin, end) in domain) { "Interval($begin, $end) is out of domain($domain)" }
 
-        return subdivide(end)._1().subdivide(begin / end)._2()
+        return subdivide(end).head().subdivide(begin / end).last()
     }
 
 
@@ -96,11 +96,11 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         return RationalBezier(Bezier.createReducedControlPoints(weightedControlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
+    fun subdivide(t: Double): Array<RationalBezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         return Bezier.createSubdividedControlPointsArrays(t, weightedControlPoints)
-                .map(::RationalBezier, ::RationalBezier)
+                .map(::RationalBezier)
     }
 
     companion object {

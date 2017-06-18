@@ -56,7 +56,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     fun restrict(begin: Double, end: Double): Bezier {
         require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain" }
 
-        return subdivide(end)._1().subdivide(begin / end)._2()
+        return subdivide(end).head().subdivide(begin / end).last()
     }
 
     fun reverse(): Bezier = Bezier(controlPoints.reverse())
@@ -69,20 +69,20 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
         return Bezier(createReducedControlPoints(controlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
+    fun subdivide(t: Double): Array<Bezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier, ::Bezier)
+        return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier)
     }
 
     fun extend(t: Double): Bezier {
         require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
         val controlPoints = createSubdividedControlPointsArrays(t, controlPoints)
         return if(t <= domain.begin) {
-            Bezier(controlPoints._2())
+            Bezier(controlPoints.last())
         }
         else {
-            Bezier(controlPoints._1())
+            Bezier(controlPoints.head())
         }
     }
 
@@ -111,7 +111,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
                     .toArray()
         }
 
-        internal fun <P : Divisible<P>> createSubdividedControlPointsArrays(t: Double, cp: Array<P>): Tuple2<Array<P>, Array<P>> {
+        internal fun <P : Divisible<P>> createSubdividedControlPointsArrays(t: Double, cp: Array<P>): Array<Array<P>> {
             var tmp = cp
             var first = List(tmp.head())
             var second = List(tmp.last())
@@ -122,7 +122,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
                 second = second.prepend(tmp.last())
             }
 
-            return Tuple(first.reverse().toArray(), second.toArray())
+            return Array(first.reverse().toArray(), second.toArray())
         }
 
         internal fun <P : Divisible<P>> createReducedControlPoints(cp: Array<P>): Array<P>  {
