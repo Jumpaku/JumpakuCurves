@@ -1,7 +1,7 @@
 package org.jumpaku.core.fuzzy
 
 
-class Grade(val value: Double) : Comparable<Grade> {
+data class Grade(val value: Double) : Comparable<Grade> {
 
     init {
         if (!java.lang.Double.isFinite(value) || value < 0.0 || value > 1.0) {

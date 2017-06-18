@@ -1,10 +1,16 @@
 package org.jumpaku.core.curve.polyline
 
+import com.github.salomonbrys.kotson.fromJson
+import io.vavr.API
+import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.util.*
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.Transform
+import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
 
@@ -25,12 +31,7 @@ class PolylineTest {
     fun testToString() {
         println("ToString")
         val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-        polylineAssertThat(PolylineJson.fromJson(p.toString()).get()).isEqualToPolyline(p)
-        polylineAssertThat(PolylineJson.fromJson(PolylineJson.toJson(p)).get()).isEqualToPolyline(p)
-
-        assertThat(PolylineJson.fromJson("""{"points":{"x":null,"y":1.0,"z":0.0,"r":2.0}]}""").isEmpty).isTrue()
-        assertThat(PolylineJson.fromJson("""{"points":{"x":-1.0"y":1.0,"z":0.0,"r":2.0}]}""").isEmpty).isTrue()
-        assertThat(PolylineJson.fromJson("""{"points":"x":-1.0"y":1.0,"z":0.0,"r":2.0}]}""").isEmpty).isTrue()
+        polylineAssertThat(prettyGson.fromJson<PolylineJson>(p.toString()).polyline()).isEqualToPolyline(p)
     }
 
     @Test
@@ -56,6 +57,15 @@ class PolylineTest {
         pointAssertThat(ps[3]).isEqualToPoint(Point.xyzr( 1.0,-1.5, 0.0, 2.25))
         pointAssertThat(ps[4]).isEqualToPoint(Point.xyzr( 1.0,-3.0, 0.0, 3.0 ))
         pointAssertThat(ps[5]).isEqualToPoint(Point.xyzr( 1.0,-3.0, 1.5, 2.0 ))
+    }
+
+    @Test
+    fun testCrispTransform() {
+        println("CrispTransform")
+        val b = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        val a = b.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val e = Polyline(Point.xy(-1.0, -1.0), Point.xy(-1.0, 3.0), Point.xy(7.0, 3.0), Point.xyz(7.0, 3.0, 3.0))
+        polylineAssertThat(a).isEqualToPolyline(e)
     }
 
     @Test

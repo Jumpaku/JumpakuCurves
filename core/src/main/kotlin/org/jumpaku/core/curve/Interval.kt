@@ -13,37 +13,31 @@ import org.jumpaku.core.json.prettyGson
 
 data class Interval(val begin: Double, val end: Double) {
 
+    val span: Double = end - begin
+
     init {
-        if (begin > end){
-            throw IllegalArgumentException("begin($begin) > end($end)")
-        }
+        require(begin <= end){ "begin($begin) > end($end)" }
     }
 
-    fun sample(n: Int): Array<Double> {
+    fun sample(nSamples: Int): Array<Double> {
         return when{
-            n == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
-            n >= 2 -> Stream.range(0, n)
-                    .map { begin.divide(it/(n - 1.0), end)  }
+            nSamples == 1 && Precision.equals(begin, end, 1.0e-10) -> Array(begin)
+            nSamples >= 2 -> Stream.range(0, nSamples)
+                    .map { begin.divide(it/(nSamples - 1.0), end)  }
                     .toArray()
-            else -> throw IllegalArgumentException("n($n) is too small")
+            else -> throw IllegalArgumentException("n($nSamples) is too small")
         }
     }
 
-    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt())
+    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt() + 1)
 
-    fun subInterval(begin: Double, end: Double): Interval {
-        val i = Interval(begin, end)
-        if (i !in this){
-            throw IllegalArgumentException("t=$i is out of interval($this)")
-        }
-        return i
-    }
-
-            operator fun contains(t: Double): Boolean = t in begin..end
+    operator fun contains(t: Double): Boolean = t in begin..end
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 
-    override fun toString(): String = IntervalJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): IntervalJson = IntervalJson(this)
 
     companion object{
         val ZERO_ONE = Interval(0.0, 1.0)
@@ -53,17 +47,7 @@ data class Interval(val begin: Double, val end: Double) {
 
 data class IntervalJson(private val begin: Double, private val end: Double) {
 
-    companion object {
+    constructor(interval: Interval) : this(interval.begin, interval.end)
 
-        fun toJson(i: Interval): String = prettyGson.toJson(IntervalJson(i.begin, i.end))
-
-        fun fromJson(json: String): Option<Interval> {
-            return try {
-                val v = prettyGson.fromJson<IntervalJson>(json)
-                Option(Interval(v.begin, v.end))
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
+    fun interval(): Interval = Interval(begin, end)
 }

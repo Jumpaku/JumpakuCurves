@@ -1,11 +1,11 @@
 package org.jumpaku.core.affine
 
+import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
-/**
- * Created by jumpaku on 2017/05/17.
- */
+
 class WeightedPointTest {
 
     @Test
@@ -20,12 +20,7 @@ class WeightedPointTest {
     fun testToString() {
         println("ToString")
         val wp = WeightedPoint(Point.xyzr(1.0, 2.0, 3.0, 4.0), -0.4)
-        weightedPointAssertThat(WeightedPointJson.fromJson(WeightedPointJson.toJson(wp)).get()).isEqualToWeightedPoint(wp)
-        weightedPointAssertThat(WeightedPointJson.fromJson(wp.toString()).get()).isEqualToWeightedPoint(wp)
-
-        assertThat(WeightedPointJson.fromJson("""{"point":null, "weight":-0.4}""").isEmpty).isTrue()
-        assertThat(WeightedPointJson.fromJson("""{"point":{"x":1.0, "y":2.0, "z":3.0, "r":4.0} "weight":-0.4}""").isEmpty).isTrue()
-        assertThat(WeightedPointJson.fromJson("""{"point":{"x":1.0, "y":2.0, "z":3.0, "r":4.0}, "weight":-0.4""").isEmpty).isTrue()
+        weightedPointAssertThat(prettyGson.fromJson<WeightedPointJson>(wp.toString()).weightedPoint()).isEqualToWeightedPoint(wp)
     }
 
     @Test

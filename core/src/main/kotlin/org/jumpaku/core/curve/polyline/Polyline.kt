@@ -1,27 +1,18 @@
 package org.jumpaku.core.curve.polyline
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.List
 import io.vavr.collection.Stream
-import io.vavr.control.Option
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.PointJson
-import org.jumpaku.core.affine.divide
-import org.jumpaku.core.affine.times
-import org.jumpaku.core.curve.Curve
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.affine.*
+import org.jumpaku.core.curve.*
+import org.jumpaku.core.fitting.chordalParametrize
 import org.jumpaku.core.json.prettyGson
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
 
 
-class Polyline (val points: Array<Point>, private val parameters: Array<Double>) : FuzzyCurve {
+class Polyline (val points: Array<Point>, private val parameters: Array<Double>) : FuzzyCurve, CrispTransformable {
 
     init {
         if(points.size() != parameters.size()){
@@ -31,25 +22,24 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
 
     override val domain: Interval = Interval(parameters.head(), parameters.last())
 
-    constructor(points: Array<Point>) :this(
-            points,
-            Stream.iterate(
-                    Tuple(0.0, points.zipWith(points.tail(), { p, q -> p.toCrisp().dist(q.toCrisp()) })),
-                    { (sum, ds) -> Tuple(sum + ds.head(), ds.tail()) })
-                    .map { it._1() }
-                    .take(points.size())
-                    .toArray())
+    constructor(points: Array<Point>) :this(points,
+            chordalParametrize(points).map(TimeSeriesPoint::time).run {
+                points.tailOption()
+                        .map { it.zipWith(points, { a, b -> a.toCrisp().dist(b.toCrisp()) }).sum().toDouble() }
+                        .map { this@run.map(it::times) }
+                        .getOrElse(Array(0.0))
+            })
 
     constructor(points: Iterable<Point>) : this(Array.ofAll(points))
 
     constructor(vararg points: Point) : this(Array(*points))
 
-    override fun toString(): String = PolylineJson.toJson(this)
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): PolylineJson = PolylineJson(this)
 
     override fun evaluate(t: Double): Point {
-        if (t !in domain) {
-            throw IllegalArgumentException("t=$t is out of $domain")
-        }
+        require(t in domain) { "t=$t is out of $domain" }
 
         val i = parameters.search(t)
         return if(i >= 0) {
@@ -59,6 +49,8 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
             evaluateInSpan(t, -2 - i)
         }
     }
+
+    override fun evaluateAll(n: Int): Array<Point> = sampleArcLength(n)
 
     private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
                 (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
@@ -79,6 +71,8 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
         return Stream.ofAll(evaluated).prepend(points.head()).append(points.last()).toArray()
     }
 
+    override fun crispTransform(a: Transform): Polyline = Polyline(points.map { a(it.toCrisp()) })
+
     fun reverse(): Polyline = Polyline(points.reverse(), parameters.map { domain.end + domain.begin - it }.reverse())
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
@@ -86,9 +80,8 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
     fun restrict(begin: Double, end: Double): Polyline = subdivide(begin)._2().subdivide(end-begin)._1()
 
     fun subdivide(t: Double): Tuple2<Polyline, Polyline> {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain($domain)")
-        }
+        require(t in domain) { "t($t) is out of domain($domain)" }
+
         val index = parameters.search(t)
         return when{
             index >= 0 ->
@@ -129,23 +122,9 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
     }
 }
 
-class PolylineJson(points: Array<Point>) {
+data class PolylineJson(private val points: kotlin.collections.List<PointJson>) {
 
-    private val points: kotlin.Array<PointJson> = points.map{ PointJson(it.x, it.y, it.z, it.r) }
-            .toJavaArray(PointJson::class.java)
+    constructor(polyline: Polyline) : this(polyline.points.map(Point::json).toJavaList())
 
     fun polyline(): Polyline = Polyline(points.map(PointJson::point))
-
-    companion object {
-
-        fun toJson(polyline: Polyline): String = prettyGson.toJson(PolylineJson(polyline.points))
-
-        fun fromJson(json: String): Option<Polyline> {
-            return try {
-                Option(prettyGson.fromJson<PolylineJson>(json).polyline())
-            } catch(e: Exception) {
-                None()
-            }
-        }
-    }
 }

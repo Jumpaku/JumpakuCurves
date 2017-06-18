@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve
 
+import io.vavr.collection.Array
 import org.jumpaku.core.affine.Point
 
 /**
@@ -11,9 +12,7 @@ interface Curve : Function1<Double, Point> {
     val domain: Interval
 
     override fun invoke(t: Double): Point {
-        if (t !in domain) {
-            throw IllegalArgumentException("t=$t is out of $domain")
-        }
+        require(t in domain) { "t=$t is out of $domain" }
 
         return evaluate(t)
     }
@@ -24,4 +23,8 @@ interface Curve : Function1<Double, Point> {
      * @throws IllegalArgumentException t !in domain
      */
     fun evaluate(t: Double): Point
+
+    fun evaluateAll(n: Int): Array<Point> = domain.sample(n).map(this)
+
+    fun evaluateAll(delta: Double): Array<Point> = domain.sample(delta).map(this)
 }
