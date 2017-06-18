@@ -217,7 +217,7 @@
       "r": 2.713319514513513
     }
   ],
-  "knots": [
+  "knotVector": [
     {
       "value": 476363.6922188561,
       "multiplicity": 4

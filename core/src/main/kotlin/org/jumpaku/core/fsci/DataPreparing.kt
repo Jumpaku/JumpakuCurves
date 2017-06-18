@@ -38,12 +38,16 @@ class DataPreparing(
                         innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<TimeSeriesPoint> {
             val end = sortedData.head().time + innerSpan
             val begin = sortedData.head().time - outerSpan
-            val innerData  = sortedData.filter { it.time <= end } .map { (p, _) -> p }
-            val bezier = BezierFitting(degree).fit(chordalParametrize(innerData, Interval(outerSpan/(outerSpan+innerSpan), 1.0)))
+            val innerPoints  = sortedData.filter { it.time <= end } .map { (p, _) -> p }
+            val bezierSubDomain = Interval(outerSpan/(outerSpan+innerSpan), 1.0)
+            val chordalData = chordalParametrize(innerPoints, bezierSubDomain)
+                    .let { fill(it, bezierSubDomain.span/degree) }
+            val bezier = BezierFitting(degree).fit(chordalData)
             val extrapolated = bezier
                     .subdivide(outerSpan/(outerSpan+innerSpan))._1()
-                    .evaluateAll(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
+                    .evaluateAll(Math.ceil(chordalData.size()*innerSpan/outerSpan).toInt())
             return chordalParametrize(extrapolated, Interval(begin, begin + outerSpan))
+                    .let { fill(it, bezierSubDomain.span/degree) }
                     .init()
                     .filter { it.time.isFinite() }
                     .appendAll(sortedData)
@@ -53,12 +57,16 @@ class DataPreparing(
                        innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<TimeSeriesPoint> {
             val begin = sortedData.last().time - innerSpan
             val end = sortedData.last().time + outerSpan
-            val innerData = sortedData.filter { it.time >= begin } .map { (p, _) -> p }
-            val bezier = BezierFitting(degree).fit(chordalParametrize(innerData, Interval(0.0, innerSpan/(outerSpan+innerSpan))))
+            val innerPoints = sortedData.filter { it.time >= begin } .map { (p, _) -> p }
+            val bezierSubDomain = Interval(0.0, innerSpan/(outerSpan+innerSpan))
+            val chordalData = chordalParametrize(innerPoints, bezierSubDomain)
+                    .let { fill(it, bezierSubDomain.span/degree) }
+            val bezier = BezierFitting(degree).fit(chordalData)
             val extrapolated = bezier
                     .subdivide(innerSpan/(innerSpan+outerSpan))._2()
-                    .evaluateAll(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
+                    .evaluateAll(Math.ceil(innerPoints.size()/innerSpan*outerSpan).toInt())
             return chordalParametrize(extrapolated, Interval(end - outerSpan, end))
+                    .let { fill(it, bezierSubDomain.span/degree) }
                     .tail()
                     .filter { it.time.isFinite() }
                     .prependAll(sortedData)

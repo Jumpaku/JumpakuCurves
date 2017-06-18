@@ -21,13 +21,12 @@ class FscGeneration(val degree: Int = 3, val knotSpan: Double = 0.1) {
                 degree, Interval(modifiedData.head().time, modifiedData.last().time), knotSpan).fit(modifiedData)
 
         val targetVector = createFuzzinessDataVector(modifiedData.map(TimeSeriesPoint::time), bSpline)
-        val modelMatrix = createModelMatrix(modifiedData.map(TimeSeriesPoint::time), degree, bSpline.knotValues)
+        val modelMatrix = createModelMatrix(modifiedData.map(TimeSeriesPoint::time), degree, bSpline.knotVector)
         val fuzzyControlPoints = nonNegativeLinearLeastSquare(modelMatrix, targetVector)
                 .toArray().zip(bSpline.controlPoints, { r, (x, y, z) -> Point.xyzr(x, y, z, r) })
 
-        val fsc = BSpline(fuzzyControlPoints, bSpline.knots)
-        return fsc
-                .restrict(fsc.knots.tail().head().value, fsc.knots.init().last().value)
+        val fsc = BSpline(fuzzyControlPoints, bSpline.knotVector)
+        return fsc.restrict(fsc.knotVector.innerKnotVector().domain(degree))
     }
 
     private fun createFuzzinessDataVector(modifiedDataTimes: Array<Double>, crispBSpline: BSpline): RealVector {

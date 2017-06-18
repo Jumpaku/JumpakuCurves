@@ -22,11 +22,11 @@ class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(ac
                     i, (a, e) -> pointAssertThat(a).`as`("bSpline.controlPoints[%d]", i).isEqualToPoint(e, eps)
                 }
 
-        Assertions.assertThat(actual.knots.size()).`as`("knots size").isEqualTo(expected.knots.size())
+        Assertions.assertThat(actual.knotVector.size()).`as`("knotVector size").isEqualTo(expected.knotVector.size())
 
-        actual.knots.zip(expected.knots)
+        actual.knotVector.knots.zip(expected.knotVector.knots)
                 .forEachIndexed {
-                    i, (a, e) -> knotAssertThat(a).`as`("bSpline.knots[%d]", i).isEqualToKnot(e, eps)
+                    i, (a, e) -> knotAssertThat(a).`as`("bSpline.knotVector[%d]", i).isEqualToKnot(e, eps)
                 }
 
         return this

@@ -13,10 +13,10 @@ import org.jumpaku.core.json.prettyGson
 
 data class Interval(val begin: Double, val end: Double) {
 
+    val span: Double = end - begin
+
     init {
-        if (begin > end){
-            throw IllegalArgumentException("begin($begin) > end($end)")
-        }
+        require(begin <= end){ "begin($begin) > end($end)" }
     }
 
     fun sample(nSamples: Int): Array<Double> {
@@ -30,14 +30,6 @@ data class Interval(val begin: Double, val end: Double) {
     }
 
     fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt() + 1)
-
-    fun subInterval(begin: Double, end: Double): Interval {
-        val i = Interval(begin, end)
-        if (i !in this){
-            throw IllegalArgumentException("t=$i is out of interval($this)")
-        }
-        return i
-    }
 
     operator fun contains(t: Double): Boolean = t in begin..end
 

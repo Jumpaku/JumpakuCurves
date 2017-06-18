@@ -18,8 +18,10 @@ class IntervalTest {
         println("Properties")
         val b = Interval(-2.3, 3.4).begin
         val e = Interval(-2.3, 3.4).end
+        val s = Interval(-2.3, 3.4).span
         assertThat(b).isEqualTo(-2.3, withPrecision(1.0e-10))
-        assertThat(e).isEqualTo(   3.4, withPrecision(1.0e-10))
+        assertThat(e).isEqualTo( 3.4, withPrecision(1.0e-10))
+        assertThat(s).isEqualTo( 5.7, withPrecision(1.0e-10))
     }
 
     @Test
@@ -43,15 +45,6 @@ class IntervalTest {
         assertThat(i1[4]).isEqualTo( 0.3, withPrecision(1.0e-10))
         assertThat(i1[5]).isEqualTo( 0.4, withPrecision(1.0e-10))
         assertThat(i1[6]).isEqualTo( 0.5, withPrecision(1.0e-10))
-    }
-
-
-    @Test
-    fun testSubInterval() {
-        println("SubInterval")
-        val i = Interval(0.6, 9.7).subInterval(0.7, 0.9)
-        intervalAssertThat(i).isEqualTo(Interval(0.7, 0.9))
-        assertThat(i.end).isEqualTo(0.9, withPrecision(1.0e-10))
     }
 
     @Test
