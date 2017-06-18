@@ -1,7 +1,8 @@
-package org.jumpaku.core.affine
+package org.jumpaku.core.fitting
 
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
+import org.jumpaku.core.affine.pointAssertThat
 
 
 fun paramPointAssertThat(actual: ParamPoint): ParamPointAssert = ParamPointAssert(actual)

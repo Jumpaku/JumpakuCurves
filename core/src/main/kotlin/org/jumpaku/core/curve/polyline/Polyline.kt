@@ -1,13 +1,13 @@
 package org.jumpaku.core.curve.polyline
 
 import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.List
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
+import org.jumpaku.core.fitting.ParamPoint
 import org.jumpaku.core.fitting.chordalParametrize
 import org.jumpaku.core.json.prettyGson
 
@@ -23,7 +23,7 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
     override val domain: Interval = Interval(parameters.head(), parameters.last())
 
     constructor(points: Array<Point>) :this(points,
-            chordalParametrize(points).map(TimeSeriesPoint::time).run {
+            chordalParametrize(points).map(ParamPoint::param).run {
                 points.tailOption()
                         .map { it.zipWith(points, { a, b -> a.toCrisp().dist(b.toCrisp()) }).sum().toDouble() }
                         .map { this@run.map(it::times) }

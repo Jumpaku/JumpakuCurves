@@ -4,7 +4,7 @@ import io.vavr.collection.Array
 import org.apache.commons.math3.linear.ArrayRealVector
 import org.apache.commons.math3.linear.RealVector
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPoint
+import org.jumpaku.core.fitting.ParamPoint
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.fitting.BSplineFitting
@@ -14,14 +14,14 @@ import org.jumpaku.core.fitting.nonNegativeLinearLeastSquare
 
 class FscGeneration(val degree: Int = 3, val knotSpan: Double = 0.1) {
 
-    fun generate(data: Array<TimeSeriesPoint>): BSpline {
+    fun generate(data: Array<ParamPoint>): BSpline {
         val modifiedData = DataPreparing(knotSpan / degree, knotSpan, knotSpan, degree - 1)
-                .prepare(data.sortBy(TimeSeriesPoint::time))
+                .prepare(data.sortBy(ParamPoint::param))
         val bSpline = BSplineFitting(
-                degree, Interval(modifiedData.head().time, modifiedData.last().time), knotSpan).fit(modifiedData)
+                degree, Interval(modifiedData.head().param, modifiedData.last().param), knotSpan).fit(modifiedData)
 
-        val targetVector = createFuzzinessDataVector(modifiedData.map(TimeSeriesPoint::time), bSpline)
-        val modelMatrix = createModelMatrix(modifiedData.map(TimeSeriesPoint::time), degree, bSpline.knotVector)
+        val targetVector = createFuzzinessDataVector(modifiedData.map(ParamPoint::param), bSpline)
+        val modelMatrix = createModelMatrix(modifiedData.map(ParamPoint::param), degree, bSpline.knotVector)
         val fuzzyControlPoints = nonNegativeLinearLeastSquare(modelMatrix, targetVector)
                 .toArray().zip(bSpline.controlPoints, { r, (x, y, z) -> Point.xyzr(x, y, z, r) })
 

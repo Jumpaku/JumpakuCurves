@@ -2,7 +2,6 @@ package org.jumpaku.core.fitting
 
 import io.vavr.API
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.bspline.BSpline
@@ -18,7 +17,7 @@ class BSplineFittingTest {
         val b = BSpline(
                 API.Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(Interval(1.0, 1.7), 3, 9))
-        val data = b.domain.sample(10).map { TimeSeriesPoint(b(it), it) }
+        val data = b.domain.sample(10).map { ParamPoint(b(it), it) }
         val f = BSplineFitting(b.degree, b.knotVector).fit(data)
         bSplineAssertThat(f).isEqualToBSpline(b)
     }

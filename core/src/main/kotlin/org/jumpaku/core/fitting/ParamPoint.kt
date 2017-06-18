@@ -1,5 +1,9 @@
-package org.jumpaku.core.affine
+package org.jumpaku.core.fitting
 
+import org.jumpaku.core.affine.Divisible
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.PointJson
+import org.jumpaku.core.affine.divide
 import org.jumpaku.core.json.prettyGson
 
 data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint> {

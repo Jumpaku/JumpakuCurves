@@ -1,6 +1,7 @@
-package org.jumpaku.core.affine
+package org.jumpaku.core.fitting
 
 import com.github.salomonbrys.kotson.fromJson
+import org.jumpaku.core.affine.Point
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 
