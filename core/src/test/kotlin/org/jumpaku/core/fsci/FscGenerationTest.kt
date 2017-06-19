@@ -5,7 +5,7 @@ import io.vavr.collection.Array
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPointJson
+import org.jumpaku.core.fitting.ParamPointJson
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.bspline.bSplineAssertThat
@@ -26,8 +26,8 @@ class FscGenerationTest {
         println("Generate")
         for (i in 0..5) {
             val dataFile = path.resolve("FscGenerationData$i.json").toFile()
-            val dataJson = prettyGson.fromJson<kotlin.Array<TimeSeriesPointJson>>(dataFile.readText())
-            val data = Array.ofAll(dataJson.map { it.timeSeriesPoint() })
+            val dataJson = prettyGson.fromJson<kotlin.Array<ParamPointJson>>(dataFile.readText())
+            val data = Array.ofAll(dataJson.map { it.paramPoint() })
             val a = FscGeneration(3, 0.1).generate(data)
             val e = prettyGson.fromJson<BSplineJson>(path.resolve("FscGenerationFsc$i.json").toFile().readText()).bSpline()
             bSplineAssertThat(BSpline(a.controlPoints.map(Point::toCrisp), a.knotVector))

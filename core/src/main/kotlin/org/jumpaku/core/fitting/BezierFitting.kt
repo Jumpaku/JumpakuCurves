@@ -5,9 +5,7 @@ import io.vavr.collection.Array
 import org.apache.commons.math3.linear.DiagonalMatrix
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
-import org.apache.commons.math3.linear.RealMatrix
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
@@ -15,14 +13,14 @@ import org.jumpaku.core.util.component2
 
 class BezierFitting(
         val degree: Int,
-        val createWeightMatrix: (Array<TimeSeriesPoint>) -> DiagonalMatrix = {
+        val createWeightMatrix: (Array<ParamPoint>) -> DiagonalMatrix = {
             DiagonalMatrix(io.vavr.collection.Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
         }
 ) : Fitting<Bezier>{
 
     fun basis(i: Int, t: Double): Double = Bezier.basis(degree, i, t)
 
-    override fun fit(data: Array<TimeSeriesPoint>): Bezier {
+    override fun fit(data: Array<ParamPoint>): Bezier {
         val (ds, ts) = data.unzip { (p, t) -> Tuple(p, t) }
         val d = ds.map { doubleArrayOf(it.x, it.y, it.z) }
                 .toJavaArray(DoubleArray::class.java)

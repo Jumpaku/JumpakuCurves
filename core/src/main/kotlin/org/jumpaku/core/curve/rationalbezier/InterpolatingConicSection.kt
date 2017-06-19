@@ -1,10 +1,9 @@
 package org.jumpaku.core.curve.rationalbezier
 
 
-import com.github.salomonbrys.kotson.fromJson
-import io.vavr.API.*
+import io.vavr.API.Array
+import io.vavr.API.Stream
 import io.vavr.collection.Array
-import io.vavr.control.Option
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
@@ -16,15 +15,13 @@ class InterpolatingConicSection(
         val begin: Point, val middle: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, CrispTransformable {
 
     val asCrispRationalBezier: RationalBezier get() {
-        if (!java.lang.Double.isFinite(1.0 / weight)) {
-            throw IllegalArgumentException("weight is zero.")
-        }
+        require((1.0 / weight).isFinite()) { "weight is zero." }
 
         return RationalBezier(Stream(
                 begin.toCrisp(),
                 Crisp(-0.5 / weight * begin.toVector() + (1 + 1 / weight) * middle.toVector() - 0.5 / weight * end.toVector()),
-                end.toCrisp())
-                .zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
+                end.toCrisp()
+        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
     }
 
     val representPoints: Array<Point> get() = Array(begin, middle, end)

@@ -127,12 +127,31 @@ class BezierTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val (front, back) = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        val bs = Bezier(
+                Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
                 .subdivide(0.25)
-        bezierAssertThat(front).isEqualToBezier(Bezier(
+        assertThat(bs.size()).isEqualTo(2)
+        bezierAssertThat(bs[0]).isEqualToBezier(Bezier(
                 Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-7/4.0, 0.0, 5/4.0), Point.xyr(-3/2.0, 1/8.0, 21/16.0), Point.xyr(-5/4.0, 9/32.0, 83/64.0), Point.xyr(-1.0, 27/64.0, 161/128.0)))
-        bezierAssertThat(back ).isEqualToBezier(Bezier(
+        bezierAssertThat(bs[1]).isEqualToBezier(Bezier(
                 Point.xyr(-1.0, 27/64.0,322/256.0), Point.xyr(-1/4.0, 27/32.0, 73/64.0), Point.xyr(1/2.0, 9/8.0, 13/16.0), Point.xyr(5/4.0, 0.0, 7/4.0), Point.xyr(2.0, 0.0, 1.0)))
+    }
+
+    @Test
+    fun testExtend() {
+        println("Extend")
+        val extendBack = Bezier(
+                Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-7/4.0, 0.0, 5/4.0), Point.xyr(-3/2.0, 1/8.0, 21/16.0), Point.xyr(-5/4.0, 9/32.0, 83/64.0), Point.xyr(-1.0, 27/64.0, 161/128.0))
+                .extend(4.0)
+        bezierAssertThat(extendBack).isEqualToBezier(Bezier(
+                Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 8.0), Point.xyr(0.0, 2.0, 60.0), Point.xyr(1.0, 0.0, 434.0), Point.xyr(2.0, 0.0, 3073.0)))
+
+        val extendFront = Bezier(
+                Point.xyr(-1.0, 27/64.0,322/256.0), Point.xyr(-1/4.0, 27/32.0, 73/64.0), Point.xyr(1/2.0, 9/8.0, 13/16.0), Point.xyr(5/4.0, 0.0, 7/4.0), Point.xyr(2.0, 0.0, 1.0))
+                .extend(-1/3.0)
+        bezierAssertThat(extendFront).isEqualToBezier(Bezier(
+                Point.xyr(-2.0, 0.0, 721/81.0), Point.xyr(-1.0, 0.0, 134/27.0), Point.xyr(0.0, 2.0, 28/9.0), Point.xyr(1.0, 0.0, 8/3.0), Point.xyr(2.0, 0.0, 1.0)))
+
     }
 
     @Test
