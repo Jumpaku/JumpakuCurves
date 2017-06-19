@@ -1,14 +1,9 @@
 package org.jumpaku.core.curve.bezier
 
-import com.github.salomonbrys.kotson.fromJson
-import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
 import org.jumpaku.core.affine.Crisp
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Vector
-import org.jumpaku.core.affine.VectorJson
 import org.jumpaku.core.curve.Derivative
 import org.jumpaku.core.curve.Differentiable
 import org.jumpaku.core.curve.Interval
@@ -49,8 +44,9 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     fun reduce(): BezierDerivative = BezierDerivative(asBezier.reduce())
 
-    fun subdivide(t: Double): Tuple2<BezierDerivative, BezierDerivative> = asBezier.subdivide(t)
-            .map<BezierDerivative, BezierDerivative>(::BezierDerivative, ::BezierDerivative)
+    fun subdivide(t: Double): Array<BezierDerivative> = asBezier.subdivide(t).map(::BezierDerivative)
+
+    fun extend(t: Double): BezierDerivative = BezierDerivative(asBezier.extend(t))
 }
 
 data class BezierDerivativeJson(private val controlVectors: List<Vector>){
