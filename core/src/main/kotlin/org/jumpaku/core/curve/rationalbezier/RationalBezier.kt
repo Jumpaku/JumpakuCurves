@@ -1,15 +1,11 @@
 package org.jumpaku.core.curve.rationalbezier
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.collection.Stream
-import io.vavr.control.Option
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
-import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 

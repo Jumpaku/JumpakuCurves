@@ -1,13 +1,15 @@
 package org.jumpaku.core.curve.bezier
 
 import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.CrispTransformable
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.FuzzyCurve
+import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1

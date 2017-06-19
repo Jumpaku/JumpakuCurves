@@ -1,14 +1,9 @@
 package org.jumpaku.core.curve.bezier
 
-import com.github.salomonbrys.kotson.fromJson
-import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
 import org.jumpaku.core.affine.Crisp
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Vector
-import org.jumpaku.core.affine.VectorJson
 import org.jumpaku.core.curve.Derivative
 import org.jumpaku.core.curve.Differentiable
 import org.jumpaku.core.curve.Interval

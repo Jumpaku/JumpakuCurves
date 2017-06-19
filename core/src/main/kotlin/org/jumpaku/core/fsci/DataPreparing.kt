@@ -10,6 +10,17 @@ import org.jumpaku.core.fitting.chordalParametrize
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
+
+/**
+ * Prepares data before FSC generation.
+ * Given data is time series point sequence.
+ * The data may have lacks of points, which causes singular matrix.
+ * At beginning point and end point, fuzziness of generated FSC may become too large.
+ * This is because velocity or acceleration of fitted curve may change suddenly, at these points.
+ *
+ * To avoid these problems, before FSC generation, lacks of data should be filled by linear interpolation.
+ * And data points around beginning point and end point should be extended by quadratic bezier fitting.
+ */
 class DataPreparing(
         val maximumSpan: Double,
         val innerSpan: Double,
