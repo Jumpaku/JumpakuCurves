@@ -6,7 +6,6 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.KnotVector
@@ -33,14 +32,14 @@ fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotVector: K
 class BSplineFitting(
         val degree: Int,
         val knotVector: KnotVector,
-        val createWeightMatrix: (Array<TimeSeriesPoint>) -> DiagonalMatrix = {
+        val createWeightMatrix: (Array<ParamPoint>) -> DiagonalMatrix = {
             DiagonalMatrix(Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
         }) : Fitting<BSpline>{
 
     constructor(degree: Int, domain: Interval, delta: Double) : this(
             degree, KnotVector.clampedUniform(domain, degree, domain.sample(delta).size() + degree*2))
 
-    override fun fit(data: Array<TimeSeriesPoint>): BSpline {
+    override fun fit(data: Array<ParamPoint>): BSpline {
         val (d, b) = data.unzip { (p, t) -> Tuple(p, t) }
                 .map(this::createDataMatrix, this::createBasisMatrix)
         val w = createWeightMatrix(data)

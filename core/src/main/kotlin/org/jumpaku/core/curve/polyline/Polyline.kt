@@ -1,13 +1,13 @@
 package org.jumpaku.core.curve.polyline
 
 import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.List
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
+import org.jumpaku.core.fitting.ParamPoint
 import org.jumpaku.core.fitting.chordalParametrize
 import org.jumpaku.core.json.prettyGson
 
@@ -23,7 +23,7 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
     override val domain: Interval = Interval(parameters.head(), parameters.last())
 
     constructor(points: Array<Point>) :this(points,
-            chordalParametrize(points).map(TimeSeriesPoint::time).run {
+            chordalParametrize(points).map(ParamPoint::param).run {
                 points.tailOption()
                         .map { it.zipWith(points, { a, b -> a.toCrisp().dist(b.toCrisp()) }).sum().toDouble() }
                         .map { this@run.map(it::times) }
@@ -77,25 +77,25 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
 
-    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin)._2().subdivide(end-begin)._1()
+    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin).last().subdivide(end-begin).head()
 
-    fun subdivide(t: Double): Tuple2<Polyline, Polyline> {
+    fun subdivide(t: Double): Array<Polyline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val index = parameters.search(t)
         return when{
             index >= 0 ->
-                Tuple(Polyline(points.take(index+1), parameters.take(index+1)),
+                Array(Polyline(points.take(index+1), parameters.take(index+1)),
                         Polyline(points.drop(index), parameters.drop(index).map { it - t }))
             Precision.equals(parameters[-2-index], t, 1.0e-10) ->
-                Tuple(Polyline(points.take(-1-index), parameters.take(-1-index)),
+                Array(Polyline(points.take(-1-index), parameters.take(-1-index)),
                         Polyline(points.drop(-2-index), parameters.drop(-2-index).map { it - t }))
             Precision.equals(parameters[-1-index], t, 1.0e-10) ->
-                Tuple(Polyline(points.take(-index), parameters.take(-index)),
+                Array(Polyline(points.take(-index), parameters.take(-index)),
                         Polyline(points.drop(-1-index), parameters.drop(-1-index).map { it - t }))
             else -> {
                 val p = evaluate(t)
-                Tuple(Polyline(points.take(-1-index).append(p), parameters.take(-1-index).append(t)),
+                Array(Polyline(points.take(-1-index).append(p), parameters.take(-1-index).append(t)),
                         Polyline(points.drop(-1-index).prepend(p), parameters.drop(-1-index).prepend(t).map { it - t }))
             }
         }
