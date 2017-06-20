@@ -35,7 +35,7 @@ class KnotVector(val knots: Array<Knot>) : Iterable<Double> {
 
     override fun toString(): String = prettyGson.toJson(json())
 
-    fun json(): KnotVectorJson = KnotVectorJson(this)
+    fun json(): KnotVectorJson = knotVectorJson(this)
 
     fun size(): Int = value.size()
 
@@ -174,8 +174,8 @@ class KnotVector(val knots: Array<Knot>) : Iterable<Double> {
 
 typealias KnotVectorJson = List<KnotJson>
 
-fun KnotVectorJson(knots: List<KnotJson>): KnotVectorJson = knots
+fun knotVectorJson(knots: List<KnotJson>): KnotVectorJson = knots
 
-fun KnotVectorJson(knotVector: KnotVector): KnotVectorJson = KnotVectorJson(knotVector.knots.map(Knot::json).toJavaList())
+fun knotVectorJson(knotVector: KnotVector): KnotVectorJson = knotVectorJson(knotVector.knots.map(Knot::json).toJavaList())
 
 fun KnotVectorJson.knotVector(): KnotVector = KnotVector(map(KnotJson::knot))

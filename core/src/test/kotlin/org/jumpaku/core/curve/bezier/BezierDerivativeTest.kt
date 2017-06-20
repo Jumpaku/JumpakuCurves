@@ -123,11 +123,29 @@ class BezierDerivativeTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val (front, back) = BezierDerivative(Vector(1.0,-2.0, 0.0), Vector(2.0,-1.0, 0.0), Vector(0.0, 0.0, 2.0), Vector(2.0, 1.0, 0.0), Vector(1.0, 2.0, 0.0))
+        val bs = BezierDerivative(Vector(1.0,-2.0, 0.0), Vector(2.0,-1.0, 0.0), Vector(0.0, 0.0, 2.0), Vector(2.0, 1.0, 0.0), Vector(1.0, 2.0, 0.0))
                 .subdivide(0.25)
-        bezierAssertThat(front.asBezier).isEqualToBezier(Bezier(
+        assertThat(bs.size()).isEqualTo(2)
+        bezierAssertThat(bs[0].asBezier).isEqualToBezier(Bezier(
                 Point.xyz(1.0,      -2.0, 0.0),     Point.xyz(5/4.0,  -7/4.0, 0.0),     Point.xyz(21/16.0,-3/2.0, 1/8.0), Point.xyz(83/64.0,-5/4.0, 9/32.0), Point.xyz(322/256.0,-1.0, 27/64.0)))
-        bezierAssertThat(back.asBezier ).isEqualToBezier(Bezier(
+        bezierAssertThat(bs[1].asBezier ).isEqualToBezier(Bezier(
                 Point.xyz(322/256.0,-1.0, 27/64.0), Point.xyz(73/64.0,-1/4.0, 27/32.0), Point.xyz(13/16.0, 1/2.0, 9/8.0), Point.xyz(7/4.0,   5/4.0, 0.0),    Point.xyz(1.0,       2.0, 0.0)))
+    }
+
+    @Test
+    fun testExtend() {
+        println("Extend")
+        val extendBack = BezierDerivative(
+                Vector(-2.0, 0.0), Vector(-7/4.0, 0.0), Vector(-3/2.0, 1/8.0), Vector(-5/4.0, 9/32.0), Vector(-1.0, 27/64.0))
+                .extend(4.0)
+        bezierAssertThat(extendBack.asBezier).isEqualToBezier(Bezier(
+                Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))
+
+        val extendFront = BezierDerivative(
+                Vector(-1.0, 27/64.0), Vector(-1/4.0, 27/32.0), Vector(1/2.0, 9/8.0), Vector(5/4.0, 0.0), Vector(2.0, 0.0))
+                .extend(-1/3.0)
+        bezierAssertThat(extendFront.asBezier).isEqualToBezier(Bezier(
+                Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))
+
     }
 }

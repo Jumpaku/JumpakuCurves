@@ -92,9 +92,10 @@ class PolylineTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val (front, back) = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        val ps = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
                 .subdivide(4.5)
-        polylineAssertThat(front).isEqualToPolyline(Polyline(Point.xyr(-1.0, 1.0, 2.0 ), Point.xyr(1.0,  1.0, 1.0), Point.xyr( 1.0,-1.5, 2.25)))
-        polylineAssertThat(back ).isEqualToPolyline(Polyline(Point.xyr( 1.0,-1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
+        assertThat(ps.size()).isEqualTo(2)
+        polylineAssertThat(ps[0]).isEqualToPolyline(Polyline(Point.xyr(-1.0, 1.0, 2.0 ), Point.xyr(1.0,  1.0, 1.0), Point.xyr( 1.0,-1.5, 2.25)))
+        polylineAssertThat(ps[1]).isEqualToPolyline(Polyline(Point.xyr( 1.0,-1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
     }
 }
