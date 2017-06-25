@@ -7,7 +7,7 @@ import io.vavr.collection.List
 import javafx.scene.Group
 import javafx.scene.paint.Color
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.fitting.ParamPoint
+import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.polyline.Polyline
 import tornadofx.*
 

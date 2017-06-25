@@ -106,12 +106,18 @@ fun Parent.cubicFsc(bSpline: BSpline, op: (Shape.() -> Unit) = { Unit }): Unit {
     }
 }
 
-fun Parent.polyline(polyline: Polyline, op: (Line.() -> Unit) = { Unit }): Unit {
+fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit) = { Unit }): Unit {
     group {
         polyline.points.zip(polyline.points.tail())
                 .forEach { (a, b) -> line(a.x, a.y, b.x, b.y){
                     fill = Color.gray(0.0, 0.0)
                     op()
                 } }
+        polyline.points.forEach {
+            circle(it.x, it.y, it.r){
+                fill = Color.gray(0.0, 0.0)
+                op()
+            }
+        }
     }
 }

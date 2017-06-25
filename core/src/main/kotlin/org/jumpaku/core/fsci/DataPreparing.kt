@@ -3,17 +3,16 @@ package org.jumpaku.core.fsci
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
-import org.jumpaku.core.fitting.ParamPoint
 import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.fitting.BezierFitting
-import org.jumpaku.core.fitting.chordalParametrize
+import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.fitting.*
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
 /**
  * Prepares data before FSC generation.
- * Given data is time series point sequence.
+ * Given data is param series point sequence.
  * The data may have lacks of points, which causes singular matrix.
  * At beginning point and end point, fuzziness of generated FSC may become too large.
  * This is because velocity or acceleration of fitted curve may change suddenly, at these points.
@@ -28,6 +27,8 @@ class DataPreparing(
         val degree: Int = 2) {
 
     fun prepare(crispData: Array<ParamPoint>): Array<ParamPoint> {
+        require(crispData.size() >= 2) { "sortedData size is too little" }
+
         return  crispData.sortBy(ParamPoint::param)
                 .run { fill(this, maximumSpan) }
                 .run { extendFront(this, innerSpan, outerSpan, degree) }
@@ -37,6 +38,8 @@ class DataPreparing(
     companion object {
 
         fun fill(sortedData: Array<ParamPoint>, maximumSpan: Double): Array<ParamPoint> {
+            require(sortedData.size() >= 2) { "sortedData size is too few" }
+
             return sortedData.zip(sortedData.tail())
                     .flatMap { (a, b) ->
                         val nSamples = FastMath.ceil((b.param - a.param) / maximumSpan).toInt() + 1
@@ -46,39 +49,35 @@ class DataPreparing(
 
         fun extendFront(sortedData: Array<ParamPoint>,
                         innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<ParamPoint> {
+            require(sortedData.size() >= 2) { "sortedData size(${sortedData.size()} is too few" }
+
             val end = sortedData.head().param + innerSpan
             val begin = sortedData.head().param - outerSpan
-            val innerPoints  = sortedData.filter { it.param <= end } .map { (p, _) -> p }
-            val bezierSubDomain = Interval(outerSpan/(outerSpan+innerSpan), 1.0)
-            val chordalData = chordalParametrize(innerPoints, bezierSubDomain)
-                    .let { fill(it, bezierSubDomain.span/degree) }
-            val bezier = BezierFitting(degree).fit(chordalData)
-            val extrapolated = bezier
-                    .subdivide(outerSpan/(outerSpan+innerSpan)).head()
-                    .evaluateAll(Math.ceil(chordalData.size()*innerSpan/outerSpan).toInt())
-            return chordalParametrize(extrapolated, Interval(begin, begin + outerSpan))
-                    .let { fill(it, bezierSubDomain.span/degree) }
+            val innerData = sortedData.filter { it.param <= end }
+                    .let { chordalParametrize(it.map { it.point }) }
+                    .let { transformParams(it, Interval(outerSpan/(outerSpan+innerSpan), 1.0)) }
+            val bezier = BezierFitting(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan)).head()
+            val outerData = bezier.domain.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
+                    .map { ParamPoint(bezier(it), it) }
+            return transformParams(outerData, Interval(begin, begin + outerSpan))
                     .init()
-                    .filter { it.param.isFinite() }
                     .appendAll(sortedData)
         }
 
         fun extendBack(sortedData: Array<ParamPoint>,
                        innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<ParamPoint> {
+            require(sortedData.size() >= 2) { "sortedData size is too few" }
+
             val begin = sortedData.last().param - innerSpan
             val end = sortedData.last().param + outerSpan
-            val innerPoints = sortedData.filter { it.param >= begin } .map { (p, _) -> p }
-            val bezierSubDomain = Interval(0.0, innerSpan/(outerSpan+innerSpan))
-            val chordalData = chordalParametrize(innerPoints, bezierSubDomain)
-                    .let { fill(it, bezierSubDomain.span/degree) }
-            val bezier = BezierFitting(degree).fit(chordalData)
-            val extrapolated = bezier
-                    .subdivide(innerSpan/(innerSpan+outerSpan)).last()
-                    .evaluateAll(Math.ceil(innerPoints.size()/innerSpan*outerSpan).toInt())
-            return chordalParametrize(extrapolated, Interval(end - outerSpan, end))
-                    .let { fill(it, bezierSubDomain.span/degree) }
+            val innerData = sortedData.filter { it.param >= begin }
+                    .let { chordalParametrize(it.map { it.point }) }
+                    .let { transformParams(it, Interval(0.0, innerSpan/(outerSpan+innerSpan))) }
+            val bezier = BezierFitting(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan)).last()
+            val outerData = bezier.domain.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
+                    .map { ParamPoint(bezier(it), it) }
+            return transformParams(outerData, Interval(end - outerSpan, end))
                     .tail()
-                    .filter { it.param.isFinite() }
                     .prependAll(sortedData)
         }
     }

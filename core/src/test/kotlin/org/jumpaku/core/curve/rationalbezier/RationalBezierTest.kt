@@ -4,7 +4,7 @@ import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.rationalrationalBezier.rationalBezierAssertThat
+import org.jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
 import org.junit.Test
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
