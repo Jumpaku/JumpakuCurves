@@ -7,9 +7,15 @@ import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.arclength.ArcLengthAdapter
 import org.jumpaku.core.curve.rationalbezier.ConicSection
+import org.jumpaku.core.fuzzy.Grade
 
 
-interface Reference: FuzzyCurve
+interface Reference {
+
+    val fuzzyCurve: FuzzyCurve
+
+    fun validate(fuzzyCurve: FuzzyCurve): Grade = fuzzyCurve.isPossible(this.fuzzyCurve)
+}
 
 
 internal fun evaluateWithoutDomain(t: Double, conicSection: ConicSection): Point {
@@ -36,7 +42,7 @@ internal fun conicSectionArcLengthWithoutDomain(t: Double, circular: ArcLengthAd
     }
 }
 
-internal fun makeDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSection: ConicSection): Interval {
+internal fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSection: ConicSection): Interval {
     val l0 = fscArcLength.arcLengthUntil(t0)
     val l1 = fscArcLength.arcLengthUntil(t1)
     val l = fscArcLength.arcLength()

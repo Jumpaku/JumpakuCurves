@@ -30,11 +30,10 @@ class LineSegmentTest {
     }
 
     @Test
-    fun testAsArcLengthCurve() {
-        println("GetAsArcLengthCurve")
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
         val d = LineSegment(ParamPoint(Point.xyr(2.0, 1.0, 2.0), 0.25), ParamPoint(Point.xyr(3.0, 2.0, 1.0), 0.5))
-        polylineAssertThat(d.toArcLengthCurve().polyline).isEqualToPolyline(Polyline(
-                Point.xyr(1.0, 0.0, 5.0), Point.xyr(2.0, 1.0, 2.0), Point.xyr(3.0, 2.0, 1.0), Point.xyr(5.0, 4.0, 7.0)))
+        lineSegmentAssertThat(d.toArcLengthCurve().originalCurve as LineSegment).isEqualLineSegment(d)
     }
 
     @Test

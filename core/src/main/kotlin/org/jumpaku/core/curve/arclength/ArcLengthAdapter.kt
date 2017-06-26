@@ -3,6 +3,7 @@ package org.jumpaku.core.curve.arclength
 import io.vavr.collection.Array
 import org.apache.commons.math3.analysis.solvers.*
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.divide
 import org.jumpaku.core.curve.Curve
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
@@ -13,17 +14,16 @@ import org.jumpaku.core.fitting.chordalParametrize
 /**
  * Approximates curve with polyline.
  */
-class ArcLengthAdapter(val originalCurve: Curve, val polyline: Polyline) : FuzzyCurve{
+class ArcLengthAdapter(val originalCurve: Curve, private val polyline: Polyline) : FuzzyCurve{
 
     constructor(curve: Curve, n: Int) : this(curve, Polyline(curve.evaluateAll(n)))
 
-    val originalParams: Array<Double> = originalCurve.domain.sample(polyline.points.size())
+    private val originalParams: Array<Double> = originalCurve.domain.sample(polyline.points.size())
 
-    val arcLengthParams: Array<Double> = chordalParametrize(polyline.points).map { it.param }
+    private val arcLengthParams: Array<Double> = chordalParametrize(polyline.points).map { it.param }
 
     init {
-        require(originalParams.size() == arcLengthParams.size()) {
-            "originalParams.size() != arcLengthParams.size()" }
+        require(originalParams.size() == arcLengthParams.size()) { "originalParams.size() != arcLengthParams.size()" }
     }
 
     override val domain: Interval = polyline.domain
@@ -45,12 +45,12 @@ class ArcLengthAdapter(val originalCurve: Curve, val polyline: Polyline) : Fuzzy
         val relative = 1.0e-8
         val absolute = 1.0e-5
         val maxEval = 50
-        val startValue = 0.5*domain.begin + 0.5*domain.end
+        val startValue = originalCurve.domain.begin.divide(0.5, originalCurve.domain.end)
         return BrentSolver(relative, absolute).solve(
                 maxEval,
                 { arcLengthUntil(it) - arcLengthParam },
-                domain.begin,
-                domain.end,
+                originalCurve.domain.begin,
+                originalCurve.domain.end,
                 startValue)
     }
 

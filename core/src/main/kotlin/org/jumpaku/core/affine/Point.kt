@@ -38,7 +38,7 @@ sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
         }
     }
 
-    override fun possibility(u: Point): Grade{
+    override fun isPossible(u: Point): Grade{
         val d = toCrisp().dist(u.toCrisp())
         return if (!(d / (r + u.r)).isFinite()) {
             Grade(equals(toCrisp(), u.toCrisp()))
@@ -48,7 +48,7 @@ sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
         }
     }
 
-    override fun necessity(u: Point): Grade{
+    override fun isNecessary(u: Point): Grade{
         val d = toCrisp().dist(u.toCrisp())
         return when {
             !(d / (r + u.r)).isFinite() ->

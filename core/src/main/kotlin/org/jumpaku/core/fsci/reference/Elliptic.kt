@@ -13,11 +13,16 @@ import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 
 
-class Elliptic(val conicSection: ConicSection, override val domain: Interval) : Reference {
+class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference {
 
-    override fun evaluate(t: Double): Point {
-        require(t in domain) { "t($t) is out of domain($domain)" }
-        return evaluateWithoutDomain(t, conicSection)
+    override val fuzzyCurve: FuzzyCurve get() = object : FuzzyCurve {
+
+        override val domain: Interval get() = this@Elliptic.domain
+
+        override fun evaluate(t: Double): Point {
+            require(t in domain) { "t($t) is out of domain($domain)" }
+            return evaluateWithoutDomain(t, conicSection)
+        }
     }
 
     companion object {
@@ -45,24 +50,24 @@ class Elliptic(val conicSection: ConicSection, override val domain: Interval) : 
                     .optimize(MaxEval(50), MaxIter(50), SearchInterval(-0.999, 0.999, 0.5), GoalType.MAXIMIZE,
                             UnivariateObjectiveFunction {
                                 val elliptic = ConicSection(begin, far, end, it)
-                                val domain = makeDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
-                                Elliptic(elliptic, domain).possibility(fsc).value
+                                val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
+                                Elliptic(elliptic, domain).validate(fsc).value
                             })
             val negativeWeight = brent
                     .optimize(MaxEval(50), MaxIter(50), SearchInterval(-0.999, 0.999, -0.5), GoalType.MAXIMIZE,
                             UnivariateObjectiveFunction {
                                 val elliptic = ConicSection(begin, far, end, it)
-                                val domain = makeDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
-                                Elliptic(elliptic, domain).possibility(fsc).value
+                                val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
+                                Elliptic(elliptic, domain).validate(fsc).value
                             })
-            return if (positiveWeight.value <= negativeWeight.value) { negativeWeight.point } else { positiveWeight.point }
+            return maxOf(positiveWeight, negativeWeight, compareBy { it.value }).point
         }
 
         fun create(t0: Double, t1: Double, fsc: FuzzyCurve): Elliptic {
             val far = triangleAreaMaximizedFar(t0, t1, fsc)
             val weight = possibilityMaximizedWeight(t0, t1, far, fsc)
             val elliptic = ConicSection(fsc(t0), far, fsc(t1), weight)
-            val domain = makeDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
+            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
 
             return Elliptic(elliptic.reverse(), domain)
         }

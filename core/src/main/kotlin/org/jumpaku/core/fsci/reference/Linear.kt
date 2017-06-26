@@ -7,11 +7,14 @@ import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.rationalbezier.LineSegment
 import org.jumpaku.core.curve.ParamPoint
 
-class Linear(val lineSegment: LineSegment) : Reference{
+class Linear(val lineSegment: LineSegment) : Reference {
 
-    override val domain: Interval get() = Interval.ZERO_ONE
+    override val fuzzyCurve: FuzzyCurve get() = object : FuzzyCurve {
 
-    override fun evaluate(t: Double): Point = lineSegment(t)
+        override val domain: Interval get() = Interval.ZERO_ONE
+
+        override fun evaluate(t: Double): Point = lineSegment(t)
+    }
 
     companion object {
 
