@@ -38,7 +38,7 @@ sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
         }
     }
 
-    override fun possibility(u: Point): Grade{
+    override fun isPossible(u: Point): Grade{
         val d = toCrisp().dist(u.toCrisp())
         return if (!(d / (r + u.r)).isFinite()) {
             Grade(equals(toCrisp(), u.toCrisp()))
@@ -48,7 +48,7 @@ sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
         }
     }
 
-    override fun necessity(u: Point): Grade{
+    override fun isNecessary(u: Point): Grade{
         val d = toCrisp().dist(u.toCrisp())
         return when {
             !(d / (r + u.r)).isFinite() ->
@@ -157,7 +157,7 @@ class Crisp(private val vector: Vector) : Point() {
      * @param p2
      * @return area of a triangle (this, p1, p2)
      */
-    fun area(p1: Crisp, p2: Crisp): Double = minus(p1).cross(minus(p2)).length() / 2.0
+    fun area(p1: Crisp, p2: Crisp): Double = FastMath.abs(minus(p1).cross(minus(p2)).length() / 2)
 
     /**
      * @param p1
@@ -165,7 +165,7 @@ class Crisp(private val vector: Vector) : Point() {
      * @param p3
      * @return volume of a Tetrahedron (this, p1, p2, p3)
      */
-    fun volume(p1: Crisp, p2: Crisp, p3: Crisp): Double = minus(p1).cross(minus(p2)).dot(minus(p3)) / 6.0
+    fun volume(p1: Crisp, p2: Crisp, p3: Crisp): Double = FastMath.abs(minus(p1).cross(minus(p2)).dot(minus(p3)) / 6)
 
     /**
      * @param p1

@@ -1,11 +1,8 @@
-package org.jumpaku.core.curve.rationalbezier
+package org.jumpaku.core.curve
 
 import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.Assertions
-import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
-import org.jumpaku.core.curve.knotAssertThat
 
 
 fun knotVectorAssertThat(actual: KnotVector): KnotVectorAssert = KnotVectorAssert(actual)
@@ -15,7 +12,7 @@ class KnotVectorAssert(actual: KnotVector) : AbstractAssert<KnotVectorAssert, Kn
         isNotNull
 
         actual.knots.zip(expected.knots).forEachIndexed { index, (a, e) ->
-            knotAssertThat(a).`as`("knot[%d]", index).isEqualToKnot(e)
+            knotAssertThat(a).`as`("knot[%d]", index).isEqualToKnot(e, eps)
         }
 
         return this

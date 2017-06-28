@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.core.curve
 
 import org.jumpaku.core.affine.Divisible
 import org.jumpaku.core.affine.Point
@@ -24,9 +24,9 @@ data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoin
 
 data class ParamPointJson(
         val point: PointJson,
-        val time: Double){
+        val param: Double){
 
     constructor(paramPoint: ParamPoint) : this(paramPoint.point.json(), paramPoint.param)
 
-    fun paramPoint(): ParamPoint = ParamPoint(point.point(), time)
+    fun paramPoint(): ParamPoint = ParamPoint(point.point(), param)
 }

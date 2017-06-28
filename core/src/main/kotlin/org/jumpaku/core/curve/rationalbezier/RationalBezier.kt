@@ -68,8 +68,6 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     fun json(): RationalBezierJson = RationalBezierJson(this)
 
-    override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
-
     override fun crispTransform(a: Transform): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point.toCrisp())) })
 

@@ -3,8 +3,8 @@ package org.jumpaku.core.fsci
 import io.vavr.API
 import org.assertj.core.api.Assertions.assertThat
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.fitting.ParamPoint
-import org.jumpaku.core.fitting.paramPointAssertThat
+import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.paramPointAssertThat
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.bspline.BSpline
@@ -14,8 +14,6 @@ import org.junit.Test
 
 
 class DataPreparingTest {
-
-
 
     @Test
     fun testPrepare() {
@@ -41,7 +39,7 @@ class DataPreparingTest {
                 Point.xy(4.953430481558565, 2.9928530991891427)),
                 knots)
 
-        bSplineAssertThat(a2).isEqualToBSpline(e2, 0.1)
+        bSplineAssertThat(a2).isEqualToBSpline(e2, 1.0)
     }
 
     @Test
@@ -54,15 +52,15 @@ class DataPreparingTest {
         val a = DataPreparing.fill(data, 2.0)
 
         assertThat(a.size()).isEqualTo(9)
-        paramPointAssertThat(a[0]).isParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
-        paramPointAssertThat(a[1]).isParamPoint(ParamPoint(Point.xy(1+0.5/3.0, -2-1/3.0), 10+5/3.0))
-        paramPointAssertThat(a[2]).isParamPoint(ParamPoint(Point.xy(1+1/3.0, -2-2/3.0), 10+10/3.0))
-        paramPointAssertThat(a[3]).isParamPoint(ParamPoint(Point.xy(1.5, -3.0), 15.0))
-        paramPointAssertThat(a[4]).isParamPoint(ParamPoint(Point.xy(1.7, -3.4), 17.0))
-        paramPointAssertThat(a[5]).isParamPoint(ParamPoint(Point.xy(1.9, -3.8), 19.0))
-        paramPointAssertThat(a[6]).isParamPoint(ParamPoint(Point.xy(2.1, -4.2), 21.0))
-        paramPointAssertThat(a[7]).isParamPoint(ParamPoint(Point.xy(2.3, -4.6), 23.0))
-        paramPointAssertThat(a[8]).isParamPoint(ParamPoint(Point.xy(2.5, -5.0), 25.0))
+        paramPointAssertThat(a[0]).isEqualToParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
+        paramPointAssertThat(a[1]).isEqualToParamPoint(ParamPoint(Point.xy(1+0.5/3.0, -2-1/3.0), 10+5/3.0))
+        paramPointAssertThat(a[2]).isEqualToParamPoint(ParamPoint(Point.xy(1+1/3.0, -2-2/3.0), 10+10/3.0))
+        paramPointAssertThat(a[3]).isEqualToParamPoint(ParamPoint(Point.xy(1.5, -3.0), 15.0))
+        paramPointAssertThat(a[4]).isEqualToParamPoint(ParamPoint(Point.xy(1.7, -3.4), 17.0))
+        paramPointAssertThat(a[5]).isEqualToParamPoint(ParamPoint(Point.xy(1.9, -3.8), 19.0))
+        paramPointAssertThat(a[6]).isEqualToParamPoint(ParamPoint(Point.xy(2.1, -4.2), 21.0))
+        paramPointAssertThat(a[7]).isEqualToParamPoint(ParamPoint(Point.xy(2.3, -4.6), 23.0))
+        paramPointAssertThat(a[8]).isEqualToParamPoint(ParamPoint(Point.xy(2.5, -5.0), 25.0))
     }
 
     @Test

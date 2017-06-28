@@ -2,7 +2,6 @@ package org.jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.core.curve.rationalbezier.knotVectorAssertThat
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
 

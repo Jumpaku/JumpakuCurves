@@ -5,9 +5,26 @@ import io.vavr.collection.Array
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.divide
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.ParamPoint
 
 
-fun chordalParametrize(points: Array<Point>, range: Interval = Interval.ZERO_ONE): Array<ParamPoint> {
+fun transformParams(paramPoints: Array<ParamPoint>, range: Interval): Array<ParamPoint> {
+    val a0 = paramPoints.head().param
+    val a1 = paramPoints.last().param
+    return paramPoints.map { it.copy(param = range.begin.divide((it.param - a0) / (a1 - a0), range.end)) }
+}
+
+fun uniformParametrize(points: Array<Point>): Array<ParamPoint> {
+    if(points.isEmpty){
+        return API.Array()
+    }
+    if(points.isSingleValued){
+        return points.map { ParamPoint(it, 0.0) }
+    }
+    return points.zipWith((0..(points.size() - 1)).map(Int::toDouble), { point, param -> ParamPoint(point, param) })
+}
+
+fun chordalParametrize(points: Array<Point>): Array<ParamPoint> {
     if(points.isEmpty){
         return API.Array()
     }
@@ -16,17 +33,5 @@ fun chordalParametrize(points: Array<Point>, range: Interval = Interval.ZERO_ONE
                     .foldLeft(API.Array(0.0), { acc, d -> acc.append(d + acc.last())})
             } .getOrElse(API.Array(0.0))
 
-    return ds.zipWith(points, { dist, p -> ParamPoint(p, dist/ds.last()) })
-                .map { it.copy(param = range.begin.divide(it.param, range.end)) }
-}
-
-
-fun uniformParametrize(points: Array<Point>, range: Interval = Interval.ZERO_ONE): Array<ParamPoint> {
-    if(points.isEmpty){
-        return API.Array()
-    }
-    if(points.isSingleValued){
-        return points.map { ParamPoint(it, range.begin) }
-    }
-    return points.zipWith(range.sample(points.size()), { point, param -> ParamPoint(point, param) })
+    return ds.zipWith(points, { arcLength, point -> ParamPoint(point, arcLength) })
 }

@@ -39,14 +39,12 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        if (Precision.equals(t, domain.begin, 1.0e-10)) {
-            return controlPoints.head()
-        }
-        if (Precision.equals(t, domain.end, 1.0e-10)) {
+        val l = knotVector.lastIndexUnder(t)
+
+        if(l == knotVector.size() - 1){
             return controlPoints.last()
         }
 
-        val l = knotVector.lastIndexUnder(t)
         val result = controlPoints.toJavaArray(Point::class.java)
         val d = degree
 
@@ -61,8 +59,6 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     }
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
-
-    override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
 
     override fun crispTransform(a: Transform): BSpline = BSpline(controlPoints.map { a(it.toCrisp())}, knotVector)
 

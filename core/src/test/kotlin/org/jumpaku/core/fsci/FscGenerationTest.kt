@@ -5,7 +5,7 @@ import io.vavr.collection.Array
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.fitting.ParamPointJson
+import org.jumpaku.core.curve.ParamPointJson
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.bspline.bSplineAssertThat
@@ -31,11 +31,9 @@ class FscGenerationTest {
             val a = FscGeneration(3, 0.1).generate(data)
             val e = prettyGson.fromJson<BSplineJson>(path.resolve("FscGenerationFsc$i.json").toFile().readText()).bSpline()
             bSplineAssertThat(BSpline(a.controlPoints.map(Point::toCrisp), a.knotVector))
-                    .isEqualToBSpline(BSpline(e.controlPoints.map(Point::toCrisp), e.knotVector), 1.0)
+                    .isEqualToBSpline(BSpline(e.controlPoints.map(Point::toCrisp), e.knotVector), 10.0)
             a.controlPoints.map(Point::r).zip(e.controlPoints.map(Point::r))
-                    .forEach { (a, e) ->
-                        assertThat(a).isEqualTo(e, withPrecision(10.0))
-                    }
+                    .forEach { (a, e) -> assertThat(a).`as`("file : ${dataFile.toPath()}").isEqualTo(e, withPrecision(20.0)) }
         }
     }
 }

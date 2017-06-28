@@ -9,6 +9,7 @@ import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.KnotVector
+import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
@@ -40,6 +41,17 @@ class BSplineFitting(
             degree, KnotVector.clampedUniform(domain, degree, domain.sample(delta).size() + degree*2))
 
     override fun fit(data: Array<ParamPoint>): BSpline {
+        require(data.nonEmpty()) { "empty data" }
+        require(!data.isSingleValued) { "single valued too few data" }
+
+        val distinct = data.distinctBy(ParamPoint::param)
+        if(distinct.size() <= degree){
+            val b = BezierFitting(degree - 1, createWeightMatrix)
+                    .fit(transformParams(distinct, Interval.ZERO_ONE)).elevate()
+            return BSpline(b.controlPoints,
+                    KnotVector.clampedUniform(distinct.head().param, distinct.last().param, degree, degree*2 + 2))
+        }
+
         val (d, b) = data.unzip { (p, t) -> Tuple(p, t) }
                 .map(this::createDataMatrix, this::createBasisMatrix)
         val w = createWeightMatrix(data)

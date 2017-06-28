@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.core.curve
 
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
@@ -9,7 +9,7 @@ fun paramPointAssertThat(actual: ParamPoint): ParamPointAssert = ParamPointAsser
 
 class ParamPointAssert(actual: ParamPoint) : AbstractAssert<ParamPointAssert, ParamPoint>(actual, ParamPointAssert::class.java) {
 
-    fun isParamPoint(expected: ParamPoint, eps: Double = 1.0e-10): ParamPointAssert {
+    fun isEqualToParamPoint(expected: ParamPoint, eps: Double = 1.0e-10): ParamPointAssert {
         isNotNull
 
         pointAssertThat(actual.point).`as`("point of parametrized point").isEqualToPoint(expected.point, eps)

@@ -2,35 +2,31 @@ package org.jumpaku.core.curve.polyline
 
 import io.vavr.API.*
 import io.vavr.collection.Array
-import io.vavr.collection.List
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
-import org.jumpaku.core.fitting.ParamPoint
+import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.fitting.chordalParametrize
 import org.jumpaku.core.json.prettyGson
 
 
-class Polyline (val points: Array<Point>, private val parameters: Array<Double>) : FuzzyCurve, CrispTransformable {
+/**
+ * Polyline parametrized by arc-arcLength.
+ */
+class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, CrispTransformable {
+
+    val points: Array<Point> = paramPoints.map(ParamPoint::point)
+
+    private val parameters: Array<Double> = paramPoints.map(ParamPoint::param)
 
     init {
-        if(points.size() != parameters.size()){
-            throw IllegalArgumentException("points.size() != parameters.size()")
-        }
+        require(points.size() == parameters.size()){ "points.size() != parameters.size()" }
     }
 
     override val domain: Interval = Interval(parameters.head(), parameters.last())
 
-    constructor(points: Array<Point>) :this(points,
-            chordalParametrize(points).map(ParamPoint::param).run {
-                points.tailOption()
-                        .map { it.zipWith(points, { a, b -> a.toCrisp().dist(b.toCrisp()) }).sum().toDouble() }
-                        .map { this@run.map(it::times) }
-                        .getOrElse(Array(0.0))
-            })
-
-    constructor(points: Iterable<Point>) : this(Array.ofAll(points))
+    constructor(points: Iterable<Point>) : this(chordalParametrize(Array.ofAll(points)))
 
     constructor(vararg points: Point) : this(Array(*points))
 
@@ -50,12 +46,7 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
         }
     }
 
-    override fun evaluateAll(n: Int): Array<Point> = sampleArcLength(n)
-
-    private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
-                (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
-
-    override fun sampleArcLength(n: Int): Array<Point> {
+    override fun evaluateAll(n: Int): Array<Point> {
         if (points.isSingleValued) {
             return Stream.fill(n,  { points.head() }).toArray()
         }
@@ -71,9 +62,12 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
         return Stream.ofAll(evaluated).prepend(points.head()).append(points.last()).toArray()
     }
 
+    private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
+                (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
+
     override fun crispTransform(a: Transform): Polyline = Polyline(points.map { a(it.toCrisp()) })
 
-    fun reverse(): Polyline = Polyline(points.reverse(), parameters.map { domain.end + domain.begin - it }.reverse())
+    fun reverse(): Polyline = Polyline(points.reverse().zipWith(parameters.map { domain.end + domain.begin - it }.reverse(), ::ParamPoint))
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
 
@@ -85,39 +79,19 @@ class Polyline (val points: Array<Point>, private val parameters: Array<Double>)
         val index = parameters.search(t)
         return when{
             index >= 0 ->
-                Array(Polyline(points.take(index+1), parameters.take(index+1)),
-                        Polyline(points.drop(index), parameters.drop(index).map { it - t }))
+                Array(Polyline(paramPoints.take(index+1)),
+                        Polyline(paramPoints.drop(index).map { it.copy(param = it.param - t) }))
             Precision.equals(parameters[-2-index], t, 1.0e-10) ->
-                Array(Polyline(points.take(-1-index), parameters.take(-1-index)),
-                        Polyline(points.drop(-2-index), parameters.drop(-2-index).map { it - t }))
+                Array(Polyline(paramPoints.take(-1-index)),
+                        Polyline(paramPoints.drop(-2-index).map { it.copy(param = it.param - t) }))
             Precision.equals(parameters[-1-index], t, 1.0e-10) ->
-                Array(Polyline(points.take(-index), parameters.take(-index)),
-                        Polyline(points.drop(-1-index), parameters.drop(-1-index).map { it - t }))
+                Array(Polyline(paramPoints.take(-index)),
+                        Polyline(paramPoints.drop(-1-index).map { it.copy(param = it.param - t) }))
             else -> {
                 val p = evaluate(t)
-                Array(Polyline(points.take(-1-index).append(p), parameters.take(-1-index).append(t)),
-                        Polyline(points.drop(-1-index).prepend(p), parameters.drop(-1-index).prepend(t).map { it - t }))
+                Array(Polyline(paramPoints.take(-1-index).append(ParamPoint(p, t))),
+                        Polyline(paramPoints.drop(-1-index).prepend(ParamPoint(p, t)).map { it.copy(param = it.param - t) }))
             }
-        }
-    }
-
-    companion object {
-
-        fun <C> approximate(curve: C, eps: Double = 1.0): Polyline where C : Curve, C : Differentiable {
-            val derivative = curve.derivative
-            fun bisection(a: Double, b: Double): List<Double> {
-                val error = (curve(a).toCrisp() - curve(b).toCrisp() - (b - a) * derivative(a)).length()
-                return if (error < eps) {
-                    List(a, b)
-                } else {
-                    val c = a.divide(0.5, b)
-                    bisection(c, b).prependAll(bisection(a, c).init())
-                }
-            }
-
-            val parameters = bisection(curve.domain.begin, curve.domain.end).toArray()
-
-            return Polyline(parameters.map(curve))
         }
     }
 }

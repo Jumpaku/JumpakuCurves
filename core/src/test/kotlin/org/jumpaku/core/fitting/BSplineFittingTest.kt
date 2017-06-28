@@ -4,6 +4,7 @@ import io.vavr.API
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.KnotVector
+import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.bspline.bSplineAssertThat
 import org.junit.Test
