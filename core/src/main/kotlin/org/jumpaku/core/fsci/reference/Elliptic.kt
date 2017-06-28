@@ -10,20 +10,27 @@ import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.divide
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.IntervalJson
 import org.jumpaku.core.curve.rationalbezier.ConicSection
+import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
+import org.jumpaku.core.json.prettyGson
 
 
 class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference {
 
-    override val fuzzyCurve: FuzzyCurve get() = object : FuzzyCurve {
+    override val fuzzyCurve: FuzzyCurve = object : FuzzyCurve {
 
-        override val domain: Interval get() = this@Elliptic.domain
+        override val domain: Interval = this@Elliptic.domain
 
         override fun evaluate(t: Double): Point {
             require(t in domain) { "t($t) is out of domain($domain)" }
             return evaluateWithoutDomain(t, conicSection)
         }
     }
+
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): EllipticJson = EllipticJson(this)
 
     companion object {
 
@@ -51,14 +58,14 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
                             UnivariateObjectiveFunction {
                                 val elliptic = ConicSection(begin, far, end, it)
                                 val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
-                                Elliptic(elliptic, domain).validate(fsc).value
+                                Elliptic(elliptic, domain).isValidFor(fsc).value
                             })
             val negativeWeight = brent
                     .optimize(MaxEval(50), MaxIter(50), SearchInterval(-0.999, 0.999, -0.5), GoalType.MAXIMIZE,
                             UnivariateObjectiveFunction {
                                 val elliptic = ConicSection(begin, far, end, it)
                                 val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
-                                Elliptic(elliptic, domain).validate(fsc).value
+                                Elliptic(elliptic, domain).isValidFor(fsc).value
                             })
             return maxOf(positiveWeight, negativeWeight, compareBy { it.value }).point
         }
@@ -69,7 +76,14 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
             val elliptic = ConicSection(fsc(t0), far, fsc(t1), weight)
             val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), elliptic)
 
-            return Elliptic(elliptic.reverse(), domain)
+            return Elliptic(elliptic, domain)
         }
     }
+}
+
+data class EllipticJson(val conicSection: ConicSectionJson, val domain: IntervalJson){
+
+    constructor(elliptic: Elliptic) : this(elliptic.conicSection.json(), elliptic.domain.json())
+
+    fun elliptic(): Elliptic = Elliptic(conicSection.conicSection(), domain.interval())
 }

@@ -36,7 +36,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2/2, R2/2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2/2)
-        conicSectionAssertThat(prettyGson.fromJson<ConicSectionJson>(i.toString()).interpolatingConicSection())
+        conicSectionAssertThat(prettyGson.fromJson<ConicSectionJson>(i.toString()).conicSection())
                 .isEqualConicSection(i)
     }
 
@@ -74,16 +74,11 @@ class ConicSectionTest {
         println("Evaluate")
         val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2/2, R2/2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2/2)
 
-        pointAssertThat(i.evaluate(0.0 )).isEqualToPoint(
-                Point.xyr(0.0, 1.0, 1.0))
-        pointAssertThat(i.evaluate(0.25)).isEqualToPoint(
-                Point.xyr((3*R2+1)/(3*R2+10), (3*R2+9)/(3*R2+10), (24+6*R2)/(10+3*R2)))
-        pointAssertThat(i.evaluate(0.5 )).isEqualToPoint(
-                Point.xyr(1/R2, 1/R2, 2.0))
-        pointAssertThat(i.evaluate(0.75)).isEqualToPoint(
-                Point.xyr((3*R2+9)/(3*R2+10), (3*R2+1)/(3*R2+10), (32+6*R2)/(10+3*R2)))
-        pointAssertThat(i.evaluate(1.0 )).isEqualToPoint(
-                Point.xyr(1.0, 0.0, 3.0))
+        pointAssertThat(i.evaluate(0.0 )).isEqualToPoint(Point.xyr(0.0, 1.0, 1.0))
+        pointAssertThat(i.evaluate(0.25)).isEqualToPoint(Point.xyr((3*R2+1)/(3*R2+10), (3*R2+9)/(3*R2+10), (24+6*R2)/(10+3*R2)))
+        pointAssertThat(i.evaluate(0.5 )).isEqualToPoint(Point.xyr(1/R2, 1/R2, 2.0))
+        pointAssertThat(i.evaluate(0.75)).isEqualToPoint(Point.xyr((3*R2+9)/(3*R2+10), (3*R2+1)/(3*R2+10), (32+6*R2)/(10+3*R2)))
+        pointAssertThat(i.evaluate(1.0 )).isEqualToPoint(Point.xyr(1.0, 0.0, 3.0))
     }
 
     @Test

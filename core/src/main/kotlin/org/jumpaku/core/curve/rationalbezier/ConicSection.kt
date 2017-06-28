@@ -75,7 +75,7 @@ class ConicSection(
 
 data class ConicSectionJson(
         private val begin: PointJson,
-        private val middle: PointJson,
+        private val far: PointJson,
         private val end: PointJson,
         private val weight: Double) {
 
@@ -85,6 +85,6 @@ data class ConicSectionJson(
             conicSection.end.json(),
             conicSection.weight)
 
-    fun interpolatingConicSection(): ConicSection = ConicSection(
-                begin.point(), middle.point(), end.point(), weight)
+    fun conicSection(): ConicSection = ConicSection(
+                begin.point(), far.point(), end.point(), weight)
 }

@@ -18,12 +18,12 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
 
     private var points: List<ParamPoint> = API.List()
 
-    val polyline = Group()
+    val inputPolyline = Group()
 
     val contents = Group()
 
     private val parent = group {
-        add(polyline)
+        add(inputPolyline)
         add(contents)
     }
 
@@ -56,7 +56,7 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
         if(points.size() <= 2){
             return Unit
         }
-        with(polyline) {
+        with(inputPolyline) {
             children.clear()
             polyline(Polyline(points.map(ParamPoint::point))) {
                 stroke = Color.RED

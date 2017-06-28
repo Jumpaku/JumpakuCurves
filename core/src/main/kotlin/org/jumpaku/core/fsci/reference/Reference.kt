@@ -14,7 +14,7 @@ interface Reference {
 
     val fuzzyCurve: FuzzyCurve
 
-    fun validate(fuzzyCurve: FuzzyCurve): Grade = fuzzyCurve.isPossible(this.fuzzyCurve)
+    fun isValidFor(fuzzyCurve: FuzzyCurve): Grade = fuzzyCurve.isPossible(this.fuzzyCurve)
 }
 
 
@@ -60,7 +60,7 @@ internal fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter
     val begin = BrentSolver(relative, absolute).solve(50, {
         val la = conicSectionArcLengthWithoutDomain(it, arcLengthCircular, arcLengthComplement)
         la - targetFrontLength
-    }, a, a + 1, a + 0.5)
+    }, a, 0.0, a + 0.5)
 
     val targetBackLength = (l - l0)/(l1 - l0) * arcLengthCircular.arcLength()
     var b = 1.0
@@ -70,7 +70,7 @@ internal fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter
     val end = BrentSolver(relative, absolute).solve(50, {
         val lb = conicSectionArcLengthWithoutDomain(it, arcLengthCircular, arcLengthComplement)
         lb - targetBackLength
-    }, b - 1, b, b - 0.5)
+    }, 1.0, b, b - 0.5)
 
     return Interval(begin, end)
 }

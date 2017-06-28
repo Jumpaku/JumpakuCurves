@@ -6,15 +6,21 @@ import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.rationalbezier.LineSegment
 import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.rationalbezier.LineSegmentJson
+import org.jumpaku.core.json.prettyGson
 
 class Linear(val lineSegment: LineSegment) : Reference {
 
-    override val fuzzyCurve: FuzzyCurve get() = object : FuzzyCurve {
+    override val fuzzyCurve: FuzzyCurve = object : FuzzyCurve {
 
-        override val domain: Interval get() = Interval.ZERO_ONE
+        override val domain: Interval = Interval.ZERO_ONE
 
         override fun evaluate(t: Double): Point = lineSegment(t)
     }
+
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): LinearJson = LinearJson(this)
 
     companion object {
 
@@ -30,4 +36,11 @@ class Linear(val lineSegment: LineSegment) : Reference {
             return Linear(LineSegment(ParamPoint(fsc(t0), l0 / l), ParamPoint(fsc(t1), l1 / l)))
         }
     }
+}
+
+data class LinearJson(val lineSegment: LineSegmentJson){
+
+    constructor(linear: Linear) : this(linear.lineSegment.json())
+
+    fun linear(): Linear = Linear(lineSegment.lineSegment())
 }

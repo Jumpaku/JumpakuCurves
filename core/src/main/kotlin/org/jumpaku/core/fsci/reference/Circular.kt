@@ -1,26 +1,31 @@
 package org.jumpaku.core.fsci.reference
 
 import org.apache.commons.math3.analysis.solvers.BrentSolver
-import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.divide
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.IntervalJson
 import org.jumpaku.core.curve.rationalbezier.ConicSection
-import org.jumpaku.core.fuzzy.Grade
+import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
+import org.jumpaku.core.json.prettyGson
 
 
 class Circular(val conicSection: ConicSection, val domain: Interval) : Reference {
 
-    override val fuzzyCurve: FuzzyCurve get() = object : FuzzyCurve {
+    override val fuzzyCurve: FuzzyCurve = object : FuzzyCurve {
 
-        override val domain: Interval get() = this@Circular.domain
+        override val domain: Interval = this@Circular.domain
 
         override fun evaluate(t: Double): Point {
             require(t in domain) { "t($t) is out of domain($domain)" }
             return evaluateWithoutDomain(t, conicSection)
         }
     }
+
+    override fun toString(): String = prettyGson.toJson(json())
+
+    fun json(): CircularJson = CircularJson(this)
 
     companion object {
 
@@ -48,4 +53,12 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
             return Circular(circular, domain)
         }
     }
+}
+
+
+data class CircularJson(val conicSection: ConicSectionJson, val domain: IntervalJson){
+
+    constructor(circular: Circular) : this(circular.conicSection.json(), circular.domain.json())
+
+    fun circular(): Circular = Circular(conicSection.conicSection(), domain.interval())
 }
