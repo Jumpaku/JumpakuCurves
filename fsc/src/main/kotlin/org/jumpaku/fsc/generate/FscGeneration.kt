@@ -1,4 +1,4 @@
-package org.jumpaku.core.fsci
+package org.jumpaku.fsc.generate
 
 import io.vavr.collection.Array
 import org.apache.commons.math3.linear.ArrayRealVector

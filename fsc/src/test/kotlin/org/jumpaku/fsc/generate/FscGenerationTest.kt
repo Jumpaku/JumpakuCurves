@@ -1,4 +1,4 @@
-package org.jumpaku.core.fsci
+package org.jumpaku.fsc.generate
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.collection.Array
@@ -19,7 +19,7 @@ import java.nio.file.Paths
 
 class FscGenerationTest {
 
-    val path: Path = Paths.get("./src/test/resources/org/jumpaku/core/fsci/")
+    val path: Path = Paths.get("./src/test/resources/org/jumpaku/fsc/generate/")
 
     @Test
     fun testGenerate() {
