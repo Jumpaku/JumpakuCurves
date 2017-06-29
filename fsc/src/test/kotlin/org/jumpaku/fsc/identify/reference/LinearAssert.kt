@@ -1,8 +1,9 @@
-package org.jumpaku.core.fsci.reference
+package org.jumpaku.fsc.identify.reference
 
 import org.assertj.core.api.AbstractAssert
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.lineSegmentAssertThat
+import org.jumpaku.fsc.identify.reference.Linear
 
 
 fun linearAssertThat(actual: Linear): LinearAssert = LinearAssert(actual)

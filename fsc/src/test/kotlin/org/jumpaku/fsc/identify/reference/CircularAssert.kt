@@ -1,15 +1,16 @@
-package org.jumpaku.core.fsci.reference
+package org.jumpaku.fsc.identify.reference
 
 import org.assertj.core.api.AbstractAssert
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
+import org.jumpaku.fsc.identify.reference.Circular
 
 
-fun ellipticAssertThat(actual: Elliptic): EllipticAssert = EllipticAssert(actual)
+fun circularAssertThat(actual: Circular): CircularAssert = CircularAssert(actual)
 
-class EllipticAssert(actual: Elliptic) : AbstractAssert<EllipticAssert, Elliptic>(actual, EllipticAssert::class.java) {
+class CircularAssert(actual: Circular) : AbstractAssert<CircularAssert, Circular>(actual, CircularAssert::class.java) {
 
-    fun isEqualToElliptic(expected: Elliptic, eps: Double = 1.0e-10): EllipticAssert {
+    fun isEqualToCircular(expected: Circular, eps: Double = 1.0e-10): CircularAssert {
         isNotNull
 
         conicSectionAssertThat(actual.conicSection).isEqualConicSection(expected.conicSection, eps)
