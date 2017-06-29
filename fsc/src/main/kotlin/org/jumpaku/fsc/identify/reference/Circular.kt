@@ -1,4 +1,4 @@
-package org.jumpaku.core.fsci.reference
+package org.jumpaku.fsc.identify.reference
 
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.jumpaku.core.affine.Point

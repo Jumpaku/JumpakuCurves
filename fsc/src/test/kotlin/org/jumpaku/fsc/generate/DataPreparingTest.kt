@@ -1,4 +1,4 @@
-package org.jumpaku.core.fsci
+package org.jumpaku.fsc.generate
 
 import io.vavr.API
 import org.assertj.core.api.Assertions.assertThat

@@ -1,4 +1,4 @@
-package org.jumpaku.core.fsci
+package org.jumpaku.fsc.generate
 
 import org.jumpaku.core.affine.Vector
 

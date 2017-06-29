@@ -1,4 +1,4 @@
-package org.jumpaku.core.fsci.reference
+package org.jumpaku.fsc.identify.reference
 
 import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
@@ -6,11 +6,12 @@ import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
+import org.jumpaku.fsc.identify.reference.Elliptic
+import org.jumpaku.fsc.identify.reference.EllipticJson
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
@@ -58,7 +59,7 @@ class EllipticTest {
     @Test
     fun testIsValidFor() {
         println("IsValidFor")
-        val path = Paths.get("./src/test/resources/org/jumpaku/core/fsci/reference/")
+        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/fsci/reference/")
         for (i in 0..9){
             val fsc = FileReader(path.resolve("Fsc$i.json").toFile()).use { prettyGson.fromJson<BSplineJson>(it).bSpline() }
             val arcLength = fsc.toArcLengthCurve()
