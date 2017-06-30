@@ -106,6 +106,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
             }
             return ws.head()
         }
+
+        fun fromBezier(bezier: Bezier): RationalBezier = RationalBezier(bezier.controlPoints.map { WeightedPoint(it) })
     }
 }
 
