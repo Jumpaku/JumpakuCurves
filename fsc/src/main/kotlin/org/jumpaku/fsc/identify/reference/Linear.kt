@@ -1,4 +1,4 @@
-package org.jumpaku.fsc.classify.reference
+package org.jumpaku.fsc.identify.reference
 
 
 import org.jumpaku.core.affine.Point

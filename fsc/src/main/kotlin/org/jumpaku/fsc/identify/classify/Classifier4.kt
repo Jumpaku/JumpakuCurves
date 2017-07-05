@@ -1,9 +1,9 @@
-package org.jumpaku.fsc.classify
+package org.jumpaku.fsc.identify.classify
 
 import org.jumpaku.core.curve.bspline.BSpline
-import org.jumpaku.fsc.classify.reference.Circular
-import org.jumpaku.fsc.classify.reference.Elliptic
-import org.jumpaku.fsc.classify.reference.Linear
+import org.jumpaku.fsc.identify.reference.Circular
+import org.jumpaku.fsc.identify.reference.Elliptic
+import org.jumpaku.fsc.identify.reference.Linear
 
 
 class Classifier4 : Classifier {

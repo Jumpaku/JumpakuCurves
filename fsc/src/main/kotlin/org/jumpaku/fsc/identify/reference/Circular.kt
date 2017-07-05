@@ -1,4 +1,4 @@
-package org.jumpaku.fsc.classify.reference
+package org.jumpaku.fsc.identify.reference
 
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.jumpaku.core.affine.Point
@@ -38,12 +38,8 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
                 val f = fsc(it).toCrisp()
                 f.distSquare(begin.toCrisp()) - (f.distSquare(end.toCrisp()))
             }, t0, t1, t0.divide(0.5, t1))
-            val far = fsc(tf)
-            val m = begin.divide(0.5, end)
-            val ll = m.toCrisp().distSquare(begin.toCrisp())
-            val hh = m.toCrisp().distSquare(far.toCrisp())
 
-            return ConicSection(begin, far, end, (ll - hh)/(ll + hh))
+            return ConicSection(begin, fsc(tf), end)
         }
 
         fun create(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {

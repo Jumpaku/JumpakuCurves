@@ -1,4 +1,4 @@
-package org.jumpaku.fsc.classify.reference
+package org.jumpaku.fsc.identify.reference
 
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.util.FastMath
