@@ -1,4 +1,4 @@
-package org.jumpaku.fsc.identify
+package org.jumpaku.fsc.classify
 
 
 enum class CurveClass{

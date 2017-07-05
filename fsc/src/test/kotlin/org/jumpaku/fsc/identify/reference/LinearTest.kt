@@ -8,8 +8,6 @@ import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.rationalbezier.LineSegment
 import org.jumpaku.core.curve.rationalbezier.lineSegmentAssertThat
-import org.jumpaku.fsc.identify.reference.Linear
-import org.jumpaku.fsc.identify.reference.LinearJson
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
@@ -50,7 +48,7 @@ class LinearTest {
     @Test
     fun testIsValidFor() {
         println("IsValidFor")
-        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/fsci/reference/")
+        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/identify/reference/")
         for (i in 0..9){
             val fsc = FileReader(path.resolve("Fsc$i.json").toFile()).use { prettyGson.fromJson<BSplineJson>(it).bSpline() }
             val arcLength = fsc.toArcLengthCurve()

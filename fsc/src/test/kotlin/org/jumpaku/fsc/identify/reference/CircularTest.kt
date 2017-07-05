@@ -12,8 +12,6 @@ import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
-import org.jumpaku.fsc.identify.reference.Circular
-import org.jumpaku.fsc.identify.reference.CircularJson
 import org.junit.Test
 import java.io.FileReader
 import java.nio.file.Paths
@@ -59,8 +57,7 @@ class CircularTest {
     @Test
     fun testIsValidFor() {
         println("IsValidFor")
-        println("IsValidFor")
-        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/fsci/reference/")
+        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/identify/reference/")
         for (i in 0..9){
             val fsc = FileReader(path.resolve("Fsc$i.json").toFile()).use { prettyGson.fromJson<BSplineJson>(it).bSpline() }
             val arcLength = fsc.toArcLengthCurve()

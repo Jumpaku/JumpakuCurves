@@ -1,4 +1,4 @@
-package org.jumpaku.fsc.identify.reference
+package org.jumpaku.fsc.classify.reference
 
 import org.apache.commons.math3.optim.MaxEval
 import org.apache.commons.math3.optim.MaxIter

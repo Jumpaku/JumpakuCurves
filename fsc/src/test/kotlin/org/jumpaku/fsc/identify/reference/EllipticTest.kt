@@ -10,8 +10,6 @@ import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
-import org.jumpaku.fsc.identify.reference.Elliptic
-import org.jumpaku.fsc.identify.reference.EllipticJson
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
@@ -59,7 +57,7 @@ class EllipticTest {
     @Test
     fun testIsValidFor() {
         println("IsValidFor")
-        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/fsci/reference/")
+        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/identify/reference/")
         for (i in 0..9){
             val fsc = FileReader(path.resolve("Fsc$i.json").toFile()).use { prettyGson.fromJson<BSplineJson>(it).bSpline() }
             val arcLength = fsc.toArcLengthCurve()
@@ -71,7 +69,9 @@ class EllipticTest {
 
             val epa = ea.isValidFor(fsc)
             val epe = FileReader(path.resolve("EllipticGrade$i.json").toFile()).use { prettyGson.fromJson<Grade>(it).value }
-            assertThat(epa.value).isEqualTo(epe)
+            assertThat(epa.value).`as`("file index : $i")
+                    .isEqualTo(epe, withPrecision(0.01))
+                    .isBetween(0.0, 1.0)
         }
     }
 }

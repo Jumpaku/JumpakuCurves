@@ -1,0 +1,28 @@
+package org.jumpaku.fsc.identify.classify
+
+import org.assertj.core.api.Assertions.*
+import org.jumpaku.core.fuzzy.Grade
+import org.junit.Test
+
+
+class ResultTest {
+
+    @Test
+    fun testProperties() {
+        println("Properties")
+        val s = arrayOf(
+                CurveClass.Point to Grade(0.3),
+                CurveClass.LineSegment to Grade(0.7),
+                CurveClass.Circle to Grade(0.4),
+                CurveClass.CircularArc to Grade(0.0),
+                CurveClass.Ellipse to Grade(0.9),
+                CurveClass.EllipticArc to Grade(0.3),
+                CurveClass.ClosedFreeCurve to Grade(0.5),
+                CurveClass.OpenFreeCurve to Grade(0.8))
+
+        val r = Result(*s)
+
+        assertThat(r.curveClass).isEqualTo(CurveClass.Ellipse)
+        assertThat(r.grade.value).isEqualTo(0.9, withPrecision(1.0e-10))
+    }
+}

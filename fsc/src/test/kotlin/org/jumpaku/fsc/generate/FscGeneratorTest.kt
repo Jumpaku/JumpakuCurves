@@ -17,7 +17,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 
-class FscGenerationTest {
+class FscGeneratorTest {
 
     val path: Path = Paths.get("./src/test/resources/org/jumpaku/fsc/generate/")
 
@@ -28,7 +28,7 @@ class FscGenerationTest {
             val dataFile = path.resolve("FscGenerationData$i.json").toFile()
             val dataJson = prettyGson.fromJson<kotlin.Array<ParamPointJson>>(dataFile.readText())
             val data = Array.ofAll(dataJson.map { it.paramPoint() })
-            val a = FscGeneration(3, 0.1).generate(data)
+            val a = FscGenerator(3, 0.1).generate(data)
             val e = prettyGson.fromJson<BSplineJson>(path.resolve("FscGenerationFsc$i.json").toFile().readText()).bSpline()
             bSplineAssertThat(BSpline(a.controlPoints.map(Point::toCrisp), a.knotVector))
                     .isEqualToBSpline(BSpline(e.controlPoints.map(Point::toCrisp), e.knotVector), 10.0)

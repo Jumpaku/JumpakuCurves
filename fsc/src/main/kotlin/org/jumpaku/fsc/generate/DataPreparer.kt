@@ -20,7 +20,7 @@ import org.jumpaku.core.util.component2
  * To avoid these problems, before FSC generation, lacks of data should be filled by linear interpolation.
  * And data points around beginning point and end point should be extended by quadratic bezier fitting.
  */
-class DataPreparing(
+class DataPreparer(
         val maximumSpan: Double,
         val innerSpan: Double,
         val outerSpan: Double = innerSpan,
