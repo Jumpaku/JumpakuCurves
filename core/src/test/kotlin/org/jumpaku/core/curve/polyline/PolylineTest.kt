@@ -46,10 +46,10 @@ class PolylineTest {
     }
 
     @Test
-    fun testSampleArcLength() {
-        println("SampleArcLength")
+    fun testEvaluateAll() {
+        println("EvaluateAll")
         val ps = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-                .sampleArcLength(6)
+                .evaluateAll(6)
         assertThat(ps.size()).isEqualTo(6)
         pointAssertThat(ps[0]).isEqualToPoint(Point.xyzr(-1.0, 1.0, 0.0, 2.0 ))
         pointAssertThat(ps[1]).isEqualToPoint(Point.xyzr( 0.5, 1.0, 0.0, 1.25))

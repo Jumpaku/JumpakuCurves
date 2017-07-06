@@ -37,7 +37,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     fun json(): BezierJson = BezierJson(this)
 
     override fun evaluate(t: Double): Point {
-        require(t in domain) { "t=($t) is out of domain($domain)" }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         var cps = controlPoints
         while (cps.size() > 1) {
@@ -49,14 +49,12 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
-
     override fun crispTransform(a: Transform): Bezier = Bezier(controlPoints.map { a(it.toCrisp()) })
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): Bezier {
-        require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain" }
+        require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain($domain)" }
 
         return subdivide(end).head().subdivide(begin / end).last()
     }

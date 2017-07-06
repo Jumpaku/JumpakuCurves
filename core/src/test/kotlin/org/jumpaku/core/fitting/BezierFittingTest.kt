@@ -1,6 +1,7 @@
 package org.jumpaku.core.fitting
 
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.junit.Test

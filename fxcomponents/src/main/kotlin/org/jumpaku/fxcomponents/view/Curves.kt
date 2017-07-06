@@ -5,6 +5,7 @@ import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.util.component1
@@ -25,37 +26,6 @@ fun Parent.fuzzyPoints(points: Array<Point>, op: (Circle.() -> Unit) = { Unit })
     group {
         points.forEach {
             circle(it.x, it.y, it.r){
-                fill = Color.gray(0.0, 0.0)
-                op()
-            }
-        }
-    }
-}
-
-fun Parent.cubicBSpline(bSpline: BSpline, op: (CubicCurve.() -> Unit) = { Unit }): Unit {
-    group {
-        bSpline.toBeziers().forEach {
-            val cp = it.controlPoints
-            cubiccurve(
-                    startX = cp[0].x, startY = cp[0].y,
-                    controlX1 = cp[1].x, controlY1 = cp[1].y,
-                    controlX2 = cp[2].x, controlY2 = cp[2].y,
-                    endX = cp[3].x, endY = cp[3].y){
-                fill = Color.gray(0.0, 0.0)
-                op()
-            }
-        }
-    }
-}
-
-fun Parent.quadSpline(bSpline: BSpline, op: (QuadCurve.() -> Unit) = { Unit }): Unit {
-    group {
-        bSpline.toBeziers().forEach {
-            val cp = it.controlPoints
-            quadcurve(
-                    startX = cp[0].x, startY = cp[0].y,
-                    controlX = cp[1].x, controlY = cp[1].y,
-                    endX = cp[2].x, endY = cp[2].y) {
                 fill = Color.gray(0.0, 0.0)
                 op()
             }
@@ -106,12 +76,24 @@ fun Parent.cubicFsc(bSpline: BSpline, op: (Shape.() -> Unit) = { Unit }): Unit {
     }
 }
 
-fun Parent.polyline(polyline: Polyline, op: (Line.() -> Unit) = { Unit }): Unit {
+fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit) = { Unit }): Unit {
     group {
         polyline.points.zip(polyline.points.tail())
                 .forEach { (a, b) -> line(a.x, a.y, b.x, b.y){
                     fill = Color.gray(0.0, 0.0)
                     op()
                 } }
+        polyline.points.forEach {
+            circle(it.x, it.y, it.r){
+                fill = Color.gray(0.0, 0.0)
+                op()
+            }
+        }
+    }
+}
+
+fun Parent.fuzzyCurve(fuzzyCurve: FuzzyCurve, op: (Shape.() -> Unit) = { Unit }): Unit {
+    group {
+        polyline(Polyline(fuzzyCurve.toArcLengthCurve().evaluateAll(20.0)), op)
     }
 }

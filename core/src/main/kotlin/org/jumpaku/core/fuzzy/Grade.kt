@@ -4,9 +4,7 @@ package org.jumpaku.core.fuzzy
 data class Grade(val value: Double) : Comparable<Grade> {
 
     init {
-        if (!java.lang.Double.isFinite(value) || value < 0.0 || value > 1.0) {
-            throw IllegalArgumentException("value($value) is out of [0.0, 1.0].")
-        }
+        require(value.isFinite() && value in 0.0..1.0) { "value($value) is out of [0.0, 1.0]." }
     }
 
     constructor(booleanValue: Boolean): this(if (booleanValue) 1.0 else 0.0)

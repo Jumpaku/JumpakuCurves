@@ -5,7 +5,7 @@ interface Membership<M : Membership<M, T>, T> {
 
     fun membership(p: T): Grade
 
-    fun possibility(u: M): Grade
+    fun isPossible(u: M): Grade
 
-    fun necessity(u: M): Grade
+    fun isNecessary(u: M): Grade
 }

@@ -1,13 +1,17 @@
 
 
 buildscript {
-    ext.kotlin_version = '1.1.2-2'
+    ext.kotlin_version = '1.1.3'
 
     repositories {
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "gradle.plugin.gradle-plugins:jartest:1.0"
     }
 }
 
@@ -46,6 +50,15 @@ subprojects {
 }
 
 project(':core') {
+    apply plugin: 'com.github.hauner.jarTest'
+}
+
+project(':fsc') {
+    dependencies {
+        testCompile project (path: ':core', configuration: 'testArchives')
+
+        compile project(':core')
+    }
 }
 
 project(':fxcomponents') {
