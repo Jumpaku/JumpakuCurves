@@ -1,4 +1,4 @@
-package org.jumpaku.core.curve.rationalrationalBezier
+package org.jumpaku.core.curve.rationalbezier
 
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions

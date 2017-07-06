@@ -1,13 +1,7 @@
 package org.jumpaku.core.affine
 
-import com.github.salomonbrys.kotson.fromJson
-import io.vavr.API.None
-import io.vavr.API.Option
-import io.vavr.control.Option
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
-import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.json.prettyGson
-
 
 
 operator fun Double.times(v: Vector): Vector = v.times(this)

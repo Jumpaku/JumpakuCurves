@@ -1,13 +1,15 @@
 package org.jumpaku.core.curve.bezier
 
 import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.CrispTransformable
+import org.jumpaku.core.curve.Differentiable
+import org.jumpaku.core.curve.FuzzyCurve
+import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
@@ -35,7 +37,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     fun json(): BezierJson = BezierJson(this)
 
     override fun evaluate(t: Double): Point {
-        require(t in domain) { "t=($t) is out of domain($domain)" }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         var cps = controlPoints
         while (cps.size() > 1) {
@@ -47,16 +49,14 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
-
     override fun crispTransform(a: Transform): Bezier = Bezier(controlPoints.map { a(it.toCrisp()) })
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): Bezier {
-        require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain" }
+        require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain($domain)" }
 
-        return subdivide(end)._1().subdivide(begin / end)._2()
+        return subdivide(end).head().subdivide(begin / end).last()
     }
 
     fun reverse(): Bezier = Bezier(controlPoints.reverse())
@@ -69,10 +69,21 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
         return Bezier(createReducedControlPoints(controlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
-        require(t in domain) { "t=$t is out of $domain" }
+    fun subdivide(t: Double): Array<Bezier> {
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
-        return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier, ::Bezier)
+        return createSubdividedControlPointsArrays(t, controlPoints).map(::Bezier)
+    }
+
+    fun extend(t: Double): Bezier {
+        require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
+        val controlPoints = createSubdividedControlPointsArrays(t, controlPoints)
+        return if(t <= domain.begin) {
+            Bezier(controlPoints.last())
+        }
+        else {
+            Bezier(controlPoints.head())
+        }
     }
 
     companion object {
@@ -100,7 +111,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
                     .toArray()
         }
 
-        internal fun <P : Divisible<P>> createSubdividedControlPointsArrays(t: Double, cp: Array<P>): Tuple2<Array<P>, Array<P>> {
+        internal fun <P : Divisible<P>> createSubdividedControlPointsArrays(t: Double, cp: Array<P>): Array<Array<P>> {
             var tmp = cp
             var first = List(tmp.head())
             var second = List(tmp.last())
@@ -111,7 +122,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
                 second = second.prepend(tmp.last())
             }
 
-            return Tuple(first.reverse().toArray(), second.toArray())
+            return Array(first.reverse().toArray(), second.toArray())
         }
 
         internal fun <P : Divisible<P>> createReducedControlPoints(cp: Array<P>): Array<P>  {

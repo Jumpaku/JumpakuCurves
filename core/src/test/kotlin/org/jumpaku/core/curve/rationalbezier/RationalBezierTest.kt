@@ -4,7 +4,7 @@ import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.rationalrationalBezier.rationalBezierAssertThat
+import org.jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
 import org.junit.Test
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
@@ -278,16 +278,17 @@ class RationalBezierTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val (f, b) = RationalBezier(
+        val rs = RationalBezier(
                 WeightedPoint(Point.xyr(0.0, 1.0,  1.0),  1.0),
                 WeightedPoint(Point.xyr(1.0, 1.0,  2.0), 1/R2),
                 WeightedPoint(Point.xyr(1.0, 0.0,  3.0),  1.0))
                 .subdivide(0.5)
-        rationalBezierAssertThat(f).isEqualToRationalBezier(RationalBezier(
+        assertThat(rs.size()).isEqualTo(2)
+        rationalBezierAssertThat(rs[0]).isEqualToRationalBezier(RationalBezier(
                 WeightedPoint(Point.xyr( 0.0,  1.0, 1.0),      1.0),
                 WeightedPoint(Point.xyr(R2-1,  1.0,  R2), (2+R2)/4),
                 WeightedPoint(Point.xyr(R2/2, R2/2, 2.0), (2+R2)/4)))
-        rationalBezierAssertThat(b).isEqualToRationalBezier(RationalBezier(
+        rationalBezierAssertThat(rs[1]).isEqualToRationalBezier(RationalBezier(
                 WeightedPoint(Point.xyr(R2/2, R2/2,  2.0), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0, R2-1, 4-R2), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0,  0.0,  3.0),  1.0)))

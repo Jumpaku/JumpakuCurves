@@ -1,15 +1,11 @@
 package org.jumpaku.core.curve.rationalbezier
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.*
-import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.collection.Stream
-import io.vavr.control.Option
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
-import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 
@@ -72,8 +68,6 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     fun json(): RationalBezierJson = RationalBezierJson(this)
 
-    override fun sampleArcLength(n: Int): Array<Point> = Polyline.approximate(this).sampleArcLength(n)
-
     override fun crispTransform(a: Transform): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point.toCrisp())) })
 
@@ -82,7 +76,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     fun restrict(begin: Double, end: Double): RationalBezier {
         require(Interval(begin, end) in domain) { "Interval($begin, $end) is out of domain($domain)" }
 
-        return subdivide(end)._1().subdivide(begin / end)._2()
+        return subdivide(end).head().subdivide(begin / end).last()
     }
 
 
@@ -96,11 +90,11 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         return RationalBezier(Bezier.createReducedControlPoints(weightedControlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
+    fun subdivide(t: Double): Array<RationalBezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         return Bezier.createSubdividedControlPointsArrays(t, weightedControlPoints)
-                .map(::RationalBezier, ::RationalBezier)
+                .map(::RationalBezier)
     }
 
     companion object {

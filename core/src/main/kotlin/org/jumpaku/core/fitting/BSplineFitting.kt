@@ -6,10 +6,10 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.TimeSeriesPoint
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.KnotVector
+import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
@@ -33,14 +33,25 @@ fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotVector: K
 class BSplineFitting(
         val degree: Int,
         val knotVector: KnotVector,
-        val createWeightMatrix: (Array<TimeSeriesPoint>) -> DiagonalMatrix = {
+        val createWeightMatrix: (Array<ParamPoint>) -> DiagonalMatrix = {
             DiagonalMatrix(Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
         }) : Fitting<BSpline>{
 
     constructor(degree: Int, domain: Interval, delta: Double) : this(
             degree, KnotVector.clampedUniform(domain, degree, domain.sample(delta).size() + degree*2))
 
-    override fun fit(data: Array<TimeSeriesPoint>): BSpline {
+    override fun fit(data: Array<ParamPoint>): BSpline {
+        require(data.nonEmpty()) { "empty data" }
+        require(!data.isSingleValued) { "single valued too few data" }
+
+        val distinct = data.distinctBy(ParamPoint::param)
+        if(distinct.size() <= degree){
+            val b = BezierFitting(degree - 1, createWeightMatrix)
+                    .fit(transformParams(distinct, Interval.ZERO_ONE)).elevate()
+            return BSpline(b.controlPoints,
+                    KnotVector.clampedUniform(distinct.head().param, distinct.last().param, degree, degree*2 + 2))
+        }
+
         val (d, b) = data.unzip { (p, t) -> Tuple(p, t) }
                 .map(this::createDataMatrix, this::createBasisMatrix)
         val w = createWeightMatrix(data)
