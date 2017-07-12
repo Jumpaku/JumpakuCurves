@@ -9,6 +9,7 @@ import org.jumpaku.core.curve.IntervalJson
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
 import org.jumpaku.core.json.prettyGson
+import java.util.stream.IntStream
 
 
 class Circular(val conicSection: ConicSection, val domain: Interval) : Reference {
@@ -39,7 +40,7 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
                 f.distSquare(begin.toCrisp()) - (f.distSquare(end.toCrisp()))
             }, t0, t1, t0.divide(0.5, t1))
 
-            return ConicSection(begin, fsc(tf), end)
+            return ConicSection.shearedCircularArc(begin, fsc(tf), end)
         }
 
         fun create(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {

@@ -53,23 +53,4 @@ class CircularTest {
         val c = Circular(cs, Interval(-0.5, 1.5))
         circularAssertThat(prettyGson.fromJson<CircularJson>(c.toString()).circular()).isEqualToCircular(c)
     }
-
-    @Test
-    fun testIsValidFor() {
-        println("IsValidFor")
-        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/identify/reference/")
-        for (i in 0..9){
-            val fsc = FileReader(path.resolve("Fsc$i.json").toFile()).use { prettyGson.fromJson<BSplineJson>(it).bSpline() }
-            val arcLength = fsc.toArcLengthCurve()
-            val t0 = arcLength.toOriginalParam(arcLength.arcLength()/5)
-            val t1 = arcLength.toOriginalParam(arcLength.arcLength()*3/5)
-            val ca = Circular.create(t0, t1, fsc)
-            val ce = FileReader(path.resolve("Circular$i.json").toFile()).use { prettyGson.fromJson<CircularJson>(it).circular() }
-            circularAssertThat(ca).isEqualToCircular(ce, 10.0)
-
-            val cpa = ca.isValidFor(fsc)
-            val cpe = FileReader(path.resolve("CircularGrade$i.json").toFile()).use { prettyGson.fromJson<Grade>(it).value }
-            assertThat(cpa.value).isEqualTo(cpe)
-        }
-    }
 }

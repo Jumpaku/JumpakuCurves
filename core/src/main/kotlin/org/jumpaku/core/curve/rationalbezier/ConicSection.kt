@@ -13,8 +13,6 @@ import org.jumpaku.core.json.prettyGson
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, CrispTransformable {
 
-    constructor(begin: Point, far: Point, end: Point) : this(begin, far, end, circularArcShearedWeight(begin, far, end))
-
     val asCrispRationalBezier: RationalBezier get() {
         if(!(1.0 / weight).isFinite()) {
             return RationalBezier(
@@ -81,10 +79,10 @@ class ConicSection(
          * where h is distance between far and line(begin, end), l = |begin - end|/2.
          *  an elliptic arc with this weight is a sheared circular arc which has the same weight.
          */
-        fun circularArcShearedWeight(begin: Point, far: Point, end: Point): Double {
+        fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
             val hh = far.toCrisp().distSquareLine(begin.toCrisp(), end.toCrisp())
             val ll = (begin.toCrisp() - end.toCrisp()).square()/4
-            return maxOf(-0.999, minOf(0.999, (ll - hh) / (ll + hh)))
+            return ConicSection(begin, far, end, maxOf(-0.999, minOf(0.999, (ll - hh) / (ll + hh))))
         }
     }
 }

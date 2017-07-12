@@ -6,7 +6,7 @@ import org.jumpaku.fsc.identify.reference.Elliptic
 import org.jumpaku.fsc.identify.reference.Linear
 
 
-class Classifier4 : Classifier {
+class ClassifierOpen4 : Classifier {
 
     override fun classify(fsc: BSpline): Result {
         val muL = Linear.create(fsc.domain.begin, fsc.domain.end, fsc).isValidFor(fsc)

@@ -53,25 +53,4 @@ class EllipticTest {
         val e = Elliptic(cs, Interval(-0.5, 1.5))
         ellipticAssertThat(prettyGson.fromJson<EllipticJson>(e.toString()).elliptic()).isEqualToElliptic(e)
     }
-
-    @Test
-    fun testIsValidFor() {
-        println("IsValidFor")
-        val path = Paths.get("./src/test/resources/org/jumpaku/fsc/identify/reference/")
-        for (i in 0..9){
-            val fsc = FileReader(path.resolve("Fsc$i.json").toFile()).use { prettyGson.fromJson<BSplineJson>(it).bSpline() }
-            val arcLength = fsc.toArcLengthCurve()
-            val t0 = arcLength.toOriginalParam(arcLength.arcLength()/5)
-            val t1 = arcLength.toOriginalParam(arcLength.arcLength()*3/5)
-            val ea = Elliptic.create(t0, t1, fsc)
-            val ee = FileReader(path.resolve("Elliptic$i.json").toFile()).use { prettyGson.fromJson<EllipticJson>(it).elliptic() }
-            ellipticAssertThat(ea).isEqualToElliptic(ee, 10.0)
-
-            val epa = ea.isValidFor(fsc)
-            val epe = FileReader(path.resolve("EllipticGrade$i.json").toFile()).use { prettyGson.fromJson<Grade>(it).value }
-            assertThat(epa.value).`as`("file index : $i")
-                    .isEqualTo(epe, withPrecision(0.01))
-                    .isBetween(0.0, 1.0)
-        }
-    }
 }
