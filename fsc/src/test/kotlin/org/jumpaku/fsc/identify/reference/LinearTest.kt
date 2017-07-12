@@ -54,7 +54,7 @@ class LinearTest {
             val arcLength = fsc.toArcLengthCurve()
             val t0 = arcLength.toOriginalParam(arcLength.arcLength()/5)
             val t1 = arcLength.toOriginalParam(arcLength.arcLength()*3/5)
-            val la = Linear.create(t0, t1, fsc)
+            val la = Linear.ofParams(t0, t1, fsc)
             val le = FileReader(path.resolve("Linear$i.json").toFile()).use { prettyGson.fromJson<LinearJson>(it).linear() }
             linearAssertThat(la).isEqualToLinear(le, 10.0)
 

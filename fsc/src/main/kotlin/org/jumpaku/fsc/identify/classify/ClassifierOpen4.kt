@@ -9,9 +9,9 @@ import org.jumpaku.fsc.identify.reference.Linear
 class ClassifierOpen4 : Classifier {
 
     override fun classify(fsc: BSpline): Result {
-        val muL = Linear.create(fsc.domain.begin, fsc.domain.end, fsc).isValidFor(fsc)
-        val muC = Circular.create(fsc.domain.begin, fsc.domain.end, fsc).isValidFor(fsc)
-        val muE = Elliptic.create(fsc.domain.begin, fsc.domain.end, fsc).isValidFor(fsc)
+        val muL = Linear.ofBeginEnd(fsc).isValidFor(fsc)
+        val muC = Circular.ofBeginEnd(fsc).isValidFor(fsc)
+        val muE = Elliptic.ofBeginEnd(fsc).isValidFor(fsc)
 
         return Result(
                 CurveClass.LineSegment to (muL),

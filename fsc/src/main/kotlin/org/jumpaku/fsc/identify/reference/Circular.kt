@@ -61,7 +61,7 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
                     .map { it._1() }.get()
         }
 
-        fun create(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {
+        fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {
             val tf = circularFar(t0, t1, fsc)
             val circular = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
             val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), circular)
@@ -69,12 +69,14 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
             return Circular(circular, domain)
         }
 
-        fun create(fsc: BSpline): Circular {
-            val (t0, tf, t1) = triangleAreaMaximizingParams(fsc)
-            val circular = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), circular)
+        fun ofBeginEnd(fsc: BSpline): Circular {
+            return ofParams(fsc.domain.begin, fsc.domain.end, fsc)
+        }
 
-            return Circular(circular, domain)
+        fun of(fsc: BSpline): Circular {
+            val (t0, _, t1) = triangleAreaMaximizingParams(fsc)
+
+            return ofParams(t0, t1, fsc)
         }
     }
 }

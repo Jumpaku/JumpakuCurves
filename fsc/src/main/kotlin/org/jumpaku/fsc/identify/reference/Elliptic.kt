@@ -103,7 +103,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
                     .map { it._1() }.get()
         }
 
-        fun create(t0: Double, t1: Double, fsc: BSpline): Elliptic {
+        fun ofParams(t0: Double, t1: Double, fsc: BSpline): Elliptic {
             val tf = triangleAreaBisectingFar(t0, t1, fsc)
             val w = possibilityMaximizingWeight(t0, t1, tf, fsc)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
@@ -112,13 +112,14 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
             return Elliptic(conicSection, domain)
         }
 
-        fun create(fsc: BSpline): Elliptic {
-            val (t0, tf, t1) = triangleAreaMaximizingParams(fsc)
-            val w = possibilityMaximizingWeight(t0, t1, tf, fsc)
-            val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
-            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)
+        fun ofBeginEnd(fsc: BSpline): Elliptic {
+            return ofParams(fsc.domain.begin, fsc.domain.end, fsc)
+        }
 
-            return Elliptic(conicSection, domain)
+        fun of(fsc: BSpline): Elliptic {
+            val (t0, _, t1) = triangleAreaMaximizingParams(fsc)
+
+            return ofParams(t0, t1, fsc)
         }
     }
 }

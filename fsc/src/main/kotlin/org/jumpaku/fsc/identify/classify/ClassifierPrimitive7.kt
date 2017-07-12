@@ -8,10 +8,10 @@ import org.jumpaku.fsc.identify.reference.Linear
 class ClassifierPrimitive7 : Classifier {
 
     override fun classify(fsc: BSpline): Result {
-        val muL = Linear.create(fsc.domain.begin, fsc.domain.end, fsc).isValidFor(fsc)
-        val muC = Circular.create(fsc).isValidFor(fsc)
-        val muE = Elliptic.create(fsc).isValidFor(fsc)
-        val muClosed = fsc.evaluateAll(2).run { head().isPossible(last()) }
+        val muL = Linear.of(fsc).isValidFor(fsc)
+        val muC = Circular.of(fsc).isValidFor(fsc)
+        val muE = Elliptic.of(fsc).isValidFor(fsc)
+        val muClosed = isClosed(fsc)
         return Result(
                 CurveClass.LineSegment to (muL),
                 CurveClass.Circle to (muClosed and (!muL) and muC),
