@@ -24,16 +24,20 @@ class Linear(val lineSegment: LineSegment) : Reference {
 
     companion object {
 
-        /**
-         * @param t0 time parameter at front representation point
-         * @param t1 time parameter at back representation point
-         */
-        fun create(t0: Double, t1: Double, fsc: FuzzyCurve): Linear {
+        fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Linear {
             val arcLengthFsc = fsc.toArcLengthCurve()
             val l = arcLengthFsc.arcLength()
             val l0 = arcLengthFsc.arcLengthUntil(t0)
             val l1 = arcLengthFsc.arcLengthUntil(t1)
             return Linear(LineSegment(ParamPoint(fsc(t0), l0 / l), ParamPoint(fsc(t1), l1 / l)))
+        }
+
+        fun ofBeginEnd(fsc: FuzzyCurve): Linear {
+            return Linear(LineSegment(ParamPoint(fsc(fsc.domain.begin), 0.0), ParamPoint(fsc(fsc.domain.end), 1.0)))
+        }
+
+        fun of(fsc: FuzzyCurve): Linear {
+            return Linear(LineSegment(ParamPoint(fsc(fsc.domain.begin), 0.0), ParamPoint(fsc(fsc.domain.end), 1.0)))
         }
     }
 }

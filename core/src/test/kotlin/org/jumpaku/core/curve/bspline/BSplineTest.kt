@@ -155,10 +155,10 @@ class BSplineTest {
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9))
                 .subdivide(3.5)
-        bSplineAssertThat(subdivided[0]).isEqualToBSpline(BSpline(
+        bSplineAssertThat(subdivided._1()).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
                 KnotVector.clampedUniform(3.0, 3.5, 3, 8)))
-        bSplineAssertThat(subdivided[1]).isEqualToBSpline(BSpline(
+        bSplineAssertThat(subdivided._2()).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.5, 4.0, 3, 8)))
     }

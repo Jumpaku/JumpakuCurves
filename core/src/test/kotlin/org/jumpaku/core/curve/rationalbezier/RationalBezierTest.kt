@@ -283,12 +283,11 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, 1.0,  2.0), 1/R2),
                 WeightedPoint(Point.xyr(1.0, 0.0,  3.0),  1.0))
                 .subdivide(0.5)
-        assertThat(rs.size()).isEqualTo(2)
-        rationalBezierAssertThat(rs[0]).isEqualToRationalBezier(RationalBezier(
+        rationalBezierAssertThat(rs._1()).isEqualToRationalBezier(RationalBezier(
                 WeightedPoint(Point.xyr( 0.0,  1.0, 1.0),      1.0),
                 WeightedPoint(Point.xyr(R2-1,  1.0,  R2), (2+R2)/4),
                 WeightedPoint(Point.xyr(R2/2, R2/2, 2.0), (2+R2)/4)))
-        rationalBezierAssertThat(rs[1]).isEqualToRationalBezier(RationalBezier(
+        rationalBezierAssertThat(rs._2()).isEqualToRationalBezier(RationalBezier(
                 WeightedPoint(Point.xyr(R2/2, R2/2,  2.0), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0, R2-1, 4-R2), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0,  0.0,  3.0),  1.0)))
