@@ -77,7 +77,7 @@ class KnotVector(val knots: Array<Knot>) : Iterable<Double> {
         val front = KnotVector(inserted.filter { it.value <= t })
         val back = KnotVector(inserted.filter { it.value >= t })
 
-        return Array(front, back).filter { it.size() - degree - 1 > 0 }
+        return Array(front, back)
     }
 
     fun insertKnot(degree: Int, t: Double, maxInsertionTimes: Int = 1): KnotVector {

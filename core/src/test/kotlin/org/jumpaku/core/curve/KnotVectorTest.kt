@@ -119,7 +119,7 @@ class KnotVectorTest {
         val k = KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1))
 
         val a0 = k.subdivide(2, 1.0)
-        assertThat(a0.size()).isEqualTo(1)
+        assertThat(a0.size()).isEqualTo(2)
         knotVectorAssertThat(a0[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
 
         val a1 = k.subdivide(2, 1.2)
@@ -144,7 +144,7 @@ class KnotVectorTest {
 
         val l = KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3))
         val a5 = l.subdivide(2, 2.0)
-        assertThat(a5.size()).isEqualTo(1)
+        assertThat(a5.size()).isEqualTo(2)
         knotVectorAssertThat(a5[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3)))
     }
 

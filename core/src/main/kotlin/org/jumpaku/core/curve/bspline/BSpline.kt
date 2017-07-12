@@ -20,18 +20,24 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     override val domain: Interval = knotVector.domain(degree)
 
     override val derivative: BSplineDerivative get() {
-        check(knotVector.multiplicity.exists { degree + 1 <= it }) { "C^0 curve is not differentiable " }
+        check(knotVector.innerKnotVector().multiplicity.forAll { it <= degree + 1 }) { "C^0 curve is not differentiable " }
 
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
-                .zipWithIndex({ v, i -> v*(degree / (knotVector[degree + i + 1] - knotVector[i + 1])) })
+                .zipWithIndex({ v, i ->
+                    v*(degree / (knotVector[degree + i + 1] - knotVector[i + 1]))
+                })
 
         return BSplineDerivative(cvs, knotVector.innerKnotVector())
     }
 
 
     init {
-        require(controlPoints.size() > degree) { "controlPoints size(${controlPoints.size()}) <= degree($degree)" }
+        require(controlPoints.nonEmpty()) { "empty controlPoints" }
+        check(knotVector.size() - degree - 1 == controlPoints.size()) {
+            "knotVector.size()(${knotVector.size()}) - degree($degree) - 1 != controlPoints.size()(${controlPoints.size()})" }
+        check(degree > 0) { "degree($degree) <= 0" }
+        //require(controlPoints.size() > degree) { "controlPoints size(${controlPoints.size()}) <= degree($degree)" }
     }
 
     constructor(controlPoints: Iterable<Point>, knots: KnotVector) : this(Array.ofAll(controlPoints), knots)
@@ -79,7 +85,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     fun toBeziers(): Array<Bezier> {
         var insertedControlPoints = controlPoints
         var insertedKnot = knotVector
-        for (knot in knotVector.value.subSequence(degree, knotVector.size() - degree - 1)){
+        for (knot in knotVector.value.slice(degree, knotVector.size() - degree - 1)){
             insertedControlPoints = createKnotInsertedControlPoints(knot, degree + 1, degree, insertedControlPoints, insertedKnot)
             insertedKnot = insertedKnot.insertKnot(degree, knot, degree + 1)
         }
@@ -117,10 +123,10 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
                 t: Double, degree: Int, controlPoints: Array<D>, knotVector: KnotVector): Array<Array<D>> {
             val inserted = createKnotInsertedControlPoints(t, degree + 1, degree, controlPoints, knotVector)
             val size = knotVector.subdivide(degree, t).head().size() - degree - 1
-            val first = inserted.take(size)
-            val second = inserted.drop(size)
+            val first = inserted.take(size).run { if (isEmpty){ Array(controlPoints.head()) }else{ this } }
+            val second = inserted.drop(size).run { if (isEmpty){ Array(controlPoints.last()) }else{ this } }
 
-            return Array(first, second).filter { it.nonEmpty() }
+            return Array(first, second)
         }
 
         internal fun <D : Divisible<D>> createKnotInsertedControlPoints(
@@ -133,7 +139,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
             var front = controlPoints.take(k - degree)
             var back = controlPoints.drop(k - m + 1)
-            var middle = controlPoints.subSequence(k - degree, k - m + 1)
+            var middle = controlPoints.slice(k - degree, k - m + 1)
             for (r in 1..times){
                 front = front.append(middle.head())
                 back = back.prepend(middle.last())
