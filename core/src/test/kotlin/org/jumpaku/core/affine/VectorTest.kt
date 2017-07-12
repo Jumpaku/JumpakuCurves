@@ -49,6 +49,13 @@ class VectorTest {
     }
 
     @Test
+    fun testDiv() {
+        println("Div")
+        val v = Vector(1.0, -2.0, 3.0).div(5.0)
+        vectorAssertThat(v).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
+    }
+
+    @Test
     fun testUnaryPlus() {
         println("UnaryPlus")
         val v = Vector(1.0, -2.0, 3.0).unaryPlus()

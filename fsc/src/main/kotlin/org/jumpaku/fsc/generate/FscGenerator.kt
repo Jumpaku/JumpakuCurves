@@ -12,10 +12,10 @@ import org.jumpaku.core.fitting.createModelMatrix
 import org.jumpaku.core.fitting.nonNegativeLinearLeastSquare
 
 
-class FscGeneration(val degree: Int = 3, val knotSpan: Double = 0.1) {
+class FscGenerator(val degree: Int = 3, val knotSpan: Double = 0.1) {
 
     fun generate(data: Array<ParamPoint>): BSpline {
-        val modifiedData = DataPreparing(knotSpan / degree, knotSpan, knotSpan, degree - 1)
+        val modifiedData = DataPreparer(knotSpan / degree, knotSpan, knotSpan, degree - 1)
                 .prepare(data.sortBy(ParamPoint::param))
         val bSpline = BSplineFitting(
                 degree, Interval(modifiedData.head().param, modifiedData.last().param), knotSpan).fit(modifiedData)

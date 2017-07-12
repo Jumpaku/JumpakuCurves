@@ -125,10 +125,9 @@ class BezierDerivativeTest {
         println("Subdivide")
         val bs = BezierDerivative(Vector(1.0,-2.0, 0.0), Vector(2.0,-1.0, 0.0), Vector(0.0, 0.0, 2.0), Vector(2.0, 1.0, 0.0), Vector(1.0, 2.0, 0.0))
                 .subdivide(0.25)
-        assertThat(bs.size()).isEqualTo(2)
-        bezierAssertThat(bs[0].asBezier).isEqualToBezier(Bezier(
+        bezierAssertThat(bs._1().asBezier).isEqualToBezier(Bezier(
                 Point.xyz(1.0,      -2.0, 0.0),     Point.xyz(5/4.0,  -7/4.0, 0.0),     Point.xyz(21/16.0,-3/2.0, 1/8.0), Point.xyz(83/64.0,-5/4.0, 9/32.0), Point.xyz(322/256.0,-1.0, 27/64.0)))
-        bezierAssertThat(bs[1].asBezier ).isEqualToBezier(Bezier(
+        bezierAssertThat(bs._2().asBezier ).isEqualToBezier(Bezier(
                 Point.xyz(322/256.0,-1.0, 27/64.0), Point.xyz(73/64.0,-1/4.0, 27/32.0), Point.xyz(13/16.0, 1/2.0, 9/8.0), Point.xyz(7/4.0,   5/4.0, 0.0),    Point.xyz(1.0,       2.0, 0.0)))
     }
 

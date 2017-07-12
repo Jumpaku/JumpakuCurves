@@ -13,7 +13,7 @@ import org.jumpaku.core.fitting.BSplineFitting
 import org.junit.Test
 
 
-class DataPreparingTest {
+class DataPreparerTest {
 
     @Test
     fun testPrepare() {
@@ -23,14 +23,14 @@ class DataPreparingTest {
                 Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)),
                 knots)
         val data = Interval(0.5, 2.5).sample(100).map { ParamPoint(b(it), it) }
-        val a = BSplineFitting(2, knots).fit(DataPreparing(0.1, 0.5, 0.5, 2).prepare(data))
+        val a = BSplineFitting(2, knots).fit(DataPreparer(0.1, 0.5, 0.5, 2).prepare(data))
         bSplineAssertThat(a).isEqualToBSpline(b, 0.2)
 
         val b2 = BSpline(API.Array<Point>(
                 Point.xy(1.0, 3.0), Point.xy(2.0, 0.0), Point.xy(3.0, 5.0), Point.xy(4.0, 3.0), Point.xy(5.0, 3.0)),
                 KnotVector.clampedUniform(2, 8))
         val data2 = Interval(0.2, 2.8).sample(50).map { ParamPoint(b2(it), it) }
-        val a2 = BSplineFitting(2, KnotVector.clampedUniform(2, 8)).fit(DataPreparing(0.1, 0.2, 0.2, 2).prepare(data2))
+        val a2 = BSplineFitting(2, KnotVector.clampedUniform(2, 8)).fit(DataPreparer(0.1, 0.2, 0.2, 2).prepare(data2))
         val e2 = BSpline(API.Array(
                 Point.xy(1.1157219672319155, 2.7493678060976845),
                 Point.xy(1.9591584061231399, 0.09817360222120309),
@@ -49,7 +49,7 @@ class DataPreparingTest {
                 ParamPoint(Point.xy(1.0, -2.0), 10.0),
                 ParamPoint(Point.xy(1.5, -3.0), 15.0),
                 ParamPoint(Point.xy(2.5, -5.0), 25.0))
-        val a = DataPreparing.fill(data, 2.0)
+        val a = DataPreparer.fill(data, 2.0)
 
         assertThat(a.size()).isEqualTo(9)
         paramPointAssertThat(a[0]).isEqualToParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
@@ -69,9 +69,9 @@ class DataPreparingTest {
         val knots = KnotVector.clampedUniform(2, 8)
         val b = BSpline(API.Array<Point>(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.5, 3.0).sample(100).map { ParamPoint(b(it), it) }
-        val subdivided = BSplineFitting(2, knots).fit(DataPreparing.extendFront(data, 0.5)).subdivide(2.0)
-        bSplineAssertThat(subdivided[0]).isEqualToBSpline(b.subdivide(2.0)[0], 0.2)
-        bSplineAssertThat(subdivided[1]).isEqualToBSpline(b.subdivide(2.0)[1], 0.01)
+        val subdivided = BSplineFitting(2, knots).fit(DataPreparer.extendFront(data, 0.5)).subdivide(2.0)
+        bSplineAssertThat(subdivided._1()).isEqualToBSpline(b.subdivide(2.0)._1(), 0.2)
+        bSplineAssertThat(subdivided._2()).isEqualToBSpline(b.subdivide(2.0)._2(), 0.01)
     }
 
     @Test
@@ -80,8 +80,8 @@ class DataPreparingTest {
         val knots = KnotVector.clampedUniform(2, 8)
         val b = BSpline(API.Array<Point>(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
-        val subdivided = BSplineFitting(2, knots).fit(DataPreparing.extendBack(data, 0.5)).subdivide(1.0)
-        bSplineAssertThat(subdivided[0]).isEqualToBSpline(b.subdivide(1.0)[0], 0.01)
-        bSplineAssertThat(subdivided[1]).isEqualToBSpline(b.subdivide(1.0)[1], 0.2)
+        val subdivided = BSplineFitting(2, knots).fit(DataPreparer.extendBack(data, 0.5)).subdivide(1.0)
+        bSplineAssertThat(subdivided._1()).isEqualToBSpline(b.subdivide(1.0)._1(), 0.01)
+        bSplineAssertThat(subdivided._2()).isEqualToBSpline(b.subdivide(1.0)._2(), 0.2)
     }
 }

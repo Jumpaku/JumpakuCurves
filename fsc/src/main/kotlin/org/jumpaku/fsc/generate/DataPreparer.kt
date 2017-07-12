@@ -20,7 +20,7 @@ import org.jumpaku.core.util.component2
  * To avoid these problems, before FSC generation, lacks of data should be filled by linear interpolation.
  * And data points around beginning point and end point should be extended by quadratic bezier fitting.
  */
-class DataPreparing(
+class DataPreparer(
         val maximumSpan: Double,
         val innerSpan: Double,
         val outerSpan: Double = innerSpan,
@@ -56,7 +56,7 @@ class DataPreparing(
             val innerData = sortedData.filter { it.param <= end }
                     .let { chordalParametrize(it.map { it.point }) }
                     .let { transformParams(it, Interval(outerSpan/(outerSpan+innerSpan), 1.0)) }
-            val bezier = BezierFitting(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan)).head()
+            val bezier = BezierFitting(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
             val outerData = bezier.domain.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
                     .map { ParamPoint(bezier(it), it) }
             return transformParams(outerData, Interval(begin, begin + outerSpan))
@@ -73,7 +73,7 @@ class DataPreparing(
             val innerData = sortedData.filter { it.param >= begin }
                     .let { chordalParametrize(it.map { it.point }) }
                     .let { transformParams(it, Interval(0.0, innerSpan/(outerSpan+innerSpan))) }
-            val bezier = BezierFitting(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan)).last()
+            val bezier = BezierFitting(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
             val outerData = bezier.domain.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
                     .map { ParamPoint(bezier(it), it) }
             return transformParams(outerData, Interval(end - outerSpan, end))

@@ -170,10 +170,10 @@ class BSplineDerivativeTest {
                 Array(Vector(-1.0, 0.0), Vector(-1.0, 1.0), Vector(0.0, 1.0), Vector(0.0, 0.0), Vector(1.0, 0.0)),
                 KnotVector.clampedUniform(3, 9))
                 .subdivide(1.0)
-        bSplineAssertThat(subdivided[0].asBSpline).isEqualToBSpline(BSplineDerivative(
+        bSplineAssertThat(subdivided._1().asBSpline).isEqualToBSpline(BSplineDerivative(
                 Array(Vector(-1.0, 0.0), Vector(-1.0, 1.0), Vector(-0.5, 1.0), Vector(-0.25, 0.75)),
                 KnotVector.clampedUniform(3, 8)).asBSpline)
-        bSplineAssertThat(subdivided[1].asBSpline).isEqualToBSpline(BSplineDerivative(
+        bSplineAssertThat(subdivided._2().asBSpline).isEqualToBSpline(BSplineDerivative(
                 Array(Vector(-0.25, 0.75), Vector(0.0, 0.5), Vector(0.0, 0.0), Vector(1.0, 0.0)),
                 KnotVector.clampedUniform(1.0, 2.0, 3, 8)).asBSpline)
     }
