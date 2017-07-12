@@ -1,6 +1,8 @@
 package org.jumpaku.fsc.identify.reference
 
+import io.vavr.API
 import io.vavr.API.Array
+import io.vavr.Tuple3
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.optim.*
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType
@@ -15,6 +17,9 @@ import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.component1
+import org.jumpaku.core.util.component2
+import org.jumpaku.core.util.component3
 
 
 class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference {
@@ -87,8 +92,28 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
                     ).point
         }
 
+        fun triangleAreaMaximizingParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Double, Double> {
+            val ts = fsc.domain.sample(nSamples)
+            return API.For(ts.take(nSamples/3), ts.drop(2*nSamples/3))
+                    .yield({ t0, t1 ->
+                        val tf = Elliptic.triangleAreaBisectingFar(t0, t1, fsc)
+                        API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).toCrisp().area(fsc(t0).toCrisp(), fsc(t1).toCrisp()))
+                    })
+                    .maxBy { (_, area) -> area }
+                    .map { it._1() }.get()
+        }
+
         fun create(t0: Double, t1: Double, fsc: BSpline): Elliptic {
             val tf = triangleAreaBisectingFar(t0, t1, fsc)
+            val w = possibilityMaximizingWeight(t0, t1, tf, fsc)
+            val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
+            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)
+
+            return Elliptic(conicSection, domain)
+        }
+
+        fun create(fsc: BSpline): Elliptic {
+            val (t0, tf, t1) = triangleAreaMaximizingParams(fsc)
             val w = possibilityMaximizingWeight(t0, t1, tf, fsc)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
             val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)

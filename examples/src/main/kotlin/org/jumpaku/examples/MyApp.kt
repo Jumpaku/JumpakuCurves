@@ -3,7 +3,11 @@ package org.jumpaku.examples
 import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.paint.Color
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.curve.Knot
+import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.fsc.generate.FscGenerator
 import org.jumpaku.fsc.identify.classify.ClassifierPrimitive7
 import org.jumpaku.fsc.identify.reference.Circular
@@ -19,7 +23,9 @@ import tornadofx.View
 import java.nio.file.Paths
 
 
-fun main(args: kotlin.Array<String>): Unit = Application.launch(MyApp::class.java, *args)
+fun main(args: kotlin.Array<String>): Unit {
+    Application.launch(MyApp::class.java, *args)
+}
 
 class MyApp: App(TestView::class)
 
@@ -32,7 +38,6 @@ class TestView : View(){
     override val root = curveInput.root
 
     init {
-        println(Paths.get(".").toAbsolutePath())
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)
         }
@@ -45,8 +50,8 @@ class TestView : View(){
             val t0 = fsc.domain.begin
             val t1 = mostFarPointOnFsc(t0, fsc)
             fuzzyCurve(Linear.create(t0, fsc.domain.end, fsc).fuzzyCurve) { stroke = Color.GREEN }
-            fuzzyCurve(Circular.create(t0, t1, fsc).fuzzyCurve) { stroke = Color.RED }
-            fuzzyCurve(Elliptic.create(t0, t1, fsc).fuzzyCurve) { stroke = Color.SKYBLUE }
+            fuzzyCurve(Circular.create(fsc).fuzzyCurve) { stroke = Color.RED }
+            fuzzyCurve(Elliptic.create(fsc).fuzzyCurve) { stroke = Color.SKYBLUE }
             val result = ClassifierPrimitive7().classify(fsc)
             println(result.grades)
         }
