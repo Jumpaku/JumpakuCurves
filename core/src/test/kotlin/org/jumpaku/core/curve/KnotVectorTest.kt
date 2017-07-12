@@ -119,33 +119,27 @@ class KnotVectorTest {
         val k = KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1))
 
         val a0 = k.subdivide(2, 1.0)
-        assertThat(a0.size()).isEqualTo(2)
-        knotVectorAssertThat(a0[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
+        knotVectorAssertThat(a0._1()).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
 
         val a1 = k.subdivide(2, 1.2)
-        assertThat(a1.size()).isEqualTo(2)
-        knotVectorAssertThat(a1[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.2, 3)))
-        knotVectorAssertThat(a1[1]).isEqualToKnotVector(KnotVector(Knot(1.2, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
+        knotVectorAssertThat(a1._1()).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.2, 3)))
+        knotVectorAssertThat(a1._2()).isEqualToKnotVector(KnotVector(Knot(1.2, 3), Knot(1.5, 1), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
 
         val a2 = k.subdivide(2, 1.5)
-        assertThat(a2.size()).isEqualTo(2)
-        knotVectorAssertThat(a2[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 3)))
-        knotVectorAssertThat(a2[1]).isEqualToKnotVector(KnotVector(Knot(1.5, 3), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
+        knotVectorAssertThat(a2._1()).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 3)))
+        knotVectorAssertThat(a2._2()).isEqualToKnotVector(KnotVector(Knot(1.5, 3), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
 
         val a3 = k.subdivide(2, 1.7)
-        assertThat(a3.size()).isEqualTo(2)
-        knotVectorAssertThat(a3[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(1.7, 3)))
-        knotVectorAssertThat(a3[1]).isEqualToKnotVector(KnotVector(Knot(1.7, 3), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
+        knotVectorAssertThat(a3._1()).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(1.7, 3)))
+        knotVectorAssertThat(a3._2()).isEqualToKnotVector(KnotVector(Knot(1.7, 3), Knot(2.0, 2), Knot(3.0, 1), Knot(4.0, 1)))
 
         val a4 = k.subdivide(2, 2.0)
-        assertThat(a4.size()).isEqualTo(2)
-        knotVectorAssertThat(a4[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3)))
-        knotVectorAssertThat(a4[1]).isEqualToKnotVector(KnotVector(Knot(2.0, 3), Knot(3.0, 1), Knot(4.0, 1)))
+        knotVectorAssertThat(a4._1()).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3)))
+        knotVectorAssertThat(a4._2()).isEqualToKnotVector(KnotVector(Knot(2.0, 3), Knot(3.0, 1), Knot(4.0, 1)))
 
         val l = KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3))
         val a5 = l.subdivide(2, 2.0)
-        assertThat(a5.size()).isEqualTo(2)
-        knotVectorAssertThat(a5[0]).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3)))
+        knotVectorAssertThat(a5._1()).isEqualToKnotVector(KnotVector(Knot(1.0, 3), Knot(1.5, 1), Knot(2.0, 3)))
     }
 
     @Test

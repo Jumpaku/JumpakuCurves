@@ -1,6 +1,7 @@
 package org.jumpaku.core.curve.bspline
 
 import io.vavr.API.*
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.Precision
@@ -71,7 +72,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     fun restrict(begin: Double, end: Double): BSpline {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin).last().subdivide(end).head()
+        return subdivide(begin)._2().subdivide(end)._1()
     }
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
@@ -98,12 +99,12 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
         return beziers.toArray()
     }
 
-    fun subdivide(t: Double): Array<BSpline> {
+    fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        val subdividedKnots = knotVector.subdivide(degree, t)
-        val subdividedControlPoints = createSubdividedControlPoints(t, degree, controlPoints, knotVector)
-        return subdividedControlPoints.zipWith(subdividedKnots, ::BSpline)
+        val (knotsFront, knotsBack) = knotVector.subdivide(degree, t)
+        val (cpFront, cpBack) = createSubdividedControlPoints(t, degree, controlPoints, knotVector)
+        return Tuple2(BSpline(cpFront, knotsFront), BSpline(cpBack, knotsBack))
     }
 
     fun insertKnot(knotValue: Double, maxInsertionTimes: Int = 1): BSpline {
@@ -120,13 +121,13 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     companion object {
 
         internal fun <D : Divisible<D>> createSubdividedControlPoints(
-                t: Double, degree: Int, controlPoints: Array<D>, knotVector: KnotVector): Array<Array<D>> {
+                t: Double, degree: Int, controlPoints: Array<D>, knotVector: KnotVector): Tuple2<Array<D>, Array<D>> {
             val inserted = createKnotInsertedControlPoints(t, degree + 1, degree, controlPoints, knotVector)
-            val size = knotVector.subdivide(degree, t).head().size() - degree - 1
+            val size = knotVector.subdivide(degree, t)._1().size() - degree - 1
             val first = inserted.take(size).run { if (isEmpty){ Array(controlPoints.head()) }else{ this } }
             val second = inserted.drop(size).run { if (isEmpty){ Array(controlPoints.last()) }else{ this } }
 
-            return Array(first, second)
+            return Tuple2(first, second)
         }
 
         internal fun <D : Divisible<D>> createKnotInsertedControlPoints(

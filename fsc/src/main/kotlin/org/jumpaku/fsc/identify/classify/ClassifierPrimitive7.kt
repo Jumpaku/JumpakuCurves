@@ -14,12 +14,12 @@ class ClassifierPrimitive7 : Classifier {
         val muClosed = isClosed(fsc)
         return Result(
                 CurveClass.LineSegment to (muL),
-                CurveClass.Circle to (muClosed and (!muL) and muC),
-                CurveClass.CircularArc to ((!muClosed) and (!muL) and muC),
-                CurveClass.Ellipse to (muClosed and (!muL) and (!muC) and muE),
-                CurveClass.EllipticArc to ((!muClosed) and (!muL) and (!muC) and muE),
-                CurveClass.ClosedFreeCurve to (muClosed and (!muL) and (!muC) and (!muE)),
-                CurveClass.OpenFreeCurve to ((!muClosed) and (!muL) and (!muC) and (!muE))
+                CurveClass.Circle to (muClosed and !muL and muC),
+                CurveClass.CircularArc to (!muClosed and !muL and muC),
+                CurveClass.Ellipse to (muClosed and !muL and !muC and muE),
+                CurveClass.EllipticArc to (!muClosed and !muL and !muC and muE),
+                CurveClass.ClosedFreeCurve to (muClosed and !muL and !muC and !muE),
+                CurveClass.OpenFreeCurve to (!muClosed and !muL and !muC and !muE)
         )
     }
 }

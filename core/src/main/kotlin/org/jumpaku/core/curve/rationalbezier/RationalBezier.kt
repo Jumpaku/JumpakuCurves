@@ -1,6 +1,7 @@
 package org.jumpaku.core.curve.rationalbezier
 
 import io.vavr.API.*
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
@@ -76,7 +77,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     fun restrict(begin: Double, end: Double): RationalBezier {
         require(Interval(begin, end) in domain) { "Interval($begin, $end) is out of domain($domain)" }
 
-        return subdivide(end).head().subdivide(begin / end).last()
+        return subdivide(end)._1().subdivide(begin / end)._2()
     }
 
 
@@ -90,11 +91,11 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         return RationalBezier(Bezier.createReducedControlPoints(weightedControlPoints))
     }
 
-    fun subdivide(t: Double): Array<RationalBezier> {
+    fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        return Bezier.createSubdividedControlPointsArrays(t, weightedControlPoints)
-                .map(::RationalBezier)
+        return Bezier.createSubdividedControlPoints(t, weightedControlPoints)
+                .map(::RationalBezier, ::RationalBezier)
     }
 
     companion object {

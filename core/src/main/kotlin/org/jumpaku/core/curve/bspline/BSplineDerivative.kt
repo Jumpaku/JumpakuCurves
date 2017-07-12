@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve.bspline
 
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Vector
@@ -46,8 +47,8 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
 
     fun toBeziers(): Array<BezierDerivative> = asBSpline.toBeziers().map(::BezierDerivative)
 
-    fun subdivide(t: Double): Array<BSplineDerivative> {
-        return asBSpline.subdivide(t).map(::BSplineDerivative)
+    fun subdivide(t: Double): Tuple2<BSplineDerivative, BSplineDerivative> {
+        return asBSpline.subdivide(t).map(::BSplineDerivative, ::BSplineDerivative)
     }
 }
 

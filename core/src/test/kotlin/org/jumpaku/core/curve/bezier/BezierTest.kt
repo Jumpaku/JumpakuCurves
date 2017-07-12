@@ -4,7 +4,6 @@ import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.core.util.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
@@ -130,10 +129,9 @@ class BezierTest {
         val bs = Bezier(
                 Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
                 .subdivide(0.25)
-        assertThat(bs.size()).isEqualTo(2)
-        bezierAssertThat(bs[0]).isEqualToBezier(Bezier(
+        bezierAssertThat(bs._1()).isEqualToBezier(Bezier(
                 Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-7/4.0, 0.0, 5/4.0), Point.xyr(-3/2.0, 1/8.0, 21/16.0), Point.xyr(-5/4.0, 9/32.0, 83/64.0), Point.xyr(-1.0, 27/64.0, 161/128.0)))
-        bezierAssertThat(bs[1]).isEqualToBezier(Bezier(
+        bezierAssertThat(bs._2()).isEqualToBezier(Bezier(
                 Point.xyr(-1.0, 27/64.0,322/256.0), Point.xyr(-1/4.0, 27/32.0, 73/64.0), Point.xyr(1/2.0, 9/8.0, 13/16.0), Point.xyr(5/4.0, 0.0, 7/4.0), Point.xyr(2.0, 0.0, 1.0)))
     }
 

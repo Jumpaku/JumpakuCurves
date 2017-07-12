@@ -13,7 +13,7 @@ class Result(val grades: Map<CurveClass, Grade>){
     constructor(vararg pairs: Pair<CurveClass, Grade>) : this(HashMap.ofAll(mutableMapOf(*pairs)))
 
     init {
-        require(grades.nonEmpty()) { "classification result is empty" }
+        require(grades.nonEmpty()) { "empty result" }
     }
 
     val curveClass: CurveClass = grades.maxBy { (_, m) -> m } .map { it._1() }.get()

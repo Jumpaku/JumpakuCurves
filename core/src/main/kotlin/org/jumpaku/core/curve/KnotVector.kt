@@ -1,9 +1,8 @@
 package org.jumpaku.core.curve
 
 import io.vavr.API
+import io.vavr.API.*
 import io.vavr.Tuple2
-import io.vavr.API.Array
-import io.vavr.API.Option
 import io.vavr.collection.Stream
 import io.vavr.collection.Array
 import io.vavr.control.Option
@@ -70,14 +69,14 @@ class KnotVector(val knots: Array<Knot>) : Iterable<Double> {
         return knotVector
     }
 
-    fun subdivide(degree: Int, t: Double): Array<KnotVector> {
+    fun subdivide(degree: Int, t: Double): Tuple2<KnotVector, KnotVector> {
         require(t in domain(degree)) { "t($t) is out of domain(${domain(degree)}" }
         val times = clampInsertionTimes(degree, t, degree + 1)
         val inserted = insertKnot(degree, t, times).knots
         val front = KnotVector(inserted.filter { it.value <= t })
         val back = KnotVector(inserted.filter { it.value >= t })
 
-        return Array(front, back)
+        return Tuple(front, back)
     }
 
     fun insertKnot(degree: Int, t: Double, maxInsertionTimes: Int = 1): KnotVector {
