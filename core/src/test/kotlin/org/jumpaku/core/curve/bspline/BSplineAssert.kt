@@ -3,7 +3,7 @@ package org.jumpaku.core.curve.bspline
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import org.jumpaku.core.affine.pointAssertThat
-import org.jumpaku.core.curve.knotAssertThat
+import org.jumpaku.core.curve.knotVectorAssertThat
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
@@ -24,10 +24,7 @@ class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(ac
 
         Assertions.assertThat(actual.knotVector.size()).`as`("knotVector size").isEqualTo(expected.knotVector.size())
 
-        actual.knotVector.knots.zip(expected.knotVector.knots)
-                .forEachIndexed {
-                    i, (a, e) -> knotAssertThat(a).`as`("bSpline.knotVector[%d]", i).isEqualToKnot(e, eps)
-                }
+        knotVectorAssertThat(actual.knotVector).isEqualToKnotVector(expected.knotVector)
 
         return this
     }

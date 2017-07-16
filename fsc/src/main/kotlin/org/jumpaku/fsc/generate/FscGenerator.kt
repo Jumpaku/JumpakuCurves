@@ -6,6 +6,7 @@ import org.apache.commons.math3.linear.RealVector
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.fitting.BSplineFitting
 import org.jumpaku.core.fitting.createModelMatrix
@@ -26,7 +27,10 @@ class FscGenerator(val degree: Int = 3, val knotSpan: Double = 0.1) {
                 .toArray().zip(bSpline.controlPoints, { r, (x, y, z) -> Point.xyzr(x, y, z, r) })
 
         val fsc = BSpline(fuzzyControlPoints, bSpline.knotVector)
-        return fsc.restrict(fsc.knotVector.innerKnotVector().domain(degree))
+        val domain = fsc.knotVector.knots.slice(degree + 1, fsc.knotVector.size() - degree - 1)
+                .let { Interval(it.head(), it.last()) }
+
+        return fsc.restrict(domain)
     }
 
     private fun createFuzzinessDataVector(modifiedDataTimes: Array<Double>, crispBSpline: BSpline): RealVector {
