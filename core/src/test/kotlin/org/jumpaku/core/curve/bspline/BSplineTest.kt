@@ -2,15 +2,14 @@ package org.jumpaku.core.curve.bspline
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
+import io.vavr.collection.Array
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Transform
 import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.affine.pointAssertThat
-import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.Knot
-import org.jumpaku.core.curve.KnotVector
+import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.jumpaku.core.json.prettyGson
@@ -18,6 +17,7 @@ import org.junit.Test
 
 
 class BSplineTest {
+
     @Test
     fun testProperties() {
         println("Properties")
@@ -32,19 +32,10 @@ class BSplineTest {
         pointAssertThat(b.controlPoints[4]).isEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
         assertThat(5).isEqualTo(b.controlPoints.size())
 
-        assertThat(b.knotVector[0]).isEqualTo(3.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[1]).isEqualTo(3.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[2]).isEqualTo(3.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[3]).isEqualTo(3.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[4]).isEqualTo(3.5, withPrecision(1.0e-10))
-        assertThat(b.knotVector[5]).isEqualTo(4.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[6]).isEqualTo(4.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[7]).isEqualTo(4.0, withPrecision(1.0e-10))
-        assertThat(b.knotVector[8]).isEqualTo(4.0, withPrecision(1.0e-10))
+        knotVectorAssertThat(b.knotVector).isEqualToKnotVector(KnotVector.clampedUniform(3.0, 4.0, 3, 9))
         assertThat(b.knotVector.size()).isEqualTo(9)
 
-        assertThat(b.domain.begin).isEqualTo(b.knotVector[3], withPrecision(1.0e-10))
-        assertThat(b.domain.end).isEqualTo(b.knotVector[5], withPrecision(1.0e-10))
+        intervalAssertThat(b.domain).isEqualToInterval(Interval(3.0, 4.0))
 
         assertThat(b.degree).isEqualTo(3)
     }
@@ -151,16 +142,38 @@ class BSplineTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val subdivided = BSpline(
+        val s0 = BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3.0, 4.0, 3, 9))
+                .subdivide(3.0)
+        bSplineAssertThat(s0._1()).isEqualToBSpline(BSpline(
+                Array.fill(4, { Point.xyr(-1.0, 0.0, 0.0) }),
+                KnotVector.ofKnots(3, Knot(3.0, 8))))
+        bSplineAssertThat(s0._2()).isEqualToBSpline(BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
+
+        val s1 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9))
                 .subdivide(3.5)
-        bSplineAssertThat(subdivided._1()).isEqualToBSpline(BSpline(
-                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
-                KnotVector.clampedUniform(3.0, 3.5, 3, 8)))
-        bSplineAssertThat(subdivided._2()).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s1._1()).isEqualToBSpline(BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
+                KnotVector.ofKnots(3, Knot(3.0, 4), Knot(3.5, 5))))
+        bSplineAssertThat(s1._2()).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.5, 4.0, 3, 8)))
+
+        val s2 = BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3.0, 4.0, 3, 9))
+                .subdivide(4.0)
+        bSplineAssertThat(s2._1()).isEqualToBSpline(BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
+        bSplineAssertThat(s2._2()).isEqualToBSpline(BSpline(
+                Array.fill(4, { Point.xyr(1.0, 0.0, 0.0) }),
+                KnotVector.ofKnots(3, Knot(4.0, 8))))
     }
 
     @Test
@@ -172,17 +185,16 @@ class BSplineTest {
                 .insertKnot(3.25)
         val e0 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 0.5, 0.5), Point.xyr(-0.75, 1.0, 1.25), Point.xyr(0.0, 0.75, 1.75), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector(Array(Knot(3.0, 4), Knot(3.25, 1), Knot(3.5, 1), Knot(4.0, 4))))
+                KnotVector(3, 3.0, 3.0, 3.0, 3.0, 3.25, 3.5, 4.0, 4.0, 4.0, 4.0))
         bSplineAssertThat(b0).isEqualToBSpline(e0)
 
         val b1 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9))
-                .insertKnot(4, 2)
+                .insertKnot(3.5, 2)
         val e1 = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector(Array(Knot(3.0, 4), Knot(3.5, 3), Knot(4.0, 4))))
-
+                KnotVector(3, 3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 3.5, 4.0, 4.0, 4.0, 4.0))
         bSplineAssertThat(b1).isEqualToBSpline(e1)
     }
 

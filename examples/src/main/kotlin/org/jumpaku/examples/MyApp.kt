@@ -1,10 +1,15 @@
 package org.jumpaku.examples
 
+import com.github.salomonbrys.kotson.fromJson
 import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.paint.Color
 import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.ParamPointJson
+import org.jumpaku.core.curve.bspline.BSplineJson
+import org.jumpaku.core.json.prettyGson
 import org.jumpaku.fsc.generate.FscGenerator
+import org.jumpaku.fsc.identify.classify.ClassifierOpen4
 import org.jumpaku.fsc.identify.classify.ClassifierPrimitive7
 import org.jumpaku.fsc.identify.reference.Circular
 import org.jumpaku.fsc.identify.reference.Elliptic
@@ -16,6 +21,8 @@ import org.jumpaku.fxcomponents.view.fuzzyCurve
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
+import java.nio.file.Path
+import java.nio.file.Paths
 
 
 fun main(args: kotlin.Array<String>): Unit {
@@ -45,7 +52,7 @@ class TestView : View(){
             fuzzyCurve(Linear.of(fsc).fuzzyCurve) { stroke = Color.GREEN }
             fuzzyCurve(Circular.of(fsc).fuzzyCurve) { stroke = Color.RED }
             fuzzyCurve(Elliptic.of(fsc).fuzzyCurve) { stroke = Color.SKYBLUE }
-            val result = ClassifierPrimitive7().classify(fsc)
+            val result = ClassifierOpen4().classify(fsc)
             println(result.grades)
         }
     }
