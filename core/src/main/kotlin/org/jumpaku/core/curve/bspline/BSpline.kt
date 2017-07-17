@@ -42,7 +42,21 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     override fun evaluate(t: Double): Point {
         val l = knotVector.lastIndexUnder(t)
-        return insertKnot(t, degree).controlPoints[l]
+        if(l == knotVector.size() - 1){
+            return controlPoints.last()
+        }
+
+        val result = controlPoints.toJavaArray(Point::class.java)
+        val d = degree
+
+        for (k in 1..d) {
+            for (i in l downTo (l - d + k)) {
+                val aki = basisHelper(t, knotVector[i], knotVector[i + d + 1 - k], knotVector[i])
+                result[i] = result[i - 1].divide(aki, result[i])
+            }
+        }
+
+        return result[l]
     }
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)

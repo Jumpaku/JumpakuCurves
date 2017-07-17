@@ -49,10 +49,10 @@ class TestView : View(){
         with(curveInput.contents) {
             val fsc = FscGenerator(3, 0.1).generate(Array.ofAll(data))
             cubicFsc(fsc) { stroke = Color.BLUE }
-            //fuzzyCurve(Linear.of(fsc).fuzzyCurve) { stroke = Color.GREEN }
-            //fuzzyCurve(Circular.of(fsc).fuzzyCurve) { stroke = Color.RED }
-            //fuzzyCurve(Elliptic.of(fsc).fuzzyCurve) { stroke = Color.SKYBLUE }
-            val result = ClassifierPrimitive7().classify(fsc)
+            fuzzyCurve(Linear.of(fsc).fuzzyCurve) { stroke = Color.GREEN }
+            fuzzyCurve(Circular.of(fsc).fuzzyCurve) { stroke = Color.RED }
+            fuzzyCurve(Elliptic.of(fsc).fuzzyCurve) { stroke = Color.SKYBLUE }
+            val result = ClassifierOpen4().classify(fsc)
             println(result.grades)
         }
     }

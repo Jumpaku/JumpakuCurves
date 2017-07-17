@@ -6,6 +6,7 @@ import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.rationalbezier.LineSegment
 import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.rationalbezier.LineSegmentJson
 import org.jumpaku.core.json.prettyGson
 
@@ -24,7 +25,7 @@ class Linear(val lineSegment: LineSegment) : Reference {
 
     companion object {
 
-        fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Linear {
+        fun ofParams(t0: Double, t1: Double, fsc: BSpline): Linear {
             val arcLengthFsc = fsc.toArcLengthCurve()
             val l = arcLengthFsc.arcLength()
             val l0 = arcLengthFsc.arcLengthUntil(t0)
@@ -32,12 +33,12 @@ class Linear(val lineSegment: LineSegment) : Reference {
             return Linear(LineSegment(ParamPoint(fsc(t0), l0 / l), ParamPoint(fsc(t1), l1 / l)))
         }
 
-        fun ofBeginEnd(fsc: FuzzyCurve): Linear {
-            return Linear(LineSegment(ParamPoint(fsc(fsc.domain.begin), 0.0), ParamPoint(fsc(fsc.domain.end), 1.0)))
+        fun ofBeginEnd(fsc: BSpline): Linear {
+            return ofParams(fsc.domain.begin, fsc.domain.end, fsc)
         }
 
-        fun of(fsc: FuzzyCurve): Linear {
-            return Linear(LineSegment(ParamPoint(fsc(fsc.domain.begin), 0.0), ParamPoint(fsc(fsc.domain.end), 1.0)))
+        fun of(fsc: BSpline): Linear {
+            return ofBeginEnd(fsc)
         }
     }
 }
