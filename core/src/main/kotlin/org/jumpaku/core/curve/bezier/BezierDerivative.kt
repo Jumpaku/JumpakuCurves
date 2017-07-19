@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve.bezier
 
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import org.jumpaku.core.affine.Crisp
 import org.jumpaku.core.affine.Point
@@ -44,7 +45,8 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     fun reduce(): BezierDerivative = BezierDerivative(asBezier.reduce())
 
-    fun subdivide(t: Double): Array<BezierDerivative> = asBezier.subdivide(t).map(::BezierDerivative)
+    fun subdivide(t: Double): Tuple2<BezierDerivative, BezierDerivative> = asBezier
+            .subdivide(t).map(::BezierDerivative, ::BezierDerivative)
 
     fun extend(t: Double): BezierDerivative = BezierDerivative(asBezier.extend(t))
 }

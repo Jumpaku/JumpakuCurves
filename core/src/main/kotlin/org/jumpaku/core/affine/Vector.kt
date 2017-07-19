@@ -15,8 +15,10 @@ data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : 
     operator fun plus(v: Vector): Vector = Vector(vector.add(v.vector))
     
     operator fun minus(v: Vector): Vector = plus(v.unaryMinus())
-    
+
     operator fun times(s: Double): Vector = Vector(vector.scalarMultiply(s))
+
+    operator fun div(s: Double): Vector = Vector(vector.scalarMultiply(1/s))
 
     operator fun unaryPlus(): Vector = this
 

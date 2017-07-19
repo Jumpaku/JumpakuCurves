@@ -1,5 +1,6 @@
 package org.jumpaku.core.curve.bspline
 
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Vector
@@ -9,10 +10,12 @@ import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.json.prettyGson
 
 
-class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
+class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     constructor(controlVectors: Iterable<Vector>, knots: KnotVector) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
+
+    val asBSpline: BSpline = BSpline(bSpline.controlPoints.map { it.toCrisp() }, bSpline.knotVector)
 
     override val domain: Interval get() = asBSpline.domain
 
@@ -20,7 +23,7 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
 
     val controlVectors: Array<Vector> get() = asBSpline.controlPoints.map(Point::toVector)
 
-    val knots: KnotVector get() = asBSpline.knotVector
+    val knotVector: KnotVector get() = asBSpline.knotVector
 
     val degree: Int get() = asBSpline.degree
 
@@ -42,12 +45,10 @@ class BSplineDerivative(val asBSpline: BSpline) : Derivative, Differentiable {
 
     fun insertKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(asBSpline.insertKnot(t, m))
 
-    fun insertKnot(i: Int, m: Int = 1): BSplineDerivative = BSplineDerivative(asBSpline.insertKnot(i, m))
-
     fun toBeziers(): Array<BezierDerivative> = asBSpline.toBeziers().map(::BezierDerivative)
 
-    fun subdivide(t: Double): Array<BSplineDerivative> {
-        return asBSpline.subdivide(t).map(::BSplineDerivative)
+    fun subdivide(t: Double): Tuple2<BSplineDerivative, BSplineDerivative> {
+        return asBSpline.subdivide(t).map(::BSplineDerivative, ::BSplineDerivative)
     }
 }
 
@@ -55,7 +56,7 @@ data class BSplineDerivativeJson(val controlVectors: List<VectorJson>, val knotV
 
     constructor(bSplineDerivative: BSplineDerivative) : this(
             bSplineDerivative.controlVectors.map(Vector::json).toJavaList(),
-            bSplineDerivative.knots.json())
+            bSplineDerivative.knotVector.json())
 
     fun bSplineDerivative(): BSplineDerivative = BSplineDerivative(controlVectors.map(VectorJson::vector), knotVector.knotVector())
 }
