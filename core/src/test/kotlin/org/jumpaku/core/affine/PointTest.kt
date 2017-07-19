@@ -239,6 +239,20 @@ class PointTest {
     }
 
     @Test
+    fun testDistLine() {
+        println("DistLine")
+        val d = Point.xyz(1.0, -1.0, 0.0).distLine(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0))
+        assertThat(d).isEqualTo(12/5.0, withPrecision(1.0e-10))
+    }
+
+    @Test
+    fun testDistSquareLine() {
+        println("DistSquareLine")
+        val d = Point.xyz(1.0, -1.0, 0.0).distSquareLine(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0))
+        assertThat(d).isEqualTo(144/25.0, withPrecision(1.0e-10))
+    }
+
+    @Test
     fun testDistSquare() {
         println("DistSquare")
         val d = Point.xyz(-1.0, -2.0, 4.0).distSquare(Point.xyz(1.0, -2.0, 3.0))

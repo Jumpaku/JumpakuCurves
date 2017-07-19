@@ -153,6 +153,13 @@ class Crisp(private val vector: Vector) : Point() {
     fun distSquare(p: Crisp): Double = minus(p).square()
 
     /**
+     * @return distance from this to a line(a, b)
+     */
+    fun distLine(a: Crisp, b: Crisp): Double = dist(b.divide((this - b).dot(a - b) / a.distSquare(b), a).toCrisp())
+
+    fun distSquareLine(a: Crisp, b: Crisp): Double = distSquare(b.divide((this - b).dot(a - b) / a.distSquare(b), a).toCrisp())
+
+    /**
      * @param p1
      * @param p2
      * @return area of a triangle (this, p1, p2)

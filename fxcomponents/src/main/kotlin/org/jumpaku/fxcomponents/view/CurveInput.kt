@@ -53,13 +53,16 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
     }
 
     private fun render() : Unit {
-        if(points.size() <= 2){
-            return Unit
-        }
         with(inputPolyline) {
             children.clear()
-            polyline(Polyline(points.map(ParamPoint::point))) {
-                stroke = Color.RED
+            if(points.isEmpty){
+                return
+            }
+            if(points.size() == 1){
+                circle(points[0].point.x, points[0].point.y, 1) { stroke = Color.BLACK }
+            }
+            else {
+                polyline(Polyline(points.map(ParamPoint::point))) { stroke = Color.BLACK }
             }
         }
     }

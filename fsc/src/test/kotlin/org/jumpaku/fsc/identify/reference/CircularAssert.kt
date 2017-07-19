@@ -3,7 +3,6 @@ package org.jumpaku.fsc.identify.reference
 import org.assertj.core.api.AbstractAssert
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
-import org.jumpaku.fsc.identify.reference.Circular
 
 
 fun circularAssertThat(actual: Circular): CircularAssert = CircularAssert(actual)
