@@ -126,7 +126,7 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(2-R2, 1.0, 3-R2), (1+R2)/3),
                 WeightedPoint(Point.xyr(1.0, 2-R2, 1+R2), (1+R2)/3),
                 WeightedPoint(Point.xyr(1.0,  0.0,  3.0),      1.0))
-        val a = i.transform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = i.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
         val e = RationalBezier(
                 WeightedPoint(Point.xy(-1.0,    1.0),      1.0),
                 WeightedPoint(Point.xy(-1.0, 5-2*R2), (1+R2)/3),

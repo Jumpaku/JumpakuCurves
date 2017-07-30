@@ -65,7 +65,7 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
     private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
                 (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
 
-    override fun transform(a: Transform): Polyline = Polyline(points.map(a))
+    override fun transform(a: Affine): Polyline = Polyline(points.map(a))
 
     fun reverse(): Polyline = Polyline(points.reverse().zipWith(parameters.map { domain.end + domain.begin - it }.reverse(), ::ParamPoint))
 

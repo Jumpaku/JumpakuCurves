@@ -282,12 +282,12 @@ class PointTest {
 
     @Test
     fun testTransform() {
-        println("Transform")
-        val t = Point.xyz(3.3, -2.4, -1.0).transform(Transform.translation(Vector(2.3, -5.4, -0.5)))
+        println("Affine")
+        val t = Point.xyz(3.3, -2.4, -1.0).transform(Affine.translation(Vector(2.3, -5.4, -0.5)))
         pointAssertThat(t).isEqualToPoint(Point.xyz(5.6, -7.8, -1.5))
-        val r = Point.xyz(1.0, 1.0, -1.0).transform(Transform.rotation(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
+        val r = Point.xyz(1.0, 1.0, -1.0).transform(Affine.rotation(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
         pointAssertThat(r).isEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
-        val s = Point.xyz(3.0, -2.0, -1.0).transform(Transform.scaling(0.5, 0.5, 2.0))
+        val s = Point.xyz(3.0, -2.0, -1.0).transform(Affine.scaling(0.5, 0.5, 2.0))
         pointAssertThat(s).isEqualToPoint(Point.xyz(1.5, -1.0, -2.0))
     }
 }

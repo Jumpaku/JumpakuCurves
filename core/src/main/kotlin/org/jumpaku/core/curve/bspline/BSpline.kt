@@ -60,7 +60,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun transform(a: Transform): BSpline = BSpline(controlPoints.map(a), knotVector)
+    override fun transform(a: Affine): BSpline = BSpline(controlPoints.map(a), knotVector)
 
     fun restrict(begin: Double, end: Double): BSpline {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

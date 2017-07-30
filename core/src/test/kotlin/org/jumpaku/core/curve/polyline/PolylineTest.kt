@@ -4,7 +4,7 @@ import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.Transform
+import org.jumpaku.core.affine.Affine
 import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.Interval
@@ -61,7 +61,7 @@ class PolylineTest {
     fun testCrispTransform() {
         println("CrispTransform")
         val b = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-        val a = b.transform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = b.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
         val e = Polyline(Point.xy(-1.0, -1.0), Point.xy(-1.0, 3.0), Point.xy(7.0, 3.0), Point.xyz(7.0, 3.0, 3.0))
         polylineAssertThat(a).isEqualToPolyline(e)
     }

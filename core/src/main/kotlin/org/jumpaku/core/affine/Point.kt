@@ -128,7 +128,7 @@ class Point(val vector: Vector, val r: Double = 0.0) : Membership<Point, Point>,
     /**
      * @return A*p (crisp point)
      */
-    fun transform(a: Transform): Point = a(this)
+    fun transform(a: Affine): Point = a(this)
 
     companion object {
 

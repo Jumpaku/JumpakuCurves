@@ -65,7 +65,7 @@ class BezierTest {
     fun testCrispTransform() {
         print("CrispTransform")
         val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-        val a = b.transform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0, 0.0)))
+        val a = b.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0, 0.0)))
         val e = Bezier(Point.xy(1.0, -3.0), Point.xy(1.0, -1.0), Point.xy(-3.0, 1.0), Point.xy(1.0, 3.0), Point.xy(1.0, 5.0))
         bezierAssertThat(a).isEqualToBezier(e)
     }

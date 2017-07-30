@@ -38,7 +38,7 @@ class LineSegment(val front: ParamPoint, val back: ParamPoint) : FuzzyCurve, Dif
 
     override fun differentiate(t: Double): Vector = asCrispRationalBezier.differentiate(t)
 
-    override fun transform(a: Transform): LineSegment = LineSegment(
+    override fun transform(a: Affine): LineSegment = LineSegment(
             front.copy(point = a(front.point)), back.copy(point = a(back.point)))
 
     override fun evaluate(t: Double): Point {

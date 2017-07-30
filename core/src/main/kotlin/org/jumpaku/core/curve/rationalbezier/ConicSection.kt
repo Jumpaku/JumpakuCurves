@@ -60,7 +60,7 @@ class ConicSection(
         return Point(p, r)
     }
 
-    override fun transform(a: Transform): ConicSection = ConicSection(
+    override fun transform(a: Affine): ConicSection = ConicSection(
             a(begin), a(far), a(end), weight)
 
     override fun toString(): String = prettyGson.toJson(json())
