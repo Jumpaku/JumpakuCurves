@@ -1,28 +1,27 @@
 package org.jumpaku.examples
 
-import com.github.salomonbrys.kotson.fromJson
+import io.vavr.API
 import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.paint.Color
+import org.apache.commons.math3.util.Precision
+import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.ParamPoint
-import org.jumpaku.core.curve.ParamPointJson
-import org.jumpaku.core.curve.bspline.BSplineJson
-import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.curve.arclength.repeatBisection
+import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.fsc.generate.FscGenerator
 import org.jumpaku.fsc.identify.classify.ClassifierOpen4
-import org.jumpaku.fsc.identify.classify.ClassifierPrimitive7
 import org.jumpaku.fsc.identify.reference.Circular
 import org.jumpaku.fsc.identify.reference.Elliptic
 import org.jumpaku.fsc.identify.reference.Linear
-import org.jumpaku.fsc.identify.reference.mostFarPointOnFsc
 import org.jumpaku.fxcomponents.view.CurveInput
 import org.jumpaku.fxcomponents.view.cubicFsc
 import org.jumpaku.fxcomponents.view.fuzzyCurve
+import org.jumpaku.fxcomponents.view.fuzzyPoints
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
-import java.nio.file.Path
-import java.nio.file.Paths
 
 
 fun main(args: kotlin.Array<String>): Unit {
@@ -40,6 +39,13 @@ class TestView : View(){
     override val root = curveInput.root
 
     init {
+        val x = Bezier(Point.xy(0.0, 0.0), Point.xy(200.0, 0.0), Point.xy(0.0, 200.0), Point.xy(200.0, 200.0))
+                .toArcLengthCurve()
+        println(x.arcLength())
+        println(x.arcLengthUntil(0.5))
+        with(curveInput.contents){
+            fuzzyPoints(x.evaluateAll(100)) { stroke = Color.BLUE }
+        }
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)
         }

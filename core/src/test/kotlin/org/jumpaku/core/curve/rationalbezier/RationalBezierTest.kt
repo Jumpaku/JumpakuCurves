@@ -2,12 +2,14 @@ package org.jumpaku.core.curve.rationalbezier
 
 import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.junit.Test
 import org.jumpaku.core.affine.WeightedPoint
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.json.prettyGson
+import org.junit.Assert
 
 
 class RationalBezierTest {
@@ -288,5 +290,12 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(R2/2, R2/2,  2.0), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0, R2-1, 4-R2), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0,  0.0,  3.0),  1.0)))
+    }
+
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        Assertions.fail("ToArcLengthCurve")
     }
 }

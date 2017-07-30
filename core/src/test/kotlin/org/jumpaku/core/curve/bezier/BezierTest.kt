@@ -3,9 +3,11 @@ package org.jumpaku.core.curve.bezier
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.json.prettyGson
+import org.junit.Assert
 import org.junit.Test
 
 class BezierTest {
@@ -150,6 +152,12 @@ class BezierTest {
         bezierAssertThat(extendFront).isEqualToBezier(Bezier(
                 Point.xyr(-2.0, 0.0, 721/81.0), Point.xyr(-1.0, 0.0, 134/27.0), Point.xyr(0.0, 2.0, 28/9.0), Point.xyr(1.0, 0.0, 8/3.0), Point.xyr(2.0, 0.0, 1.0)))
 
+    }
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        Assertions.fail("ToArcLengthCurve")
     }
 
     @Test

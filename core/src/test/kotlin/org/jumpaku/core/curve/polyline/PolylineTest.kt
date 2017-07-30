@@ -2,6 +2,7 @@ package org.jumpaku.core.curve.polyline
 
 import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Affine
@@ -92,8 +93,14 @@ class PolylineTest {
         println("Subdivide")
         val ps = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
                 .subdivide(4.5)
-        assertThat(ps.size()).isEqualTo(2)
-        polylineAssertThat(ps[0]).isEqualToPolyline(Polyline(Point.xyr(-1.0, 1.0, 2.0 ), Point.xyr(1.0,  1.0, 1.0), Point.xyr( 1.0,-1.5, 2.25)))
-        polylineAssertThat(ps[1]).isEqualToPolyline(Polyline(Point.xyr( 1.0,-1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
+        polylineAssertThat(ps._1()).isEqualToPolyline(Polyline(Point.xyr(-1.0, 1.0, 2.0 ), Point.xyr(1.0,  1.0, 1.0), Point.xyr( 1.0,-1.5, 2.25)))
+        polylineAssertThat(ps._2()).isEqualToPolyline(Polyline(Point.xyr( 1.0,-1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
+    }
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        Assertions.fail("ToArcLengthCurve")
+
     }
 }

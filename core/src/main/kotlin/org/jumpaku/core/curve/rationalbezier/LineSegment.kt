@@ -32,7 +32,7 @@ class LineSegment(val front: ParamPoint, val back: ParamPoint) : FuzzyCurve, Dif
     val asCrispRationalBezier: RationalBezier get() = RationalBezier(
             API.Stream(evaluate(0.0), evaluate(1.0)).map { WeightedPoint(it.toCrisp(), 1.0) })
 
-    override fun toArcLengthCurve(): ArcLengthAdapter = ArcLengthAdapter(this, Polyline(evaluate(0.0), front.point, back.point, evaluate(1.0)))
+    override fun toArcLengthCurve(): ArcLengthAdapter = ArcLengthAdapter(this, API.Array(0.0, front.param, back.param, 1.0))
 
     override val derivative: Derivative get() = asCrispRationalBezier.derivative
 

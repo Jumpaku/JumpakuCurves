@@ -11,6 +11,9 @@ import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.clamp
 
 
+/**
+ * Conic section defined by 3 representation points.
+ */
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable {
 

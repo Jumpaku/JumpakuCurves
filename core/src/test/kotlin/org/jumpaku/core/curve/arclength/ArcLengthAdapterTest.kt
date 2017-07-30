@@ -8,6 +8,7 @@ import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
+import org.junit.Assert
 import org.junit.Test
 
 
@@ -77,4 +78,9 @@ class ArcLengthAdapterTest {
         assertThat(a.arcLengthUntil(1.0)).isEqualTo(PI/2, withPrecision(1.0e-4))
     }
 
+    @Test
+    fun testRepeatBisection(){
+        println("RepeatBisection")
+        Assert.fail("RepeatBisection")
+    }
 }

@@ -4,6 +4,7 @@ import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
 import io.vavr.collection.Array
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Affine
@@ -196,6 +197,12 @@ class BSplineTest {
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector(3, 3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 3.5, 4.0, 4.0, 4.0, 4.0))
         bSplineAssertThat(b1).isEqualToBSpline(e1)
+    }
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        Assertions.fail("ToArcLengthCurve")
     }
 
     @Test
