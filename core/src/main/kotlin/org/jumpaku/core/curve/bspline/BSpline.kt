@@ -13,7 +13,7 @@ import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
-class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, CrispTransformable {
+class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable {
 
     val degree: Int = knotVector.degree
 
@@ -21,7 +21,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     override val derivative: BSplineDerivative get() {
         val cvs = controlPoints
-                .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
+                .zipWith(controlPoints.tail()) { a, b -> b - a }
                 .zipWithIndex({ v, i ->
                     v*(degree / (knotVector[degree + i + 1] - knotVector[i + 1]))
                 })
@@ -35,7 +35,6 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
         check(knotVector.size() - degree - 1 == controlPoints.size()) {
             "knotVector.size()(${knotVector.size()}) - degree($degree) - 1 != controlPoints.size()(${controlPoints.size()})" }
         check(degree > 0) { "degree($degree) <= 0" }
-        //require(controlPoints.size() > degree) { "controlPoints size(${controlPoints.size()}) <= degree($degree)" }
     }
 
     constructor(controlPoints: Iterable<Point>, knots: KnotVector) : this(Array.ofAll(controlPoints), knots)
@@ -61,7 +60,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun crispTransform(a: Transform): BSpline = BSpline(controlPoints.map { a(it.toCrisp())}, knotVector)
+    override fun transform(a: Transform): BSpline = BSpline(controlPoints.map(a), knotVector)
 
     fun restrict(begin: Double, end: Double): BSpline {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

@@ -8,41 +8,46 @@ import org.apache.commons.math3.linear.RealMatrix
 import org.apache.commons.math3.util.FastMath
 
 
+/**
+ * Transforms a crisp point by affine transformation.
+ */
+class Transform internal constructor(private val matrix: RealMatrix) : Function1<Point, Point>{
 
-class Transform internal constructor(private val matrix: RealMatrix) : Function1<Crisp, Crisp>{
-
-    override fun invoke(p: Crisp): Crisp {
+    /**
+     * @return transformed crisp point
+     */
+    override fun invoke(p: Point): Point {
         val array = matrix.operate(doubleArrayOf(p.x, p.y, p.z, 1.0))
-        return Crisp(array[0], array[1], array[2])
+        return Point.xyz(array[0], array[1], array[2])
     }
 
     fun invert(): Transform = Transform(MatrixUtils.inverse(matrix))
 
     fun andThen(a: Transform) = Transform(a.matrix.multiply(matrix))
 
-    fun transformAt(p: Crisp, a: Transform): Transform = andThen(transformationAt(p, a))
+    fun transformAt(p: Point, a: Transform): Transform = andThen(transformationAt(p, a))
 
     fun scale(x: Double , y: Double, z: Double): Transform = andThen(scaling(x, y, z))
 
     fun scale(scale: Double): Transform = scale(scale, scale, scale)
 
-    fun scaleAt(center: Crisp, x: Double, y: Double, z: Double): Transform = transformAt(center, scaling(x, y, z))
+    fun scaleAt(center: Point, x: Double, y: Double, z: Double): Transform = transformAt(center, scaling(x, y, z))
 
-    fun scaleAt(center: Crisp, scale: Double): Transform = scaleAt(center, scale, scale, scale)
+    fun scaleAt(center: Point, scale: Double): Transform = scaleAt(center, scale, scale, scale)
 
     fun rotate(axis: Vector, radian: Double): Transform = andThen(rotation(axis, radian))
 
-    fun rotate(axisInitial: Crisp , axisTerminal: Crisp, radian: Double): Transform = rotate(axisTerminal.minus(axisInitial), radian)
+    fun rotate(axisInitial: Point , axisTerminal: Point, radian: Double): Transform = rotate(axisTerminal.minus(axisInitial), radian)
 
     fun rotate(from: Vector, to: Vector, radian: Double): Transform = rotate(from.cross(to), radian)
 
     fun rotate(from: Vector, to: Vector): Transform = rotate(from, to, from.angle(to))
 
-    fun rotateAt(center: Crisp, axis: Vector, radian: Double): Transform = transformAt(center, rotation(axis, radian))
+    fun rotateAt(center: Point, axis: Vector, radian: Double): Transform = transformAt(center, rotation(axis, radian))
 
-    fun rotateAt(p: Crisp, from: Vector, to: Vector, radian: Double): Transform = transformAt(p, rotation(from.cross(to), radian))
+    fun rotateAt(p: Point, from: Vector, to: Vector, radian: Double): Transform = transformAt(p, rotation(from.cross(to), radian))
 
-    fun rotateAt(p: Crisp, from: Vector, to: Vector): Transform = rotateAt(p, from, to, from.angle(to))
+    fun rotateAt(p: Point, from: Vector, to: Vector): Transform = rotateAt(p, from, to, from.angle(to))
 
     fun translate(v: Vector): Transform = andThen(translation(v))
 
@@ -81,11 +86,11 @@ class Transform internal constructor(private val matrix: RealMatrix) : Function1
                     doubleArrayOf(x, y, z, 1.0)))
         }
 
-        fun transformationAt(p: Crisp, a: Transform): Transform {
-            return translation(p.toVector().unaryMinus()).andThen(a).translate(p.toVector())
+        fun transformationAt(p: Point, a: Transform): Transform {
+            return translation(p.vector.unaryMinus()).andThen(a).translate(p.vector)
         }
 
-        fun similarity(ab: Tuple2<Crisp, Crisp>, cd: Tuple2<Crisp, Crisp>): Transform{
+        fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Transform{
             val a = ab._2().minus(ab._1())
             val b = cd._2().minus(cd._1())
             val ac = cd._1().minus(ab._1())
@@ -93,8 +98,8 @@ class Transform internal constructor(private val matrix: RealMatrix) : Function1
         }
 
 
-        fun calibrate(before: Tuple4<Crisp, Crisp, Crisp, Crisp>,
-                      after: Tuple4<Crisp, Crisp, Crisp, Crisp>): Transform {
+        fun calibrate(before: Tuple4<Point, Point, Point, Point>,
+                      after: Tuple4<Point, Point, Point, Point>): Transform {
             val a = MatrixUtils.createRealMatrix(arrayOf(
                     doubleArrayOf(before._1().x, before._1().y, before._1().z, 1.0),
                     doubleArrayOf(before._2().x, before._2().y, before._2().z, 1.0),

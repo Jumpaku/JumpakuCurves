@@ -6,19 +6,17 @@ import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.fuzzy.Membership
 import org.jumpaku.core.json.prettyGson
 
-sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
+class Point(val vector: Vector, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
 
-    abstract fun toVector(): Vector
+    constructor(x: Double, y: Double, z: Double, r: Double): this(Vector(x, y, z), r)
 
-    abstract fun toCrisp(): Crisp
+    fun toCrisp(): Point = Point(vector)
 
-    val x: Double get() = toVector().x
+    val x: Double get() = vector.x
 
-    val y: Double get() = toVector().y
+    val y: Double get() = vector.y
 
-    val z: Double get() = toVector().z
-
-    abstract val r: Double
+    val z: Double get() = vector.z
 
     operator fun component1(): Double = x
 
@@ -28,45 +26,40 @@ sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
 
     operator fun component4(): Double = r
 
-    override fun membership(p: Crisp): Grade{
-        val d = toCrisp().dist(p)
+    override fun membership(p: Point): Grade{
+        val d = dist(p)
         return if ((d / r).isFinite()) {
-            Grade(Grade.clamp(1.0 - d / r))
+            Grade.clamped(1.0 - d / r)
         }
         else {
-            Grade(equals(toCrisp(), p))
+            Grade(equalsPosition(this, p))
         }
     }
 
     override fun isPossible(u: Point): Grade{
-        val d = toCrisp().dist(u.toCrisp())
-        return if (!(d / (r + u.r)).isFinite()) {
-            Grade(equals(toCrisp(), u.toCrisp()))
-        }
-        else {
-            Grade(Grade.clamp(1 - d / (r + u.r)))
+        val d = this.dist(u)
+        return when {
+            !(d / (r + u.r)).isFinite() -> Grade(equalsPosition(this, u))
+            else -> Grade.clamped(1 - d / (r + u.r))
         }
     }
 
     override fun isNecessary(u: Point): Grade{
-        val d = toCrisp().dist(u.toCrisp())
+        val d = this.dist(u)
         return when {
-            !(d / (r + u.r)).isFinite() ->
-                Grade(equals(toCrisp(), u.toCrisp()))
-            d < u.r ->
-                Grade(Grade.clamp(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r))))
-            else ->
-                Grade.FALSE
+            !(d / (r + u.r)).isFinite() -> Grade(equalsPosition(this, u))
+            d < u.r -> Grade.clamped(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r)))
+            else -> Grade.FALSE
         }
     }
 
     /**
      * @param t
      * @param p
-     * @return this+t*(p-this) = (1-t)*this + t*p
+     * @return ((1-t)*this.vector + t*p.vector, |1-t|*this.r + |t|*p.r)
      */
     override fun divide(t: Double, p: Point): Point {
-        return Fuzzy(toVector().times(1 - t).plus(t, p.toVector()),
+        return Point(vector * (1 - t) + t * p.vector,
                 FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
     }
 
@@ -74,25 +67,82 @@ sealed class Point : Membership<Point, Crisp>, Divisible<Point> {
 
     fun json(): PointJson = PointJson(this)
 
-    private fun equals(p1: Crisp, p2: Crisp, eps: Double = 1.0e-10): Boolean {
+    private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean {
         return Precision.equals(p1.x, p2.x, eps)
                 && Precision.equals(p1.y, p2.y, eps)
                 && Precision.equals(p1.z, p2.z, eps)
     }
 
+    /**
+     * @param v
+     * @return this + v (crisp point)
+     */
+    operator fun plus(v: Vector): Point = Point(vector + v)
+
+    /**
+     * @param p
+     * @return this - p
+     */
+    operator fun minus(p: Point): Vector = vector - p.vector
+
+
+    /**
+     * @return distance |p - this|
+     */
+    fun dist(p: Point): Double = FastMath.sqrt(distSquare(p))
+
+    /**
+     * @return distance |p - this|^2
+     */
+    fun distSquare(p: Point): Double = (this - p).square()
+
+    /**
+     * @return distance from this to a line(a, b)
+     */
+    fun distLine(a: Point, b: Point): Double = dist(b.divide((this - b).dot(a - b) / a.distSquare(b), a))
+
+    fun distSquareLine(a: Point, b: Point): Double = distSquare(b.divide((this - b).dot(a - b) / a.distSquare(b), a))
+
+    /**
+     * @param p1
+     * @param p2
+     * @return area of a triangle (this, p1, p2)
+     */
+    fun area(p1: Point, p2: Point): Double = FastMath.abs((this - p1).cross(this - p2).length() / 2)
+
+    /**
+     * @param p1
+     * @param p2
+     * @param p3
+     * @return volume of a Tetrahedron (this, p1, p2, p3)
+     */
+    fun volume(p1: Point, p2: Point, p3: Point): Double = FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
+
+    /**
+     * @param p1
+     * @param p2
+     * @return (p1-this)x(p2-this)/|(p1-this)x(p2-this)|
+     */
+    fun normal(p1: Point, p2: Point): Vector = (p1 - this).cross(p2 - this).normalize()
+
+    /**
+     * @return A*p (crisp point)
+     */
+    fun transform(a: Transform): Point = a(this)
+
     companion object {
 
-        fun x(x: Double): Crisp = Crisp(x, 0.0, 0.0)
+        fun x(x: Double): Point = Point(x, 0.0, 0.0, 0.0)
 
-        fun xr(x: Double, r: Double): Fuzzy = Fuzzy(x, 0.0, 0.0, r)
+        fun xr(x: Double, r: Double): Point = Point(x, 0.0, 0.0, r)
 
-        fun xy(x: Double, y: Double): Crisp = Crisp(x, y)
+        fun xy(x: Double, y: Double): Point = Point(x, y, 0.0, 0.0)
 
-        fun xyr(x: Double, y: Double, r: Double): Fuzzy = Fuzzy(x, y, 0.0, r)
+        fun xyr(x: Double, y: Double, r: Double): Point = Point(x, y, 0.0, r)
 
-        fun xyz(x: Double, y: Double, z: Double): Crisp = Crisp(x, y, z)
+        fun xyz(x: Double, y: Double, z: Double): Point = Point(x, y, z, 0.0)
 
-        fun xyzr(x: Double, y: Double, z: Double, r: Double): Fuzzy = Fuzzy(x, y, z, r)
+        fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
     }
 }
 
@@ -102,84 +152,4 @@ data class PointJson(private val x: Double, private val y: Double, private val z
     constructor(point: Point) : this(point.x, point.y, point.z, point.r)
 
     fun point() = Point.xyzr(x, y, z, r)
-}
-
-
-
-class Fuzzy(private val crisp: Crisp, override val r: Double) : Point() {
-
-    constructor(x: Double, y: Double, z: Double, r: Double): this(Crisp(x, y, z), r)
-
-    constructor(vector: Vector, r: Double) : this(Crisp(vector), r)
-
-    init {
-        if (r < 0){
-            throw IllegalArgumentException("negative fuzziness r($r$)")
-        }
-    }
-
-    override fun toVector(): Vector = crisp.toVector()
-
-    override fun toCrisp(): Crisp = crisp
-}
-
-class Crisp(private val vector: Vector) : Point() {
-
-    constructor(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0): this(Vector(x, y, z))
-
-    override val r = 0.0
-
-    /**
-     * @param v
-     * @return this + v
-     */
-    operator fun plus(v: Vector): Crisp = Crisp(toVector().plus(v))
-
-    /**
-     * @param p
-     * @return this - p
-     */
-    operator fun minus(p: Crisp): Vector = toVector().minus(p.toVector())
-
-    override fun toVector(): Vector = vector
-
-    override fun toCrisp(): Crisp = this
-
-    /**
-     * @return distance |p - this|
-     */
-    fun dist(p: Crisp): Double = minus(p).length()
-
-    fun distSquare(p: Crisp): Double = minus(p).square()
-
-    /**
-     * @return distance from this to a line(a, b)
-     */
-    fun distLine(a: Crisp, b: Crisp): Double = dist(b.divide((this - b).dot(a - b) / a.distSquare(b), a).toCrisp())
-
-    fun distSquareLine(a: Crisp, b: Crisp): Double = distSquare(b.divide((this - b).dot(a - b) / a.distSquare(b), a).toCrisp())
-
-    /**
-     * @param p1
-     * @param p2
-     * @return area of a triangle (this, p1, p2)
-     */
-    fun area(p1: Crisp, p2: Crisp): Double = FastMath.abs(minus(p1).cross(minus(p2)).length() / 2)
-
-    /**
-     * @param p1
-     * @param p2
-     * @param p3
-     * @return volume of a Tetrahedron (this, p1, p2, p3)
-     */
-    fun volume(p1: Crisp, p2: Crisp, p3: Crisp): Double = FastMath.abs(minus(p1).cross(minus(p2)).dot(minus(p3)) / 6)
-
-    /**
-     * @param p1
-     * @param p2
-     * @return (p1-this)x(p2-this)/|(p1-this)x(p2-this)|
-     */
-    fun normal(p1: Crisp, p2: Crisp): Vector = p1.minus(this).cross(p2.minus(this)).normalize()
-
-    fun transform(a: Transform): Crisp = a.invoke(this)
 }

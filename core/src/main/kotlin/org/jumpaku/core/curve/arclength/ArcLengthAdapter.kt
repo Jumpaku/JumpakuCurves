@@ -60,7 +60,7 @@ class ArcLengthAdapter(val originalCurve: Curve, private val polyline: Polyline)
 
         val index = originalParams.search(originalParam)
         return when{
-            index < 0 -> arcLengthParams[-index - 1] + polyline.points[-index - 1].toCrisp().dist(originalCurve(originalParam).toCrisp())
+            index < 0 -> arcLengthParams[-index - 1] + polyline.points[-index - 1].dist(originalCurve(originalParam))
             else -> arcLengthParams[index]
         }
     }

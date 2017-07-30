@@ -7,7 +7,7 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.CrispTransformable
+import org.jumpaku.core.curve.Transformable
 import org.jumpaku.core.curve.Differentiable
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
@@ -16,7 +16,7 @@ import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
-class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, CrispTransformable {
+class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -49,7 +49,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun crispTransform(a: Transform): Bezier = Bezier(controlPoints.map { a(it.toCrisp()) })
+    override fun transform(a: Transform): Bezier = Bezier(controlPoints.map(a))
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 

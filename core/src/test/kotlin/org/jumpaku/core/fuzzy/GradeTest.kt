@@ -86,10 +86,10 @@ class GradeTest {
     @Test
     fun testClamp() {
         println("Clamp")
-        assertThat(Grade.clamp( 1.5)).isEqualTo(1.0, withPrecision(1.0e-10))
-        assertThat(Grade.clamp( 1.0)).isEqualTo(1.0, withPrecision(1.0e-10))
-        assertThat(Grade.clamp( 0.5)).isEqualTo(0.5, withPrecision(1.0e-10))
-        assertThat(Grade.clamp( 0.0)).isEqualTo(0.0, withPrecision(1.0e-10))
-        assertThat(Grade.clamp(-0.5)).isEqualTo(0.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamped( 1.5).value).isEqualTo(1.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamped( 1.0).value).isEqualTo(1.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamped( 0.5).value).isEqualTo(0.5, withPrecision(1.0e-10))
+        assertThat(Grade.clamped( 0.0).value).isEqualTo(0.0, withPrecision(1.0e-10))
+        assertThat(Grade.clamped(-0.5).value).isEqualTo(0.0, withPrecision(1.0e-10))
     }
 }

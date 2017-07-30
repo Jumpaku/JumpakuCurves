@@ -8,10 +8,11 @@ import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.clamp
 
 
 class ConicSection(
-        val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, CrispTransformable {
+        val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable {
 
     val asCrispRationalBezier: RationalBezier get() {
         if(!(1.0 / weight).isFinite()) {
@@ -45,9 +46,9 @@ class ConicSection(
 
         val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
 
-        val p0 = begin.toVector()
-        val p1 = far.toVector()
-        val p2 = end.toVector()
+        val p0 = begin.vector
+        val p1 = far.vector
+        val p2 = end.vector
         val p = (1/wt)*((1-t)*(1-2*t)*p0 + 2*t*(1-t)*(1+weight)*p1 + t*(2*t-1)*p2)
         val r0 = representPoints[0].r
         val r1 = representPoints[1].r
@@ -56,11 +57,11 @@ class ConicSection(
                 FastMath.abs(r1 * 2 * (weight + 1) * t * (1 - t) / wt) +
                 FastMath.abs(r2 * t * (2 * t - 1) / wt)
 
-        return Fuzzy(p, r)
+        return Point(p, r)
     }
 
-    override fun crispTransform(a: Transform): ConicSection = ConicSection(
-            a(begin.toCrisp()), a(far.toCrisp()), a(end.toCrisp()), weight)
+    override fun transform(a: Transform): ConicSection = ConicSection(
+            a(begin), a(far), a(end), weight)
 
     override fun toString(): String = prettyGson.toJson(json())
 
@@ -80,9 +81,9 @@ class ConicSection(
          *  an elliptic arc with this weight is a sheared circular arc which has the same weight.
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
-            val hh = far.toCrisp().distSquareLine(begin.toCrisp(), end.toCrisp())
-            val ll = (begin.toCrisp() - end.toCrisp()).square()/4
-            return ConicSection(begin, far, end, maxOf(-0.999, minOf(0.999, (ll - hh) / (ll + hh))))
+            val hh = far.distSquareLine(begin, end)
+            val ll = (begin - end).square()/4
+            return ConicSection(begin, far, end, clamp((ll - hh) / (ll + hh), -0.999, 0.999))
         }
     }
 }

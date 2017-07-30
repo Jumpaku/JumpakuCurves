@@ -1,5 +1,7 @@
 package org.jumpaku.core.fuzzy
 
+import org.jumpaku.core.util.clamp
+
 
 data class Grade(val value: Double) : Comparable<Grade> {
 
@@ -27,6 +29,6 @@ data class Grade(val value: Double) : Comparable<Grade> {
 
         val FALSE = Grade(0.0)
 
-        fun clamp(value: Double): Double = minOf(1.0, maxOf(0.0, value))
+        fun clamped(value: Double): Grade = Grade(clamp(value, 0.0, 1.0))
     }
 }

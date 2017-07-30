@@ -7,11 +7,10 @@ import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.bezier.BezierDerivative
-import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, CrispTransformable {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -35,7 +34,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override val derivative: Derivative get() {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
-        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
+        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.vector * w }).derivative
 
         return object : Derivative {
             override fun evaluate(t: Double): Vector {
@@ -44,7 +43,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 val wt = bezier1D(t, ws)
                 val dwt = bezier1D(t, dws)
                 val dpt = dp.evaluate(t)
-                val rt = this@RationalBezier.evaluate(t).toVector()
+                val rt = this@RationalBezier.evaluate(t).vector
 
                 return (1 / wt) * (dpt - dwt * rt)
             }
@@ -69,8 +68,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     fun json(): RationalBezierJson = RationalBezierJson(this)
 
-    override fun crispTransform(a: Transform): RationalBezier = RationalBezier(
-            weightedControlPoints.map { it.copy(point = a(it.point.toCrisp())) })
+    override fun transform(a: Transform): RationalBezier = RationalBezier(
+            weightedControlPoints.map { it.copy(point = a(it.point)) })
 
     fun restrict(i: Interval): RationalBezier = restrict(i.begin, i.end)
 

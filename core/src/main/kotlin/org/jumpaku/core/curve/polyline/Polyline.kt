@@ -14,7 +14,7 @@ import org.jumpaku.core.json.prettyGson
 /**
  * Polyline parametrized by arc-arcLength.
  */
-class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, CrispTransformable {
+class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable {
 
     val points: Array<Point> = paramPoints.map(ParamPoint::point)
 
@@ -65,7 +65,7 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, CrispT
     private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
                 (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
 
-    override fun crispTransform(a: Transform): Polyline = Polyline(points.map { a(it.toCrisp()) })
+    override fun transform(a: Transform): Polyline = Polyline(points.map(a))
 
     fun reverse(): Polyline = Polyline(points.reverse().zipWith(parameters.map { domain.end + domain.begin - it }.reverse(), ::ParamPoint))
 
