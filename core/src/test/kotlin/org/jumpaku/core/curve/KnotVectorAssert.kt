@@ -1,6 +1,7 @@
 package org.jumpaku.core.curve
 
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
@@ -12,7 +13,7 @@ class KnotVectorAssert(actual: KnotVector) : AbstractAssert<KnotVectorAssert, Kn
         isNotNull
 
         actual.knots.zip(expected.knots).forEachIndexed { index, (a, e) ->
-            knotAssertThat(a).`as`("knot[%d]", index).isEqualToKnot(e, eps)
+            Assertions.assertThat(a).`as`("knot[%d]", index).isEqualTo(e, Assertions.withPrecision(eps))
         }
 
         return this

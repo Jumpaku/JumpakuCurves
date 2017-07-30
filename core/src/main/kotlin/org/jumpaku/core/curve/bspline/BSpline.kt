@@ -8,7 +8,6 @@ import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
@@ -16,20 +15,18 @@ import org.jumpaku.core.util.component2
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, CrispTransformable {
 
-    val degree: Int = knotVector.size() - controlPoints.size() - 1
+    val degree: Int = knotVector.degree
 
-    override val domain: Interval = knotVector.domain(degree)
+    override val domain: Interval = knotVector.domain
 
     override val derivative: BSplineDerivative get() {
-        check(knotVector.innerKnotVector().multiplicity.forAll { it <= degree + 1 }) { "C^0 curve is not differentiable " }
-
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
                 .zipWithIndex({ v, i ->
                     v*(degree / (knotVector[degree + i + 1] - knotVector[i + 1]))
                 })
 
-        return BSplineDerivative(cvs, knotVector.innerKnotVector())
+        return BSplineDerivative(cvs, knotVector.derivativeKnotVector())
     }
 
 
@@ -44,10 +41,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     constructor(controlPoints: Iterable<Point>, knots: KnotVector) : this(Array.ofAll(controlPoints), knots)
 
     override fun evaluate(t: Double): Point {
-        require(t in domain) { "t($t) is out of domain($domain)" }
-
         val l = knotVector.lastIndexUnder(t)
-
         if(l == knotVector.size() - 1){
             return controlPoints.last()
         }
@@ -57,7 +51,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
         for (k in 1..d) {
             for (i in l downTo (l - d + k)) {
-                val aki = (t - knotVector[i]) / (knotVector[i + d + 1 - k] - knotVector[i])
+                val aki = basisHelper(t, knotVector[i], knotVector[i + d + 1 - k], knotVector[i])
                 result[i] = result[i - 1].divide(aki, result[i])
             }
         }
@@ -77,78 +71,76 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
 
-    fun reverse(): BSpline = BSpline(controlPoints.reverse(), knotVector.reverse(degree))
+    fun reverse(): BSpline = BSpline(controlPoints.reverse(), knotVector.reverse())
 
     override fun toString(): String = prettyGson.toJson(json())
 
     fun json(): BSplineJson = BSplineJson(this)
 
     fun toBeziers(): Array<Bezier> {
-        var insertedControlPoints = controlPoints
-        var insertedKnot = knotVector
-        for (knot in knotVector.value.slice(degree, knotVector.size() - degree - 1)){
-            insertedControlPoints = createKnotInsertedControlPoints(knot, degree + 1, degree, insertedControlPoints, insertedKnot)
-            insertedKnot = insertedKnot.insertKnot(degree, knot, degree + 1)
-        }
-        var beziers = Stream<Bezier>()
-        var tail = insertedControlPoints
-        while (tail.size() >= degree + 1){
-            beziers = beziers.append(Bezier(tail.take(degree + 1)))
-            tail = tail.drop(degree + 1)
-        }
-        return beziers.toArray()
+        return knotVector.knots
+                .slice(degree + 1, knotVector.size() - degree - 1)
+                .fold(this, { bSpline, knot -> bSpline.insertKnot(knot, degree) })
+                .controlPoints
+                .grouped(degree + 1)
+                .map(::Bezier)
+                .toArray()
     }
 
     fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        val (knotsFront, knotsBack) = knotVector.subdivide(degree, t)
-        val (cpFront, cpBack) = createSubdividedControlPoints(t, degree, controlPoints, knotVector)
-        return Tuple2(BSpline(cpFront, knotsFront), BSpline(cpBack, knotsBack))
+        val (front, back) = createSubdividedControlPointsAndKnotVectors(t, controlPoints, knotVector)
+        return Tuple2(BSpline(front._1(), front._2()), BSpline(back._1(), back._2()))
     }
 
-    fun insertKnot(knotValue: Double, maxInsertionTimes: Int = 1): BSpline {
-        require(maxInsertionTimes >= 0) { "negative maxInsertionTimes($maxInsertionTimes)" }
-        require(knotValue in domain) { "inserted value($knotValue) is out of domain($domain)." }
+    fun insertKnot(t: Double, maxMultiplicity: Int = 1): BSpline {
+        require(t in domain) { "t($t) is out of domain($domain)." }
+        require(maxMultiplicity >= 0) { "maxMultiplicity($maxMultiplicity) is negative" }
 
-        val inserted = createKnotInsertedControlPoints(knotValue, maxInsertionTimes, degree, controlPoints, knotVector)
+        val (cp, knot) = createKnotInsertedControlPointsAndKnotVectors(t, maxMultiplicity, controlPoints, knotVector)
 
-        return BSpline(inserted, knotVector.insertKnot(degree, knotValue, maxInsertionTimes))
+        return BSpline(cp, knot)
     }
-
-    fun insertKnot(i: Int, maxInsertionTimes: Int = 1): BSpline = insertKnot(knotVector[i], maxInsertionTimes)
 
     companion object {
 
-        internal fun <D : Divisible<D>> createSubdividedControlPoints(
-                t: Double, degree: Int, controlPoints: Array<D>, knotVector: KnotVector): Tuple2<Array<D>, Array<D>> {
-            val inserted = createKnotInsertedControlPoints(t, degree + 1, degree, controlPoints, knotVector)
-            val size = knotVector.subdivide(degree, t)._1().size() - degree - 1
-            val first = inserted.take(size).run { if (isEmpty){ Array(controlPoints.head()) }else{ this } }
-            val second = inserted.drop(size).run { if (isEmpty){ Array(controlPoints.last()) }else{ this } }
-
-            return Tuple2(first, second)
-        }
-
         internal fun <D : Divisible<D>> createKnotInsertedControlPoints(
-                knotValue: Double, insertionTimes: Int, degree: Int, controlPoints: Array<D>, knots: KnotVector): Array<D> {
-
-            val m = knots.indexCloseTo(knotValue).map { knots.multiplicity[it] } .getOrElse(0)
-            val u = knots.indexCloseTo(knotValue).map { knots[it] } .getOrElse(knotValue)
-            val times = knots.clampInsertionTimes(degree, u, insertionTimes)
+                u: Double, controlPoints: Array<D>, knots: KnotVector): Array<D> {
+            val p = knots.degree
             val k = knots.lastIndexUnder(u)
+            val front = controlPoints.take(k - p + 1)
+            val back = controlPoints.drop(k)
 
-            var front = controlPoints.take(k - degree)
-            var back = controlPoints.drop(k - m + 1)
-            var middle = controlPoints.slice(k - degree, k - m + 1)
-            for (r in 1..times){
-                front = front.append(middle.head())
-                back = back.prepend(middle.last())
-                middle = middle.zip(middle.tail()).zipWith((k - degree + r)..(k - m),
-                        { (prev, next), i -> prev.divide((u - knots[i])/(knots[i+degree] - knots[i]), next) })
-            }
+            val a = ((k - p + 1)..k).map { basisHelper(u, knots[it], knots[it + p], knots[it]) }
+            val middle = controlPoints.slice(k - p, k + 1)
+                    .let { it.zip(it.tail()).zipWith(a, { (p0, p1), ai -> p0.divide(ai, p1) }) }
 
             return Stream.concat(front, middle, back).toArray()
+        }
+
+        internal fun <D : Divisible<D>> createKnotInsertedControlPointsAndKnotVectors(
+                t: Double, insertionTimes: Int, controlPoints: Array<D>, knots: KnotVector): Tuple2<Array<D>, KnotVector> {
+            var insertedCps = controlPoints
+            var insertedKnots = knots
+            for (i in 1..insertionTimes){
+                insertedCps = createKnotInsertedControlPoints(t, insertedCps, insertedKnots)
+                insertedKnots = insertedKnots.insertKnot(t)
+            }
+            return Tuple(insertedCps, insertedKnots)
+        }
+
+        internal fun <D : Divisible<D>> createSubdividedControlPointsAndKnotVectors(
+                t: Double, controlPoints: Array<D>, knotVector: KnotVector
+        ): Tuple2<Tuple2<Array<D>, KnotVector>, Tuple2<Array<D>, KnotVector>> {
+            val degree = knotVector.degree
+            val (cps, _) = createKnotInsertedControlPointsAndKnotVectors(t, degree + 1, controlPoints, knotVector)
+            val (frontKnot, backKnot) = knotVector.subdivide(t)
+            val size = frontKnot.size() - degree - 1
+            val frontCp = cps.take(size)
+            val backCp = cps.drop(size)
+
+            return Tuple(Tuple(frontCp, frontKnot), Tuple(backCp, backKnot))
         }
 
         fun basis(t: Double, degree: Int, i: Int, us: KnotVector): Double {
