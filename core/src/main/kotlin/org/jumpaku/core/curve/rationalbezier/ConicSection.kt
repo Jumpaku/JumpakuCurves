@@ -114,7 +114,7 @@ class ConicSection(
             val rp = sub.representPoints
             val polylineLength = Polyline(rp).toArcLengthCurve().arcLength()
             val beginEndLength = rp.head().dist(rp.last())
-            !(sub.weight > 0.0 && Precision.equals(polylineLength, beginEndLength, 1.0/128))
+            !(sub.weight > 0.0 && Precision.equals(polylineLength, beginEndLength, 1.0/512))
         }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
         return ArcLengthAdapter(this, ts.toArray())
