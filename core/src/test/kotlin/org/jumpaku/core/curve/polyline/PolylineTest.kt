@@ -22,8 +22,8 @@ class PolylineTest {
         pointAssertThat(p.points[1]).isEqualToPoint(Point.xyr( 1.0, 1.0, 1.0))
         pointAssertThat(p.points[2]).isEqualToPoint(Point.xyr( 1.0,-3.0, 3.0))
         pointAssertThat(p.points[3]).isEqualToPoint(Point.xyzr( 1.0,-3.0, 1.5, 2.0))
-        assertThat(p.domain.begin).isCloseTo(0.0, withPrecision(1.0e-10))
-        assertThat(p.domain.end)  .isCloseTo(7.5, withPrecision(1.0e-10))
+        assertThat(p.domain.begin).isEqualTo(0.0, withPrecision(1.0e-10))
+        assertThat(p.domain.end)  .isEqualTo(7.5, withPrecision(1.0e-10))
     }
 
     @Test
@@ -59,8 +59,8 @@ class PolylineTest {
     }
 
     @Test
-    fun testCrispTransform() {
-        println("CrispTransform")
+    fun testTransform() {
+        println("Transform")
         val b = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
         val a = b.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
         val e = Polyline(Point.xy(-1.0, -1.0), Point.xy(-1.0, 3.0), Point.xy(7.0, 3.0), Point.xyz(7.0, 3.0, 3.0))
@@ -100,7 +100,12 @@ class PolylineTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        Assertions.fail("ToArcLengthCurve")
-
+        val l = Polyline(
+                Point.xyr(-100.0, 100.0, 2.0),
+                Point.xyr(100.0, 100.0, 1.0),
+                Point.xyr(100.0, -300.0, 3.0),
+                Point.xyzr(100.0, -300.0, 150.0, 2.0))
+                .toArcLengthCurve().arcLength()
+        assertThat(l).isEqualTo(750.0, withPrecision(0.1))
     }
 }

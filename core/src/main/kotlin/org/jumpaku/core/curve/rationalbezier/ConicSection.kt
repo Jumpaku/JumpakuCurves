@@ -1,12 +1,16 @@
 package org.jumpaku.core.curve.rationalbezier
 
 
-import io.vavr.API.Array
-import io.vavr.API.Stream
+import io.vavr.API.*
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.arclength.ArcLengthAdapter
+import org.jumpaku.core.curve.arclength.repeatBisection
+import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.clamp
 
@@ -15,13 +19,10 @@ import org.jumpaku.core.util.clamp
  * Conic section defined by 3 representation points.
  */
 class ConicSection(
-        val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable {
+        val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection> {
 
     val asCrispRationalBezier: RationalBezier get() {
-        if(!(1.0 / weight).isFinite()) {
-            return RationalBezier(
-                    WeightedPoint(begin), WeightedPoint(begin.divide(0.5, end)), WeightedPoint(end))
-        }
+        check((1.0 / weight).isFinite()) { "weight($weight) is close to 0" }
 
         return RationalBezier(Stream(
                 begin.toCrisp(),
@@ -38,10 +39,6 @@ class ConicSection(
 
     override val derivative: Derivative get() = asCrispRationalBezier.derivative
 
-    init {
-        require(-1.0 < weight && weight < 1.0) { "weight($weight) is out of (-1.0, 1.0)" }
-    }
-
     override fun differentiate(t: Double): Vector = asCrispRationalBezier.differentiate(t)
 
     override fun evaluate(t: Double): Point {
@@ -52,7 +49,7 @@ class ConicSection(
         val p0 = begin.vector
         val p1 = far.vector
         val p2 = end.vector
-        val p = (1/wt)*((1-t)*(1-2*t)*p0 + 2*t*(1-t)*(1+weight)*p1 + t*(2*t-1)*p2)
+        val p = ((1 - t)*(1 - 2*t)*p0 + 2*t*(1 - t)*(1 + weight)*p1 + t*(2*t - 1)*p2)/wt
         val r0 = representPoints[0].r
         val r1 = representPoints[1].r
         val r2 = representPoints[2].r
@@ -75,6 +72,53 @@ class ConicSection(
     fun complement(): ConicSection = ConicSection(begin, center().divide(-1.0, far), end, -weight)
 
     fun center(): Point = begin.divide(0.5, end).divide(weight/(weight - 1), far)
+
+    override fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
+        val w = weight
+        val p0 = begin.vector
+        val p1 = far.vector
+        val p2 = end.vector
+        val m = begin.divide(0.5, end)
+        val rootwt = FastMath.sqrt(RationalBezier.bezier1D(t, Array.of(1.0, w, 1.0)))
+
+        val begin0 = begin
+        val end0 = evaluate(t)
+        val weight0 = (1 - t + t*w)/rootwt
+        val far0R = FastMath.abs(0.5*(2 - 3*t + rootwt*(2*t*t - 3*t + 2))/(rootwt + 1 - t + t*w))*begin.r +
+                FastMath.abs((t*(1 + w)*(1 + (1 - t)/rootwt))/(rootwt + 1 - t + t*w))*far.r +
+                FastMath.abs(0.5*(-t + t*(2*t - 1)/rootwt)/(rootwt + 1 - t + t*w))*end.r
+        val far0 = Point(((begin0.vector + end0.vector)*rootwt/2.0 + (1 - t)*p0 + t*((1 + w)*p1 - m.vector))/(rootwt + 1 - t + t*w), far0R)
+
+        val begin1 = end0
+        val end1 = end
+        val weight1 = ((1 - t)*w + t)/rootwt
+        val far1R = FastMath.abs(0.5*(3*t - 1 + rootwt*(2*t*t -t + 1))/(rootwt + (1 - t)*w + t))*begin.r +
+                FastMath.abs(((1 - t)*(1 + w)*(1 + t/rootwt))/(rootwt + (1 - t)*w + t))*far.r +
+                FastMath.abs(0.5*((1 - t)*((1 - 2*t)/rootwt - 1))/(rootwt + (1 - t)*w + t))*end.r
+        val far1 = Point(((begin1.vector + end1.vector)*rootwt/2.0 + (1 - t)*((1 + w)*p1 - m.vector) + t*p2)/(rootwt + (1 - t)*w + t), far1R)
+
+        return Tuple(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
+    }
+
+    fun restrict(interval: Interval): ConicSection = restrict(interval.begin, interval.end)
+
+    fun restrict(begin: Double, end: Double): ConicSection {
+        val t = (end - begin)/(1 - begin)
+        val ro = 1/FastMath.sqrt(RationalBezier.bezier1D(t, Array.of(1.0, weight, 1.0)))
+        return subdivide(begin)._2().subdivide(ro*t/(ro*t - t + 1))._1()
+    }
+
+    override fun toArcLengthCurve(): ArcLengthAdapter {
+        val ts = repeatBisection(this, this.domain, { rb, subDomain ->
+            val sub = rb.restrict(subDomain)
+            val rp = sub.representPoints
+            val polylineLength = Polyline(rp).toArcLengthCurve().arcLength()
+            val beginEndLength = rp.head().dist(rp.last())
+            !(sub.weight > 0.0 && Precision.equals(polylineLength, beginEndLength, 1.0/128))
+        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
+
+        return ArcLengthAdapter(this, ts.toArray())
+    }
 
     companion object {
 

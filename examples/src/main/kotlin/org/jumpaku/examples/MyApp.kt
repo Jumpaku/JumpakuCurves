@@ -4,12 +4,14 @@ import io.vavr.API
 import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.paint.Color
+import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.arclength.repeatBisection
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.polyline.Polyline
+import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.fsc.generate.FscGenerator
 import org.jumpaku.fsc.identify.classify.ClassifierOpen4
 import org.jumpaku.fsc.identify.reference.Circular
@@ -39,12 +41,15 @@ class TestView : View(){
     override val root = curveInput.root
 
     init {
-        val x = Bezier(Point.xy(0.0, 0.0), Point.xy(200.0, 0.0), Point.xy(0.0, 200.0), Point.xy(200.0, 200.0))
-                .toArcLengthCurve()
-        println(x.arcLength())
-        println(x.arcLengthUntil(0.5))
+        val R2 = FastMath.sqrt(2.0)
+        val x = ConicSection(Point.xyr(200.0, 300.0, 5.0),
+                Point.xyr(100.0*(2 - R2/2), 100.0*(2 - R2/2), 3.0),
+                Point.xyr(300.0, 200.0, 5.0),
+                -R2/2)
+        println(x.subdivide(0.5))
         with(curveInput.contents){
-            fuzzyPoints(x.evaluateAll(100)) { stroke = Color.BLUE }
+            fuzzyPoints(x.evaluateAll(20)) { stroke = Color.RED }
+            fuzzyPoints(x.subdivide(0.5)._2.representPoints) { stroke = Color.BLUE }
         }
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)

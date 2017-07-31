@@ -92,7 +92,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
             val cp = bezier.restrict(subDomain).controlPoints
             val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
             val beginEndLength = cp.head().dist(cp.last())
-            !Precision.equals(polylineLength, beginEndLength, 0.0625)
+            !Precision.equals(polylineLength, beginEndLength, 1.0/16)
         }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
         return ArcLengthAdapter(this, ts.toArray())

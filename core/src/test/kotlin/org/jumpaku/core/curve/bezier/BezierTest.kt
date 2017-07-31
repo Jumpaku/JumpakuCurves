@@ -157,7 +157,8 @@ class BezierTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        Assertions.fail("ToArcLengthCurve")
+        val l = Bezier(Point.xy(0.0, 0.0), Point.xy(50.0, 0.0), Point.xy(100.0, 100.0)).toArcLengthCurve().arcLength()
+        assertThat(l).isEqualTo(7394.71429/50, withPrecision(0.1))
     }
 
     @Test

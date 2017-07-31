@@ -108,7 +108,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
             val ws = sub.weights
             val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
             val beginEndLength = cp.head().dist(cp.last())
-            !(ws.all { it >= 0.0 } && Precision.equals(polylineLength, beginEndLength, 0.0625))
+            !(ws.all { it >= 0.0 } && Precision.equals(polylineLength, beginEndLength, 1.0/128))
         }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
         return ArcLengthAdapter(this, ts.toArray())

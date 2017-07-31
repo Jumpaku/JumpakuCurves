@@ -296,6 +296,11 @@ class RationalBezierTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        Assertions.fail("ToArcLengthCurve")
+        val l = RationalBezier(
+                WeightedPoint(Point.xyr(0.0, 100.0,  1.0),  1.0),
+                WeightedPoint(Point.xyr(100.0, 100.0,  2.0), -1/R2),
+                WeightedPoint(Point.xyr(100.0, 0.0,  3.0),  1.0))
+                .toArcLengthCurve().arcLength()
+        assertThat(l).isEqualTo(Math.PI*200*0.75, withPrecision(0.1))
     }
 }
