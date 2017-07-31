@@ -46,10 +46,11 @@ class TestView : View(){
                 Point.xyr(100.0*(2 - R2/2), 100.0*(2 - R2/2), 3.0),
                 Point.xyr(300.0, 200.0, 5.0),
                 -R2/2)
-        println(x.subdivide(0.5))
+        println(x.subdivide(0.1))
         with(curveInput.contents){
-            fuzzyPoints(x.evaluateAll(20)) { stroke = Color.RED }
-            fuzzyPoints(x.subdivide(0.5)._2.representPoints) { stroke = Color.BLUE }
+            fuzzyPoints(x.evaluateAll(11)) { stroke = Color.RED }
+            fuzzyPoints(x.subdivide(0.9)._2.representPoints) { stroke = Color.BLUE }
+            fuzzyPoints(x.restrict(0.3, 0.5).representPoints) { stroke = Color.GREEN }
         }
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)

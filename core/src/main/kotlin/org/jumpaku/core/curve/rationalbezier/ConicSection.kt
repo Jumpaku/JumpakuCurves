@@ -103,9 +103,9 @@ class ConicSection(
     fun restrict(interval: Interval): ConicSection = restrict(interval.begin, interval.end)
 
     fun restrict(begin: Double, end: Double): ConicSection {
-        val t = (end - begin)/(1 - begin)
-        val ro = 1/FastMath.sqrt(RationalBezier.bezier1D(t, Array.of(1.0, weight, 1.0)))
-        return subdivide(begin)._2().subdivide(ro*t/(ro*t - t + 1))._1()
+        val t = begin/end
+        val a = 1/FastMath.sqrt(RationalBezier.bezier1D(end, Array.of(1.0, weight, 1.0)))
+        return subdivide(end)._1().subdivide(t/(a*(1 - t) + t))._2()
     }
 
     override fun toArcLengthCurve(): ArcLengthAdapter {
