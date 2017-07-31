@@ -41,17 +41,6 @@ class TestView : View(){
     override val root = curveInput.root
 
     init {
-        val R2 = FastMath.sqrt(2.0)
-        val x = ConicSection(Point.xy(200.0, 300.0),
-                Point.xy(100.0*(2 - R2/2), 100.0*(2 - R2/2)),
-                Point.xy(300.0, 200.0),
-                -R2/2)
-        println(x.subdivide(0.1))
-        with(curveInput.contents){
-            fuzzyPoints(x.toArcLengthCurve().evaluateAll(100)) { stroke = Color.RED }
-            fuzzyPoints(x.subdivide(0.9)._2.representPoints) { stroke = Color.BLUE }
-            fuzzyPoints(x.restrict(0.3, 0.5).representPoints) { stroke = Color.GREEN }
-        }
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)
         }

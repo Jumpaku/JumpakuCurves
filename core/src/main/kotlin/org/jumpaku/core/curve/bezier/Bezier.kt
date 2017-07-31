@@ -142,7 +142,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
             val n = m - 1
 
             if (m == 2) {
-                return Array.of(cp[0].divide(0.5, cp[1]))
+                return Array.of(cp[0].middle(cp[1]))
             } else if(m % 2 != 0){
                 val r = (m - 3) / 2
 
@@ -174,7 +174,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
                 val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
                 val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.head())
 
-                return Stream.concat(first, Stream(pl.divide(0.5, pr)), second).toArray()
+                return Stream.concat(first, Stream(pl.middle(pr)), second).toArray()
             }
         }
     }

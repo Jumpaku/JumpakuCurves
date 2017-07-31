@@ -26,7 +26,7 @@ class ConicSection(
 
         return RationalBezier(Stream(
                 begin.toCrisp(),
-                far.divide(-1/weight, begin.divide(0.5, end)).toCrisp(),
+                far.divide(-1/weight, begin.middle(end)).toCrisp(),
                 end.toCrisp()
         ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
     }
@@ -71,14 +71,14 @@ class ConicSection(
 
     fun complement(): ConicSection = ConicSection(begin, center().divide(-1.0, far), end, -weight)
 
-    fun center(): Point = begin.divide(0.5, end).divide(weight/(weight - 1), far)
+    fun center(): Point = begin.middle(end).divide(weight/(weight - 1), far)
 
     override fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
         val p0 = begin.vector
         val p1 = far.vector
         val p2 = end.vector
-        val m = begin.divide(0.5, end)
+        val m = begin.middle(end)
         val rootwt = FastMath.sqrt(RationalBezier.bezier1D(t, Array.of(1.0, w, 1.0)))
 
         val begin0 = begin

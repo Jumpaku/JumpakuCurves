@@ -8,6 +8,7 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.analysis.solvers.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.divide
+import org.jumpaku.core.affine.middle
 import org.jumpaku.core.curve.Curve
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
@@ -63,7 +64,7 @@ class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Arr
         val relative = 1.0e-8
         val absolute = 1.0e-5
         val maxEval = 50
-        val startValue = originalCurve.domain.begin.divide(0.5, originalCurve.domain.end)
+        val startValue = originalCurve.domain.begin.middle(originalCurve.domain.end)
         return BrentSolver(relative, absolute).solve(
                 maxEval,
                 { arcLengthUntil(it) - arcLengthParam },
