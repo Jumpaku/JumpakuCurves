@@ -46,7 +46,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
          * where f is far point, m is the middle point between fsc(t0) and fsc(t1).
          */
         private fun triangleAreaBisectingFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
-            val middle = fsc(t0).divide(0.5, fsc(t1))
+            val middle = fsc(t0).middle(fsc(t1))
             val ts = Interval(t0, t1).sample(100)
             val ps = ts.map(fsc)
             val areas = ps.zipWith(ps.tail(), middle::area)
