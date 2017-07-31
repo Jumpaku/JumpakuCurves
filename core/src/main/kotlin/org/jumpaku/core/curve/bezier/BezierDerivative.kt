@@ -2,7 +2,6 @@ package org.jumpaku.core.curve.bezier
 
 import io.vavr.Tuple2
 import io.vavr.collection.Array
-import org.jumpaku.core.affine.Crisp
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.curve.Derivative
@@ -17,17 +16,17 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     override val domain: Interval get() = asBezier.domain
 
-    val controlVectors: Array<Vector> get() = asBezier.controlPoints.map(Point::toVector)
+    val controlVectors: Array<Vector> get() = asBezier.controlPoints.map(Point::vector)
 
     val degree: Int get() = asBezier.degree
 
-    constructor(controlVectors: Array<Vector>): this(Bezier(controlVectors.map(::Crisp)))
+    constructor(controlVectors: Array<Vector>): this(Bezier(controlVectors.map { Point(it) }))
 
     constructor(controlVectors: Iterable<Vector>): this(Array.ofAll(controlVectors))
 
     constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
 
-    override fun evaluate(t: Double): Vector = asBezier.evaluate(t).toVector()
+    override fun evaluate(t: Double): Vector = asBezier(t).vector
 
     override fun differentiate(t: Double): Vector = asBezier.differentiate(t)
 

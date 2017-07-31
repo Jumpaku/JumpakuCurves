@@ -38,15 +38,14 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
 
     companion object {
 
-
         private fun circularFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
             val begin = fsc(t0)
             val end = fsc(t1)
             val relative = 1.0e-8
             val absolute = 1.0e-5
             return BrentSolver(relative, absolute).solve(50, {
-                val f = fsc(it).toCrisp()
-                f.distSquare(begin.toCrisp()) - (f.distSquare(end.toCrisp()))
+                val f = fsc(it)
+                f.distSquare(begin) - f.distSquare(end)
             }, t0, t1)
         }
 
@@ -55,7 +54,7 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
             return API.For(ts.take(nSamples/3), ts.drop(2*nSamples/3))
                     .yield({ t0, t1 ->
                         val tf = circularFar(t0, t1, fsc)
-                        API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).toCrisp().area(fsc(t0).toCrisp(), fsc(t1).toCrisp()))
+                        API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
                     })
                     .maxBy { (_, area) -> area }
                     .map { it._1() }.get()

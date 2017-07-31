@@ -3,9 +3,11 @@ package org.jumpaku.core.curve.bezier
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.json.prettyGson
+import org.junit.Assert
 import org.junit.Test
 
 class BezierTest {
@@ -65,7 +67,7 @@ class BezierTest {
     fun testCrispTransform() {
         print("CrispTransform")
         val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-        val a = b.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0, 0.0)))
+        val a = b.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0, 0.0)))
         val e = Bezier(Point.xy(1.0, -3.0), Point.xy(1.0, -1.0), Point.xy(-3.0, 1.0), Point.xy(1.0, 3.0), Point.xy(1.0, 5.0))
         bezierAssertThat(a).isEqualToBezier(e)
     }
@@ -150,6 +152,13 @@ class BezierTest {
         bezierAssertThat(extendFront).isEqualToBezier(Bezier(
                 Point.xyr(-2.0, 0.0, 721/81.0), Point.xyr(-1.0, 0.0, 134/27.0), Point.xyr(0.0, 2.0, 28/9.0), Point.xyr(1.0, 0.0, 8/3.0), Point.xyr(2.0, 0.0, 1.0)))
 
+    }
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        val l = Bezier(Point.xy(0.0, 0.0), Point.xy(50.0, 0.0), Point.xy(100.0, 100.0)).toArcLengthCurve().arcLength()
+        assertThat(l).isEqualTo(7394.71429/50, withPrecision(0.1))
     }
 
     @Test

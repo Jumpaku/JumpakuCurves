@@ -6,8 +6,6 @@ import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.intervalAssertThat
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.curve.polyline.polylineAssertThat
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.paramPointAssertThat
 import org.jumpaku.core.json.prettyGson
@@ -59,7 +57,7 @@ class LineSegmentTest {
     fun testCrispTransform() {
         println("CrispTransform")
         val d = LineSegment(ParamPoint(Point.xyr(2.0, 1.0, 2.0), 0.25), ParamPoint(Point.xyr(3.0, 2.0, 1.0), 0.5))
-                .crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+                .transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
         lineSegmentAssertThat(d).isEqualLineSegment(LineSegment(ParamPoint(Point.xy(-1.0, 5.0), 0.25), ParamPoint(Point.xy(-3.0, 7.0), 0.5)))
     }
 

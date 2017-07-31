@@ -46,9 +46,9 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
          * where f is far point, m is the middle point between fsc(t0) and fsc(t1).
          */
         private fun triangleAreaBisectingFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
-            val middle = fsc(t0).divide(0.5, fsc(t1)).toCrisp()
+            val middle = fsc(t0).middle(fsc(t1))
             val ts = Interval(t0, t1).sample(100)
-            val ps = ts.map(fsc).map(Point::toCrisp)
+            val ps = ts.map(fsc)
             val areas = ps.zipWith(ps.tail(), middle::area)
                     .foldLeft(Array(0.0), { arr, area -> arr.append(arr.last() + area) })
             val index = areas.lastIndexWhere { it < areas.last()/2 }
@@ -56,7 +56,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
             val relative = 1.0e-7
             val absolute = 1.0e-4
             return BrentSolver(relative, absolute).solve(50, {
-                val m = fsc(it).toCrisp()
+                val m = fsc(it)
                 val l = areas[index] + middle.area(ps[index], m)
                 val r = areas.last() - areas[index + 1] + middle.area(ps[index + 1], m)
                 l - r
@@ -78,7 +78,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
                 val reference = Elliptic(elliptic, domain)
 
                 reference.fuzzyCurve.toArcLengthCurve().evaluateAll(30).zipWith(fmpsFsc, {
-                    a, b -> 1 - a.toCrisp().dist(b.toCrisp()) / (a.r + b.r)
+                    a, b -> 1 - a.dist(b) / (a.r + b.r)
                 }).min().get()
             }
 
@@ -97,7 +97,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
             return API.For(ts.take(nSamples/3), ts.drop(2*nSamples/3))
                     .yield({ t0, t1 ->
                         val tf = Elliptic.triangleAreaBisectingFar(t0, t1, fsc)
-                        API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).toCrisp().area(fsc(t0).toCrisp(), fsc(t1).toCrisp()))
+                        API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
                     })
                     .maxBy { (_, area) -> area }
                     .map { it._1() }.get()

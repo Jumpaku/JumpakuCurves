@@ -82,10 +82,10 @@ class ConicSectionTest {
     }
 
     @Test
-    fun testCrispTransform() {
-        println("CrispTransform")
+    fun testTransform() {
+        println("Transform")
         val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2/2, R2/2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2/2)
-        val a = i.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = i.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
         val e = ConicSection(Point.xy(-1.0, 1.0), Point.xy(1-R2, 1+R2), Point.xy(1.0, 3.0), R2/2)
         conicSectionAssertThat(a).isEqualConicSection(e)
     }
@@ -106,5 +106,15 @@ class ConicSectionTest {
                 .complement()
         conicSectionAssertThat(i).isEqualConicSection(ConicSection(
                 Point.xyr(0.0, 1.0, 1.0), Point.xyr(-R2/2, -R2/2, 14+8*R2), Point.xyr(1.0, 0.0, 3.0), -R2/2))
+    }
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        val l = ConicSection(Point.xy(200.0, 300.0),
+                Point.xy(100.0*(2 - R2/2), 100.0*(2 - R2/2)),
+                Point.xy(300.0, 200.0),
+                -R2/2).toArcLengthCurve().arcLength()
+        assertThat(l).isEqualTo(Math.PI*150, withPrecision(0.1))
     }
 }

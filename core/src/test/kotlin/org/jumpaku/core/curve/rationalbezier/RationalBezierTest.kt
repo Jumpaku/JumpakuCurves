@@ -2,15 +2,14 @@ package org.jumpaku.core.curve.rationalbezier
 
 import com.github.salomonbrys.kotson.fromJson
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
 import org.junit.Test
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
 import org.jumpaku.core.affine.WeightedPoint
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.json.prettyGson
+import org.junit.Assert
 
 
 class RationalBezierTest {
@@ -129,7 +128,7 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(2-R2, 1.0, 3-R2), (1+R2)/3),
                 WeightedPoint(Point.xyr(1.0, 2-R2, 1+R2), (1+R2)/3),
                 WeightedPoint(Point.xyr(1.0,  0.0,  3.0),      1.0))
-        val a = i.crispTransform(Transform.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = i.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
         val e = RationalBezier(
                 WeightedPoint(Point.xy(-1.0,    1.0),      1.0),
                 WeightedPoint(Point.xy(-1.0, 5-2*R2), (1+R2)/3),
@@ -291,5 +290,17 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(R2/2, R2/2,  2.0), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0, R2-1, 4-R2), (2+R2)/4),
                 WeightedPoint(Point.xyr( 1.0,  0.0,  3.0),  1.0)))
+    }
+
+
+    @Test
+    fun testToArcLengthCurve() {
+        println("ToArcLengthCurve")
+        val l = RationalBezier(
+                WeightedPoint(Point.xyr(0.0, 100.0,  1.0),  1.0),
+                WeightedPoint(Point.xyr(100.0, 100.0,  2.0), -1/R2),
+                WeightedPoint(Point.xyr(100.0, 0.0,  3.0),  1.0))
+                .toArcLengthCurve().arcLength()
+        assertThat(l).isEqualTo(Math.PI*200*0.75, withPrecision(0.1))
     }
 }

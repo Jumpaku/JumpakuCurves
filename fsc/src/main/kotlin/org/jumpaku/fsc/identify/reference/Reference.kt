@@ -85,7 +85,7 @@ fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSe
 
 fun mostFarPointOnFsc(p: Double, fsc: BSpline): Double {
     return fsc.domain.sample(100)
-            .map { API.Tuple(it, fsc(p).toCrisp().distSquare(fsc(it).toCrisp())) }
+            .map { API.Tuple(it, fsc(p).distSquare(fsc(it))) }
             .maxBy { (_, a) -> a }
             .map { it._1() } .get()
 }

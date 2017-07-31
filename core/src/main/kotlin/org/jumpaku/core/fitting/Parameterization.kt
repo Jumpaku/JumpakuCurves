@@ -29,7 +29,7 @@ fun chordalParametrize(points: Array<Point>): Array<ParamPoint> {
         return API.Array()
     }
     val ds = points.tailOption()
-            .map { it.zipWith(points, { a, b -> a.toCrisp().dist(b.toCrisp()) })
+            .map { it.zipWith(points, { a, b -> a.dist(b) })
                     .foldLeft(API.Array(0.0), { acc, d -> acc.append(d + acc.last())})
             } .getOrElse(API.Array(0.0))
 

@@ -6,17 +6,18 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
-import org.jumpaku.core.curve.CrispTransformable
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
+import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.arclength.ArcLengthAdapter
+import org.jumpaku.core.curve.arclength.repeatBisection
+import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
-class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, CrispTransformable {
+class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier> {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -49,7 +50,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun crispTransform(a: Transform): Bezier = Bezier(controlPoints.map { a(it.toCrisp()) })
+    override fun transform(a: Affine): Bezier = Bezier(controlPoints.map(a))
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
@@ -69,7 +70,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
         return Bezier(createReducedControlPoints(controlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
+    override fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         return createSubdividedControlPoints(t, controlPoints).map(::Bezier, ::Bezier)
@@ -84,6 +85,17 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
         else {
             Bezier(controlPoints._1())
         }
+    }
+
+    override fun toArcLengthCurve(): ArcLengthAdapter {
+        val ts = repeatBisection(this, this.domain, { bezier, subDomain ->
+            val cp = bezier.restrict(subDomain).controlPoints
+            val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
+            val beginEndLength = cp.head().dist(cp.last())
+            !Precision.equals(polylineLength, beginEndLength, 1.0/16)
+        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
+
+        return ArcLengthAdapter(this, ts.toArray())
     }
 
     companion object {
@@ -130,7 +142,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
             val n = m - 1
 
             if (m == 2) {
-                return Array.of(cp[0].divide(0.5, cp[1]))
+                return Array.of(cp[0].middle(cp[1]))
             } else if(m % 2 != 0){
                 val r = (m - 3) / 2
 
@@ -162,7 +174,7 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
                 val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
                 val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.head())
 
-                return Stream.concat(first, Stream(pl.divide(0.5, pr)), second).toArray()
+                return Stream.concat(first, Stream(pl.middle(pr)), second).toArray()
             }
         }
     }
