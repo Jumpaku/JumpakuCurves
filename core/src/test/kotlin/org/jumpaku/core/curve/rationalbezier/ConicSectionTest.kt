@@ -109,6 +109,22 @@ class ConicSectionTest {
     }
 
     @Test
+    fun testSubdivide() {
+        println("Subdivide")
+        val rs = ConicSection(
+                Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2/2, R2/2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2/2)
+                .subdivide(0.5)
+        conicSectionAssertThat(rs._1()).isEqualConicSection(ConicSection(
+                Point.xyr( 0.0,  1.0, 1.0),
+                Point.xyr((3*R2 + 1)/(10 + 3*R2), (3*R2 + 9)/(10 + 3*R2), 2.3027176028699587),
+                Point.xyr(R2/2, R2/2, 2.0), Math.sqrt(2+R2)/2), 0.1)
+        conicSectionAssertThat(rs._2()).isEqualConicSection(ConicSection(
+                Point.xyr(R2/2, R2/2, 2.0),
+                Point.xyr((3*R2 + 9)/(10 + 3*R2), (3*R2 + 1)/(10 + 3*R2), 2.3027176028699587),
+                Point.xyr(1.0, 0.0, 3.0), Math.sqrt(2+R2)/2), 0.1)
+    }
+
+    @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
         val l = ConicSection(Point.xy(200.0, 300.0),

@@ -121,8 +121,8 @@ class RationalBezierTest {
     }
 
     @Test
-    fun testCrispTransform() {
-        println("CrispTransform")
+    fun testTransform() {
+        println("Transform")
         val i = RationalBezier(
                 WeightedPoint(Point.xyr(0.0,  1.0,  1.0),      1.0),
                 WeightedPoint(Point.xyr(2-R2, 1.0, 3-R2), (1+R2)/3),
