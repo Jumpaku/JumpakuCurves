@@ -37,9 +37,21 @@ class ConicSection(
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative get() = asCrispRationalBezier.derivative
+    override val derivative: Derivative get() = object : Derivative{
+        override val domain: Interval = this@ConicSection.domain
+        override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+    }
 
-    override fun differentiate(t: Double): Vector = asCrispRationalBezier.differentiate(t)
+    override fun differentiate(t: Double): Vector {
+        require(t in domain) { "t($t) is out of domain($domain)" }
+
+        val g = (1 - t)*(1 - 2*t)*begin.vector + 2*t*(1 - t)*(1 + weight)*far.vector + t*(2*t - 1)*end.vector
+        val dg_dt = (4*t - 3)*begin.vector + 2*(1 - 2*t)*(1 + weight)*far.vector + (4*t - 1)*end.vector
+        val f = RationalBezier.bezier1D(t, Array.of(1.0, weight, 1.0))
+        val df_dt = 2*(weight - 1)*(1 - 2*t)
+
+        return (dg_dt*f - g*df_dt)/(f*f)
+    }
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -104,8 +116,8 @@ class ConicSection(
 
     fun restrict(begin: Double, end: Double): ConicSection {
         val t = begin/end
-        val a = 1/FastMath.sqrt(RationalBezier.bezier1D(end, Array.of(1.0, weight, 1.0)))
-        return subdivide(end)._1().subdivide(t/(a*(1 - t) + t))._2()
+        val a = FastMath.sqrt(RationalBezier.bezier1D(end, Array.of(1.0, weight, 1.0)))
+        return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
     override fun toArcLengthCurve(): ArcLengthAdapter {

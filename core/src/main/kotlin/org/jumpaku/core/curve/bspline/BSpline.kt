@@ -21,9 +21,9 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     override val derivative: BSplineDerivative get() {
         val cvs = controlPoints
-                .zipWith(controlPoints.tail()) { a, b -> b - a }
+                .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
                 .zipWithIndex({ v, i ->
-                    v*(degree / (knotVector[degree + i + 1] - knotVector[i + 1]))
+                    v* basisHelper(degree.toDouble(), 0.0,  knotVector[degree + i + 1], knotVector[i + 1])
                 })
 
         return BSplineDerivative(cvs, knotVector.derivativeKnotVector())
