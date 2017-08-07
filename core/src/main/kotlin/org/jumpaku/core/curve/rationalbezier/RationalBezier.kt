@@ -49,7 +49,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 val dpt = dp.evaluate(t)
                 val rt = this@RationalBezier.evaluate(t).vector
 
-                return (1 / wt) * (dpt - dwt * rt)
+                return (dpt - dwt * rt) / wt
             }
 
             override val domain: Interval get() = Interval.ZERO_ONE
