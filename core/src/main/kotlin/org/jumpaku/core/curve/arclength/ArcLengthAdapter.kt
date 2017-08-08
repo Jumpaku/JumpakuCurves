@@ -64,13 +64,11 @@ class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Arr
         val relative = 1.0e-8
         val absolute = 1.0e-5
         val maxEval = 50
-        val startValue = originalCurve.domain.begin.middle(originalCurve.domain.end)
         return BrentSolver(relative, absolute).solve(
                 maxEval,
                 { arcLengthUntil(it) - arcLengthParam },
                 originalCurve.domain.begin,
-                originalCurve.domain.end,
-                startValue)
+                originalCurve.domain.end)
     }
 
     fun arcLengthUntil(originalParam: Double): Double {
@@ -79,7 +77,7 @@ class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Arr
 
         val index = originalParams.search(originalParam)
         return when{
-            index < 0 -> arcLengthParams[-index - 1] + polyline.points[-index - 1].dist(originalCurve(originalParam))
+            index < 0 -> arcLengthParams[-index - 2] + polyline.points[-index - 2].dist(originalCurve(originalParam))
             else -> arcLengthParams[index]
         }
     }
