@@ -8,9 +8,12 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.WeightedPoint
+import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.arclength.ArcLengthAdapter
 import org.jumpaku.core.curve.arclength.repeatBisection
 import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.RationalBezier
@@ -44,17 +47,23 @@ class TestView : View(){
 
     init {
         with(curveInput.contents) {
-            val R2 = Math.sqrt(2.0)
-            val r = RationalBezier(
-                    WeightedPoint(Point.xyr(0.0, 100.0,  1.0),  1.0),
-                    WeightedPoint(Point.xyr(100.0, 100.0,  2.0), 1/R2),
-                    WeightedPoint(Point.xyr(100.0, 0.0,  3.0),  1.0))
-                    .subdivide(0.1)
-            val c = ConicSection(
-                    Point.xyr(0.0, 100.0, 1.0), Point.xyr(R2/0.02, R2/0.02, 2.0), Point.xyr(100.0, 0.0, 3.0), R2/2)
-                    .subdivide(0.1)
-            fuzzyPoints(r._2().controlPoints.append(r._2()(0.5))) {stroke = Color.RED}
-            fuzzyPoints(c._2().representPoints) {stroke = Color.BLUE}
+            val b = BSpline(API.Array(
+                    Point.xy(0.0, 0.0),
+                    Point.xy(0.0, 600.0),
+                    Point.xy(300.0, 600.0),
+                    Point.xy(300.0, 0.0),
+                    Point.xy(600.0, 0.0)),
+                    KnotVector.clampedUniform(3.0, 4.0, 3, 9))
+            val ts = repeatBisection(b, b.domain, { bSpline, subDomain ->
+                val cp = bSpline.restrict(subDomain).controlPoints
+                val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
+                val beginEndLength = cp.head().dist(cp.last())
+                !Precision.equals(polylineLength, beginEndLength, 1.0/64)
+            }).fold(API.Stream(b.domain.begin), { acc, subDomain -> acc.append(subDomain.end) }).toArray()
+
+            cubicFsc(b) {stroke = Color.CYAN}
+            //fuzzyPoints(ArcLengthAdapter(b, 50).evaluateAll(100)) {stroke = Color.RED}
+            fuzzyPoints(ts.map { b(it) }) {stroke = Color.BLUE}
         }
 
         subscribe<CurveInput.CurveDoneEvent> {

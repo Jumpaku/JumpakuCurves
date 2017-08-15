@@ -7,13 +7,16 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.arclength.ArcLengthAdapter
+import org.jumpaku.core.curve.arclength.repeatBisection
 import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
-class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable {
+class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline>  {
 
     val degree: Int = knotVector.degree
 
@@ -76,6 +79,17 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     fun json(): BSplineJson = BSplineJson(this)
 
+    override fun toArcLengthCurve(): ArcLengthAdapter {
+        val ts = repeatBisection(this, this.domain, { bSpline, subDomain ->
+            val cp = bSpline.restrict(subDomain).controlPoints
+            val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
+            val beginEndLength = cp.head().dist(cp.last())
+            !Precision.equals(polylineLength, beginEndLength, 1.0/256)
+        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
+
+        return ArcLengthAdapter(this, ts.toArray())
+    }
+
     fun toBeziers(): Array<Bezier> {
         return knotVector.knots
                 .slice(degree + 1, knotVector.size() - degree - 1)
@@ -86,7 +100,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
                 .toArray()
     }
 
-    fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
+    override fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val (front, back) = createSubdividedControlPointsAndKnotVectors(t, controlPoints, knotVector)
