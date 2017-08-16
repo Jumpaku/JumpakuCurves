@@ -11,6 +11,7 @@ import org.jumpaku.core.affine.Affine
 import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.arclength.ArcLengthAdapter
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.jumpaku.core.json.prettyGson
@@ -202,7 +203,15 @@ class BSplineTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        //Assertions.fail("ToArcLengthCurve")
+        val b = BSpline(Array(
+                Point.xyr(0.0, 0.0, 0.0),
+                Point.xyr(0.0, 600.0, 1.0),
+                Point.xyr(300.0, 600.0, 2.0),
+                Point.xyr(300.0, 0.0, 1.0),
+                Point.xyr(600.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3.0, 4.0, 3, 9))
+        val a = ArcLengthAdapter(b, 1000).arcLength()
+        assertThat(b.toArcLengthCurve().arcLength()).isEqualTo(a, withPrecision(0.1))
     }
 
     @Test
