@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.fsc.generate
 
 import io.vavr.collection.Stream
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder

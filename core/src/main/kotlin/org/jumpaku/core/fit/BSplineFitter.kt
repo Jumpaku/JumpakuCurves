@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.core.fit
 
 import io.vavr.API.*
 import io.vavr.collection.Array
@@ -12,6 +12,7 @@ import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import org.jumpaku.core.util.component3
 
 fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
     val n = knotVector.size() - degree - 1
@@ -30,31 +31,30 @@ fun createModelMatrix(sortedDataTimes: Array<Double>, degree: Int, knotVector: K
     return sparse
 }
 
-class BSplineFitting(
+class BSplineFitter(
         val degree: Int,
-        val knotVector: KnotVector,
-        val createWeightMatrix: (Array<ParamPoint>) -> DiagonalMatrix = {
-            DiagonalMatrix(Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
-        }) : Fitting<BSpline>{
+        val knotVector: KnotVector) : Fitter<BSpline> {
 
     constructor(degree: Int, domain: Interval, delta: Double) : this(
             degree, KnotVector.clampedUniform(domain, degree, domain.sample(delta).size() + degree*2))
 
-    override fun fit(data: Array<ParamPoint>): BSpline {
+    override fun fit(data: Array<WeightedParamPoint>): BSpline {
         require(data.nonEmpty()) { "empty data" }
         require(!data.isSingleValued) { "single valued too few data" }
 
-        val distinct = data.distinctBy(ParamPoint::param)
+        val distinct = data.distinctBy(WeightedParamPoint::param)
         if(distinct.size() <= degree){
-            val b = BezierFitting(degree - 1, createWeightMatrix)
-                    .fit(transformParams(distinct, Interval.ZERO_ONE)).elevate()
+            val b = BezierFitter(degree - 1)
+                    .fit(transformParams(
+                            distinct.map { it.paramPoint }, Interval.ZERO_ONE),
+                            distinct.map { it.weight })
+                    .elevate()
             return BSpline(b.controlPoints,
                     KnotVector.clampedUniform(distinct.head().param, distinct.last().param, degree, degree*2 + 2))
         }
 
-        val (d, b) = data.unzip { (p, t) -> Tuple(p, t) }
-                .map(this::createDataMatrix, this::createBasisMatrix)
-        val w = createWeightMatrix(data)
+        val (d, b, w) = data.unzip3 { (pt, w) -> Tuple(pt.point, pt.param, w) }
+                .map(this::createDataMatrix, this::createBasisMatrix, this::createWeightMatrix)
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver
                 .solve(b.transpose().multiply(w).multiply(d))
                 .run { this.data.map { Point.xyz(it[0], it[1], it[2]) } }
@@ -71,6 +71,10 @@ class BSplineFitting(
                 .map { doubleArrayOf(it.x, it.y, it.z) }
                 .toJavaArray(DoubleArray::class.java)
                 .run(MatrixUtils::createRealMatrix)
+    }
+
+    fun createWeightMatrix(sortedDataWeights: Array<Double>): RealMatrix {
+        return DiagonalMatrix(sortedDataWeights.toJavaArray(Double::class.java).toDoubleArray())
     }
 }
 

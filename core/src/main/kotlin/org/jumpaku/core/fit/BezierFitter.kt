@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.core.fit
 
 import io.vavr.API.*
 import io.vavr.collection.Array
@@ -10,25 +10,21 @@ import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import org.jumpaku.core.util.component3
 
 
-class BezierFitting(
-        val degree: Int,
-        val createWeightMatrix: (Array<ParamPoint>) -> DiagonalMatrix = {
-            DiagonalMatrix(io.vavr.collection.Stream.fill(it.size(), { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
-        }
-) : Fitting<Bezier>{
+class BezierFitter(val degree: Int) : Fitter<Bezier> {
 
     fun basis(i: Int, t: Double): Double = Bezier.basis(degree, i, t)
 
-    override fun fit(data: Array<ParamPoint>): Bezier {
+    override fun fit(data: Array<WeightedParamPoint>): Bezier {
         require(data.nonEmpty()) { "empty data" }
 
-        val (ds, ts) = data.unzip { (p, t) -> Tuple(p, t) }
+        val (ds, ts, ws) = data.unzip3 { (pt, w) -> Tuple(pt.point, pt.param, w) }
 
-        val distinct = data.distinctBy(ParamPoint::param)
+        val distinct = data.distinctBy(WeightedParamPoint::param)
         if(distinct.size() <= degree){
-            return BezierFitting(degree - 1, createWeightMatrix).fit(distinct).elevate()
+            return BezierFitter(degree - 1).fit(distinct).elevate()
         }
 
         val d = ds.map { doubleArrayOf(it.x, it.y, it.z) }
@@ -38,7 +34,7 @@ class BezierFitting(
                 .map(List<Double>::toDoubleArray)
                 .toJavaArray(DoubleArray::class.java)
                 .let(MatrixUtils::createRealMatrix)
-        val w = createWeightMatrix(data)
+        val w = DiagonalMatrix(ws.toJavaArray(Double::class.java).toDoubleArray())
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver
                 .solve(b.transpose().multiply(w).multiply(d))
                 .run { this.data.map { Point.xyz(it[0], it[1], it[2]) } }

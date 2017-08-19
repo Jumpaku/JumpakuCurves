@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.core.fit
 
 import io.vavr.API.Array
 import org.assertj.core.api.Assertions.*
