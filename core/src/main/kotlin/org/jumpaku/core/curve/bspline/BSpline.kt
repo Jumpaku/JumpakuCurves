@@ -90,6 +90,37 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
         return ArcLengthAdapter(this, ts.toArray())
     }
 
+    /**
+     * Multiplies more than degree + 1 knots at begin and end of domain.
+     * Head and last of control points are moved to beginning point and end point of BSpline curve.
+     */
+    fun clamp(): BSpline = restrict(domain)//restrict inserts multiple knots into begin and ends
+
+    /**
+     * Closes BSpline.
+     * Moves head and last of clamped control points to head.middle(last).
+     */
+    fun close(): BSpline {
+        val clamped = clamp()
+        val frontCount = clamped.knotVector.filter { it <= domain.begin } .size - degree - 1
+        val backCount = clamped.knotVector.filter { it >= domain.end } .size - degree - 1
+
+        //insertion algorithm of restrict in clamp multiplies degree + 2 knots at end of domain
+        //and last 2 control points are the same point
+        val cp = clamped.controlPoints
+                .drop(frontCount)
+                .dropRight(backCount)
+        val closingPoint = cp.head().middle(cp.last())
+        val newCp = cp
+                .update(0, closingPoint)
+                .update(cp.size() - 1, closingPoint)
+        val us = clamped.knotVector.knots
+                .drop(frontCount)
+                .dropRight(backCount)
+        val newKnots = KnotVector(degree, us)
+        return BSpline(newCp, newKnots)
+    }
+
     fun toBeziers(): Array<Bezier> {
         return knotVector.knots
                 .slice(degree + 1, knotVector.size() - degree - 1)

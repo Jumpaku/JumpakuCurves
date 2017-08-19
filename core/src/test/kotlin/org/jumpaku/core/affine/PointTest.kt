@@ -209,6 +209,15 @@ class PointTest {
     }
 
     @Test
+    fun testToArray() {
+        println("ToArray")
+        val a = Point(1.0, -2.0, 3.0, 2.0).toArray()
+        assertThat(a[0]).isEqualTo( 1.0, withPrecision(1.0e-10))
+        assertThat(a[1]).isEqualTo(-2.0, withPrecision(1.0e-10))
+        assertThat(a[2]).isEqualTo( 3.0, withPrecision(1.0e-10))
+    }
+
+    @Test
     fun testToString() {
         println("ToString")
         val f = Point.xyzr(1.0,-2.0, 3.0, 2.0)
