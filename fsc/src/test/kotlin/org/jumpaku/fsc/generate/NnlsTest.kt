@@ -1,14 +1,15 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.fsc.generate
 
 import io.vavr.API
 import org.apache.commons.math3.linear.ArrayRealVector
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.KnotVector
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.bspline.bSplineAssertThat
+import org.jumpaku.core.fit.createModelMatrix
 import org.junit.Test
 
 
@@ -38,8 +39,8 @@ class NnlsTest {
         val targetVector1 = data1.map { (p, _) -> p.x } .toJavaArray(Double::class.java).run(::ArrayRealVector)
         val modelMatrix1 = createModelMatrix(data1.map(ParamPoint::param), 3, b1.knotVector)
         val a1 = nonNegativeLinearLeastSquare(modelMatrix1, targetVector1).toArray()
-        assertThat(a1.size).isEqualTo(5)
-        assertThat(a1.all { it > 0.0 }).isTrue()
+        Assertions.assertThat(a1.size).isEqualTo(5)
+        Assertions.assertThat(a1.all { it > 0.0 }).isTrue()
     }
 
     @Test

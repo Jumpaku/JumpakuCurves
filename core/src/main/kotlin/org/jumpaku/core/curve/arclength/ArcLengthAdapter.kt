@@ -14,7 +14,7 @@ import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.Subdividible
 import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.fitting.chordalParametrize
+import org.jumpaku.core.fit.chordalParametrize
 
 
 fun <C> repeatBisection(
