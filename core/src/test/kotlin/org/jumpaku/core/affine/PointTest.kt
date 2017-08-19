@@ -192,9 +192,9 @@ class PointTest {
     @Test
     fun testToVector() {
         println("ToVector")
-        val f = Point.xyzr(1.0,-2.0, 3.0, 2.0).vector
+        val f = Point.xyzr(1.0,-2.0, 3.0, 2.0).toVector()
         vectorAssertThat(f).isEqualToVector(Vector(1.0,-2.0, 3.0))
-        val c = Point.xyz(1.0,-2.0, 3.0).vector
+        val c = Point.xyz(1.0,-2.0, 3.0).toVector()
         vectorAssertThat(c).isEqualToVector(Vector(1.0,-2.0, 3.0))
     }
 

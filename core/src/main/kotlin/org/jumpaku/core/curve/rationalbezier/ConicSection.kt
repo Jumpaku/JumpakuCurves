@@ -45,8 +45,8 @@ class ConicSection(
     override fun differentiate(t: Double): Vector {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        val g = (1 - t)*(1 - 2*t)*begin.vector + 2*t*(1 - t)*(1 + weight)*far.vector + t*(2*t - 1)*end.vector
-        val dg_dt = (4*t - 3)*begin.vector + 2*(1 - 2*t)*(1 + weight)*far.vector + (4*t - 1)*end.vector
+        val g = (1 - t)*(1 - 2*t)*begin.toVector() + 2*t*(1 - t)*(1 + weight)*far.toVector() + t*(2*t - 1)*end.toVector()
+        val dg_dt = (4*t - 3)*begin.toVector() + 2*(1 - 2*t)*(1 + weight)*far.toVector() + (4*t - 1)*end.toVector()
         val f = RationalBezier.bezier1D(t, Array.of(1.0, weight, 1.0))
         val df_dt = 2*(weight - 1)*(1 - 2*t)
 
@@ -58,9 +58,9 @@ class ConicSection(
 
         val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
 
-        val p0 = begin.vector
-        val p1 = far.vector
-        val p2 = end.vector
+        val p0 = begin.toVector()
+        val p1 = far.toVector()
+        val p2 = end.toVector()
         val p = ((1 - t)*(1 - 2*t)*p0 + 2*t*(1 - t)*(1 + weight)*p1 + t*(2*t - 1)*p2)/wt
         val r0 = representPoints[0].r
         val r1 = representPoints[1].r
@@ -87,9 +87,9 @@ class ConicSection(
 
     override fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
-        val p0 = begin.vector
-        val p1 = far.vector
-        val p2 = end.vector
+        val p0 = begin.toVector()
+        val p1 = far.toVector()
+        val p2 = end.toVector()
         val m = begin.middle(end)
         val rootwt = FastMath.sqrt(RationalBezier.bezier1D(t, Array.of(1.0, w, 1.0)))
 
@@ -99,7 +99,7 @@ class ConicSection(
         val far0R = FastMath.abs(0.5*(2 - 3*t + rootwt*(2*t*t - 3*t + 2))/(rootwt + 1 - t + t*w))*begin.r +
                 FastMath.abs((t*(1 + w)*(1 + (1 - t)/rootwt))/(rootwt + 1 - t + t*w))*far.r +
                 FastMath.abs(0.5*(-t + t*(2*t - 1)/rootwt)/(rootwt + 1 - t + t*w))*end.r
-        val far0 = Point(((begin0.vector + end0.vector)*rootwt/2.0 + (1 - t)*p0 + t*((1 + w)*p1 - m.vector))/(rootwt + 1 - t + t*w), far0R)
+        val far0 = Point(((begin0.toVector() + end0.toVector())*rootwt/2.0 + (1 - t)*p0 + t*((1 + w)*p1 - m.toVector()))/(rootwt + 1 - t + t*w), far0R)
 
         val begin1 = end0
         val end1 = end
@@ -107,7 +107,7 @@ class ConicSection(
         val far1R = FastMath.abs(0.5*(3*t - 1 + rootwt*(2*t*t -t + 1))/(rootwt + (1 - t)*w + t))*begin.r +
                 FastMath.abs(((1 - t)*(1 + w)*(1 + t/rootwt))/(rootwt + (1 - t)*w + t))*far.r +
                 FastMath.abs(0.5*((1 - t)*((1 - 2*t)/rootwt - 1))/(rootwt + (1 - t)*w + t))*end.r
-        val far1 = Point(((begin1.vector + end1.vector)*rootwt/2.0 + (1 - t)*((1 + w)*p1 - m.vector) + t*p2)/(rootwt + (1 - t)*w + t), far1R)
+        val far1 = Point(((begin1.toVector() + end1.toVector())*rootwt/2.0 + (1 - t)*((1 + w)*p1 - m.toVector()) + t*p2)/(rootwt + (1 - t)*w + t), far1R)
 
         return Tuple(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
     }

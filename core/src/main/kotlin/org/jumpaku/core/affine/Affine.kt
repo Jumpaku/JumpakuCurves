@@ -87,7 +87,7 @@ class Affine internal constructor(private val matrix: RealMatrix) : Function1<Po
         }
 
         fun transformationAt(p: Point, a: Affine): Affine {
-            return translation(p.vector.unaryMinus()).andThen(a).translate(p.vector)
+            return translation(p.toVector().unaryMinus()).andThen(a).translate(p.toVector())
         }
 
         fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Affine {
