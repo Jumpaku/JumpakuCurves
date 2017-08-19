@@ -215,6 +215,34 @@ class BSplineTest {
     }
 
     @Test
+    fun testClamp() {
+        println("Clamp")
+        val c = BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9))
+                .clamp()
+        val e = BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9))
+
+        bSplineAssertThat(c).isEqualToBSpline(e)
+    }
+
+    @Test
+    fun testClose() {
+        println("Close")
+        val c = BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9))
+                .close()
+        val e = BSpline(
+                Array(Point.xyr(0.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(0.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9))
+
+        bSplineAssertThat(c).isEqualToBSpline(e)
+    }
+
+    @Test
     fun test_Basis() {
         println("Basis")
         val knots = KnotVector.clampedUniform(2, 7)

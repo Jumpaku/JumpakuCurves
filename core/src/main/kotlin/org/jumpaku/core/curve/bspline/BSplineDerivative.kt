@@ -41,6 +41,10 @@ class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     fun reverse(): BSplineDerivative = BSplineDerivative(asBSpline.reverse())
 
+    fun clamp(): BSplineDerivative = BSplineDerivative(asBSpline.clamp())
+
+    fun close(): BSplineDerivative = BSplineDerivative(asBSpline.close())
+
     fun insertKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(asBSpline.insertKnot(t, m))
 
     fun toBeziers(): Array<BezierDerivative> = asBSpline.toBeziers().map(::BezierDerivative)

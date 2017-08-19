@@ -186,4 +186,32 @@ class BSplineDerivativeTest {
                 KnotVector(3, 3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 3.5, 4.0, 4.0, 4.0, 4.0))
         bSplineAssertThat(b1.asBSpline).isEqualToBSpline(e1)
     }
+
+    @Test
+    fun testClamp() {
+        println("Clamp")
+        val c = BSplineDerivative(BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9)))
+                .clamp()
+        val e = BSpline(
+                Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
+                KnotVector.clampedUniform(3, 9))
+
+        bSplineAssertThat(c.asBSpline).isEqualToBSpline(e)
+    }
+
+    @Test
+    fun testClose() {
+        println("Close")
+        val c = BSplineDerivative(BSpline(
+                Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9)))
+                .close()
+        val e = BSpline(
+                Array(Point.xy(0.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.0, 0.0)),
+                KnotVector.clampedUniform(3, 9))
+
+        bSplineAssertThat(c.asBSpline).isEqualToBSpline(e)
+    }
 }
