@@ -21,7 +21,7 @@ class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     override val derivative: BSplineDerivative get() = asBSpline.derivative
 
-    val controlVectors: Array<Vector> get() = asBSpline.controlPoints.map(Point::vector)
+    val controlVectors: Array<Vector> get() = asBSpline.controlPoints.map(Point::toVector)
 
     val knotVector: KnotVector get() = asBSpline.knotVector
 
@@ -31,7 +31,7 @@ class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     fun json(): BSplineDerivativeJson = BSplineDerivativeJson(this)
 
-    override fun evaluate(t: Double): Vector = asBSpline(t).vector
+    override fun evaluate(t: Double): Vector = asBSpline(t).toVector()
 
     override fun differentiate(t: Double): Vector = asBSpline.derivative.evaluate(t)
 

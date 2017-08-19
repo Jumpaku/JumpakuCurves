@@ -1,5 +1,6 @@
 package org.jumpaku.core.affine
 
+import io.vavr.collection.Array
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.jumpaku.core.json.prettyGson
 
@@ -45,6 +46,8 @@ data class Vector constructor(val x: Double = 0.0, val y: Double = 0.0, val z : 
     fun cross(v: Vector): Vector = Vector(vector.crossProduct(Vector3D(v.x, v.y, v.z)))
 
     fun angle(v: Vector): Double = Vector3D.angle(vector, Vector3D(v.x, v.y, v.z))
+
+    fun toArray(): Array<Double> = Array.of(x, y, z)
 }
 
 
