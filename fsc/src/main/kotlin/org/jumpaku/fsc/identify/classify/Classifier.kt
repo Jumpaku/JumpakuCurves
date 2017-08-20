@@ -8,5 +8,5 @@ interface Classifier {
 
     fun isClosed(fsc: BSpline): Grade = fsc.evaluateAll(2).run { head().isPossible(last()) }
 
-    fun classify(fsc: BSpline): Result
+    fun classify(fsc: BSpline): ClassifyResult
 }

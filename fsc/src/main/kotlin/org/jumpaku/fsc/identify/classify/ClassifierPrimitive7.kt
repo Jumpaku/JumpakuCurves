@@ -7,12 +7,12 @@ import org.jumpaku.fsc.identify.reference.Linear
 
 class ClassifierPrimitive7 : Classifier {
 
-    override fun classify(fsc: BSpline): Result {
+    override fun classify(fsc: BSpline): ClassifyResult {
         val muL = Linear.of(fsc).isValidFor(fsc)
         val muC = Circular.of(fsc).isValidFor(fsc)
         val muE = Elliptic.of(fsc).isValidFor(fsc)
         val muClosed = isClosed(fsc)
-        return Result(
+        return ClassifyResult(
                 CurveClass.LineSegment to (muL),
                 CurveClass.Circle to (muClosed and !muL and muC),
                 CurveClass.CircularArc to (!muClosed and !muL and muC),
