@@ -1,7 +1,6 @@
 package org.jumpaku.fsc.identify.reference
 
 import io.vavr.API
-import io.vavr.collection.Array
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.Point

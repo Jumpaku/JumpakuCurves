@@ -38,7 +38,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override val derivative: Derivative get() {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
-        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.vector * w }).derivative
+        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
 
         return object : Derivative {
             override fun evaluate(t: Double): Vector {
@@ -47,7 +47,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 val wt = bezier1D(t, ws)
                 val dwt = bezier1D(t, dws)
                 val dpt = dp.evaluate(t)
-                val rt = this@RationalBezier.evaluate(t).vector
+                val rt = this@RationalBezier.evaluate(t).toVector()
 
                 return (dpt - dwt * rt) / wt
             }

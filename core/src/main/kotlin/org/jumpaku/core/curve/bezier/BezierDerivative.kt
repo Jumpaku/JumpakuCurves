@@ -16,7 +16,7 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     override val domain: Interval get() = asBezier.domain
 
-    val controlVectors: Array<Vector> get() = asBezier.controlPoints.map(Point::vector)
+    val controlVectors: Array<Vector> get() = asBezier.controlPoints.map(Point::toVector)
 
     val degree: Int get() = asBezier.degree
 
@@ -26,7 +26,7 @@ class BezierDerivative(val asBezier: Bezier) : Derivative, Differentiable {
 
     constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
 
-    override fun evaluate(t: Double): Vector = asBezier(t).vector
+    override fun evaluate(t: Double): Vector = asBezier(t).toVector()
 
     override fun differentiate(t: Double): Vector = asBezier.differentiate(t)
 

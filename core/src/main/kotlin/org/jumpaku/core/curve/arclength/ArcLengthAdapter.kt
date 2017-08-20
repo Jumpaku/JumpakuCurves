@@ -1,20 +1,16 @@
 package org.jumpaku.core.curve.arclength
 
 import io.vavr.API
-import io.vavr.Tuple
-import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import org.apache.commons.math3.analysis.solvers.*
+import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.divide
-import org.jumpaku.core.affine.middle
 import org.jumpaku.core.curve.Curve
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.Subdividible
 import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.fitting.chordalParametrize
+import org.jumpaku.core.fit.chordalParametrize
 
 
 fun <C> repeatBisection(

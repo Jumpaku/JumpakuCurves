@@ -2,12 +2,12 @@ package org.jumpaku.core.curve.rationalbezier
 
 import io.vavr.API
 import io.vavr.collection.Array
-import org.jumpaku.core.affine.*
+import org.jumpaku.core.affine.Affine
+import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.Vector
+import org.jumpaku.core.affine.WeightedPoint
 import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.arclength.ArcLengthAdapter
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.curve.ParamPoint
-import org.jumpaku.core.curve.ParamPointJson
 import org.jumpaku.core.json.prettyGson
 
 
@@ -22,7 +22,7 @@ class LineSegment(val front: ParamPoint, val back: ParamPoint) : FuzzyCurve, Dif
 
     init {
         require(front.param < back.param) { "front param(${front.param}) >= back.param(${back.param})" }
-        require(Interval(front.param, back.param) in domain) { "front param(${front.param}) or back.param(${back.param}) are out of demain($domain)" }
+        require(Interval(front.param, back.param) in domain) { "front param(${front.param}) or back.param(${back.param}) are out of domain($domain)" }
     }
 
     val representPoints: Array<Point> get() = API.Array(front.point, back.point)

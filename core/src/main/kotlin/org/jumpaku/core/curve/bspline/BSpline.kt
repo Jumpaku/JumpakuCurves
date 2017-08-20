@@ -7,13 +7,16 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
+import org.jumpaku.core.curve.arclength.ArcLengthAdapter
+import org.jumpaku.core.curve.arclength.repeatBisection
 import org.jumpaku.core.curve.bezier.Bezier
+import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
-class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable {
+class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline>  {
 
     val degree: Int = knotVector.degree
 
@@ -76,6 +79,48 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     fun json(): BSplineJson = BSplineJson(this)
 
+    override fun toArcLengthCurve(): ArcLengthAdapter {
+        val ts = repeatBisection(this, this.domain, { bSpline, subDomain ->
+            val cp = bSpline.restrict(subDomain).controlPoints
+            val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
+            val beginEndLength = cp.head().dist(cp.last())
+            !Precision.equals(polylineLength, beginEndLength, 1.0/256)
+        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
+
+        return ArcLengthAdapter(this, ts.toArray())
+    }
+
+    /**
+     * Multiplies more than degree + 1 knots at begin and end of domain.
+     * Head and last of control points are moved to beginning point and end point of BSpline curve.
+     */
+    fun clamp(): BSpline = restrict(domain)//restrict inserts multiple knots into begin and ends
+
+    /**
+     * Closes BSpline.
+     * Moves head and last of clamped control points to head.middle(last).
+     */
+    fun close(): BSpline {
+        val clamped = clamp()
+        val frontCount = clamped.knotVector.filter { it <= domain.begin } .size - degree - 1
+        val backCount = clamped.knotVector.filter { it >= domain.end } .size - degree - 1
+
+        //insertion algorithm of restrict in clamp multiplies degree + 2 knots at end of domain
+        //and last 2 control points are the same point
+        val cp = clamped.controlPoints
+                .drop(frontCount)
+                .dropRight(backCount)
+        val closingPoint = cp.head().middle(cp.last())
+        val newCp = cp
+                .update(0, closingPoint)
+                .update(cp.size() - 1, closingPoint)
+        val us = clamped.knotVector.knots
+                .drop(frontCount)
+                .dropRight(backCount)
+        val newKnots = KnotVector(degree, us)
+        return BSpline(newCp, newKnots)
+    }
+
     fun toBeziers(): Array<Bezier> {
         return knotVector.knots
                 .slice(degree + 1, knotVector.size() - degree - 1)
@@ -86,7 +131,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
                 .toArray()
     }
 
-    fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
+    override fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val (front, back) = createSubdividedControlPointsAndKnotVectors(t, controlPoints, knotVector)

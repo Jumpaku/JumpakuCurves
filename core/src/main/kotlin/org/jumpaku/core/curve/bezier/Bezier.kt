@@ -15,6 +15,7 @@ import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import org.jumpaku.core.util.isOdd
 
 
 class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier> {
@@ -140,41 +141,36 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
         internal fun <P : Divisible<P>> createReducedControlPoints(cp: Array<P>): Array<P>  {
             val m = cp.size()
             val n = m - 1
-
-            if (m == 2) {
-                return Array.of(cp[0].middle(cp[1]))
-            } else if(m % 2 != 0){
-                val r = (m - 3) / 2
-
-                return Stream.concat(
-                        Stream.iterate(Tuple(cp.head(), 1),
-                                { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
-                                .take(r + 1),
-                        Stream.iterate(Tuple(cp.last(), n - 2),
-                                { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
-                                .take(r + 1)
-                                .reverse())
-                        .map { it._1() }
-                        .toArray()
-            }
-            else  {
-                val r = (m - 2) / 2
-
-                val first = Stream.iterate(Tuple(cp.head(), 1),
-                        { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
-                        .take(r)
-                        .map { it._1() }
-
-                val second = Stream.iterate(Tuple(cp.last(), n - 2),
-                        { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
-                        .take(r)
-                        .map { it._1() }
-                        .reverse()
-
-                val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
-                val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.head())
-
-                return Stream.concat(first, Stream(pl.middle(pr)), second).toArray()
+            return when {
+                m == 2 -> Array.of(cp[0].middle(cp[1]))
+                m.isOdd() -> {
+                    val r = (m - 3) / 2
+                    Stream.concat(
+                            Stream.iterate(Tuple(cp.head(), 1),
+                                    { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
+                                    .take(r + 1),
+                            Stream.iterate(Tuple(cp.last(), n - 2),
+                                    { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
+                                    .take(r + 1)
+                                    .reverse())
+                            .map { it._1() }
+                            .toArray()
+                }
+                else -> {
+                    val r = (m - 2) / 2
+                    val first = Stream.iterate(Tuple(cp.head(), 1),
+                            { (qi, i) -> Tuple(cp[i].divide(i / (i - n).toDouble(), qi), i + 1) })
+                            .take(r)
+                            .map { it._1() }
+                    val second = Stream.iterate(Tuple(cp.last(), n - 2),
+                            { (qi, i) -> Tuple(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1) })
+                            .take(r)
+                            .map { it._1() }
+                            .reverse()
+                    val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
+                    val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.head())
+                    Stream.concat(first, Stream(pl.middle(pr)), second).toArray()
+                }
             }
         }
     }

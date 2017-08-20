@@ -1,30 +1,21 @@
 package org.jumpaku.core.affine
 
+import io.vavr.collection.Array
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.fuzzy.Membership
 import org.jumpaku.core.json.prettyGson
 
-class Point(val vector: Vector, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
+data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
 
-    constructor(x: Double, y: Double, z: Double, r: Double): this(Vector(x, y, z), r)
+    constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
 
-    fun toCrisp(): Point = Point(vector)
+    fun toCrisp(): Point = copy(r = 0.0)
 
-    val x: Double get() = vector.x
+    fun toVector(): Vector = Vector(x, y, z)
 
-    val y: Double get() = vector.y
-
-    val z: Double get() = vector.z
-
-    operator fun component1(): Double = x
-
-    operator fun component2(): Double = y
-
-    operator fun component3(): Double = z
-
-    operator fun component4(): Double = r
+    fun toArray(): Array<Double> = toVector().toArray()
 
     override fun membership(p: Point): Grade{
         val d = dist(p)
@@ -59,7 +50,7 @@ class Point(val vector: Vector, val r: Double = 0.0) : Membership<Point, Point>,
      * @return ((1-t)*this.vector + t*p.vector, |1-t|*this.r + |t|*p.r)
      */
     override fun divide(t: Double, p: Point): Point {
-        return Point(vector * (1 - t) + t * p.vector,
+        return Point(toVector() * (1 - t) + t * p.toVector(),
                 FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
     }
 
@@ -77,13 +68,13 @@ class Point(val vector: Vector, val r: Double = 0.0) : Membership<Point, Point>,
      * @param v
      * @return this + v (crisp point)
      */
-    operator fun plus(v: Vector): Point = Point(vector + v)
+    operator fun plus(v: Vector): Point = Point(toVector() + v)
 
     /**
      * @param p
      * @return this - p
      */
-    operator fun minus(p: Point): Vector = vector - p.vector
+    operator fun minus(p: Point): Vector = toVector() - p.toVector()
 
 
     /**

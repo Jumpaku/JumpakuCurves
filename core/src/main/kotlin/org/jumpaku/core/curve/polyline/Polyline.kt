@@ -9,7 +9,7 @@ import org.jumpaku.core.affine.*
 import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.arclength.ArcLengthAdapter
-import org.jumpaku.core.fitting.chordalParametrize
+import org.jumpaku.core.fit.chordalParametrize
 import org.jumpaku.core.json.prettyGson
 
 

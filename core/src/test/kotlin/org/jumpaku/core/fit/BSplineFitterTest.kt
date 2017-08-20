@@ -1,4 +1,4 @@
-package org.jumpaku.core.fitting
+package org.jumpaku.core.fit
 
 import io.vavr.API
 import org.jumpaku.core.affine.Point
@@ -10,7 +10,7 @@ import org.jumpaku.core.curve.bspline.bSplineAssertThat
 import org.junit.Test
 
 
-class BSplineFittingTest {
+class BSplineFitterTest {
 
     @Test
     fun testFit() {
@@ -19,7 +19,7 @@ class BSplineFittingTest {
                 API.Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(Interval(1.0, 1.7), 3, 9))
         val data = b.domain.sample(10).map { ParamPoint(b(it), it) }
-        val f = BSplineFitting(b.degree, b.knotVector).fit(data)
+        val f = BSplineFitter(b.degree, b.knotVector).fit(data)
         bSplineAssertThat(f).isEqualToBSpline(b)
     }
 

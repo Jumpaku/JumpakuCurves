@@ -1,12 +1,9 @@
 package org.jumpaku.fsc.identify.reference
 
 import io.vavr.API
-import io.vavr.Tuple2
 import io.vavr.Tuple3
-import io.vavr.collection.Array
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.affine.divide
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.IntervalJson
@@ -17,7 +14,6 @@ import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 import org.jumpaku.core.util.component3
-import java.util.stream.IntStream
 
 
 class Circular(val conicSection: ConicSection, val domain: Interval) : Reference {

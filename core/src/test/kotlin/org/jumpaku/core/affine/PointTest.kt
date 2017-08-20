@@ -192,9 +192,9 @@ class PointTest {
     @Test
     fun testToVector() {
         println("ToVector")
-        val f = Point.xyzr(1.0,-2.0, 3.0, 2.0).vector
+        val f = Point.xyzr(1.0,-2.0, 3.0, 2.0).toVector()
         vectorAssertThat(f).isEqualToVector(Vector(1.0,-2.0, 3.0))
-        val c = Point.xyz(1.0,-2.0, 3.0).vector
+        val c = Point.xyz(1.0,-2.0, 3.0).toVector()
         vectorAssertThat(c).isEqualToVector(Vector(1.0,-2.0, 3.0))
     }
 
@@ -206,6 +206,15 @@ class PointTest {
 
         val c = Point.xyz(1.0,-2.0, 3.0).toCrisp()
         pointAssertThat(c).isEqualToPoint(Point.xyz(1.0,-2.0, 3.0))
+    }
+
+    @Test
+    fun testToArray() {
+        println("ToArray")
+        val a = Point(1.0, -2.0, 3.0, 2.0).toArray()
+        assertThat(a[0]).isEqualTo( 1.0, withPrecision(1.0e-10))
+        assertThat(a[1]).isEqualTo(-2.0, withPrecision(1.0e-10))
+        assertThat(a[2]).isEqualTo( 3.0, withPrecision(1.0e-10))
     }
 
     @Test

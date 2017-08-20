@@ -131,4 +131,13 @@ class VectorTest {
 
         vectorAssertThat(prettyGson.fromJson<VectorJson>(v.toString()).vector()).isEqualToVector(v)
     }
+
+    @Test
+    fun testToArray() {
+        println("ToArray")
+        val a = Vector(1.0, -2.0, 3.0).toArray()
+        assertThat(a[0]).isEqualTo( 1.0, withPrecision(1.0e-10))
+        assertThat(a[1]).isEqualTo(-2.0, withPrecision(1.0e-10))
+        assertThat(a[2]).isEqualTo( 3.0, withPrecision(1.0e-10))
+    }
 }
