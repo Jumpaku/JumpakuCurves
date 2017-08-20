@@ -52,7 +52,7 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
         }
     }
 
-    private fun render() : Unit {
+    private fun render() {
         with(inputPolyline) {
             children.clear()
             if(points.isEmpty){
