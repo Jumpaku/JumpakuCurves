@@ -4,7 +4,6 @@ import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
 import io.vavr.collection.Array
 import org.apache.commons.math3.util.FastMath
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.Affine
@@ -76,7 +75,7 @@ class BSplineTest {
                Array(Point.xy(0.0, 6.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(6.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 2, 7))
 
-        bSplineAssertThat(b.derivative.asBSpline).isEqualToBSpline(e)
+        bSplineAssertThat(b.derivative.toBSpline()).isEqualToBSpline(e)
     }
 
     @Test

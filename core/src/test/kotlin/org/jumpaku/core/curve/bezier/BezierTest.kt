@@ -3,11 +3,9 @@ package org.jumpaku.core.curve.bezier
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import org.apache.commons.math3.util.FastMath
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.*
 import org.jumpaku.core.json.prettyGson
-import org.junit.Assert
 import org.junit.Test
 
 class BezierTest {
@@ -50,7 +48,7 @@ class BezierTest {
     fun testDifferentiate() {
         val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
         val d = b.derivative
-        bezierAssertThat(d.asBezier).isEqualToBezier(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))
+        bezierAssertThat(d.toBezier()).isEqualToBezier(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))
         vectorAssertThat(b.differentiate(0.0 )).isEqualToVector(Vector(4.0, 0.0 ))
         vectorAssertThat(b.differentiate(0.25)).isEqualToVector(Vector(4.0, 2.25))
         vectorAssertThat(b.differentiate(0.5 )).isEqualToVector(Vector(4.0, 0.0 ))

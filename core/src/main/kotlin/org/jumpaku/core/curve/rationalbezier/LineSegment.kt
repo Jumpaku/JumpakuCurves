@@ -29,14 +29,14 @@ class LineSegment(val front: ParamPoint, val back: ParamPoint) : FuzzyCurve, Dif
 
     val degree = 1
 
-    val asCrispRationalBezier: RationalBezier get() = RationalBezier(
+    fun toCrispRationalBezier(): RationalBezier = RationalBezier(
             API.Stream(evaluate(0.0), evaluate(1.0)).map { WeightedPoint(it.toCrisp(), 1.0) })
 
     override fun toArcLengthCurve(): ArcLengthAdapter = ArcLengthAdapter(this, API.Array(0.0, front.param, back.param, 1.0))
 
-    override val derivative: Derivative get() = asCrispRationalBezier.derivative
+    override val derivative: Derivative get() = toCrispRationalBezier().derivative
 
-    override fun differentiate(t: Double): Vector = asCrispRationalBezier.differentiate(t)
+    override fun differentiate(t: Double): Vector = toCrispRationalBezier().differentiate(t)
 
     override fun transform(a: Affine): LineSegment = LineSegment(
             front.copy(point = a(front.point)), back.copy(point = a(back.point)))
