@@ -5,7 +5,7 @@ import org.jumpaku.core.fuzzy.Grade
 import org.junit.Test
 
 
-class ResultTest {
+class ClassifyResultTest {
 
     @Test
     fun testProperties() {
@@ -20,7 +20,7 @@ class ResultTest {
                 CurveClass.ClosedFreeCurve to Grade(0.5),
                 CurveClass.OpenFreeCurve to Grade(0.8))
 
-        val r = Result(*s)
+        val r = ClassifyResult(*s)
 
         assertThat(r.curveClass).isEqualTo(CurveClass.Ellipse)
         assertThat(r.grade.value).isEqualTo(0.9, withPrecision(1.0e-10))

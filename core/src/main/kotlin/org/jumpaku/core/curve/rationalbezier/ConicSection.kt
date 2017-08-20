@@ -21,7 +21,7 @@ import org.jumpaku.core.util.clamp
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection> {
 
-    val asCrispRationalBezier: RationalBezier get() {
+    fun toCrispRationalBezier(): RationalBezier {
         check((1.0 / weight).isFinite()) { "weight($weight) is close to 0" }
 
         return RationalBezier(Stream(

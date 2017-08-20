@@ -9,7 +9,6 @@ import org.jumpaku.core.affine.Vector
 import org.jumpaku.core.affine.vectorAssertThat
 import org.jumpaku.core.curve.*
 import org.jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.curve.bezier.BezierDerivative
 import org.jumpaku.core.curve.bezier.bezierAssertThat
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
@@ -45,7 +44,7 @@ class BSplineDerivativeTest {
         val b = BSplineDerivative(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
-        bSplineAssertThat(prettyGson.fromJson<BSplineDerivativeJson>(b.toString()).bSplineDerivative().asBSpline)
+        bSplineAssertThat(prettyGson.fromJson<BSplineDerivativeJson>(b.toString()).bSplineDerivative().toBSpline())
                 .isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
@@ -75,7 +74,7 @@ class BSplineDerivativeTest {
                 Array(Point.xy(0.0, 6.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(6.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 2, 7))
 
-        bSplineAssertThat(b.derivative.asBSpline).isEqualToBSpline(e)
+        bSplineAssertThat(b.derivative.toBSpline()).isEqualToBSpline(e)
     }
 
     @Test
@@ -88,7 +87,7 @@ class BSplineDerivativeTest {
         val e0 = BSpline(
                 Array(Point.xy(-0.25, 0.75), Point.xy(-0.125, 5 / 8.0), Point.xy(-1 / 16.0, 7 / 16.0), Point.xy(3 / 32.0, 9 / 32.0)),
                 KnotVector.clampedUniform(3.5, 3.75, 3, 8))
-        bSplineAssertThat(b0.asBSpline).isEqualToBSpline(e0)
+        bSplineAssertThat(b0.toBSpline()).isEqualToBSpline(e0)
 
         val b1 = BSplineDerivative(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
@@ -97,7 +96,7 @@ class BSplineDerivativeTest {
         val e1 = BSpline(
                 Array(Point.xy(-0.25, 0.75), Point.xy(-0.125, 5 / 8.0), Point.xy(-1 / 16.0, 7 / 16.0), Point.xy(3 / 32.0, 9 / 32.0)),
                 KnotVector.clampedUniform(3.5, 3.75, 3, 8))
-        bSplineAssertThat(b1.asBSpline).isEqualToBSpline(e1)
+        bSplineAssertThat(b1.toBSpline()).isEqualToBSpline(e1)
     }
 
     @Test
@@ -111,7 +110,7 @@ class BSplineDerivativeTest {
                 Array(Point.xy(1.0, 0.0), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0), Point.xy(-1.0, 1.0), Point.xy(-1.0, 0.0)),
                 KnotVector.clampedUniform(3, 9))
 
-        bSplineAssertThat(r.asBSpline).isEqualToBSpline(e)
+        bSplineAssertThat(r.toBSpline()).isEqualToBSpline(e)
     }
 
     @Test
@@ -121,9 +120,9 @@ class BSplineDerivativeTest {
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
                 .toBeziers()
-        bezierAssertThat(beziers.get(0).asBezier).isEqualToBezier(Bezier(
+        bezierAssertThat(beziers.get(0).toBezier()).isEqualToBezier(Bezier(
                 Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75)))
-        bezierAssertThat(beziers.get(1).asBezier).isEqualToBezier(Bezier(
+        bezierAssertThat(beziers.get(1).toBezier()).isEqualToBezier(Bezier(
                 Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)))
         assertThat(beziers.size()).isEqualTo(2)
     }
@@ -135,10 +134,10 @@ class BSplineDerivativeTest {
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
                 .subdivide(3.0)
-        bSplineAssertThat(s0._1().asBSpline).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s0._1().toBSpline()).isEqualToBSpline(BSpline(
                 Array.fill(4, { Point.xy(-1.0, 0.0) }),
                 KnotVector.ofKnots(3, Knot(3.0, 8))))
-        bSplineAssertThat(s0._2().asBSpline).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s0._2().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
 
@@ -146,10 +145,10 @@ class BSplineDerivativeTest {
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
                 .subdivide(3.5)
-        bSplineAssertThat(s1._1().asBSpline).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s1._1().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75), Point.xy(-0.25, 0.75)),
                 KnotVector.ofKnots(3, Knot(3.0, 4), Knot(3.5, 5))))
-        bSplineAssertThat(s1._2().asBSpline).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s1._2().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(3.5, 4.0, 3, 8)))
 
@@ -157,10 +156,10 @@ class BSplineDerivativeTest {
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
                 .subdivide(4.0)
-        bSplineAssertThat(s2._1().asBSpline).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s2._1().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
-        bSplineAssertThat(s2._2().asBSpline).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s2._2().toBSpline()).isEqualToBSpline(BSpline(
                 Array.fill(4, { Point.xy(1.0, 0.0) }),
                 KnotVector.ofKnots(3, Knot(4.0, 8))))
     }
@@ -175,7 +174,7 @@ class BSplineDerivativeTest {
         val e0 = BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 0.5), Point.xy(-0.75, 1.0), Point.xy(0.0, 0.75), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector(3, 3.0, 3.0, 3.0, 3.0, 3.25, 3.5, 4.0, 4.0, 4.0, 4.0))
-        bSplineAssertThat(b0.asBSpline).isEqualToBSpline(e0)
+        bSplineAssertThat(b0.toBSpline()).isEqualToBSpline(e0)
 
         val b1 = BSplineDerivative(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
@@ -184,7 +183,7 @@ class BSplineDerivativeTest {
         val e1 = BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector(3, 3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 3.5, 4.0, 4.0, 4.0, 4.0))
-        bSplineAssertThat(b1.asBSpline).isEqualToBSpline(e1)
+        bSplineAssertThat(b1.toBSpline()).isEqualToBSpline(e1)
     }
 
     @Test
@@ -198,7 +197,7 @@ class BSplineDerivativeTest {
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clampedUniform(3, 9))
 
-        bSplineAssertThat(c.asBSpline).isEqualToBSpline(e)
+        bSplineAssertThat(c.toBSpline()).isEqualToBSpline(e)
     }
 
     @Test
@@ -212,6 +211,6 @@ class BSplineDerivativeTest {
                 Array(Point.xy(0.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.0, 0.0)),
                 KnotVector.clampedUniform(3, 9))
 
-        bSplineAssertThat(c.asBSpline).isEqualToBSpline(e)
+        bSplineAssertThat(c.toBSpline()).isEqualToBSpline(e)
     }
 }

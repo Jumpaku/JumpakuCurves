@@ -26,7 +26,7 @@ class ConicSectionTest {
         pointAssertThat(i.representPoints[0]).isEqualToPoint(Point.xyr(0.0, 1.0, 1.0))
         pointAssertThat(i.representPoints[1]).isEqualToPoint(Point.xyr(R2/2, R2/2, 2.0))
         pointAssertThat(i.representPoints[2]).isEqualToPoint(Point.xyr(1.0, 0.0, 3.0))
-        rationalBezierAssertThat(i.asCrispRationalBezier).isEqualToRationalBezier(RationalBezier(
+        rationalBezierAssertThat(i.toCrispRationalBezier()).isEqualToRationalBezier(RationalBezier(
                 WeightedPoint(Point.xyr(0.0, 1.0, 0.0), 1.0),
                 WeightedPoint(Point.xyr(1.0, 1.0, 0.0), 1/R2),
                 WeightedPoint(Point.xyr(1.0, 0.0, 0.0), 1.0)))

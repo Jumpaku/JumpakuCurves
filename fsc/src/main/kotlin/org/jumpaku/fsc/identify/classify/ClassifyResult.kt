@@ -8,12 +8,12 @@ import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 
 
-class Result(val grades: Map<CurveClass, Grade>){
+class ClassifyResult(val grades: Map<CurveClass, Grade>){
 
     constructor(vararg pairs: Pair<CurveClass, Grade>) : this(HashMap.ofAll(mutableMapOf(*pairs)))
 
     init {
-        require(grades.nonEmpty()) { "empty result" }
+        require(grades.nonEmpty()) { "empty grades" }
     }
 
     val curveClass: CurveClass = grades.maxBy { (_, m) -> m } .map { it._1() }.get()
