@@ -1,8 +1,6 @@
 package org.jumpaku.core.curve
 
 import io.vavr.API.Array
-import io.vavr.API.Tuple
-import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath

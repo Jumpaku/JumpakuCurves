@@ -1,15 +1,13 @@
 package org.jumpaku.core.fit
 
-import io.vavr.API.*
+import io.vavr.API.Tuple
 import io.vavr.collection.Array
-import io.vavr.collection.Stream
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.KnotVector
-import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
 import org.jumpaku.core.util.component3

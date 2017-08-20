@@ -1,12 +1,11 @@
 package org.jumpaku.core.fit
 
-import io.vavr.API.*
+import io.vavr.API.Tuple
 import io.vavr.collection.Array
 import org.apache.commons.math3.linear.DiagonalMatrix
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.jumpaku.core.affine.Point
-import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bezier.Bezier
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2

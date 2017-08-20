@@ -46,26 +46,6 @@ class TestView : View(){
     override val root = curveInput.root
 
     init {
-        with(curveInput.contents) {
-            val b = BSpline(API.Array(
-                    Point.xy(0.0, 0.0),
-                    Point.xy(0.0, 600.0),
-                    Point.xy(300.0, 600.0),
-                    Point.xy(300.0, 0.0),
-                    Point.xy(600.0, 0.0)),
-                    KnotVector.clampedUniform(3.0, 4.0, 3, 9))
-            val ts = repeatBisection(b, b.domain, { bSpline, subDomain ->
-                val cp = bSpline.restrict(subDomain).controlPoints
-                val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
-                val beginEndLength = cp.head().dist(cp.last())
-                !Precision.equals(polylineLength, beginEndLength, 1.0/64)
-            }).fold(API.Stream(b.domain.begin), { acc, subDomain -> acc.append(subDomain.end) }).toArray()
-
-            cubicFsc(b) {stroke = Color.CYAN}
-            //fuzzyPoints(ArcLengthAdapter(b, 50).evaluateAll(100)) {stroke = Color.RED}
-            fuzzyPoints(ts.map { b(it) }) {stroke = Color.BLUE}
-        }
-
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)
         }
