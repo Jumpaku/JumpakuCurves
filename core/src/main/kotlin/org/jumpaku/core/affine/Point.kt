@@ -66,9 +66,15 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     /**
      * @param v
-     * @return this + v (crisp point)
+     * @return this + v (as a crisp point)
      */
     operator fun plus(v: Vector): Point = Point(toVector() + v)
+
+    /**
+     * @param v
+     * @return this - v (as a crisp point)
+     */
+    operator fun minus(v: Vector): Point = this + (-v)
 
     /**
      * @param p

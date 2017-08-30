@@ -229,8 +229,10 @@ class PointTest {
     @Test
     fun testPlus() {
         println("Plus")
-        val p = Point.xyz(-1.0, -2.0, 4.0).plus(Vector(1.0,-2.0, 3.0))
-        pointAssertThat(p).isEqualToPoint(Point.xyz(0.0, -4.0, 7.0))
+        val p0 = Point.xyz(-1.0, -2.0, 4.0).plus(Vector(1.0,-2.0, 3.0))
+        pointAssertThat(p0).isEqualToPoint(Point.xyz(0.0, -4.0, 7.0))
+        val p1 = Point.xyz(-1.0, -2.0, 4.0).minus(Vector(1.0,-2.0, 3.0))
+        pointAssertThat(p1).isEqualToPoint(Point.xyz(-2.0, 0.0, 1.0))
     }
 
     @Test
