@@ -4,9 +4,13 @@ import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.pointAssertThat
+import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.ParamPoint
 import org.jumpaku.core.curve.bspline.BSplineJson
+import org.jumpaku.core.curve.intervalAssertThat
+import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.LineSegment
+import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
 import org.jumpaku.core.curve.rationalbezier.lineSegmentAssertThat
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
@@ -20,28 +24,29 @@ class LinearTest {
     @Test
     fun testProperties() {
         println("Properties")
-        val ls = LineSegment(ParamPoint(Point.xyr(2.0, 1.0, 2.0), 0.25), ParamPoint(Point.xyr(3.0, 2.0, 1.0), 0.5))
-        val l = Linear(ls)
-        lineSegmentAssertThat(l.lineSegment).isEqualLineSegment(ls)
+        val cs = ConicSection(Point.xyr(2.0, 1.0, 2.0), Point.xyr(2.5, 1.5, 1.5), Point.xyr(3.0, 2.0, 1.0), 1.0)
+        val l = Linear(cs, Interval(-1.0, 3.0))
+        conicSectionAssertThat(l.conicSection).isEqualConicSection(cs)
+        intervalAssertThat(l.domain).isEqualToInterval(Interval(-1.0, 3.0))
     }
 
     @Test
     fun testFuzzyCurve() {
         println("FuzzyCurve")
-        val ls = LineSegment(ParamPoint(Point.xyr(2.0, 1.0, 2.0), 0.25), ParamPoint(Point.xyr(3.0, 2.0, 1.0), 0.5))
-        val l = Linear(ls)
-        pointAssertThat(l.fuzzyCurve(0.0 )).isEqualToPoint(Point.xyr(1.0, 0.0, 5.0))
-        pointAssertThat(l.fuzzyCurve(0.25)).isEqualToPoint(Point.xyr(2.0, 1.0, 2.0))
-        pointAssertThat(l.fuzzyCurve(0.5 )).isEqualToPoint(Point.xyr(3.0, 2.0, 1.0))
-        pointAssertThat(l.fuzzyCurve(0.75)).isEqualToPoint(Point.xyr(4.0, 3.0, 4.0))
-        pointAssertThat(l.fuzzyCurve(1.0 )).isEqualToPoint(Point.xyr(5.0, 4.0, 7.0))
+        val cs = ConicSection(Point.xyr(2.0, 1.0, 2.0), Point.xyr(2.5, 1.5, 1.5), Point.xyr(3.0, 2.0, 1.0), 1.0)
+        val l = Linear(cs, Interval(-1.0, 3.0))
+        pointAssertThat(l.reference(-1.0)).isEqualToPoint(Point.xyr(1.0, 0.0, 5.0))
+        pointAssertThat(l.reference(0.0)).isEqualToPoint(Point.xyr(2.0, 1.0, 2.0))
+        pointAssertThat(l.reference(1.0)).isEqualToPoint(Point.xyr(3.0, 2.0, 1.0))
+        pointAssertThat(l.reference(2.0)).isEqualToPoint(Point.xyr(4.0, 3.0, 4.0))
+        pointAssertThat(l.reference(3.0 )).isEqualToPoint(Point.xyr(5.0, 4.0, 7.0))
     }
 
     @Test
     fun testToString() {
         println("ToString")
-        val ls = LineSegment(ParamPoint(Point.xyr(2.0, 1.0, 2.0), 0.25), ParamPoint(Point.xyr(3.0, 2.0, 1.0), 0.5))
-        val l = Linear(ls)
+        val cs = ConicSection(Point.xyr(2.0, 1.0, 2.0), Point.xyr(2.5, 1.5, 1.5), Point.xyr(3.0, 2.0, 1.0), 1.0)
+        val l = Linear(cs, Interval(-1.0, 2.0))
         linearAssertThat(prettyGson.fromJson<LinearJson>(l.toString()).linear()).isEqualToLinear(l)
     }
 }

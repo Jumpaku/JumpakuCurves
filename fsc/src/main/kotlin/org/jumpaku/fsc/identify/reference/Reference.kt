@@ -16,9 +16,7 @@ import org.jumpaku.core.util.component2
 
 interface Reference {
 
-    val fuzzyCurve: FuzzyCurve
-
-    fun isValidFor(fuzzyCurve: FuzzyCurve): Grade = fuzzyCurve.isPossible(this.fuzzyCurve)
+    fun isValidFor(fsc: BSpline): Grade
 }
 
 fun evaluateWithoutDomain(t: Double, conicSection: ConicSection): Point {
