@@ -10,6 +10,7 @@ import org.jumpaku.core.curve.IntervalJson
 import org.jumpaku.core.curve.bspline.BSpline
 import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
+import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
@@ -18,7 +19,7 @@ import org.jumpaku.core.util.component3
 
 class Circular(val conicSection: ConicSection, val domain: Interval) : Reference {
 
-    override val fuzzyCurve: FuzzyCurve = object : FuzzyCurve {
+    val reference: FuzzyCurve = object : FuzzyCurve {
 
         override val domain: Interval = this@Circular.domain
 
@@ -27,6 +28,9 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
             return evaluateWithoutDomain(t, conicSection)
         }
     }
+
+    override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
+
 
     override fun toString(): String = prettyGson.toJson(json())
 
