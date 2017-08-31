@@ -26,8 +26,6 @@ class VectorTest {
         println("Plus")
         val v = Vector( 1.0,-2.0, 3.0).plus(Vector(-4.0, 5.0, -6.0))
         vectorAssertThat(v).isEqualToVector(Vector(-3.0, 3.0, -3.0))
-        val u = Vector( 1.0,-2.0, 3.0).plus(2.0, Vector(-4.0, 5.0, -6.0))
-        vectorAssertThat(u).isEqualToVector(Vector(-7.0, 8.0, -9.0))
     }
 
     @Test
@@ -35,8 +33,6 @@ class VectorTest {
         println("Minus")
         val v = Vector( 1.0,-2.0, 3.0).minus(Vector(-4.0, 5.0, -6.0))
         vectorAssertThat(v).isEqualToVector(Vector( 5.0,-7.0,  9.0))
-        val u = Vector( 1.0,-2.0, 3.0).minus(2.0, Vector(-4.0, 5.0, -6.0))
-        vectorAssertThat(u).isEqualToVector(Vector( 9.0,-12.0, 15.0))
     }
 
     @Test
