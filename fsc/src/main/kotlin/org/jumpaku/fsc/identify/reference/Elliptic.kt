@@ -44,8 +44,8 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
     companion object {
 
         fun ofParams(t0: Double, t1: Double, fsc: BSpline): Elliptic {
-            val tf = triangleAreaBisectingFar(t0, t1, fsc)
-            val w = possibilityMaximizingWeight(t0, t1, tf, fsc)
+            val tf = computeEllipticFar(t0, t1, fsc)
+            val w = computeEllipticWeight(t0, t1, tf, fsc)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
             val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)
 
@@ -55,7 +55,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
         fun ofBeginEnd(fsc: BSpline): Elliptic = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
 
         fun of(fsc: BSpline): Elliptic {
-            val (t0, _, t1) = triangleAreaMaximizingParams(fsc)
+            val (t0, _, t1) = scatteredEllipticParams(fsc)
 
             return ofParams(t0, t1, fsc)
         }
@@ -64,11 +64,11 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
 }
 
 /**
- * Computes a far point.
- * Far point on the fsc is a point such that line segment(f, m) bisects a area surrounded by an elliptic arc(fsc(t0), fsc(t1)) and a line segment(fsc(t0), fsc(t1)),
+ * Computes a far point which bisects triangle area.
+ * Far point on the fsc is a point such that line segment(f, m) bisects an area surrounded by an elliptic arc(fsc(t0), fsc(t1)) and a line segment(fsc(t0), fsc(t1)),
  * where f is far point, m is the middle point between fsc(t0) and fsc(t1).
  */
-fun triangleAreaBisectingFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
+fun computeEllipticFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
     val middle = fsc(t0).middle(fsc(t1))
     val ts = Interval(t0, t1).sample(100)
     val ps = ts.map(fsc)
@@ -86,7 +86,10 @@ fun triangleAreaBisectingFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
     }, ts[index], ts[index + 1])
 }
 
-fun possibilityMaximizingWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve): Double {
+/**
+ * Computes weight of elliptic which maximizes possibility.
+ */
+fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve): Double {
     val begin = fsc(t0)
     val end = fsc(t1)
     val far = fsc(tf)
@@ -115,11 +118,14 @@ fun possibilityMaximizingWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCu
             ).point
 }
 
-fun triangleAreaMaximizingParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Double, Double> {
+/**
+ * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
+ */
+fun scatteredEllipticParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Double, Double> {
     val ts = fsc.domain.sample(nSamples)
     return API.For(ts.take(nSamples/3), ts.drop(2*nSamples/3))
             .yield({ t0, t1 ->
-                val tf = triangleAreaBisectingFar(t0, t1, fsc)
+                val tf = computeEllipticFar(t0, t1, fsc)
                 API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
             })
             .maxBy { (_, area) -> area }
