@@ -1,22 +1,14 @@
 package org.jumpaku.fsc.identify.reference
 
 import com.github.salomonbrys.kotson.fromJson
-import org.assertj.core.api.Assertions.*
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.pointAssertThat
 import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.ParamPoint
-import org.jumpaku.core.curve.bspline.BSplineJson
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.ConicSection
-import org.jumpaku.core.curve.rationalbezier.LineSegment
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
-import org.jumpaku.core.curve.rationalbezier.lineSegmentAssertThat
-import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
 import org.junit.Test
-import java.io.FileReader
-import java.nio.file.Paths
 
 
 class LinearTest {

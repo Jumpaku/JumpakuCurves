@@ -1,11 +1,15 @@
 package org.jumpaku.core.affine
 
 import io.vavr.collection.Array
+import org.apache.commons.math3.geometry.euclidean.threed.Line
+import org.apache.commons.math3.geometry.euclidean.threed.Plane
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.fuzzy.Membership
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.divOption
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
 
@@ -18,30 +22,25 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     fun toArray(): Array<Double> = toVector().toArray()
 
     override fun membership(p: Point): Grade{
-        val d = dist(p)
-        return if ((d / r).isFinite()) {
-            Grade.clamped(1.0 - d / r)
-        }
-        else {
-            Grade(equalsPosition(this, p))
-        }
+        return dist(p).divOption(r)
+                .map { Grade.clamped(1 - it) }
+                .getOrElse(Grade(equalsPosition(this, p)))
     }
 
     override fun isPossible(u: Point): Grade{
-        val d = this.dist(u)
-        return when {
-            !(d / (r + u.r)).isFinite() -> Grade(equalsPosition(this, u))
-            else -> Grade.clamped(1 - d / (r + u.r))
-        }
+        return dist(u).divOption(r + u.r)
+                .map { Grade.clamped(1 - it) }
+                .getOrElse(Grade(equalsPosition(this, u)))
     }
 
     override fun isNecessary(u: Point): Grade{
         val d = this.dist(u)
-        return when {
-            !(d / (r + u.r)).isFinite() -> Grade(equalsPosition(this, u))
-            d < u.r -> Grade.clamped(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r)))
-            else -> Grade.FALSE
-        }
+        return d.divOption(r + u.r)
+                .map { when {
+                        it >= u.r -> Grade.FALSE
+                        else -> Grade.clamped(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r)))
+                } }
+                .getOrElse(Grade(equalsPosition(this, u)))
     }
 
     /**
@@ -59,9 +58,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     fun json(): PointJson = PointJson(this)
 
     private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean {
-        return Precision.equals(p1.x, p2.x, eps)
-                && Precision.equals(p1.y, p2.y, eps)
-                && Precision.equals(p1.z, p2.z, eps)
+        return Precision.equals(p1.distSquare(p2), 0.0, eps*eps)
     }
 
     /**
@@ -93,12 +90,17 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      */
     fun distSquare(p: Point): Double = (this - p).square()
 
-    /**
-     * @return distance from this to a line(a, b)
-     */
-    fun distLine(a: Point, b: Point): Double = dist(b.divide((this - b).dot(a - b) / a.distSquare(b), a))
+    fun dist(l: Line): Double = FastMath.sqrt(distSquare(l))
 
-    fun distSquareLine(a: Point, b: Point): Double = distSquare(b.divide((this - b).dot(a - b) / a.distSquare(b), a))
+    fun distSquare(l: Line): Double = distSquare(projectTo(l))
+
+    fun dist(p: Plane): Double = FastMath.sqrt(distSquare(p))
+
+    fun distSquare(p: Plane): Double = distSquare(projectTo(p))
+
+    fun projectTo(l: Line): Point = l.toSpace(l.toSubSpace(Vector3D(x, y, z))).let { Point(it.x, it.y, it.z) }
+
+    fun projectTo(p: Plane): Point = p.toSpace(p.toSubSpace(Vector3D(x, y, z))).let { Point(it.x, it.y, it.z) }
 
     /**
      * @param p1

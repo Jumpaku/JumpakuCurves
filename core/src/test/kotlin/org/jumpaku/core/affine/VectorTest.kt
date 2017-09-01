@@ -26,8 +26,6 @@ class VectorTest {
         println("Plus")
         val v = Vector( 1.0,-2.0, 3.0).plus(Vector(-4.0, 5.0, -6.0))
         vectorAssertThat(v).isEqualToVector(Vector(-3.0, 3.0, -3.0))
-        val u = Vector( 1.0,-2.0, 3.0).plus(2.0, Vector(-4.0, 5.0, -6.0))
-        vectorAssertThat(u).isEqualToVector(Vector(-7.0, 8.0, -9.0))
     }
 
     @Test
@@ -35,8 +33,6 @@ class VectorTest {
         println("Minus")
         val v = Vector( 1.0,-2.0, 3.0).minus(Vector(-4.0, 5.0, -6.0))
         vectorAssertThat(v).isEqualToVector(Vector( 5.0,-7.0,  9.0))
-        val u = Vector( 1.0,-2.0, 3.0).minus(2.0, Vector(-4.0, 5.0, -6.0))
-        vectorAssertThat(u).isEqualToVector(Vector( 9.0,-12.0, 15.0))
     }
 
     @Test
@@ -51,8 +47,10 @@ class VectorTest {
     @Test
     fun testDiv() {
         println("Div")
-        val v = Vector(1.0, -2.0, 3.0).div(5.0)
-        vectorAssertThat(v).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
+        val v0 = Vector(1.0, -2.0, 3.0).div(5.0)
+        vectorAssertThat(v0).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
+        val v1 = Vector(1.0, -2.0, 3.0).divOption(5.0)
+        vectorAssertThat(v1.get()).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.jumpaku.core.curve.arclength.repeatBisection
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.clamp
+import org.jumpaku.core.util.divOption
 
 
 /**
@@ -22,7 +23,7 @@ class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection> {
 
     fun toCrispRationalBezier(): RationalBezier {
-        check((1.0 / weight).isFinite()) { "weight($weight) is close to 0" }
+        check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
 
         return RationalBezier(Stream(
                 begin.toCrisp(),
@@ -140,7 +141,7 @@ class ConicSection(
          *  an elliptic arc with this weight is a sheared circular arc which has the same weight.
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
-            val hh = far.distSquareLine(begin, end)
+            val hh = far.distSquare(line(begin, end))
             val ll = (begin - end).square()/4
             return ConicSection(begin, far, end, clamp((ll - hh) / (ll + hh), -0.999, 0.999))
         }
