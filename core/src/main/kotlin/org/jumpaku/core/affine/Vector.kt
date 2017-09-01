@@ -1,8 +1,10 @@
 package org.jumpaku.core.affine
 
 import io.vavr.collection.Array
+import io.vavr.control.Option
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.divOption
 
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
@@ -19,9 +21,10 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     operator fun times(s: Double): Vector = Vector(vector.scalarMultiply(s))
 
-    operator fun div(s: Double): Vector{
-        require((1/s).isFinite()) { "s($s) is too close to 0" }
-        return Vector(vector.scalarMultiply(1/s))
+    operator fun div(divisor: Double): Vector = Vector(vector.scalarMultiply(1/divisor))
+
+    infix fun divOption(divisor: Double): Option<Vector> {
+        return Option.`when`(toArray().map { it/divisor }.all { it.isFinite() }, this/divisor)
     }
 
     operator fun unaryPlus(): Vector = this

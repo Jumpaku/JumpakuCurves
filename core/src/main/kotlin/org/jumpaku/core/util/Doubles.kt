@@ -1,3 +1,5 @@
 package org.jumpaku.core.util
 
-fun Double.nonZero(): Boolean = (1/this).isFinite()
+import io.vavr.control.Option
+
+infix fun Double.divOption(divisor: Double): Option<Double> = Option.`when`((this/divisor).isFinite(), this/divisor)

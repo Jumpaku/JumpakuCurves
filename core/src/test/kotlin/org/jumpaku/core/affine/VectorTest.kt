@@ -47,8 +47,10 @@ class VectorTest {
     @Test
     fun testDiv() {
         println("Div")
-        val v = Vector(1.0, -2.0, 3.0).div(5.0)
-        vectorAssertThat(v).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
+        val v0 = Vector(1.0, -2.0, 3.0).div(5.0)
+        vectorAssertThat(v0).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
+        val v1 = Vector(1.0, -2.0, 3.0).divOption(5.0)
+        vectorAssertThat(v1.get()).isEqualToVector(Vector( 1/5.0,-2/5.0, 3/5.0))
     }
 
     @Test

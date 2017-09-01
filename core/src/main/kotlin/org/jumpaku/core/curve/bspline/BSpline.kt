@@ -14,6 +14,7 @@ import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import org.jumpaku.core.util.divOption
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline>  {
@@ -214,12 +215,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
         }
 
         private fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double {
-            return if (((a - b) / (c - d)).isFinite()) {
-                (a - b) / (c - d)
-            }
-            else {
-                0.0
-            }
+            return (a - b).divOption (c - d).getOrElse(0.0)
         }
     }
 }

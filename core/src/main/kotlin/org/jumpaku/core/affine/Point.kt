@@ -9,6 +9,7 @@ import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.fuzzy.Membership
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.divOption
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
 
@@ -21,30 +22,25 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     fun toArray(): Array<Double> = toVector().toArray()
 
     override fun membership(p: Point): Grade{
-        val d = dist(p)
-        return if ((d / r).isFinite()) {
-            Grade.clamped(1.0 - d / r)
-        }
-        else {
-            Grade(equalsPosition(this, p))
-        }
+        return dist(p).divOption(r)
+                .map { Grade.clamped(1 - it) }
+                .getOrElse(Grade(equalsPosition(this, p)))
     }
 
     override fun isPossible(u: Point): Grade{
-        val d = this.dist(u)
-        return when {
-            !(d / (r + u.r)).isFinite() -> Grade(equalsPosition(this, u))
-            else -> Grade.clamped(1 - d / (r + u.r))
-        }
+        return dist(u).divOption(r + u.r)
+                .map { Grade.clamped(1 - it) }
+                .getOrElse(Grade(equalsPosition(this, u)))
     }
 
     override fun isNecessary(u: Point): Grade{
         val d = this.dist(u)
-        return when {
-            !(d / (r + u.r)).isFinite() -> Grade(equalsPosition(this, u))
-            d < u.r -> Grade.clamped(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r)))
-            else -> Grade.FALSE
-        }
+        return d.divOption(r + u.r)
+                .map { when {
+                        it >= u.r -> Grade.FALSE
+                        else -> Grade.clamped(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r)))
+                } }
+                .getOrElse(Grade(equalsPosition(this, u)))
     }
 
     /**

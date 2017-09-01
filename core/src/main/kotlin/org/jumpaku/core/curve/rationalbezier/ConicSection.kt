@@ -13,6 +13,7 @@ import org.jumpaku.core.curve.arclength.repeatBisection
 import org.jumpaku.core.curve.polyline.Polyline
 import org.jumpaku.core.json.prettyGson
 import org.jumpaku.core.util.clamp
+import org.jumpaku.core.util.divOption
 
 
 /**
@@ -22,7 +23,7 @@ class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection> {
 
     fun toCrispRationalBezier(): RationalBezier {
-        check((1.0 / weight).isFinite()) { "weight($weight) is close to 0" }
+        check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
 
         return RationalBezier(Stream(
                 begin.toCrisp(),
