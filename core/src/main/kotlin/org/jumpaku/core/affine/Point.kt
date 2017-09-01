@@ -62,9 +62,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     fun json(): PointJson = PointJson(this)
 
     private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean {
-        return Precision.equals(p1.x, p2.x, eps)
-                && Precision.equals(p1.y, p2.y, eps)
-                && Precision.equals(p1.z, p2.z, eps)
+        return Precision.equals(p1.distSquare(p2), 0.0, eps*eps)
     }
 
     /**
