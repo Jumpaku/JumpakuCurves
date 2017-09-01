@@ -1,6 +1,9 @@
 package org.jumpaku.core.affine
 
 import io.vavr.collection.Array
+import org.apache.commons.math3.geometry.euclidean.threed.Line
+import org.apache.commons.math3.geometry.euclidean.threed.Plane
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 import org.jumpaku.core.fuzzy.Grade
@@ -66,9 +69,15 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     /**
      * @param v
-     * @return this + v (crisp point)
+     * @return this + v (as a crisp point)
      */
     operator fun plus(v: Vector): Point = Point(toVector() + v)
+
+    /**
+     * @param v
+     * @return this - v (as a crisp point)
+     */
+    operator fun minus(v: Vector): Point = this + (-v)
 
     /**
      * @param p
@@ -87,12 +96,17 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      */
     fun distSquare(p: Point): Double = (this - p).square()
 
-    /**
-     * @return distance from this to a line(a, b)
-     */
-    fun distLine(a: Point, b: Point): Double = dist(b.divide((this - b).dot(a - b) / a.distSquare(b), a))
+    fun dist(l: Line): Double = FastMath.sqrt(distSquare(l))
 
-    fun distSquareLine(a: Point, b: Point): Double = distSquare(b.divide((this - b).dot(a - b) / a.distSquare(b), a))
+    fun distSquare(l: Line): Double = distSquare(projectTo(l))
+
+    fun dist(p: Plane): Double = FastMath.sqrt(distSquare(p))
+
+    fun distSquare(p: Plane): Double = distSquare(projectTo(p))
+
+    fun projectTo(l: Line): Point = l.toSpace(l.toSubSpace(Vector3D(x, y, z))).let { Point(it.x, it.y, it.z) }
+
+    fun projectTo(p: Plane): Point = p.toSpace(p.toSubSpace(Vector3D(x, y, z))).let { Point(it.x, it.y, it.z) }
 
     /**
      * @param p1

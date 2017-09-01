@@ -140,7 +140,7 @@ class ConicSection(
          *  an elliptic arc with this weight is a sheared circular arc which has the same weight.
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
-            val hh = far.distSquareLine(begin, end)
+            val hh = far.distSquare(line(begin, end))
             val ll = (begin - end).square()/4
             return ConicSection(begin, far, end, clamp((ll - hh) / (ll + hh), -0.999, 0.999))
         }
