@@ -16,8 +16,8 @@ buildscript {
 }
 
 subprojects {
-    group 'org.jumpaku'
-    version '0.0.3'
+    group 'jumpaku'
+    version '0.1'
 
     apply plugin: 'kotlin'
 
