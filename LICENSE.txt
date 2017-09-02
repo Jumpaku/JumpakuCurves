@@ -27,6 +27,7 @@ SOFTWARE.
 This project depends on the following libraries:
   * Apache Commons Math
   * Kotson
+  * vavr
 These libraries are licensed under the Apache License, Version 2.0.
 You can get a copy of the License at
 

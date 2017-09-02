@@ -1,23 +1,93 @@
-group 'org.jumpaku'
-version '0.0.1'
+
 
 buildscript {
-    ext.kotlin_version = '1.1.2-2'
+    ext.kotlin_version = '1.1.4-3'
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "gradle.plugin.gradle-plugins:jartest:1.0"
+    }
+}
+
+subprojects {
+    group 'jumpaku'
+    version '0.1'
+
+    apply plugin: 'kotlin'
 
     repositories {
         mavenCentral()
     }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = '1.8'
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = '1.8'
+    }
+
+    apply plugin: 'maven'
+    task sourcesJar(type: Jar, dependsOn:classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+    artifacts {
+        archives sourcesJar
+    }
+
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testCompile 'org.assertj:assertj-core:3.7.0'
+
+        // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+        compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+
+        // https://mvnrepository.com/artifact/com.github.salomonbrys.kotson/kotson
+        compile group: 'com.github.salomonbrys.kotson', name: 'kotson', version: '2.5.0'
+
+        // https://mvnrepository.com/artifact/io.vavr/vavr
+        compile group: 'io.vavr', name: 'vavr', version: '0.9.0'
     }
 }
 
-apply plugin: 'kotlin'
-
-repositories {
-    mavenCentral()
+project(':core') {
+    apply plugin: 'com.github.hauner.jarTest'
 }
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+project(':fsc') {
+    dependencies {
+        testCompile project (path: ':core', configuration: 'testArchives')
+
+        compile project(':core')
+    }
+}
+
+project(':fxcomponents') {
+    dependencies {
+        compile project(':core')
+
+        // https://mvnrepository.com/artifact/no.tornado/tornadofx
+        compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
+    }
+}
+
+project(':examples'){
+    dependencies {
+        compile project(':core')
+
+        compile project(':fsc')
+
+        compile project(':fxcomponents')
+
+        // https://mvnrepository.com/artifact/no.tornado/tornadofx
+        compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
+    }
 }
