@@ -6,12 +6,6 @@ import io.vavr.API.For
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
-import org.apache.commons.math3.optim.*
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType
-import org.apache.commons.math3.optim.univariate.BrentOptimizer
-import org.apache.commons.math3.optim.univariate.SearchInterval
-import org.apache.commons.math3.optim.univariate.UnivariateObjectiveFunction
-import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.Point
 import org.jumpaku.core.affine.line
 import org.jumpaku.core.affine.plane
@@ -48,7 +42,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
 
         fun ofParams(t0: Double, t1: Double, fsc: BSpline): Elliptic {
             val tf = computeEllipticFar(t0, t1, fsc)
-            val w = computeEllipticWeight_(t0, t1, tf, fsc)
+            val w = computeEllipticWeight(t0, t1, tf, fsc)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
             val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)
 
@@ -89,39 +83,7 @@ fun computeEllipticFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
     }, ts[index], ts[index + 1])
 }
 
-/**
- * Computes weight of elliptic which maximizes possibility.
- */
-fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve): Double {
-    val begin = fsc(t0)
-    val end = fsc(t1)
-    val far = fsc(tf)
-    val fscArcLength = fsc.toArcLengthCurve()
-    val fmpsFsc = fscArcLength.evaluateAll(30)
-
-    val relative = 1.0e-7
-    val absolute = 1.0e-4
-    val possibilityF =  { w: Double ->
-        val elliptic = ConicSection(begin, far, end, w)
-        val domain = createDomain(t0, t1, fscArcLength, elliptic)
-        val reference = Elliptic(elliptic, domain)
-
-        reference.reference.toArcLengthCurve().evaluateAll(30).zipWith(fmpsFsc, {
-            a, b -> 1 - a.dist(b) / (a.r + b.r)
-        }).min().get()
-    }
-
-    return BrentOptimizer(relative, absolute)
-            .optimize(
-                    MaxEval(50),
-                    MaxIter(50),
-                    SearchInterval(-0.999, 0.999),
-                    GoalType.MAXIMIZE,
-                    UnivariateObjectiveFunction(possibilityF)
-            ).point
-}
-
-fun computeEllipticWeight_(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve, samplesCount: Int = 100): Double {
+fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve, samplesCount: Int = 100): Double {
     val begin = fsc(t0)
     val end = fsc(t1)
     val far = fsc(tf)
