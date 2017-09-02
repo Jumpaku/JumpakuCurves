@@ -1,12 +1,13 @@
-package jumpaku.examples
+package jumpaku.examples.classify
 
 import io.vavr.collection.Array
 import io.vavr.control.Try
 import javafx.application.Application
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.ParamPoint
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fsc.identify.classify.ClassifierOpen4
+import jumpaku.fsc.identify.classify.ClassifierPrimitive7
 import jumpaku.fsc.identify.reference.Circular
 import jumpaku.fsc.identify.reference.Elliptic
 import jumpaku.fsc.identify.reference.Linear
@@ -18,21 +19,21 @@ import tornadofx.Scope
 import tornadofx.View
 
 
-fun main(args: kotlin.Array<String>) {
-    Application.launch(MyApp::class.java, *args)
-}
+fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
 
-class MyApp: App(TestView::class)
+class AppClassify : App(ViewClassify::class)
 
-class TestView : View(){
+class ViewClassify : View(){
 
     override val scope: Scope = Scope()
 
-    val curveInput = CurveInput(scope = scope)
+    override val root: Pane
 
-    override val root = curveInput.root
+    private val curveInput: CurveInput
 
     init {
+        curveInput = CurveInput(scope = scope)
+        root = curveInput.root
         subscribe<CurveInput.CurveDoneEvent> {
             render(it.data)
         }
@@ -46,12 +47,14 @@ class TestView : View(){
             val fsc = FscGenerator(3, 0.1).generate(Array.ofAll(data))//prettyGson.fromJson<BSplineJson>(File("/Users/jumpaku/Documents/fsc.json").readText()).bSpline()//
             cubicFsc(fsc) { stroke = Color.BLUE }
             Try.run {
-                fuzzyCurve(Linear.ofBeginEnd(fsc).reference) { stroke = Color.GREEN }
-                fuzzyCurve(Circular.ofBeginEnd(fsc).reference) { stroke = Color.RED }
-                fuzzyCurve(Elliptic.ofBeginEnd(fsc).reference) { stroke = Color.SKYBLUE }
-                val result = ClassifierOpen4().classify(fsc)
-                println(result.grades)
+                fuzzyCurve(Linear.of(fsc).reference) { stroke = Color.GREEN }
+                fuzzyCurve(Circular.of(fsc).reference) { stroke = Color.RED }
+                fuzzyCurve(Elliptic.of(fsc).reference) { stroke = Color.SKYBLUE }
+                val result = ClassifierPrimitive7().classify(fsc)
+                result.grades.toStream().sortedByDescending { it._2 }.forEach(::println)
+                println("---")
             }.onFailure {
+                println("the following fsc causes a classification error")
                 println(fsc)
             }
         }
