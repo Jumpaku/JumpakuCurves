@@ -1,13 +1,13 @@
-package org.jumpaku.core.curve.bspline
+package jumpaku.core.curve.bspline
 
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.VectorJson
-import org.jumpaku.core.curve.*
-import org.jumpaku.core.curve.bezier.BezierDerivative
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.curve.*
+import jumpaku.core.curve.bezier.BezierDerivative
+import jumpaku.core.json.prettyGson
 
 
 class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable {

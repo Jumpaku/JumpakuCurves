@@ -1,13 +1,13 @@
-package org.jumpaku.core.curve.bezier
+package jumpaku.core.curve.bezier
 
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import org.jumpaku.core.curve.Derivative
-import org.jumpaku.core.curve.Differentiable
-import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.curve.Derivative
+import jumpaku.core.curve.Differentiable
+import jumpaku.core.curve.Interval
+import jumpaku.core.json.prettyGson
 
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable {

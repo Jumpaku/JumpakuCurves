@@ -1,31 +1,32 @@
-package org.jumpaku.core.curve.bezier
+package jumpaku.core.curve.bezier
 
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.*
+import jumpaku.core.curve.*
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.json.prettyGson
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
-import org.jumpaku.core.util.isOdd
+import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.prettyGson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.isOdd
 
 
 class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier> {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: BezierDerivative get() {
+    override val derivative: BezierDerivative
+        get() {
         val cp = controlPoints.map(Point::toCrisp)
         val vs = cp.zipWith(cp.tail(), { pre, post -> (post - pre)*degree.toDouble() })
-        return  BezierDerivative(vs)
+        return BezierDerivative(vs)
     }
 
     val degree: Int get() = controlPoints.size() - 1

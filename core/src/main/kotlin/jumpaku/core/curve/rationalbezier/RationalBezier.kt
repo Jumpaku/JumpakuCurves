@@ -1,17 +1,17 @@
-package org.jumpaku.core.curve.rationalbezier
+package jumpaku.core.curve.rationalbezier
 
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
+import jumpaku.core.curve.*
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
-import org.jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.curve.bezier.BezierDerivative
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.curve.bezier.Bezier
+import jumpaku.core.curve.bezier.BezierDerivative
+import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.prettyGson
 
 
 class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, Subdividible<RationalBezier> {
@@ -35,7 +35,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: Derivative get() {
+    override val derivative: Derivative
+        get() {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative

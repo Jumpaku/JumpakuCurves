@@ -1,4 +1,4 @@
-package org.jumpaku.core.curve.bspline
+package jumpaku.core.curve.bspline
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
@@ -9,16 +9,11 @@ import jumpaku.core.affine.Point
 import jumpaku.core.affine.Affine
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.pointAssertThat
-import jumpaku.core.curve.Interval
-import jumpaku.core.curve.Knot
-import jumpaku.core.curve.KnotVector
-import org.jumpaku.core.curve.*
+import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.BSplineJson
-import org.jumpaku.core.curve.bezier.bezierAssertThat
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.curve.bezier.bezierAssertThat
+import jumpaku.core.json.prettyGson
 import org.junit.Test
 
 

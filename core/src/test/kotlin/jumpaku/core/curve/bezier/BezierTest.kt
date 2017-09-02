@@ -1,13 +1,11 @@
-package org.jumpaku.core.curve.bezier
+package jumpaku.core.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import jumpaku.core.affine.*
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.BezierJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.json.prettyGson
 import org.junit.Test
 
 class BezierTest {

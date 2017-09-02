@@ -1,19 +1,19 @@
-package org.jumpaku.core.curve.rationalbezier
+package jumpaku.core.curve.rationalbezier
 
 
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
+import jumpaku.core.curve.*
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.json.prettyGson
-import org.jumpaku.core.util.clamp
-import org.jumpaku.core.util.divOption
+import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.prettyGson
+import jumpaku.core.util.clamp
+import jumpaku.core.util.divOption
 
 
 /**
@@ -27,7 +27,7 @@ class ConicSection(
 
         return RationalBezier(Stream(
                 begin.toCrisp(),
-                far.divide(-1/weight, begin.middle(end)).toCrisp(),
+                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
                 end.toCrisp()
         ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
     }
@@ -38,7 +38,8 @@ class ConicSection(
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative get() = object : Derivative{
+    override val derivative: Derivative
+        get() = object : Derivative {
         override val domain: Interval = this@ConicSection.domain
         override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
     }
@@ -164,5 +165,5 @@ data class ConicSectionJson(
             conicSection.weight)
 
     fun conicSection(): ConicSection = ConicSection(
-                begin.point(), far.point(), end.point(), weight)
+            begin.point(), far.point(), end.point(), weight)
 }

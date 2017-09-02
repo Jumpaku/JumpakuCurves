@@ -1,15 +1,12 @@
-package org.jumpaku.core.curve.bezier
+package jumpaku.core.curve.bezier
 
 import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.vectorAssertThat
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.BezierDerivative
-import jumpaku.core.curve.bezier.BezierDerivativeJson
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.Interval
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.json.prettyGson
 import org.junit.Test
 
 /**

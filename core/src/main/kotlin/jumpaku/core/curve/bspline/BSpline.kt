@@ -1,33 +1,34 @@
-package org.jumpaku.core.curve.bspline
+package jumpaku.core.curve.bspline
 
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.*
+import jumpaku.core.curve.*
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
-import org.jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.json.prettyGson
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
-import org.jumpaku.core.util.divOption
+import jumpaku.core.curve.bezier.Bezier
+import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.prettyGson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.divOption
 
 
-class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline>  {
+class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline> {
 
     val degree: Int = knotVector.degree
 
     override val domain: Interval = knotVector.domain
 
-    override val derivative: BSplineDerivative get() {
+    override val derivative: BSplineDerivative
+        get() {
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
                 .zipWithIndex({ v, i ->
-                    v* basisHelper(degree.toDouble(), 0.0,  knotVector[degree + i + 1], knotVector[i + 1])
+                    v* basisHelper(degree.toDouble(), 0.0, knotVector[degree + i + 1], knotVector[i + 1])
                 })
 
         return BSplineDerivative(cvs, knotVector.derivativeKnotVector())

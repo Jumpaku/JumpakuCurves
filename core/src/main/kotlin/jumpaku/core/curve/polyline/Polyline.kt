@@ -1,4 +1,4 @@
-package org.jumpaku.core.curve.polyline
+package jumpaku.core.curve.polyline
 
 import io.vavr.API.*
 import io.vavr.Tuple2
@@ -7,12 +7,11 @@ import io.vavr.collection.Stream
 import jumpaku.core.affine.Affine
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.PointJson
+import jumpaku.core.curve.*
 import org.apache.commons.math3.util.Precision
-import org.jumpaku.core.curve.*
-import org.jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.arclength.ArcLengthAdapter
-import org.jumpaku.core.fit.chordalParametrize
-import org.jumpaku.core.json.prettyGson
+import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.json.prettyGson
 
 
 /**
@@ -78,18 +77,18 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
         val index = parameters.search(t)
         return when{
             index >= 0 ->
-                Tuple(Polyline(paramPoints.take(index+1)),
+                Tuple(Polyline(paramPoints.take(index + 1)),
                         Polyline(paramPoints.drop(index).map { it.copy(param = it.param - t) }))
             Precision.equals(parameters[-2-index], t, 1.0e-10) ->
-                Tuple(Polyline(paramPoints.take(-1-index)),
-                        Polyline(paramPoints.drop(-2-index).map { it.copy(param = it.param - t) }))
+                Tuple(Polyline(paramPoints.take(-1 - index)),
+                        Polyline(paramPoints.drop(-2 - index).map { it.copy(param = it.param - t) }))
             Precision.equals(parameters[-1-index], t, 1.0e-10) ->
                 Tuple(Polyline(paramPoints.take(-index)),
-                        Polyline(paramPoints.drop(-1-index).map { it.copy(param = it.param - t) }))
+                        Polyline(paramPoints.drop(-1 - index).map { it.copy(param = it.param - t) }))
             else -> {
                 val p = evaluate(t)
-                Tuple(Polyline(paramPoints.take(-1-index).append(ParamPoint(p, t))),
-                        Polyline(paramPoints.drop(-1-index).prepend(ParamPoint(p, t)).map { it.copy(param = it.param - t) }))
+                Tuple(Polyline(paramPoints.take(-1 - index).append(ParamPoint(p, t))),
+                        Polyline(paramPoints.drop(-1 - index).prepend(ParamPoint(p, t)).map { it.copy(param = it.param - t) }))
             }
         }
     }

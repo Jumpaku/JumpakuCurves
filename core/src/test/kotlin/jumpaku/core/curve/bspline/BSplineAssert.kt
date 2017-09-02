@@ -1,12 +1,11 @@
-package org.jumpaku.core.curve.bspline
+package jumpaku.core.curve.bspline
 
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import jumpaku.core.affine.pointAssertThat
-import jumpaku.core.curve.bspline.BSpline
-import org.jumpaku.core.curve.knotVectorAssertThat
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
+import jumpaku.core.curve.knotVectorAssertThat
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
 
 
 fun bSplineAssertThat(actual: BSpline): BSplineAssert = BSplineAssert(actual)

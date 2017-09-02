@@ -1,9 +1,8 @@
-package org.jumpaku.core.curve.bezier
+package jumpaku.core.curve.bezier
 
 import org.assertj.core.api.AbstractAssert
 import jumpaku.core.affine.pointAssertThat
-import jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.util.*
+import jumpaku.core.util.*
 
 /**
  * Created by jumpaku on 2017/05/16.

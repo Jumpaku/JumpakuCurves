@@ -1,16 +1,16 @@
-package org.jumpaku.core.curve.arclength
+package jumpaku.core.curve.arclength
 
 import io.vavr.API
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import jumpaku.core.affine.Point
-import org.jumpaku.core.curve.Curve
-import org.jumpaku.core.curve.FuzzyCurve
-import org.jumpaku.core.curve.Interval
-import org.jumpaku.core.curve.Subdividible
-import org.jumpaku.core.curve.polyline.Polyline
-import org.jumpaku.core.fit.chordalParametrize
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.Subdividible
+import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.fit.chordalParametrize
 
 
 fun <C> repeatBisection(
@@ -29,7 +29,7 @@ fun <C> repeatBisection(
 /**
  * Approximates curve with polyline.
  */
-class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Array<Double>) : FuzzyCurve{
+class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Array<Double>) : FuzzyCurve {
 
     constructor(curve: Curve, n: Int) : this(curve, curve.domain.sample(n))
 

@@ -1,4 +1,4 @@
-package org.jumpaku.core.fit
+package jumpaku.core.fit
 
 import io.vavr.API.Tuple
 import io.vavr.collection.Array
@@ -7,9 +7,9 @@ import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.bezier.Bezier
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
-import org.jumpaku.core.util.component3
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.component3
 
 
 class BezierFitter(val degree: Int) : Fitter<Bezier> {
