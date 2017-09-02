@@ -46,9 +46,7 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
             return Circular(circular, domain)
         }
 
-        fun ofBeginEnd(fsc: BSpline): Circular {
-            return ofParams(fsc.domain.begin, fsc.domain.end, fsc)
-        }
+        fun ofBeginEnd(fsc: BSpline): Circular = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
 
         fun of(fsc: BSpline): Circular {
             val (t0, _, t1) = scatteredCircularParams(fsc)

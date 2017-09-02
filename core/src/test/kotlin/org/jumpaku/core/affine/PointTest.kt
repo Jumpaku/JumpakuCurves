@@ -247,9 +247,9 @@ class PointTest {
         println("Dist")
         val dp = Point.xyz(-1.0, -2.0, 4.0).dist(Point.xyz(1.0, -2.0, 3.0))
         assertThat(dp).isEqualTo(FastMath.sqrt(5.0), withPrecision(1.0e-10))
-        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Vector(4.0, 3.0, 0.0)))
+        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Vector(4.0, 3.0, 0.0)).get())
         assertThat(dl).isEqualTo(12/5.0, withPrecision(1.0e-10))
-        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
         assertThat(dplane).isEqualTo(3.0, withPrecision(1.0e-10))
     }
 
@@ -258,18 +258,18 @@ class PointTest {
         println("DistSquare")
         val dp = Point.xyz(-1.0, -2.0, 4.0).distSquare(Point.xyz(1.0, -2.0, 3.0))
         assertThat(dp).isEqualTo(5.0, withPrecision(1.0e-10))
-        val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
         assertThat(dl).isEqualTo(144/25.0, withPrecision(1.0e-10))
-        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
         assertThat(dplane).isEqualTo(9.0, withPrecision(1.0e-10))
     }
 
     @Test
     fun testProjectTo() {
         println("ProjectTo")
-        val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)))
+        val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)).get())
         pointAssertThat(pl).isEqualToPoint(Point.xyz(-1.0, 1.0, 0.0))
-        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
         pointAssertThat(pp).isEqualToPoint(Point.xyz(1.0, -1.0, 0.0))
     }
 

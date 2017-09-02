@@ -24,7 +24,7 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
     operator fun div(divisor: Double): Vector = Vector(vector.scalarMultiply(1/divisor))
 
     infix fun divOption(divisor: Double): Option<Vector> {
-        return Option.`when`(toArray().map { it/divisor }.all { it.isFinite() }, this/divisor)
+        return Option.`when`(toArray().all { it.divOption(divisor).isDefined }, this/divisor)
     }
 
     operator fun unaryPlus(): Vector = this

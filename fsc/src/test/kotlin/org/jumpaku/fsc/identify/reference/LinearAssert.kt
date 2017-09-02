@@ -3,7 +3,6 @@ package org.jumpaku.fsc.identify.reference
 import org.assertj.core.api.AbstractAssert
 import org.jumpaku.core.curve.intervalAssertThat
 import org.jumpaku.core.curve.rationalbezier.conicSectionAssertThat
-import org.jumpaku.core.curve.rationalbezier.lineSegmentAssertThat
 
 
 fun linearAssertThat(actual: Linear): LinearAssert = LinearAssert(actual)
