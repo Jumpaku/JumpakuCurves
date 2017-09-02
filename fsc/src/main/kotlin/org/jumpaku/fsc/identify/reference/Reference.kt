@@ -12,6 +12,7 @@ import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.util.component1
 import org.jumpaku.core.util.component2
+import org.jumpaku.core.util.divOption
 
 
 interface Reference {
@@ -49,6 +50,10 @@ fun conicSectionArcLengthWithoutDomain(t: Double, circular: ArcLengthAdapter, co
 fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSection: ConicSection): Interval {
     val l0 = fscArcLength.arcLengthUntil(t0)
     val l1 = fscArcLength.arcLengthUntil(t1)
+    if(1.0.divOption(l1 - l0).isEmpty){
+        return Interval.ZERO_ONE
+    }
+
     val l = fscArcLength.arcLength()
 
     val arcLengthConic = conicSection.toArcLengthCurve()

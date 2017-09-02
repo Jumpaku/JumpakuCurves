@@ -1,15 +1,20 @@
 package org.jumpaku.fsc.identify.reference
 
-import io.vavr.API
+import io.vavr.*
 import io.vavr.API.Array
-import io.vavr.Tuple3
+import io.vavr.API.For
 import org.apache.commons.math3.analysis.solvers.BrentSolver
+import org.apache.commons.math3.geometry.euclidean.threed.Line
+import org.apache.commons.math3.geometry.euclidean.threed.Plane
 import org.apache.commons.math3.optim.*
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType
 import org.apache.commons.math3.optim.univariate.BrentOptimizer
 import org.apache.commons.math3.optim.univariate.SearchInterval
 import org.apache.commons.math3.optim.univariate.UnivariateObjectiveFunction
+import org.apache.commons.math3.util.FastMath
 import org.jumpaku.core.affine.Point
+import org.jumpaku.core.affine.line
+import org.jumpaku.core.affine.plane
 import org.jumpaku.core.curve.FuzzyCurve
 import org.jumpaku.core.curve.Interval
 import org.jumpaku.core.curve.IntervalJson
@@ -18,9 +23,7 @@ import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
-import org.jumpaku.core.util.component1
-import org.jumpaku.core.util.component2
-import org.jumpaku.core.util.component3
+import org.jumpaku.core.util.*
 
 
 class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference {
@@ -45,7 +48,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
 
         fun ofParams(t0: Double, t1: Double, fsc: BSpline): Elliptic {
             val tf = computeEllipticFar(t0, t1, fsc)
-            val w = computeEllipticWeight(t0, t1, tf, fsc)
+            val w = computeEllipticWeight_(t0, t1, tf, fsc)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
             val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)
 
@@ -116,6 +119,35 @@ fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve): 
                     GoalType.MAXIMIZE,
                     UnivariateObjectiveFunction(possibilityF)
             ).point
+}
+
+fun computeEllipticWeight_(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve, samplesCount: Int = 100): Double {
+    val begin = fsc(t0)
+    val end = fsc(t1)
+    val far = fsc(tf)
+
+    val xy_xx = For(plane(begin, far, end), line(begin, end), fsc.domain.sample(samplesCount))
+            .yield(function3 { plane: Plane, line: Line, tp: Double ->
+                val p = fsc(tp).projectTo(plane)
+                val a = far.projectTo(line(p, end - begin).get())
+                val b = far.projectTo(line)
+                val t = (a - far).dot(b - far).divOption(b.distSquare(far)).getOrElse(0.0)
+                val x = far.divide(t, begin.middle(end))
+                val dd = x.distSquare(p)
+                val ll = begin.distSquare(end) / 4
+                val yi = dd + t * t * ll - 2 * t * ll
+                val xi = ll * t * t - dd
+                val wi = 1.0//FastMath.exp(-fsc(tp).r)
+
+                Tuple.of(wi * yi * xi, wi * xi * xi)
+            }).toArray()
+    if (xy_xx.isEmpty){
+        return 0.999
+    }
+    return xy_xx.unzip { it }
+            .apply { xy, xx ->
+                clamp(xy.sum().toDouble().divOrElse(xx.sum().toDouble(), 0.999), -0.999, 0.999)
+            }
 }
 
 /**

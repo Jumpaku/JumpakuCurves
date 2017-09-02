@@ -1,9 +1,14 @@
 package org.jumpaku.examples
 
+import com.github.salomonbrys.kotson.fromJson
 import io.vavr.collection.Array
+import io.vavr.control.Try
 import javafx.application.Application
 import javafx.scene.paint.Color
 import org.jumpaku.core.curve.ParamPoint
+import org.jumpaku.core.curve.bspline.BSpline
+import org.jumpaku.core.curve.bspline.BSplineJson
+import org.jumpaku.core.json.prettyGson
 import org.jumpaku.fsc.generate.FscGenerator
 import org.jumpaku.fsc.identify.classify.ClassifierOpen4
 import org.jumpaku.fsc.identify.classify.ClassifierPrimitive7
@@ -16,9 +21,10 @@ import org.jumpaku.fxcomponents.view.fuzzyCurve
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
+import java.io.File
 
 
-fun main(args: kotlin.Array<String>): Unit {
+fun main(args: kotlin.Array<String>) {
     Application.launch(MyApp::class.java, *args)
 }
 
@@ -38,15 +44,22 @@ class TestView : View(){
         }
     }
 
-    private fun render(data: Array<ParamPoint>): Unit {
+    private fun render(data: Array<ParamPoint>) {
+        if (data.size() <= 2){
+            return
+        }
         with(curveInput.contents) {
-            val fsc = FscGenerator(3, 0.1).generate(Array.ofAll(data))
+            val fsc = FscGenerator(3, 0.1).generate(Array.ofAll(data))//prettyGson.fromJson<BSplineJson>(File("/Users/jumpaku/Documents/fsc.json").readText()).bSpline()//
             cubicFsc(fsc) { stroke = Color.BLUE }
-            fuzzyCurve(Linear.of(fsc).reference) { stroke = Color.GREEN }
-            fuzzyCurve(Circular.of(fsc).reference) { stroke = Color.RED }
-            fuzzyCurve(Elliptic.of(fsc).reference) { stroke = Color.SKYBLUE }
-            val result = ClassifierPrimitive7().classify(fsc)
-            println(result.grades)
+            Try.run {
+                fuzzyCurve(Linear.ofBeginEnd(fsc).reference) { stroke = Color.GREEN }
+                fuzzyCurve(Circular.ofBeginEnd(fsc).reference) { stroke = Color.RED }
+                fuzzyCurve(Elliptic.ofBeginEnd(fsc).reference) { stroke = Color.SKYBLUE }
+                val result = ClassifierOpen4().classify(fsc)
+                println(result.grades)
+            }.onFailure {
+                println(fsc)
+            }
         }
     }
 }

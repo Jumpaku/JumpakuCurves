@@ -12,6 +12,7 @@ import org.jumpaku.core.curve.rationalbezier.ConicSection
 import org.jumpaku.core.curve.rationalbezier.ConicSectionJson
 import org.jumpaku.core.fuzzy.Grade
 import org.jumpaku.core.json.prettyGson
+import org.jumpaku.core.util.divOption
 
 class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
 
@@ -45,17 +46,15 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
             val l = arcLengthFsc.arcLength()
             val l0 = arcLengthFsc.arcLengthUntil(t0)
             val l1 = arcLengthFsc.arcLengthUntil(t1)
-            return Linear(ConicSection(fsc(t0), fsc(t0).middle(fsc(t1)), fsc(t1), 1.0),
-                    Interval(-l0 / (l1 - l0), (l - l0) / (l1 - l0)))
+            return 1.0.divOption(l1 - l0)
+                    .map { Interval(-l0 * it, (l - l0) * it) }
+                    .getOrElse { Interval.ZERO_ONE }
+                    .let { Linear(ConicSection.lineSegment(fsc(t0), fsc(t1)), it) }
         }
 
-        fun ofBeginEnd(fsc: BSpline): Linear {
-            return ofParams(fsc.domain.begin, fsc.domain.end, fsc)
-        }
+        fun ofBeginEnd(fsc: BSpline): Linear = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
 
-        fun of(fsc: BSpline): Linear {
-            return ofBeginEnd(fsc)
-        }
+        fun of(fsc: BSpline): Linear = ofBeginEnd(fsc)
     }
 }
 
