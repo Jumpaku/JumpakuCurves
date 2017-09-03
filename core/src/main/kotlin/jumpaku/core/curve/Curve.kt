@@ -27,4 +27,8 @@ interface Curve : Function1<Double, Point> {
     fun evaluateAll(n: Int): Array<Point> = domain.sample(n).map(this::evaluate)
 
     fun evaluateAll(delta: Double): Array<Point> = domain.sample(delta).map(this::evaluate)
+
+    fun sample(n: Int): Array<ParamPoint> = domain.sample(n).map { ParamPoint(this(it), it) }
+
+    fun sample(delta: Double): Array<ParamPoint> = domain.sample(delta).map { ParamPoint(this(it), it) }
 }

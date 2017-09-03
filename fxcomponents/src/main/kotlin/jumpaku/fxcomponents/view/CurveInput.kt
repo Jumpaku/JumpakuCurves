@@ -35,11 +35,7 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
 
         setOnMousePressed {
             points = API.List()
-            this@CurveInput.parent.children.forEach {
-                if(it is Group){
-                    it.children.clear()
-                }
-            }
+            inputPolyline.children.clear()
             render()
         }
         setOnMouseDragged {
