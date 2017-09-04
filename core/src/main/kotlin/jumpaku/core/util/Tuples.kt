@@ -1,6 +1,7 @@
 package jumpaku.core.util
 
 import io.vavr.*
+import io.vavr.collection.Array
 
 operator fun <T1> Tuple1<T1>.component1(): T1 = this._1()
 
