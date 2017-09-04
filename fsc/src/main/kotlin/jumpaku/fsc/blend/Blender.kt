@@ -1,132 +1,39 @@
 package jumpaku.fsc.blend
 
-import io.vavr.API
-import io.vavr.Function2
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.HashMap
 import io.vavr.collection.Stream
 import io.vavr.control.Option
-import jumpaku.core.affine.Point
+import jumpaku.core.affine.divide
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.fuzzy.Grade
-import jumpaku.core.util.function2
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import org.apache.commons.math3.linear.MatrixUtils
+import jumpaku.core.fit.transformParams
+import jumpaku.core.util.*
+import jumpaku.fsc.generate.FscGenerator
 
-
-enum class OverlappingCase{
-    ExistingOverlapping,
-    OverlappingExisting,
-    ExistingOverlappingExisting,
-    OverlappingExistingOverlapping,
-}
-
-data class OverlappingPath(
-        val grade: Grade,
-        val path: Array<Tuple2<Int, Int>>) {
-
-    fun extend(grade: Grade, i: Int, j: Int): OverlappingPath {
-        return when {
-            (this.grade and grade) <= Grade.FALSE -> emptyPath()
-            else -> OverlappingPath(this.grade and grade, path.append(Tuple2(i, j)))
-        }
-    }
-
-    fun isEmpty(): Boolean = path.isEmpty
-
-    fun nonEmpty(): Boolean = path.nonEmpty()
-}
-
-fun emptyPath() = OverlappingPath(Grade.FALSE, Array.empty())
-
-fun initialPath(grade: Grade, i: Int, j: Int): OverlappingPath {
-    require(i == 0 || j == 0) { "index i($i) or j($j) are not beginning index" }
-    return when {
-        grade <= Grade.FALSE -> emptyPath()
-        else -> OverlappingPath(grade, Array.of(Tuple2(i, j)))
-    }
-}
-
-class OverlappingMatrix(samplingSpan: Double, val existing: BSpline, val overlapping: BSpline){
-
-    val existingTimes: Array<Double> = existing.domain.sample(samplingSpan)
-
-    val overlappingTimes: Array<Double> = overlapping.domain.sample(samplingSpan)
-
-    private val computeGrade: Function2<Int, Int, Grade> = function2 {
-        i: Int, j: Int -> existing(existingTimes[i]).isPossible(overlapping(overlappingTimes[j]))
-    }.memoized()
-
-    operator fun get(i: Int, j: Int): Grade = computeGrade.apply(i, j)
-}
 
 data class BlendResult(
         val osm: OverlappingMatrix,
         val path: Option<OverlappingPath>,
         val blended: Option<BSpline>)
 
-fun ovelappingCase(path: OverlappingPath, osm: OverlappingMatrix): OverlappingCase {
-    require(path.nonEmpty()) { "empty path" }
-    val existingLastIndex = osm.existingTimes.size() - 1
-    val overlappingLastIndex = osm.overlappingTimes.size() - 1
-    val (beginI, beginJ) = path.path.head()
-    val (endI, endJ) = path.path.last()
-
-    return when{
-        beginI == 0 && endI == existingLastIndex -> OverlappingCase.ExistingOverlappingExisting
-        beginI == 0 && endJ == overlappingLastIndex -> OverlappingCase.ExistingOverlapping
-        beginJ == 0 && endI == existingLastIndex -> OverlappingCase.OverlappingExisting
-        beginJ == 0 && endJ == overlappingLastIndex -> OverlappingCase.OverlappingExistingOverlapping
-        else -> error("invalid path(${path.path}) (osm(${existingLastIndex - 1}x${overlappingLastIndex - 1}))")
-    }
-}
-
 class Blender(
         val samplingSpan: Double = 1.0/128,
         val blendingRate: Double = 0.5,
-        val evaluatePath: (OverlappingPath, OverlappingMatrix) -> Double = { (grade, _), _ -> grade.value }
-) {
+        val evaluatePath: OverlappingPath.(OverlappingMatrix) -> Double = { _ -> grade.value }) {
 
-    /*fun blend(existing: BSpline, overlapping: BSpline): BlendResult {
+    fun blend(existing: BSpline, overlapping: BSpline): BlendResult {
         val osm = OverlappingMatrix(samplingSpan, existing, overlapping)
         val path = searchPath(osm)
-        return BlendResult(osm, path, path.map { blend(osm, it) })
+        return BlendResult(osm, path, path.map {
+            val data = resample(osm, it)
+            data.forEach { println("%3f".format(it.param)) }
+            FscGenerator().generate(data)
+        })
     }
 
-    fun blend(osm: OverlappingMatrix, path: OverlappingPath): BSpline {
-        require(path.nonEmpty()) { "empty overlapping path" }
-
-        val (beginI, beginJ) = path.path.head()
-        val (endI, endJ) = path.path.last()
-
-        val et = osm.existingTimes
-        val existingFront = osm.existing.subdivide(et[beginI])._1
-        val existingOverlap = osm.existing.restrict(et[beginI], et[endI])
-        val existingBack = osm.existing.subdivide(et[endI])._2
-
-        val ot = osm.overlappingTimes
-        val ovelappingFront = osm.overlapping.subdivide(ot[beginJ])._1
-        val overlappingOverlap = osm.overlapping.restrict(ot[beginJ], ot[endJ])
-        val overlappingBack = osm.overlapping.subdivide(ot[endJ])
-
-        when(ovelappingCase(path, osm)){
-            OverlappingCase.ExistingOverlapping -> {
-
-            }
-            OverlappingCase.OverlappingExisting -> {
-
-            }
-            OverlappingCase.ExistingOverlappingExisting -> {
-
-            }
-            OverlappingCase.OverlappingExistingOverlapping -> {
-
-            }
-        }
-    }
-*/
     fun searchPath(osm: OverlappingMatrix): Option<OverlappingPath> {
 
         var dpTable = HashMap.empty<Tuple2<Int, Int>, OverlappingPath>()
@@ -136,7 +43,7 @@ class Blender(
                 when {
                     i == 0 || j == 0 -> initialPath(uij, i, j)
                     else -> Array.of(subPath(i - 1, j), subPath(i, j - 1), subPath(i - 1, j - 1))
-                            .maxBy { path -> evaluatePath(path, osm) }
+                            .maxBy { (grade, _) -> grade }
                             .map { it.extend(uij, i, j) }
                             .get()
                 }
@@ -152,5 +59,49 @@ class Blender(
                         .zipWithIndex { _, j -> subPath(osm.existingTimes.size() - 1, j) }
                         .filter { it.nonEmpty() })
                 .maxBy { path -> evaluatePath(path, osm) }
+    }
+
+    fun resample(osm: OverlappingMatrix, path: OverlappingPath): Array<ParamPoint> {
+        require(path.nonEmpty()) { "empty overlapping path" }
+
+        val (beginI, beginJ) = path.path.head()
+        val (endI, endJ) = path.path.last()
+        val te = osm.existingTimes
+        val to = osm.overlappingTimes
+        val se = osm.existing
+        val so = osm.overlapping
+
+        fun data(ts: Array<Double>, s: BSpline): Array<ParamPoint> = ts.map { ParamPoint(s(it), it) }
+        fun OverlappingPath.blendData(te: Array<Double>, se: BSpline, to: Array<Double>, so: BSpline): Array<ParamPoint> {
+            when(osm.overlappingCase(path)) {
+
+            }
+            return this.path.map { (i, j) ->
+                ParamPoint(se(te[i]).divide(blendingRate, so(to[j])), te[i].divide(blendingRate, to[j]))
+            }
+        }
+        return when(osm.overlappingCase(path)){
+            OverlappingCase.ExistingOverlapping ->
+                rearrangeParam(data(te.take(beginI), se), path.blendData(te, se, to, so), data(to.drop(endJ), so))
+            OverlappingCase.OverlappingExisting ->
+                rearrangeParam(data(to.take(beginJ), so), path.blendData(te, se, to, so), data(te.drop(endI), se))
+            OverlappingCase.ExistingOverlappingExisting ->
+                rearrangeParam(data(te.take(beginI), se), path.blendData(te, se, to, so), data(te.drop(endI), se))
+            OverlappingCase.OverlappingExistingOverlapping ->
+                rearrangeParam(data(to.take(beginJ), so), path.blendData(te, se, to, so), data(to.drop(endJ), so))
+        }
+    }
+
+    fun rearrangeParam(front: Array<ParamPoint>, middle: Array<ParamPoint>, back: Array<ParamPoint>): Array<ParamPoint> {
+        val f = front
+        val m = middle.let {
+            val range = Interval(f.last().param, f.last().param + it.last().param - it.head().param)
+            transformParams(it, range)
+        }
+        val b = back.let {
+            val range = Interval(m.last().param, m.last().param + it.last().param - it.head().param)
+            transformParams(it, range)
+        }
+        return Stream.concat(f, m, b).toArray()
     }
 }

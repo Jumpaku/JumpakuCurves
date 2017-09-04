@@ -51,7 +51,7 @@ class ViewBlend : View(){
             children.clear()
             existing.forEach { cubicFsc(it) { stroke = Color.BLUE } }
             val overlapping = FscGenerator(3, 0.1).generate(Array.ofAll(data))
-            cubicFsc(overlapping) { stroke = Color.RED }
+            cubicFsc(overlapping) { stroke = Color.GREEN }
 
             if(existing.isEmpty){
                 existing = Option.of(overlapping)
@@ -59,21 +59,20 @@ class ViewBlend : View(){
             }
 
             val samplingSpan = 1.0/128
-            val b = Blender(samplingSpan, 0.5, { (grade, _), _ -> grade.value })
+            val b = Blender(samplingSpan, 0.5, { _ -> grade.value })
 
             Try.run {
                 existing.map {
-                    val osm = OverlappingMatrix(samplingSpan, it, overlapping)
-                    val path = b.searchPath(osm)
-
+                    val (osm, path, blended) = b.blend(existing.get(), overlapping)
                     printOsm(osm, path)
-
+                    blended.forEach { cubicFsc(it) { stroke = Color.RED } }
                 }
             }.onFailure {
-                println("the following fscs causes a blending error")
+                println("the following fscs caused a blending error")
                 existing.forEach { println(it) }
                 println(overlapping)
-            }
+                println(it.message)
+            }.getOrElseThrow { t -> throw t }
         }
     }
 
