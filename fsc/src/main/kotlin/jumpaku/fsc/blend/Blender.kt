@@ -73,9 +73,6 @@ class Blender(
 
         fun data(ts: Array<Double>, s: BSpline): Array<ParamPoint> = ts.map { ParamPoint(s(it), it) }
         fun OverlappingPath.blendData(te: Array<Double>, se: BSpline, to: Array<Double>, so: BSpline): Array<ParamPoint> {
-            when(osm.overlappingCase(path)) {
-
-            }
             return this.path.map { (i, j) ->
                 ParamPoint(se(te[i]).divide(blendingRate, so(to[j])), te[i].divide(blendingRate, to[j]))
             }
