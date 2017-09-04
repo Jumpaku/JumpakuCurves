@@ -1,6 +1,7 @@
 package org.jumpaku.fsc.fragment
 
 import io.vavr.API.*
+import io.vavr.Tuple3
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.jumpaku.core.curve.bspline.BSpline
@@ -32,19 +33,18 @@ class Fragmentation(
                 else -> State.UNKNOWN
             }
         }
-        val states = stateTransition(labels)
-        var fragments = Array<BSpline>()
-        var chunkHead = chunks.head()
-        var prevState = states.head()
-        for (i in 1 until states.size()) {
-            if (prevState != states[i]) {
-                fragments = fragments.append(fsc.restrict(chunkHead.head()._2, chunks[i - 1].last()._2))
-                chunkHead = chunks[i]
-                prevState = states[i]
-            }
-        }
-        fragments = fragments.append(fsc.restrict(chunkHead.head()._2, chunks.last().last()._2))
-        return fragments
+        val states = labels.fold(Array.of(State.STAY)) { l, n -> l.append(l.last().transit(n)) }.drop(1) // 初期値分をdrop
+        return chunks.zip(states)
+                .fold(Array.of(Tuple(chunks.head().head()._2, chunks.head().last()._2, states.head()))) {
+                    l, n -> when {
+                        (l.last()._3 != n._2) -> l.append(Tuple(n._1.head()._2, n._1.last()._2, n._2))
+                        else -> l.replace(l.last(), Tuple3(l.last()._1, n._1.last()._2, l.last()._3))
+                    }
+                }
+                .map {
+                    fsc.restrict(it._1, it._2)
+                }
+                .toArray()
     }
 
     private tailrec fun stateTransition(
