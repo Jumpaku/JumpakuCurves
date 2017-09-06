@@ -1,29 +1,29 @@
 package jumpaku.examples.classify
 
+import com.github.salomonbrys.kotson.fromJson
 import io.vavr.collection.Array
 import io.vavr.control.Try
 import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.ParamPoint
-import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fsc.identify.classify.ClassifierPrimitive7
-import jumpaku.fsc.identify.reference.Circular
-import jumpaku.fsc.identify.reference.Elliptic
-import jumpaku.fsc.identify.reference.Linear
+import jumpaku.core.curve.bspline.BSplineJson
+import jumpaku.core.json.prettyGson
+import jumpaku.fsc.fragment.Fragment
+import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fxcomponents.view.CurveInput
-import jumpaku.fxcomponents.view.cubicFsc
 import jumpaku.fxcomponents.view.fuzzyCurve
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
+import java.nio.file.Paths
 
 
 fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
 
 class AppClassify : App(ViewClassify::class)
 
-class ViewClassify : View(){
+class ViewClassify : View() {
 
     override val scope: Scope = Scope()
 
@@ -40,19 +40,24 @@ class ViewClassify : View(){
     }
 
     private fun render(data: Array<ParamPoint>) {
-        if (data.size() <= 2){
+        if (data.size() <= 2) {
             return
         }
         with(curveInput.contents) {
-            val fsc = FscGenerator(3, 0.1).generate(Array.ofAll(data))//prettyGson.fromJson<BSplineJson>(File("/Users/jumpaku/Documents/fsc.json").readText()).bSpline()//
-            cubicFsc(fsc) { stroke = Color.BLUE }
+            val path = Paths.get("./fsc/src/test/resources/jumpaku/fsc/fragment/")
+            val dataFile = path.resolve("FragmenterTestFsc1.json").toFile()
+            val fsc = prettyGson.fromJson<BSplineJson>(dataFile.readText()).bSpline()
             Try.run {
-                fuzzyCurve(Linear.of(fsc).reference) { stroke = Color.GREEN }
-                fuzzyCurve(Circular.of(fsc).reference) { stroke = Color.RED }
-                fuzzyCurve(Elliptic.of(fsc).reference) { stroke = Color.SKYBLUE }
-                val result = ClassifierPrimitive7().classify(fsc)
-                result.grades.toStream().sortedByDescending { it._2 }.forEach(::println)
-                println("---")
+                val r = Fragmenter().fragment(fsc)
+                r.fragments.forEach {
+                    fuzzyCurve(fsc.restrict(it.interval)) {
+                        stroke = if (it.type == Fragment.Type.IDENTIFICATION) Color.LIGHTGREEN else Color.ORANGERED
+                    }
+                }
+                r.fragments.forEachIndexed { index, fragment ->
+                    val file = path.resolve("FragmenterTestData1_${index}.json").toFile()
+                    file.writeText(fsc.restrict(fragment.interval).toString())
+                }
             }.onFailure {
                 println("the following fsc causes a classification error")
                 println(fsc)
