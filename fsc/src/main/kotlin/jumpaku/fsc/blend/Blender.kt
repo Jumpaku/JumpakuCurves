@@ -19,6 +19,11 @@ data class BlendResult(
         val path: Option<OverlappingPath>,
         val blended: Option<BSpline>)
 
+data class BlendResultJson(
+        val osm: OverlappingMatrix,
+        val path: Option<OverlappingPath>,
+        val blended: Option<BSpline>)
+
 class Blender(
         val samplingSpan: Double = 1.0/128,
         val blendingRate: Double = 0.5,

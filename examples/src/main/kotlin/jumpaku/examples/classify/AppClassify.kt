@@ -17,6 +17,7 @@ import jumpaku.fxcomponents.view.fuzzyCurve
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
+import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
@@ -44,6 +45,7 @@ class ViewClassify : View(){
             return
         }
         with(curveInput.contents) {
+            children.clear()
             val fsc = FscGenerator(3, 0.1).generate(Array.ofAll(data))//prettyGson.fromJson<BSplineJson>(File("/Users/jumpaku/Documents/fsc.json").readText()).bSpline()//
             cubicFsc(fsc) { stroke = Color.BLUE }
             Try.run {
@@ -54,7 +56,7 @@ class ViewClassify : View(){
                 result.grades.toStream().sortedByDescending { it._2 }.forEach(::println)
                 println("---")
             }.onFailure {
-                println("the following fsc causes a classification error")
+                println("the following fsc caused a classification error")
                 println(fsc)
             }
         }
