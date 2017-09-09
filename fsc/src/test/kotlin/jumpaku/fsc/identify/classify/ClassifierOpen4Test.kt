@@ -15,7 +15,7 @@ class ClassifierOpen4Test {
     @Test
     fun testClassify() {
         println("ClassifierOpen4.Classify")
-        val c = ClassifierPrimitive7()
+        val c = ClassifierOpen4()
         (1..4).forEach { i ->
             val fscFile = path.resolve("LineSegmentFsc$i.json").toFile()
             val fsc = prettyGson.fromJson<BSplineJson>(fscFile.readText()).bSpline()
