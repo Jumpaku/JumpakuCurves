@@ -1,20 +1,24 @@
 package jumpaku.core.curve.bspline
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import org.apache.commons.math3.util.Precision
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.json.prettyGson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.divOption
+import org.apache.commons.math3.util.Precision
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline> {
@@ -77,9 +81,11 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     fun reverse(): BSpline = BSpline(controlPoints.reverse(), knotVector.reverse())
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJson().toString()
 
-    fun json(): BSplineJson = BSplineJson(this)
+    fun toJson(): JsonElement = jsonObject(
+            "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
+            "knotVector" to knotVector.toJson())
 
     override fun toArcLengthCurve(): ArcLengthAdapter {
         val ts = repeatBisection(this, this.domain, { bSpline, subDomain ->
@@ -221,9 +227,5 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
     }
 }
 
-data class BSplineJson(val controlPoints: List<PointJson>, val knotVector: KnotVectorJson){
-
-    constructor(bSpline: BSpline) : this(bSpline.controlPoints.map(Point::json).toJavaList(), bSpline.knotVector.json())
-
-    fun bSpline(): BSpline = BSpline(controlPoints.map(PointJson::point), knotVector.knotVector())
-}
+val JsonElement.bSpline: BSpline get() = BSpline(
+        this["controlPoints"].array.map { it.point }, this["knotVector"].knotVector)

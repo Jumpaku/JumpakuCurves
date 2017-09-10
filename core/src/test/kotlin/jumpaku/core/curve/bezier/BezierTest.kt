@@ -3,6 +3,7 @@ package jumpaku.core.curve.bezier
 import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import jumpaku.core.affine.*
+import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.json.prettyGson
@@ -29,7 +30,7 @@ class BezierTest {
     fun testToString() {
         println("ToString")
         val p = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-        bezierAssertThat(prettyGson.fromJson<BezierJson>(p.toString()).bezier()).isEqualToBezier(p)
+        bezierAssertThat(p.toString().parseToJson().get().bezier).isEqualToBezier(p)
     }
 
     @Test

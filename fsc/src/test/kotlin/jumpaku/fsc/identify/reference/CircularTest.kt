@@ -40,12 +40,4 @@ class CircularTest {
         pointAssertThat(c.reference(1.25)).isEqualToPoint(Point.xyr((9-3*R2)/(10-3*R2), (1-3*R2)/(10-3*R2), (56+6*R2)/(10-3*R2)))
         pointAssertThat(c.reference(1.5)).isEqualToPoint(Point.xyr(-1/R2, -1/R2, 14+8*R2))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val cs = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
-        val c = Circular(cs, Interval(-0.5, 1.5))
-        circularAssertThat(prettyGson.fromJson<CircularJson>(c.toString()).circular()).isEqualToCircular(c)
-    }
 }

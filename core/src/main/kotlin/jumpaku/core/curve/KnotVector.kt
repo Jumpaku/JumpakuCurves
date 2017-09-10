@@ -1,11 +1,12 @@
 package jumpaku.core.curve
 
+import com.github.salomonbrys.kotson.*
+import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.divide
-import jumpaku.core.json.prettyGson
 
 
 class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double> {
@@ -20,9 +21,9 @@ class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double> {
 
     override fun iterator(): Iterator<Double> = knots.iterator()
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJson().toString()
 
-    fun json(): KnotVectorJson = KnotVectorJson(this)
+    fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
 
     fun size(): Int = knots.size()
 
@@ -102,9 +103,4 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
     }
 }
 
-data class KnotVectorJson(val degree: Int, val knots: List<Double>) {
-
-    constructor(knotVector: KnotVector): this(knotVector.degree, knotVector.knots.toJavaList())
-
-    fun knotVector(): KnotVector = KnotVector(degree, knots.asIterable())
-}
+val JsonElement.knotVector: KnotVector get() = KnotVector(this["degree"].int, this["knots"].array.map { it.double })

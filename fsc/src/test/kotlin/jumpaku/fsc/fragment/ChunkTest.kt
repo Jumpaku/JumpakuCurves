@@ -2,8 +2,9 @@ package jumpaku.fsc.fragment
 
 import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.bspline.BSplineJson
+import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.fuzzy.TruthValue
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 import org.assertj.core.api.Assertions
 import org.junit.Test
@@ -16,7 +17,7 @@ class ChunkTest {
     private val threshold = TruthValue(0.4, 0.6)
     private val path = Paths.get("./src/test/resources/jumpaku/fsc/fragment/")
     private val dataFile = path.resolve("FragmenterTestFsc0.json").toFile()
-    private val fsc = prettyGson.fromJson<BSplineJson>(dataFile.readText()).bSpline()
+    private val fsc = dataFile.readText().parseToJson().get().bSpline
 
     @Test
     fun state() {

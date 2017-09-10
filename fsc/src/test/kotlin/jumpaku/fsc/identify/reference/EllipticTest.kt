@@ -40,12 +40,4 @@ class EllipticTest {
         pointAssertThat(e.reference(1.25)).isEqualToPoint(Point.xyr(2*(9-3*R2)/(10-3*R2), (1-3*R2)/(10-3*R2), (56+6*R2)/(10-3*R2)))
         pointAssertThat(e.reference(1.5)).isEqualToPoint(Point.xyr(-2*1/R2, -1/R2, 14+8*R2))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val cs = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2, R2 / 2, 2.0), Point.xyr(2.0, 0.0, 3.0), R2 / 2)
-        val e = Elliptic(cs, Interval(-0.5, 1.5))
-        ellipticAssertThat(prettyGson.fromJson<EllipticJson>(e.toString()).elliptic()).isEqualToElliptic(e)
-    }
 }

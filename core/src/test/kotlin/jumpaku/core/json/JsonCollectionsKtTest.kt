@@ -1,12 +1,14 @@
 package jumpaku.core.json
 
 import com.github.salomonbrys.kotson.int
+import com.github.salomonbrys.kotson.jsonNull
 import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import io.vavr.Tuple2
 import io.vavr.collection.HashMap
 import io.vavr.control.Option
 import jumpaku.core.affine.Point
+import jumpaku.core.affine.point
 import jumpaku.core.affine.pointAssertThat
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test

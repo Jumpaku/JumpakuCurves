@@ -33,12 +33,4 @@ class LinearTest {
         pointAssertThat(l.reference(2.0)).isEqualToPoint(Point.xyr(4.0, 3.0, 4.0))
         pointAssertThat(l.reference(3.0)).isEqualToPoint(Point.xyr(5.0, 4.0, 7.0))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val cs = ConicSection(Point.xyr(2.0, 1.0, 2.0), Point.xyr(2.5, 1.5, 1.5), Point.xyr(3.0, 2.0, 1.0), 1.0)
-        val l = Linear(cs, Interval(-1.0, 2.0))
-        linearAssertThat(prettyGson.fromJson<LinearJson>(l.toString()).linear()).isEqualToLinear(l)
-    }
 }

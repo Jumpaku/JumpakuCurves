@@ -1,5 +1,7 @@
 package jumpaku.core.fuzzy
 
+import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
 import jumpaku.core.util.clamp
 
 
@@ -13,8 +15,6 @@ data class Grade(val value: Double) : Comparable<Grade> {
 
     constructor(intValue: Int): this(intValue.toDouble())
 
-    override fun toString(): String = value.toString()
-
     override fun compareTo(other: Grade): Int = value.compareTo(other.value)
 
     infix fun and(g: Grade): Grade = minOf(this, g)
@@ -22,6 +22,10 @@ data class Grade(val value: Double) : Comparable<Grade> {
     infix fun or(g: Grade): Grade = maxOf(this, g)
 
     operator fun not(): Grade = Grade(1.0 - value)
+
+    override fun toString(): String = value.toString()
+
+    fun toJson(): JsonElement = JsonPrimitive(value)
 
     companion object {
 

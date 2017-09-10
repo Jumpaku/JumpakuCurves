@@ -5,7 +5,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import io.vavr.collection.HashMap
 import io.vavr.collection.Map
 import io.vavr.control.Option

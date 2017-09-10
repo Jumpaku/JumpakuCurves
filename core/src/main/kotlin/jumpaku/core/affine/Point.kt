@@ -1,15 +1,18 @@
 package jumpaku.core.affine
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.collection.Array
+import jumpaku.core.fuzzy.Grade
+import jumpaku.core.fuzzy.Membership
+import jumpaku.core.util.divOption
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
-import jumpaku.core.fuzzy.Grade
-import jumpaku.core.fuzzy.Membership
-import jumpaku.core.json.prettyGson
-import jumpaku.core.util.divOption
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
 
@@ -53,9 +56,9 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
                 FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
     }
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJson().toString()
 
-    fun json(): PointJson = PointJson(this)
+    fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z, "r" to r)
 
     private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean {
         return Precision.equals(p1.distSquare(p2), 0.0, eps*eps)
@@ -145,10 +148,4 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     }
 }
 
-
-data class PointJson(private val x: Double, private val y: Double, private val z: Double, private val r:Double){
-
-    constructor(point: Point) : this(point.x, point.y, point.z, point.r)
-
-    fun point() = Point.xyzr(x, y, z, r)
-}
+val JsonElement.point: Point get() = Point(this["x"].double, this["y"].double, this["z"].double, this["r"].double)

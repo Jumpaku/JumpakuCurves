@@ -1,6 +1,10 @@
 package jumpaku.core.affine
 
-import jumpaku.core.json.prettyGson
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 
 
 data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint> {
@@ -10,14 +14,9 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<
         return WeightedPoint(point.divide(t * p.weight / w, p.point), w)
     }
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJson().toString()
 
-    fun json(): WeightedPointJson = WeightedPointJson(this)
+    fun toJson(): JsonElement = jsonObject("point" to point.toJson(), "weight" to weight.toJson())
 }
 
-data class WeightedPointJson(private val point: PointJson, private val weight: Double) {
-
-    constructor(weightedPoint: WeightedPoint) : this(weightedPoint.point.json(), weightedPoint.weight)
-
-    fun weightedPoint() = WeightedPoint(point.point(), weight)
-}
+val JsonElement.weightedPoint: WeightedPoint get() = WeightedPoint(this["point"].point, this["weight"].double)

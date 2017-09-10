@@ -2,19 +2,16 @@ package jumpaku.fsc.identify.reference
 
 import io.vavr.API
 import io.vavr.Tuple3
-import org.apache.commons.math3.analysis.solvers.BrentSolver
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.IntervalJson
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.curve.rationalbezier.ConicSectionJson
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.json.prettyGson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
+import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 
 class Circular(val conicSection: ConicSection, val domain: Interval) : Reference {
@@ -30,11 +27,6 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
     }
 
     override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
-
-
-    override fun toString(): String = prettyGson.toJson(json())
-
-    fun json(): CircularJson = CircularJson(this)
 
     companion object {
 
@@ -79,11 +71,4 @@ fun scatteredCircularParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Do
             })
             .maxBy { (_, area) -> area }
             .map { it._1() }.get()
-}
-
-data class CircularJson(val conicSection: ConicSectionJson, val domain: IntervalJson){
-
-    constructor(circular: Circular) : this(circular.conicSection.json(), circular.domain.json())
-
-    fun circular(): Circular = Circular(conicSection.conicSection(), domain.interval())
 }

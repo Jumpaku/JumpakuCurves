@@ -1,14 +1,18 @@
 package jumpaku.fsc.fragment
 
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.string
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.IntervalJson
-import jumpaku.core.json.prettyGson
+import jumpaku.core.curve.interval
 
 data class Fragment(val interval: Interval, val type: Type) {
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJson().toString()
 
-    fun json(): FragmentJson = FragmentJson(this)
+    fun toJson(): JsonElement = jsonObject("interval" to interval.toJson(), "type" to type.name.toJson())
 
     enum class Type {
         IDENTIFICATION,
@@ -16,9 +20,5 @@ data class Fragment(val interval: Interval, val type: Type) {
     }
 }
 
-data class FragmentJson(val interval: IntervalJson, val type: Fragment.Type) {
-
-    constructor(fragment: Fragment) : this(fragment.interval.json(), fragment.type)
-
-    fun fragment(): Fragment = Fragment(interval.interval(), type)
-}
+val JsonElement.fragment: Fragment get() = Fragment(
+        this["interval"].interval, Fragment.Type.valueOf(this["type"].string))

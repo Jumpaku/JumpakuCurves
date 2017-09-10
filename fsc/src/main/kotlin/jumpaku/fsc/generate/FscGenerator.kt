@@ -1,17 +1,13 @@
 package jumpaku.fsc.generate
 
 import io.vavr.collection.Array
-import org.apache.commons.math3.linear.ArrayRealVector
-import org.apache.commons.math3.linear.RealVector
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.Interval
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.BSplineJson
 import jumpaku.core.fit.BSplineFitter
 import jumpaku.core.fit.createModelMatrix
-
+import org.apache.commons.math3.linear.ArrayRealVector
 
 
 class FscGenerator(

@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.*
 
 import org.junit.Test
 import jumpaku.core.curve.Interval
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 
 
@@ -115,7 +116,7 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
 
-        rationalBezierAssertThat(prettyGson.fromJson<RationalBezierJson>(p.toString()).rationalBezier()).isEqualToRationalBezier(p)
+        rationalBezierAssertThat(p.toString().parseToJson().get().rationalBezier).isEqualToRationalBezier(p)
     }
 
     @Test

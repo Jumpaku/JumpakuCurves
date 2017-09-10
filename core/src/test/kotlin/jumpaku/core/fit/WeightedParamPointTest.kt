@@ -1,12 +1,11 @@
 package jumpaku.core.fit
 
-import com.github.salomonbrys.kotson.fromJson
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.paramPointAssertThat
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.parseToJson
 import org.junit.Test
 
 class WeightedParamPointTest {
@@ -25,6 +24,6 @@ class WeightedParamPointTest {
     fun testToString() {
         println("ToString")
         val w = ParamPoint(Point.xr(1.0, 10.0), 1.0).weighted(2.0)
-        weightedWeightedParamPointAssertThat(prettyGson.fromJson<WeightedParamPointJson>(w.toString()).weightedParamPoint()).isEqualToWeightedParamPoint(w)
+        weightedParamPointAssertThat(w.toString().parseToJson().get().weightedParamPoint).isEqualToWeightedParamPoint(w)
     }
 }
