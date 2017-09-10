@@ -13,6 +13,7 @@ import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.bezierAssertThat
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 import org.junit.Test
 
@@ -48,7 +49,7 @@ class BSplineTest {
         val b = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9))
-        bSplineAssertThat(prettyGson.fromJson<BSplineJson>(b.toString()).bSpline()).isEqualToBSpline(b)
+        bSplineAssertThat(b.toString().parseToJson().get().bSpline).isEqualToBSpline(b)
     }
 
     @Test

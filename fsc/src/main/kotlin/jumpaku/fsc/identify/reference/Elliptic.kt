@@ -1,27 +1,22 @@
 package jumpaku.fsc.identify.reference
 
-import io.vavr.*
+import io.vavr.API
 import io.vavr.API.Array
 import io.vavr.API.For
-import org.apache.commons.math3.analysis.solvers.BrentSolver
-import org.apache.commons.math3.geometry.euclidean.threed.Line
-import org.apache.commons.math3.geometry.euclidean.threed.Plane
+import io.vavr.Tuple
+import io.vavr.Tuple3
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.line
 import jumpaku.core.affine.plane
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.IntervalJson
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.curve.rationalbezier.ConicSectionJson
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.json.prettyGson
-import jumpaku.core.util.clamp
-import jumpaku.core.util.divOption
-import jumpaku.core.util.divOrElse
-import jumpaku.core.util.function3
 import jumpaku.core.util.*
+import org.apache.commons.math3.analysis.solvers.BrentSolver
+import org.apache.commons.math3.geometry.euclidean.threed.Line
+import org.apache.commons.math3.geometry.euclidean.threed.Plane
 
 
 class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference {
@@ -37,10 +32,6 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
     }
 
     override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
-
-    override fun toString(): String = prettyGson.toJson(json())
-
-    fun json(): EllipticJson = EllipticJson(this)
 
     companion object {
 
@@ -128,11 +119,4 @@ fun scatteredEllipticParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Do
             })
             .maxBy { (_, area) -> area }
             .map { it._1() }.get()
-}
-
-data class EllipticJson(val conicSection: ConicSectionJson, val domain: IntervalJson){
-
-    constructor(elliptic: Elliptic) : this(elliptic.conicSection.json(), elliptic.domain.json())
-
-    fun elliptic(): Elliptic = Elliptic(conicSection.conicSection(), domain.interval())
 }

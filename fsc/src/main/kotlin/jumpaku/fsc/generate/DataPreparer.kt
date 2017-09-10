@@ -23,28 +23,28 @@ import jumpaku.core.util.component2
  * And data points around beginning point and end point should be extended by quadratic bezier fitting.
  */
 class DataPreparer(
-        val maximumSpan: Double,
+        val maxParamSpan: Double,
         val innerSpan: Double,
         val outerSpan: Double = innerSpan,
         val degree: Int = 2) {
 
     fun prepare(crispData: Array<ParamPoint>): Array<ParamPoint> {
-        require(crispData.size() >= 2) { "sortedData size is too little" }
+        require(crispData.size() >= 2) { "data size(${crispData.size()}) < 2" }
 
         return  crispData.sortBy(ParamPoint::param)
-                .run { jumpaku.fsc.generate.DataPreparer.Companion.fill(this, maximumSpan) }
-                .run { jumpaku.fsc.generate.DataPreparer.Companion.extendFront(this, innerSpan, outerSpan, degree) }
-                .run { jumpaku.fsc.generate.DataPreparer.Companion.extendBack(this, innerSpan, outerSpan, degree) }
+                .run { DataPreparer.Companion.fill(this, maxParamSpan) }
+                .run { DataPreparer.Companion.extendFront(this, innerSpan, outerSpan, degree) }
+                .run { DataPreparer.Companion.extendBack(this, innerSpan, outerSpan, degree) }
     }
 
     companion object {
 
-        fun fill(sortedData: Array<ParamPoint>, maximumSpan: Double): Array<ParamPoint> {
+        fun fill(sortedData: Array<ParamPoint>, maxParamSpan: Double): Array<ParamPoint> {
             require(sortedData.size() >= 2) { "sortedData size is too few" }
 
             return sortedData.zip(sortedData.tail())
                     .flatMap { (a, b) ->
-                        val nSamples = FastMath.ceil((b.param - a.param) / maximumSpan).toInt() + 1
+                        val nSamples = FastMath.ceil((b.param - a.param) / maxParamSpan).toInt() + 1
                         Stream.range(0, nSamples - 1).map { a.divide(it / (nSamples - 1.0), b) }
                     }.append(sortedData.last())
         }

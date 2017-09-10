@@ -1,7 +1,8 @@
 package jumpaku.fsc.identify.classify
 
 import com.github.salomonbrys.kotson.fromJson
-import jumpaku.core.curve.bspline.BSplineJson
+import jumpaku.core.curve.bspline.bSpline
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
@@ -15,25 +16,25 @@ class ClassifierOpen4Test {
     @Test
     fun testClassify() {
         println("ClassifierOpen4.Classify")
-        val c = ClassifierPrimitive7()
+        val c = ClassifierOpen4()
         (1..4).forEach { i ->
             val fscFile = path.resolve("LineSegmentFsc$i.json").toFile()
-            val fsc = prettyGson.fromJson<BSplineJson>(fscFile.readText()).bSpline()
+            val fsc = fscFile.readText().parseToJson().get().bSpline
             assertThat(c.classify(fsc).curveClass).`as`(fscFile.path).isEqualTo(CurveClass.LineSegment)
         }
         (1..4).forEach { i ->
             val fscFile = path.resolve("CircularArcFsc$i.json").toFile()
-            val fsc = prettyGson.fromJson<BSplineJson>(fscFile.readText()).bSpline()
+            val fsc = fscFile.readText().parseToJson().get().bSpline
             assertThat(c.classify(fsc).curveClass).`as`(fscFile.path).isEqualTo(CurveClass.CircularArc)
         }
         (1..4).forEach { i ->
             val fscFile = path.resolve("EllipticArcFsc$i.json").toFile()
-            val fsc = prettyGson.fromJson<BSplineJson>(fscFile.readText()).bSpline()
+            val fsc = fscFile.readText().parseToJson().get().bSpline
             assertThat(c.classify(fsc).curveClass).`as`(fscFile.path).isEqualTo(CurveClass.EllipticArc)
         }
         (1..4).forEach { i ->
             val fscFile = path.resolve("OpenFreeCurveFsc$i.json").toFile()
-            val fsc = prettyGson.fromJson<BSplineJson>(fscFile.readText()).bSpline()
+            val fsc = fscFile.readText().parseToJson().get().bSpline
             assertThat(c.classify(fsc).curveClass).`as`(fscFile.path).isEqualTo(CurveClass.OpenFreeCurve)
         }
     }

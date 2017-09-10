@@ -5,13 +5,10 @@ import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.IntervalJson
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.curve.rationalbezier.ConicSectionJson
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.json.prettyGson
 import jumpaku.core.util.divOption
 
 class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
@@ -35,10 +32,6 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
 
     override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
 
-    override fun toString(): String = prettyGson.toJson(json())
-
-    fun json(): LinearJson = LinearJson(this)
-
     companion object {
 
         fun ofParams(t0: Double, t1: Double, fsc: BSpline): Linear {
@@ -56,11 +49,4 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
 
         fun of(fsc: BSpline): Linear = ofBeginEnd(fsc)
     }
-}
-
-data class LinearJson(val conicSection: ConicSectionJson, val domain: IntervalJson){
-
-    constructor(linear: Linear) : this(linear.conicSection.json(), linear.domain.json())
-
-    fun linear(): Linear = Linear(conicSection.conicSection(), domain.interval())
 }

@@ -14,7 +14,7 @@ import jumpaku.core.util.component3
 class Fragmenter(
         val threshold: TruthValue = TruthValue(0.4, 0.6),
         val n: Int = 4,
-        val minStayTime: Double = 0.1
+        minStayTime: Double = 0.1
 ) {
     val samplingSpan: Double
 

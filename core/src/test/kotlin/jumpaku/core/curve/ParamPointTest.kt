@@ -2,6 +2,7 @@ package jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.affine.Point
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 import org.junit.Test
 
@@ -23,7 +24,7 @@ class ParamPointTest {
     fun testToString() {
         println("ToString")
         val t = ParamPoint(Point.xr(1.0, 10.0), 1.0)
-        paramPointAssertThat(prettyGson.fromJson<ParamPointJson>(t.toString()).paramPoint()).isEqualToParamPoint(t)
+        paramPointAssertThat(t.toString().parseToJson().get().paramPoint).isEqualToParamPoint(t)
     }
 
 }

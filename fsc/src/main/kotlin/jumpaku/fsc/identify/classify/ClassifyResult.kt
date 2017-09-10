@@ -1,11 +1,13 @@
 package jumpaku.fsc.identify.classify
 
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.HashMap
 import io.vavr.collection.Map
 import io.vavr.collection.Set
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.jsonMap
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 
@@ -18,9 +20,9 @@ data class ClassifyResult(val grades: Map<CurveClass, Grade>){
         require(grades.nonEmpty()) { "empty grades" }
     }
 
-    //fun json(): ClassifyResultJson = ClassifyResultJson(this)
+    override fun toString(): String = toJson().toString()
 
-    //override fun toString(): String = prettyGson.toJson(json())
+    fun toJson(): JsonElement = jsonMap(grades.map { k, v -> Tuple2(k.name.toJson(), v.toJson()) })
 
     val curveClass: CurveClass = grades.maxBy { (_, m) -> m } .map { it._1() }.get()
 

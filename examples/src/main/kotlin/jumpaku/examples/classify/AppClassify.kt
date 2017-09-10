@@ -1,14 +1,11 @@
 package jumpaku.examples.classify
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.collection.Array
 import io.vavr.control.Try
 import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.ParamPoint
-import jumpaku.core.curve.bspline.BSplineJson
-import jumpaku.core.json.prettyGson
 import jumpaku.fsc.fragment.Fragment
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.generate.FscGenerator

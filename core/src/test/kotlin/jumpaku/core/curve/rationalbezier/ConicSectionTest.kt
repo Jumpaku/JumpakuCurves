@@ -2,6 +2,7 @@ package jumpaku.core.curve.rationalbezier
 
 import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.affine.*
+import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 
@@ -37,7 +38,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
-        conicSectionAssertThat(prettyGson.fromJson<ConicSectionJson>(i.toString()).conicSection())
+        conicSectionAssertThat(i.toString().parseToJson().get().conicSection)
                 .isEqualConicSection(i)
     }
 
