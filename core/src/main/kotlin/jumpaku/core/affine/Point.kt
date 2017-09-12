@@ -7,6 +7,7 @@ import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
@@ -14,7 +15,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
-data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point> {
+data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point>, ToJson {
 
     constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
 
@@ -56,9 +57,9 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
                 FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
     }
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z, "r" to r)
+    override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z, "r" to r)
 
     private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean {
         return Precision.equals(p1.distSquare(p2), 0.0, eps*eps)

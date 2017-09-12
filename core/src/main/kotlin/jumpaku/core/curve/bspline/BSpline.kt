@@ -15,13 +15,15 @@ import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.Precision
 
 
-class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline> {
+class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
+    : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline>, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -81,9 +83,9 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Fuz
 
     fun reverse(): BSpline = BSpline(controlPoints.reverse(), knotVector.reverse())
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject(
+    override fun toJson(): JsonElement = jsonObject(
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 

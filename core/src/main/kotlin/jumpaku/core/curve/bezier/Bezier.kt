@@ -14,6 +14,7 @@ import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.isOdd
@@ -22,7 +23,7 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
 
-class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier> {
+class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier>, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -39,9 +40,9 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     constructor(vararg controlPoints: Point): this(Array(*controlPoints))
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
+    override fun toJson(): JsonElement = jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }

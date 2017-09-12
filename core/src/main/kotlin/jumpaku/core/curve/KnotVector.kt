@@ -7,9 +7,10 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.divide
+import jumpaku.core.json.ToJson
 
 
-class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double> {
+class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double>, ToJson {
 
     constructor(degree: Int, knots: Iterable<Double>) : this(degree, Array.ofAll(knots))
 
@@ -21,9 +22,9 @@ class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double> {
 
     override fun iterator(): Iterator<Double> = knots.iterator()
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
+    override fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
 
     fun size(): Int = knots.size()
 

@@ -1,16 +1,24 @@
 package jumpaku.core.curve.bezier
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
+import jumpaku.core.affine.point
+import jumpaku.core.affine.vector
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
+import jumpaku.core.json.ToJson
 import jumpaku.core.json.prettyGson
 
 
-class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable {
+class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {
 
     override val derivative: BezierDerivative get() = toBezier().derivative
 
@@ -32,9 +40,9 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable 
 
     override fun differentiate(t: Double): Vector = toBezier().differentiate(t)
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): BezierDerivativeJson = BezierDerivativeJson(this)
+    override fun toJson(): JsonElement = jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }))
 
     fun restrict(i: Interval): BezierDerivative = BezierDerivative(toBezier().restrict(i))
 
@@ -52,9 +60,4 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable 
     fun extend(t: Double): BezierDerivative = BezierDerivative(toBezier().extend(t))
 }
 
-data class BezierDerivativeJson(private val controlVectors: List<Vector>){
-
-    constructor(bezierDerivative: BezierDerivative) : this(bezierDerivative.controlVectors.toJavaList())
-
-    fun bezierDerivative(): BezierDerivative = BezierDerivative(controlVectors)
-}
+val JsonElement.bezierDerivative: BezierDerivative get() = BezierDerivative(this["controlVectors"].array.map { it.vector })

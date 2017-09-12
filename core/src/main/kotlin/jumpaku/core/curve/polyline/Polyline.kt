@@ -15,13 +15,14 @@ import jumpaku.core.affine.point
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
 /**
  * Polyline parametrized by arc-arcLength.
  */
-class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, Subdividible<Polyline> {
+class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, Subdividible<Polyline>, ToJson {
 
     val points: Array<Point> = paramPoints.map(ParamPoint::point)
 
@@ -37,9 +38,9 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
 
     constructor(vararg points: Point) : this(Array(*points))
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("points" to jsonArray(points.map { it.toJson() }))
+    override fun toJson(): JsonElement = jsonObject("points" to jsonArray(points.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
