@@ -6,6 +6,7 @@ import jumpaku.core.affine.Vector
 import jumpaku.core.affine.vectorAssertThat
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.Interval
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 import org.junit.Test
 
@@ -33,7 +34,7 @@ class BezierDerivativeTest {
     fun testToString() {
         println("ToString")
         val p = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-        bezierAssertThat(prettyGson.fromJson<BezierDerivativeJson>(p.toString()).bezierDerivative().toBezier()).isEqualToBezier(p.toBezier())
+        bezierAssertThat(p.toString().parseToJson().get().bezierDerivative.toBezier()).isEqualToBezier(p.toBezier())
     }
 
     @Test

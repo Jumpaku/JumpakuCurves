@@ -9,16 +9,17 @@ import jumpaku.core.affine.Divisible
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.divide
 import jumpaku.core.affine.point
+import jumpaku.core.json.ToJson
 
-data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint> {
+data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {
 
     override fun divide(t: Double, p: ParamPoint): ParamPoint {
         return ParamPoint(point.divide(t, p.point), param.divide(t, p.param))
     }
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("point" to point.toJson(), "param" to param.toJson())
+    override fun toJson(): JsonElement = jsonObject("point" to point.toJson(), "param" to param.toJson())
 
     companion object{
 

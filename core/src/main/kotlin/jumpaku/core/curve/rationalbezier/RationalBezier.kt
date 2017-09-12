@@ -15,10 +15,11 @@ import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, Subdividible<RationalBezier> {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, Subdividible<RationalBezier>, ToJson {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -73,9 +74,9 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject(
+    override fun toJson(): JsonElement = jsonObject(
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }))
 
     override fun transform(a: Affine): RationalBezier = RationalBezier(

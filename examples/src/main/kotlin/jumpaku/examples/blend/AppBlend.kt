@@ -11,9 +11,11 @@ import javafx.scene.paint.Color
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fuzzy.Grade
+import jumpaku.core.json.parseToJson
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.blend.OverlappingMatrix
 import jumpaku.fsc.blend.OverlappingPath
+import jumpaku.fsc.blend.blendResult
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fxcomponents.view.CurveInput
 import jumpaku.fxcomponents.view.cubicFsc
@@ -59,7 +61,7 @@ class ViewBlend : View(){
             }
 
             val samplingSpan = 1.0/128
-            val b = Blender(samplingSpan, 0.5, { _ -> grade.value })
+            val b = Blender(samplingSpan, 0.5, FscGenerator(), { _ -> grade.value })
 
             Try.run {
                 existing.map {
@@ -78,9 +80,9 @@ class ViewBlend : View(){
 
     private fun printOsm(osm: OverlappingMatrix, path: Option<OverlappingPath>) {
         print("    ")
-        (0 until osm.overlappingTimes.size()).forEach { print("%4d".format(it))}
+        (0..osm.rowLastIndex).forEach { print("%4d".format(it))}
         println()
-        API.For(0 until osm.existingTimes.size(), 0 until osm.overlappingTimes.size())
+        API.For(0..osm.rowLastIndex, 0..osm.columnLastIndex)
                 .`yield` { i, j ->
                     val prefix = if (j == 0) "%3d| ".format(i) else ","
                     val symbol = when {
@@ -88,7 +90,7 @@ class ViewBlend : View(){
                         osm[i, j] > Grade.FALSE -> "  +"
                         else -> "   "
                     }
-                    val postfix = if (j == osm.overlappingTimes.size() - 1) ",%n".format() else ""
+                    val postfix = if (j == osm.columnLastIndex) ",%n".format() else ""
                     prefix + symbol + postfix
                 }
                 .forEach(::print)

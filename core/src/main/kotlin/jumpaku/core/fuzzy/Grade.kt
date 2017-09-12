@@ -1,11 +1,13 @@
 package jumpaku.core.fuzzy
 
+import com.github.salomonbrys.kotson.double
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.clamp
 
 
-data class Grade(val value: Double) : Comparable<Grade> {
+data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
     init {
         require(value.isFinite() && value in 0.0..1.0) { "value($value) is out of [0.0, 1.0]." }
@@ -25,7 +27,7 @@ data class Grade(val value: Double) : Comparable<Grade> {
 
     override fun toString(): String = value.toString()
 
-    fun toJson(): JsonElement = JsonPrimitive(value)
+    override fun toJson(): JsonElement = JsonPrimitive(value)
 
     companion object {
 
@@ -36,3 +38,5 @@ data class Grade(val value: Double) : Comparable<Grade> {
         fun clamped(value: Double): Grade = Grade(clamp(value, 0.0, 1.0))
     }
 }
+
+val JsonElement.grade: Grade get() = Grade(double)

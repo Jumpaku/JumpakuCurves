@@ -14,6 +14,7 @@ import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.clamp
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.FastMath
@@ -24,7 +25,8 @@ import org.apache.commons.math3.util.Precision
  * Conic section defined by 3 representation points.
  */
 class ConicSection(
-        val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection> {
+        val begin: Point, val far: Point, val end: Point, val weight: Double)
+    : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection>, ToJson {
 
     fun toCrispRationalBezier(): RationalBezier {
         check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
@@ -81,9 +83,9 @@ class ConicSection(
     override fun transform(a: Affine): ConicSection = ConicSection(
             a(begin), a(far), a(end), weight)
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject(
+    override fun toJson(): JsonElement = jsonObject(
             "begin" to begin.toJson(), "far" to far.toJson(), "end" to end.toJson(), "weight" to weight.toJson())
 
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)

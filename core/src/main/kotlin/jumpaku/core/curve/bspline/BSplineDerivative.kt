@@ -12,9 +12,10 @@ import jumpaku.core.affine.Vector
 import jumpaku.core.affine.vector
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.BezierDerivative
+import jumpaku.core.json.ToJson
 
 
-class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable {
+class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable, ToJson {
 
     constructor(controlVectors: Iterable<Vector>, knots: KnotVector) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
@@ -31,9 +32,9 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     val degree: Int get() = toBSpline().degree
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }), "knotVector" to knotVector.toJson())
+    override fun toJson(): JsonElement = jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }), "knotVector" to knotVector.toJson())
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 

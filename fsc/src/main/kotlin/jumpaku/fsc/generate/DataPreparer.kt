@@ -32,9 +32,9 @@ class DataPreparer(
         require(crispData.size() >= 2) { "data size(${crispData.size()}) < 2" }
 
         return  crispData.sortBy(ParamPoint::param)
-                .run { DataPreparer.Companion.fill(this, maxParamSpan) }
-                .run { DataPreparer.Companion.extendFront(this, innerSpan, outerSpan, degree) }
-                .run { DataPreparer.Companion.extendBack(this, innerSpan, outerSpan, degree) }
+                .run { fill(this, maxParamSpan) }
+                .run { extendFront(this, innerSpan, outerSpan, degree) }
+                .run { extendBack(this, innerSpan, outerSpan, degree) }
     }
 
     companion object {
@@ -59,8 +59,7 @@ class DataPreparer(
                     .let { chordalParametrize(it.map { it.point }) }
                     .let { transformParams(it, Interval(outerSpan / (outerSpan + innerSpan), 1.0)) }
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
-            val outerData = bezier.domain.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
-                    .map { ParamPoint(bezier(it), it) }
+            val outerData = bezier.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
             return transformParams(outerData, Interval(begin, begin + outerSpan))
                     .init()
                     .appendAll(sortedData)
@@ -76,8 +75,7 @@ class DataPreparer(
                     .let { chordalParametrize(it.map { it.point }) }
                     .let { transformParams(it, Interval(0.0, innerSpan / (outerSpan + innerSpan))) }
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
-            val outerData = bezier.domain.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
-                    .map { ParamPoint(bezier(it), it) }
+            val outerData = bezier.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
             return transformParams(outerData, Interval(end - outerSpan, end))
                     .tail()
                     .prependAll(sortedData)
