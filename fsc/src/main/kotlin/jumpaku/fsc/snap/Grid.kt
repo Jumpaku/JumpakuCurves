@@ -23,6 +23,8 @@ sealed class Grid: ToJson {
 
     val gridSpacing: Double get() = baseGridSpacing * FastMath.pow(magnification.toDouble(), -resolution)
 
+    val affine: Affine get() = rotation.andScale(gridSpacing).andTranslateTo(origin)
+
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement = jsonObject(

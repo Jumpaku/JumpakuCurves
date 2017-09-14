@@ -46,9 +46,9 @@ class GridCoordinateTest {
     @Test
     fun testGetPoint() {
         println("GetPoint")
-        pointAssertThat(baseGridCoordinate.point).isEqualToPoint(Point.xy(16.0, 20.0))
-        pointAssertThat(higherGridCoordinate.point).isEqualToPoint(Point.xy(7.0, 8.0))
-        pointAssertThat(lowerGridCoordinate.point).isEqualToPoint(Point.xy(52.0, 68.0))
+        pointAssertThat(baseGridCoordinate.toCrispPoint()).isEqualToPoint(Point.xy(16.0, 20.0))
+        pointAssertThat(higherGridCoordinate.toCrispPoint()).isEqualToPoint(Point.xy(7.0, 8.0))
+        pointAssertThat(lowerGridCoordinate.toCrispPoint()).isEqualToPoint(Point.xy(52.0, 68.0))
     }
 }
 
