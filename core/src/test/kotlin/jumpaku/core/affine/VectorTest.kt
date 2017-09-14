@@ -1,6 +1,7 @@
 package jumpaku.core.affine
 
 import com.github.salomonbrys.kotson.fromJson
+import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
@@ -127,7 +128,7 @@ class VectorTest {
         println("Json")
         val v = Vector(1.0, -2.0, 3.0)
 
-        vectorAssertThat(prettyGson.fromJson<VectorJson>(v.toString()).vector()).isEqualToVector(v)
+        vectorAssertThat(v.toString().parseToJson().get().vector).isEqualToVector(v)
     }
 
     @Test

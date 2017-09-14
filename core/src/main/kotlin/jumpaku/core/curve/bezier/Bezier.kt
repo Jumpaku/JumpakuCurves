@@ -1,24 +1,29 @@
 package jumpaku.core.curve.bezier
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import org.apache.commons.math3.util.CombinatoricsUtils
-import org.apache.commons.math3.util.FastMath
-import org.apache.commons.math3.util.Precision
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.isOdd
+import org.apache.commons.math3.util.CombinatoricsUtils
+import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.Precision
 
 
-class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier> {
+class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier>, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -35,9 +40,9 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     constructor(vararg controlPoints: Point): this(Array(*controlPoints))
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): BezierJson = BezierJson(this)
+    override fun toJson(): JsonElement = jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -177,9 +182,4 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
     }
 }
 
-data class BezierJson(private val controlPoints: List<PointJson>) {
-
-    constructor(bezier: Bezier) : this(bezier.controlPoints.map(Point::json).toJavaList())
-
-    fun bezier() = Bezier(controlPoints.map(PointJson::point))
-}
+val JsonElement.bezier: Bezier get() = Bezier(this["controlPoints"].array.map { it.point })

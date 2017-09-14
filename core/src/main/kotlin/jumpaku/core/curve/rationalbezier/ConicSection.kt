@@ -1,26 +1,32 @@
 package jumpaku.core.curve.rationalbezier
 
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import org.apache.commons.math3.util.FastMath
-import org.apache.commons.math3.util.Precision
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.clamp
 import jumpaku.core.util.divOption
+import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.Precision
 
 
 /**
  * Conic section defined by 3 representation points.
  */
 class ConicSection(
-        val begin: Point, val far: Point, val end: Point, val weight: Double) : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection> {
+        val begin: Point, val far: Point, val end: Point, val weight: Double)
+    : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection>, ToJson {
 
     fun toCrispRationalBezier(): RationalBezier {
         check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
@@ -77,9 +83,10 @@ class ConicSection(
     override fun transform(a: Affine): ConicSection = ConicSection(
             a(begin), a(far), a(end), weight)
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): ConicSectionJson = ConicSectionJson(this)
+    override fun toJson(): JsonElement = jsonObject(
+            "begin" to begin.toJson(), "far" to far.toJson(), "end" to end.toJson(), "weight" to weight.toJson())
 
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
@@ -152,18 +159,5 @@ class ConicSection(
     }
 }
 
-data class ConicSectionJson(
-        private val begin: PointJson,
-        private val far: PointJson,
-        private val end: PointJson,
-        private val weight: Double) {
-
-    constructor(conicSection: ConicSection) : this(
-            conicSection.begin.json(),
-            conicSection.far.json(),
-            conicSection.end.json(),
-            conicSection.weight)
-
-    fun conicSection(): ConicSection = ConicSection(
-            begin.point(), far.point(), end.point(), weight)
-}
+val JsonElement.conicSection: ConicSection get() = ConicSection(
+        this["begin"].point, this["far"].point, this["end"].point, this["weight"].double)

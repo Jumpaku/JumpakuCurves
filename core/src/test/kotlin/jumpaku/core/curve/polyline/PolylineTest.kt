@@ -8,6 +8,7 @@ import jumpaku.core.affine.Affine
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.curve.Interval
+import jumpaku.core.json.parseToJson
 import jumpaku.core.json.prettyGson
 import org.junit.Test
 
@@ -29,7 +30,7 @@ class PolylineTest {
     fun testToString() {
         println("ToString")
         val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-        polylineAssertThat(prettyGson.fromJson<PolylineJson>(p.toString()).polyline()).isEqualToPolyline(p)
+        polylineAssertThat(p.toString().parseToJson().get().polyline).isEqualToPolyline(p)
     }
 
     @Test

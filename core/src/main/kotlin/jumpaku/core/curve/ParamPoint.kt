@@ -1,20 +1,25 @@
 package jumpaku.core.curve
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import jumpaku.core.affine.Divisible
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.PointJson
 import jumpaku.core.affine.divide
-import jumpaku.core.json.prettyGson
+import jumpaku.core.affine.point
+import jumpaku.core.json.ToJson
 
-data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint> {
+data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {
 
     override fun divide(t: Double, p: ParamPoint): ParamPoint {
         return ParamPoint(point.divide(t, p.point), param.divide(t, p.param))
     }
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): ParamPointJson = ParamPointJson(this)
+    override fun toJson(): JsonElement = jsonObject("point" to point.toJson(), "param" to param.toJson())
 
     companion object{
 
@@ -22,11 +27,4 @@ data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoin
     }
 }
 
-data class ParamPointJson(
-        val point: PointJson,
-        val param: Double){
-
-    constructor(paramPoint: ParamPoint) : this(paramPoint.point.json(), paramPoint.param)
-
-    fun paramPoint(): ParamPoint = ParamPoint(point.point(), param)
-}
+val JsonElement.paramPoint: ParamPoint get() = ParamPoint(this["point"].point, this["param"].double)
