@@ -1,23 +1,28 @@
 package jumpaku.core.curve.polyline
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.Affine
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.PointJson
+import jumpaku.core.affine.point
 import jumpaku.core.curve.*
-import org.apache.commons.math3.util.Precision
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.fit.chordalParametrize
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
+import org.apache.commons.math3.util.Precision
 
 
 /**
  * Polyline parametrized by arc-arcLength.
  */
-class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, Subdividible<Polyline> {
+class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, Subdividible<Polyline>, ToJson {
 
     val points: Array<Point> = paramPoints.map(ParamPoint::point)
 
@@ -33,9 +38,9 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
 
     constructor(vararg points: Point) : this(Array(*points))
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): PolylineJson = PolylineJson(this)
+    override fun toJson(): JsonElement = jsonObject("points" to jsonArray(points.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
@@ -96,9 +101,4 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
     override fun toArcLengthCurve(): ArcLengthAdapter = ArcLengthAdapter(this, parameters)
 }
 
-data class PolylineJson(private val points: kotlin.collections.List<PointJson>) {
-
-    constructor(polyline: Polyline) : this(polyline.points.map(Point::json).toJavaList())
-
-    fun polyline(): Polyline = Polyline(points.map(PointJson::point))
-}
+val JsonElement.polyline: Polyline get() = Polyline(this["points"].array.map { it.point })

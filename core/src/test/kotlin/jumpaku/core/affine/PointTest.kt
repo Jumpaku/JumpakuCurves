@@ -1,6 +1,7 @@
 package jumpaku.core.affine
 
 import com.github.salomonbrys.kotson.fromJson
+import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.json.prettyGson
@@ -222,8 +223,8 @@ class PointTest {
         println("ToString")
         val f = Point.xyzr(1.0, -2.0, 3.0, 2.0)
         val c = Point.xyz(1.0, -2.0, 3.0)
-        pointAssertThat(prettyGson.fromJson<PointJson>(f.toString()).point()).isEqualToPoint(f)
-        pointAssertThat(prettyGson.fromJson<PointJson>(c.toString()).point()).isEqualToPoint(c)
+        pointAssertThat(f.toString().parseToJson().get().point).isEqualToPoint(f)
+        pointAssertThat(c.toString().parseToJson().get().point).isEqualToPoint(c)
     }
 
     @Test

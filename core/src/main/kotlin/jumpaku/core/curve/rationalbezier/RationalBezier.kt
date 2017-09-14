@@ -1,20 +1,25 @@
 package jumpaku.core.curve.rationalbezier
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import org.apache.commons.math3.util.Precision
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
+import org.apache.commons.math3.util.Precision
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, Subdividible<RationalBezier> {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, Subdividible<RationalBezier>, ToJson {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -69,9 +74,10 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): RationalBezierJson = RationalBezierJson(this)
+    override fun toJson(): JsonElement = jsonObject(
+            "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }))
 
     override fun transform(a: Affine): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point)) })
@@ -124,14 +130,9 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
             }
             return ws.head()
         }
-
-        fun fromBezier(bezier: Bezier): RationalBezier = RationalBezier(bezier.controlPoints.map { WeightedPoint(it) })
     }
 }
 
-data class RationalBezierJson(private val weightedControlPoints: List<WeightedPointJson>){
+val JsonElement.rationalBezier: RationalBezier get() = RationalBezier(
+        this["weightedControlPoints"].array.map { it.weightedPoint })
 
-    constructor(rationalBezier: RationalBezier) : this(rationalBezier.weightedControlPoints.map(WeightedPoint::json).toJavaList())
-
-    fun rationalBezier(): RationalBezier = RationalBezier(weightedControlPoints.map(WeightedPointJson::weightedPoint))
-}

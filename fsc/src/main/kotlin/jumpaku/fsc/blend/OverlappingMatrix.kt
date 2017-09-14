@@ -1,39 +1,41 @@
 package jumpaku.fsc.blend
 
-import io.vavr.Function2
+import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.function2
-import jumpaku.core.util.lastIndex
 
-class OverlappingMatrix(samplingSpan: Double, val existing: BSpline, val overlapping: BSpline){
 
-    val existingTimes: Array<Double> = existing.domain.sample(samplingSpan)
+data class OverlappingMatrix(val matrix: Array<Array<Grade>>) {
 
-    val overlappingTimes: Array<Double> = overlapping.domain.sample(samplingSpan)
+    constructor(samplingSpan: Double, existing: BSpline, overlapping: BSpline): this(kotlin.run {
+        val existingTimes = existing.domain.sample(samplingSpan)
+        val overlappingTimes = overlapping.domain.sample(samplingSpan)
+        existingTimes.map { et ->
+            overlappingTimes.map { ot ->
+                existing(et).isPossible(overlapping(ot))
+            }
+        }
+    })
 
-    private val computeGrade: Function2<Int, Int, Grade> = function2 { i: Int, j: Int ->
-        existing(existingTimes[i]).isPossible(overlapping(overlappingTimes[j]))
-    }.memoized()
+    val rowSize: Int = matrix.size()
 
-    operator fun get(i: Int, j: Int): Grade = computeGrade.apply(i, j)
+    val rowLastIndex: Int = rowSize - 1
 
-    fun overlappingCase(path: OverlappingPath): OverlappingCase {
-        require(path.nonEmpty()) { "empty path" }
-        val existingLast = existingTimes.lastIndex
-        val overlappingLast = overlappingTimes.lastIndex
-        val (beginI, beginJ) = path.path.head()
-        val (endI, endJ) = path.path.last()
+    val columnSize: Int = matrix.head().size()
 
-        return when{
-            beginI == 0 && endI == existingLast -> OverlappingCase.OverlappingExistingOverlapping
-            beginI == 0 && endJ == overlappingLast -> OverlappingCase.OverlappingExisting
-            beginJ == 0 && endI == existingLast -> OverlappingCase.ExistingOverlapping
-            beginJ == 0 && endJ == overlappingLast -> OverlappingCase.ExistingOverlappingExisting
-            else -> error("invalid path($path) (osm(${existingLast - 1}x${overlappingLast - 1}))")
+    val columnLastIndex: Int = columnSize - 1
+
+    operator fun get(i: Int, j: Int): Grade = matrix[i][j]
+
+    fun emptyPath() = OverlappingPath(this, Grade.FALSE, Array.empty())
+
+    fun initialPath(grade: Grade, i: Int, j: Int): OverlappingPath {
+        require(i == 0 || j == 0) { "index i($i) or j($j) are not beginning index" }
+        return when {
+            grade <= Grade.FALSE -> emptyPath()
+            else -> OverlappingPath(this, grade, Array.of(Tuple2(i, j)))
         }
     }
 }
+

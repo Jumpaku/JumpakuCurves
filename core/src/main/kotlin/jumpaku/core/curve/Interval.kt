@@ -1,14 +1,19 @@
 package jumpaku.core.curve
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import org.apache.commons.math3.util.FastMath
 import jumpaku.core.affine.divide
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.clamp
+import org.apache.commons.math3.util.FastMath
 
 
-data class Interval(val begin: Double, val end: Double) {
+data class Interval(val begin: Double, val end: Double): ToJson {
 
     val span: Double = end - begin
 
@@ -29,19 +34,13 @@ data class Interval(val begin: Double, val end: Double) {
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): IntervalJson = IntervalJson(this)
+    override fun toJson(): JsonElement = jsonObject("begin" to begin.toJson(), "end" to end.toJson())
 
     companion object {
         val ZERO_ONE = Interval(0.0, 1.0)
     }
 }
 
-
-data class IntervalJson(private val begin: Double, private val end: Double) {
-
-    constructor(interval: Interval) : this(interval.begin, interval.end)
-
-    fun interval(): Interval = Interval(begin, end)
-}
+val JsonElement.interval: Interval get() = Interval(this["begin"].double, this["end"].double)

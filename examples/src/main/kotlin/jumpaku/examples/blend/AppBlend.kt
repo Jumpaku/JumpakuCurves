@@ -2,30 +2,29 @@ package jumpaku.examples.blend
 
 import io.vavr.API
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
 import javafx.application.Application
+import javafx.scene.Parent
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fuzzy.Grade
+import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.Blender
-import jumpaku.fsc.blend.OverlappingMatrix
-import jumpaku.fsc.blend.OverlappingPath
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fxcomponents.view.CurveInput
 import jumpaku.fxcomponents.view.cubicFsc
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
+import java.nio.file.Paths
 
 fun main(vararg args: String) = Application.launch(AppBlend::class.java, *args)
 
 class AppBlend : App(ViewBlend::class)
 
-class ViewBlend : View(){
+class ViewBlend : View() {
 
     override val scope: Scope = Scope()
 
@@ -37,60 +36,58 @@ class ViewBlend : View(){
         curveInput = CurveInput(scope = scope)
         root = curveInput.root
         subscribe<CurveInput.CurveDoneEvent> {
-            render(it.data)
+            if (it.data.size() > 2) {
+                val fsc = FscGenerator(3, 0.1).generate(it.data)
+                with(curveInput.contents) {
+                    children.clear()
+                    render(fsc)
+                }
+            }
         }
     }
 
-    private var existing: Option<BSpline> = Option.none()
+    var existing: Option<BSpline> = Option.none()
+    var i = 0
+    val path = Paths.get("./")
 
-    private fun render(data: Array<ParamPoint>) {
-        if (data.size() <= 2){
+    private fun Parent.render(overlapping: BSpline) {
+        cubicFsc(overlapping) { stroke = Color.GREEN }
+        if (existing.isEmpty){
+            existing = Option.of(overlapping)
             return
         }
-        with(curveInput.contents) {
-            children.clear()
-            existing.forEach { cubicFsc(it) { stroke = Color.BLUE } }
-            val overlapping = FscGenerator(3, 0.1).generate(Array.ofAll(data))
-            cubicFsc(overlapping) { stroke = Color.GREEN }
+        existing.forEach { cubicFsc(it) { stroke = Color.BLUE } }
 
-            if(existing.isEmpty){
-                existing = Option.of(overlapping)
-                return
-            }
+        Try.run { existing.map {
+            val result = Blender().blend(it, overlapping)
+            printOsm(result)
+            result.blended.forEach { cubicFsc(it) { stroke = Color.RED } }
 
-            val samplingSpan = 1.0/128
-            val b = Blender(samplingSpan, 0.5, { _ -> grade.value })
-
-            Try.run {
-                existing.map {
-                    val (osm, path, blended) = b.blend(existing.get(), overlapping)
-                    printOsm(osm, path)
-                    blended.forEach { cubicFsc(it) { stroke = Color.RED } }
-                }
-            }.onFailure {
-                println("the following fscs caused a blending error")
-                existing.forEach { println(it) }
-                println(overlapping)
-                println(it.message)
-            }.getOrElseThrow { t -> throw t }
-        }
+            path.resolve("BlendExisting$i.json").toFile().writeText(it.toString())
+            path.resolve("BlendOverlapping$i.json").toFile().writeText(overlapping.toString())
+            path.resolve("BlendResult$i.json").toFile().writeText(result.toString())
+            ++i
+        } }.onFailure {
+            println("the following fscs caused a blending error")
+            existing.forEach { println(it) }
+            println(overlapping)
+        }.getOrElseThrow { e -> throw e }
     }
 
-    private fun printOsm(osm: OverlappingMatrix, path: Option<OverlappingPath>) {
+    private fun printOsm(result: BlendResult) {
+        val (osm, path, _) = result
         print("    ")
-        (0 until osm.overlappingTimes.size()).forEach { print("%4d".format(it))}
+        (0..osm.rowLastIndex).forEach { print("%4d".format(it))}
         println()
-        API.For(0 until osm.existingTimes.size(), 0 until osm.overlappingTimes.size())
-                .`yield` { i, j ->
-                    val prefix = if (j == 0) "%3d| ".format(i) else ","
-                    val symbol = when {
-                        path.map { Tuple2(i, j) in it.path } .getOrElse(false) -> "  @"
-                        osm[i, j] > Grade.FALSE -> "  +"
-                        else -> "   "
-                    }
-                    val postfix = if (j == osm.overlappingTimes.size() - 1) ",%n".format() else ""
-                    prefix + symbol + postfix
-                }
-                .forEach(::print)
+        API.For(0..osm.rowLastIndex, 0..osm.columnLastIndex).`yield` { i, j ->
+            val prefix = if (j == 0) "%3d| ".format(i) else ","
+            val symbol = when {
+                path.map { Tuple2(i, j) in it.path }.getOrElse(false) -> "  @"
+                osm[i, j] > Grade.FALSE -> "  +"
+                else -> "   "
+            }
+            val postfix = if (j == osm.columnLastIndex) ",%n".format() else ""
+            prefix + symbol + postfix
+        }.forEach(::print)
     }
 }

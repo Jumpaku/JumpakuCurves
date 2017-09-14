@@ -1,0 +1,20 @@
+{
+  "grades": [
+    {
+      "key": "EllipticArc",
+      "value": 0.0
+    },
+    {
+      "key": "CircularArc",
+      "value": 0.0
+    },
+    {
+      "key": "OpenFreeCurve",
+      "value": 1.0
+    },
+    {
+      "key": "LineSegment",
+      "value": 0.0
+    }
+  ]
+}

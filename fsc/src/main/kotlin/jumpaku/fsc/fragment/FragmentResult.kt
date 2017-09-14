@@ -1,18 +1,19 @@
 package jumpaku.fsc.fragment
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.collection.Array
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
 
-data class FragmentResult(val fragments: Array<Fragment>) {
+data class FragmentResult(val fragments: Array<Fragment>): ToJson {
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): FragmentResultJson = FragmentResultJson(this)
+    override fun toJson(): JsonElement = jsonObject("fragments" to jsonArray(fragments.map { it.toJson() }))
 }
 
-data class FragmentResultJson(val fragments: Array<FragmentJson>) {
-
-    constructor(fragmentResult: FragmentResult) : this(fragmentResult.fragments.map { it.json() })
-
-    fun fragmentResult(): FragmentResult = FragmentResult(fragments.map { it.fragment() })
-}
+val JsonElement.fragmentResult: FragmentResult get() = FragmentResult(
+        Array.ofAll(this["fragments"].array.map { it.fragment }))
