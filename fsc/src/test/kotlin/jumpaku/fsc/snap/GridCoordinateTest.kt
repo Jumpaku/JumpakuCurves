@@ -6,7 +6,6 @@ import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.affine.rotation
 import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
-import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
@@ -18,9 +17,7 @@ class GridCoordinateTest {
             origin = Point.xyz(4.0, 4.0, 0.0),
             rotation = rotation(Vector(0.0, 0.0, 1.0), FastMath.PI/2),
             fuzziness = 2.0)
-
     val higherGrid = DerivedGrid(baseGrid, 1)
-
     val lowerGrid = DerivedGrid(baseGrid, -1)
 
     val baseGridCoordinate = GridCoordinate(4, -3, 0, baseGrid)
@@ -46,25 +43,8 @@ class GridCoordinateTest {
     @Test
     fun testGetPoint() {
         println("GetPoint")
-        pointAssertThat(baseGridCoordinate.point).isEqualToPoint(Point.xy(16.0, 20.0))
-        pointAssertThat(higherGridCoordinate.point).isEqualToPoint(Point.xy(7.0, 8.0))
-        pointAssertThat(lowerGridCoordinate.point).isEqualToPoint(Point.xy(52.0, 68.0))
-    }
-}
-
-
-fun gridCoordinateAssertThat(actual: GridCoordinate): GridCoordinateAssert = GridCoordinateAssert(actual)
-
-class GridCoordinateAssert(actual: GridCoordinate) : AbstractAssert<GridCoordinateAssert, GridCoordinate>(actual, GridCoordinateAssert::class.java) {
-
-    fun isEqualToGridCoordinate(expected: GridCoordinate, eps: Double = 1.0e-10): GridCoordinateAssert {
-        isNotNull
-
-        assertThat(actual.x).isEqualTo(expected.x)
-        assertThat(actual.y).isEqualTo(expected.y)
-        assertThat(actual.z).isEqualTo(expected.z)
-        gridAssertThat(actual.grid).isEqualToGrid(expected.grid, eps)
-
-        return this
+        pointAssertThat(baseGridCoordinate.toCrispPoint()).isEqualToPoint(Point.xy(16.0, 20.0))
+        pointAssertThat(higherGridCoordinate.toCrispPoint()).isEqualToPoint(Point.xy(7.0, 8.0))
+        pointAssertThat(lowerGridCoordinate.toCrispPoint()).isEqualToPoint(Point.xy(52.0, 68.0))
     }
 }

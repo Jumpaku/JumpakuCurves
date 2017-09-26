@@ -4,6 +4,9 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import jumpaku.core.affine.*
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.component3
 import org.apache.commons.math3.util.FastMath
 
 
@@ -22,6 +25,25 @@ sealed class Grid: ToJson {
     abstract val resolution: Int
 
     val gridSpacing: Double get() = baseGridSpacing * FastMath.pow(magnification.toDouble(), -resolution)
+
+    /**
+     * localToWorld transforms coordinates in local(grid) to coordinates in world.
+     * Coordinates in world is transformed by the following transformations;
+     *  rotated by specified rotation,
+     *  scaled by gridSpacing,
+     *  translated to specified origin.
+     */
+    val localToWorld: Affine get() = rotation.andScale(gridSpacing).andTranslateTo(origin)
+
+    /**
+     * worldToLocal is the inverse of localToWorld
+     */
+    val worldToLocal: Affine get() = localToWorld.invert()
+
+    fun snap(cursor: Point): GridCoordinate {
+        return worldToLocal(cursor).toArray().map { FastMath.round(it) }
+                .let { (x, y, z) -> GridCoordinate(x, y, z, this) }
+    }
 
     override fun toString(): String = toJsonString()
 
