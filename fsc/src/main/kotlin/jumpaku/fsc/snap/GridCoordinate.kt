@@ -7,7 +7,7 @@ import jumpaku.core.json.ToJson
 
 data class GridCoordinate(val x: Long, val y: Long, val z: Long, val grid: Grid): ToJson {
 
-    fun toCrispPoint(): Point = grid.affine(Point(x.toDouble(), y.toDouble(), z.toDouble()))
+    fun toCrispPoint(): Point = grid.localToWorld(Point(x.toDouble(), y.toDouble(), z.toDouble()))
 
     fun toFuzzyPoint(): Point = toCrispPoint().copy(r = grid.fuzziness)
 

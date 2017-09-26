@@ -19,9 +19,7 @@ class GridTest {
             origin = Point.xyz(4.0, 4.0, 0.0),
             rotation = rotation(Vector(0.0, 0.0, 1.0), FastMath.PI/2),
             fuzziness = 2.0)
-
     val higherGrid = DerivedGrid(baseGrid, 1)
-
     val lowerGrid = DerivedGrid(baseGrid, -1)
 
     @Test
@@ -63,13 +61,38 @@ class GridTest {
         gridAssertThat(l).isEqualToGrid(lowerGrid)
     }
 
-
     @Test
     fun testGetGridSpacing() {
         println("GetGridSpacing")
         assertThat(baseGrid.gridSpacing).isEqualTo(4.0, withPrecision(1.0e-10))
         assertThat(higherGrid.gridSpacing).isEqualTo(1.0, withPrecision(1.0e-10))
         assertThat(lowerGrid.gridSpacing).isEqualTo(16.0, withPrecision(1.0e-10))
+    }
+
+    @Test
+    fun testTransforms() {
+        println("Transforms")
+        pointAssertThat(baseGrid.localToWorld(Point.xy(10.0, 5.0))).isEqualToPoint(Point.xy(-16.0, 44.0))
+        pointAssertThat(higherGrid.localToWorld(Point.xy(10.0, 5.0))).isEqualToPoint(Point.xy(-1.0, 14.0))
+        pointAssertThat(lowerGrid.localToWorld(Point.xy(10.0, 5.0))).isEqualToPoint(Point.xy(-76.0, 164.0))
+        pointAssertThat(baseGrid.worldToLocal(Point.xy(-16.0, 44.0))).isEqualToPoint(Point.xy(10.0, 5.0))
+        pointAssertThat(higherGrid.worldToLocal(Point.xy(-1.0, 14.0))).isEqualToPoint(Point.xy(10.0, 5.0))
+        pointAssertThat(lowerGrid.worldToLocal(Point.xy(-76.0, 164.0))).isEqualToPoint(Point.xy(10.0, 5.0))
+    }
+
+    @Test
+    fun testSnap() {
+        println("Snap")
+        gridCoordinateAssertThat(baseGrid.snap(Point.xy(0.0, 0.0)))
+                .isEqualToGridCoordinate(GridCoordinate(-1, 1, 0, baseGrid))
+        gridCoordinateAssertThat(baseGrid.snap(Point.xy(1.0, 0.0)))
+                .isEqualToGridCoordinate(GridCoordinate(-1, 1, 0, baseGrid))
+        gridCoordinateAssertThat(baseGrid.snap(Point.xy(2.0, 0.0)))
+                .isEqualToGridCoordinate(GridCoordinate(-1, 1, 0, baseGrid))
+        gridCoordinateAssertThat(baseGrid.snap(Point.xy(3.0, 0.0)))
+                .isEqualToGridCoordinate(GridCoordinate(-1, 0, 0, baseGrid))
+        gridCoordinateAssertThat(baseGrid.snap(Point.xy(4.0, 0.0)))
+                .isEqualToGridCoordinate(GridCoordinate(-1, 0, 0, baseGrid))
     }
 }
 
