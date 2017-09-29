@@ -1,6 +1,7 @@
 package jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.fromJson
+import jumpaku.core.json.parseToJson
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.json.prettyGson
 import org.junit.Test
@@ -44,7 +45,7 @@ class KnotVectorTest {
     fun testToString() {
         println("ToString")
         val k = KnotVector.clampedUniform(3.5, 5.0, 3, 10)
-        knotVectorAssertThat(prettyGson.fromJson<KnotVectorJson>(k.toString()).knotVector()).isEqualToKnotVector(k)
+        knotVectorAssertThat(k.toString().parseToJson().get().knotVector).isEqualToKnotVector(k)
     }
 
     @Test

@@ -1,11 +1,10 @@
 package jumpaku.core.curve.rationalbezier
 
-import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.affine.*
+import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 
-import jumpaku.core.json.prettyGson
 import org.junit.Test
 
 
@@ -37,7 +36,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
-        conicSectionAssertThat(prettyGson.fromJson<ConicSectionJson>(i.toString()).conicSection())
+        conicSectionAssertThat(i.toString().parseToJson().get().conicSection)
                 .isEqualConicSection(i)
     }
 
@@ -86,7 +85,7 @@ class ConicSectionTest {
     fun testTransform() {
         println("Transform")
         val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
-        val a = i.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = i.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
         val e = ConicSection(Point.xy(-1.0, 1.0), Point.xy(1 - R2, 1 + R2), Point.xy(1.0, 3.0), R2 / 2)
         conicSectionAssertThat(a).isEqualConicSection(e)
     }

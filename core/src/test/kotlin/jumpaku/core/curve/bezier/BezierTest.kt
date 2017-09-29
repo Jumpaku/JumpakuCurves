@@ -1,11 +1,10 @@
 package jumpaku.core.curve.bezier
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API
 import jumpaku.core.affine.*
+import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
-import jumpaku.core.json.prettyGson
 import org.junit.Test
 
 class BezierTest {
@@ -29,7 +28,7 @@ class BezierTest {
     fun testToString() {
         println("ToString")
         val p = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-        bezierAssertThat(prettyGson.fromJson<BezierJson>(p.toString()).bezier()).isEqualToBezier(p)
+        bezierAssertThat(p.toString().parseToJson().get().bezier).isEqualToBezier(p)
     }
 
     @Test
@@ -65,7 +64,7 @@ class BezierTest {
     fun testCrispTransform() {
         print("CrispTransform")
         val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-        val a = b.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0, 0.0)))
+        val a = b.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0, 0.0)))
         val e = Bezier(Point.xy(1.0, -3.0), Point.xy(1.0, -1.0), Point.xy(-3.0, 1.0), Point.xy(1.0, 3.0), Point.xy(1.0, 5.0))
         bezierAssertThat(a).isEqualToBezier(e)
     }

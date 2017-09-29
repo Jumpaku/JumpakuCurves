@@ -4,7 +4,7 @@ import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import jumpaku.core.affine.pointAssertThat
 
-fun weightedWeightedParamPointAssertThat(actual: WeightedParamPoint): WeightedParamPointAssert = WeightedParamPointAssert(actual)
+fun weightedParamPointAssertThat(actual: WeightedParamPoint): WeightedParamPointAssert = WeightedParamPointAssert(actual)
 
 class WeightedParamPointAssert(actual: WeightedParamPoint) : AbstractAssert<WeightedParamPointAssert, WeightedParamPoint>(actual, WeightedParamPointAssert::class.java) {
 

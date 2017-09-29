@@ -1,14 +1,10 @@
 package jumpaku.core.curve.polyline
 
-import com.github.salomonbrys.kotson.fromJson
+import jumpaku.core.affine.*
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Affine
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.curve.Interval
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.parseToJson
 import org.junit.Test
 
 
@@ -29,7 +25,7 @@ class PolylineTest {
     fun testToString() {
         println("ToString")
         val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-        polylineAssertThat(prettyGson.fromJson<PolylineJson>(p.toString()).polyline()).isEqualToPolyline(p)
+        polylineAssertThat(p.toString().parseToJson().get().polyline).isEqualToPolyline(p)
     }
 
     @Test
@@ -61,7 +57,7 @@ class PolylineTest {
     fun testTransform() {
         println("Transform")
         val b = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-        val a = b.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = b.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
         val e = Polyline(Point.xy(-1.0, -1.0), Point.xy(-1.0, 3.0), Point.xy(7.0, 3.0), Point.xyz(7.0, 3.0, 3.0))
         polylineAssertThat(a).isEqualToPolyline(e)
     }

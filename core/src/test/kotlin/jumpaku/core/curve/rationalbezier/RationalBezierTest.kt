@@ -1,13 +1,12 @@
 package jumpaku.core.curve.rationalbezier
 
-import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.affine.*
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 
 import org.junit.Test
 import jumpaku.core.curve.Interval
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.parseToJson
 
 
 class RationalBezierTest {
@@ -115,7 +114,7 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
 
-        rationalBezierAssertThat(prettyGson.fromJson<RationalBezierJson>(p.toString()).rationalBezier()).isEqualToRationalBezier(p)
+        rationalBezierAssertThat(p.toString().parseToJson().get().rationalBezier).isEqualToRationalBezier(p)
     }
 
     @Test
@@ -126,7 +125,7 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
                 WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
-        val a = i.transform(Affine.ID.scale(2.0).rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).translate(Vector(1.0, 1.0)))
+        val a = i.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
         val e = RationalBezier(
                 WeightedPoint(Point.xy(-1.0, 1.0), 1.0),
                 WeightedPoint(Point.xy(-1.0, 5 - 2 * R2), (1 + R2) / 3),

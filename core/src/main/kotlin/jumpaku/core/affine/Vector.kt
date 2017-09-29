@@ -1,15 +1,19 @@
 package jumpaku.core.affine
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.divOption
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
 
-data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0) {
+data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0): ToJson {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
 
@@ -31,9 +35,9 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     operator fun unaryMinus(): Vector = -1.0*this
 
-    override fun toString(): String = prettyGson.toJson(json())
+    override fun toString(): String = toJsonString()
 
-    fun json(): VectorJson = VectorJson(this)
+    override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z)
 
     fun normalize(): Vector {
         require((1/length()).isFinite()) { "$this close to zero" }
@@ -55,11 +59,4 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
     fun toArray(): Array<Double> = Array.of(x, y, z)
 }
 
-
-
-data class VectorJson(private val x: Double, private val y: Double, private val z: Double){
-
-    constructor(vector: Vector) : this(vector.x, vector.y, vector.z)
-
-    fun vector(): Vector = Vector(x, y, z)
-}
+val JsonElement.vector: Vector get() = Vector(this["x"].double, this["y"].double, this["z"].double)

@@ -17,7 +17,7 @@ buildscript {
 
 subprojects {
     group 'jumpaku'
-    version '0.1'
+    version '0.2'
 
     apply plugin: 'kotlin'
 
@@ -74,6 +74,8 @@ project(':fxcomponents') {
     dependencies {
         compile project(':core')
 
+        compile project(':fsc')
+
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
     }
@@ -89,5 +91,8 @@ project(':examples'){
 
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.5'
+
+        // https://mvnrepository.com/artifact/com.github.thomasnield/rxkotlinfx
+        compile group: 'com.github.thomasnield', name: 'rxkotlinfx', version: '2.2.0'
     }
 }
