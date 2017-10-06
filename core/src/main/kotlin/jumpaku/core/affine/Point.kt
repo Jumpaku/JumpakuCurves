@@ -5,6 +5,8 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
 import jumpaku.core.json.ToJson
@@ -133,7 +135,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @param p2
      * @return (p1-this)x(p2-this)/|(p1-this)x(p2-this)|
      */
-    fun normal(p1: Point, p2: Point): Vector = (p1 - this).cross(p2 - this).normalize()
+    fun normal(p1: Point, p2: Point): Option<Vector> = (p1 - this).cross(p2 - this).normalize()
 
     /**
      * @return A*p (crisp point)

@@ -5,7 +5,7 @@ import com.google.gson.JsonElement
 import jumpaku.core.affine.Point
 import jumpaku.core.json.ToJson
 
-data class GridCoordinate(val x: Long, val y: Long, val z: Long, val grid: Grid): ToJson {
+data class GridPoint(val x: Long, val y: Long, val z: Long, val grid: Grid): ToJson {
 
     fun toCrispPoint(): Point = grid.localToWorld(Point(x.toDouble(), y.toDouble(), z.toDouble()))
 
@@ -20,6 +20,6 @@ data class GridCoordinate(val x: Long, val y: Long, val z: Long, val grid: Grid)
             "grid" to grid.toJson())
 }
 
-val JsonElement.gridCoordinate: GridCoordinate
-    get() = GridCoordinate(
+val JsonElement.gridPoint: GridPoint
+    get() = GridPoint(
             this["x"].long, this["y"].long, this["z"].long, this["grid"].grid)

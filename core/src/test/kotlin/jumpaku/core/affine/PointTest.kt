@@ -292,7 +292,7 @@ class PointTest {
     fun testNormal() {
         println("Normal")
         val n = Point.xyz(1.0, 1.0, 0.0).normal(Point.xyz(-1.0, 1.0, 0.0), Point.xyz(0.0, 1.0, 1.0))
-        vectorAssertThat(n).isEqualToVector(Vector(0.0, 1.0, 0.0))
+        vectorAssertThat(n.get()).isEqualToVector(Vector(0.0, 1.0, 0.0))
     }
 
     @Test

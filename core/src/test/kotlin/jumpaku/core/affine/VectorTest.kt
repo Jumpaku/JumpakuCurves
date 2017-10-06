@@ -72,14 +72,14 @@ class VectorTest {
     fun testNormalize() {
         println("Normalize")
         val v = Vector(1.0, -2.0, 3.0).normalize()
-        vectorAssertThat(v).isEqualToVector(Vector(1.0 / FastMath.sqrt(14.0), -2.0 / FastMath.sqrt(14.0), 3.0 / FastMath.sqrt(14.0)))
+        vectorAssertThat(v.get()).isEqualToVector(Vector(1.0 / FastMath.sqrt(14.0), -2.0 / FastMath.sqrt(14.0), 3.0 / FastMath.sqrt(14.0)))
     }
 
     @Test
     fun testResize() {
         println("Resize")
         val v = Vector(1.0, -2.0, 3.0).resize(2.0)
-        vectorAssertThat(v).isEqualToVector(Vector(1.0 / FastMath.sqrt(14.0) * 2, -2.0 / FastMath.sqrt(14.0) * 2, 3.0 / FastMath.sqrt(14.0) * 2))
+        vectorAssertThat(v.get()).isEqualToVector(Vector(1.0 / FastMath.sqrt(14.0) * 2, -2.0 / FastMath.sqrt(14.0) * 2, 3.0 / FastMath.sqrt(14.0) * 2))
     }
 
     @Test
