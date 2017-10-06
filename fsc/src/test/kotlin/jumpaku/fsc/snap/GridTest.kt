@@ -7,7 +7,6 @@ import jumpaku.core.affine.rotation
 import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
@@ -84,15 +83,15 @@ class GridTest {
     fun testSnap() {
         println("Snap")
         gridCoordinateAssertThat(baseGrid.snap(Point.xy(0.0, 0.0)))
-                .isEqualToGridCoordinate(GridCoordinate(-1, 1, 0, baseGrid))
+                .isEqualToGridCoordinate(GridPoint(-1, 1, 0, baseGrid))
         gridCoordinateAssertThat(baseGrid.snap(Point.xy(1.0, 0.0)))
-                .isEqualToGridCoordinate(GridCoordinate(-1, 1, 0, baseGrid))
+                .isEqualToGridCoordinate(GridPoint(-1, 1, 0, baseGrid))
         gridCoordinateAssertThat(baseGrid.snap(Point.xy(2.0, 0.0)))
-                .isEqualToGridCoordinate(GridCoordinate(-1, 1, 0, baseGrid))
+                .isEqualToGridCoordinate(GridPoint(-1, 1, 0, baseGrid))
         gridCoordinateAssertThat(baseGrid.snap(Point.xy(3.0, 0.0)))
-                .isEqualToGridCoordinate(GridCoordinate(-1, 0, 0, baseGrid))
+                .isEqualToGridCoordinate(GridPoint(-1, 0, 0, baseGrid))
         gridCoordinateAssertThat(baseGrid.snap(Point.xy(4.0, 0.0)))
-                .isEqualToGridCoordinate(GridCoordinate(-1, 0, 0, baseGrid))
+                .isEqualToGridCoordinate(GridPoint(-1, 0, 0, baseGrid))
     }
 }
 

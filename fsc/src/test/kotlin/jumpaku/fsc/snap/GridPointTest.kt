@@ -9,7 +9,7 @@ import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
-class GridCoordinateTest {
+class GridPointTest {
 
     val baseGrid = BaseGrid(
             baseGridSpacing = 4.0,
@@ -20,9 +20,9 @@ class GridCoordinateTest {
     val higherGrid = DerivedGrid(baseGrid, 1)
     val lowerGrid = DerivedGrid(baseGrid, -1)
 
-    val baseGridCoordinate = GridCoordinate(4, -3, 0, baseGrid)
-    val higherGridCoordinate = GridCoordinate(4, -3, 0, higherGrid)
-    val lowerGridCoordinate = GridCoordinate(4, -3, 0, lowerGrid)
+    val baseGridCoordinate = GridPoint(4, -3, 0, baseGrid)
+    val higherGridCoordinate = GridPoint(4, -3, 0, higherGrid)
+    val lowerGridCoordinate = GridPoint(4, -3, 0, lowerGrid)
 
     @Test
     fun testProperties() {
@@ -36,7 +36,7 @@ class GridCoordinateTest {
     @Test
     fun testToString() {
         println("ToString")
-        val j = baseGridCoordinate.toString().parseToJson().get().gridCoordinate
+        val j = baseGridCoordinate.toString().parseToJson().get().gridPoint
         gridCoordinateAssertThat(j).isEqualToGridCoordinate(baseGridCoordinate)
     }
 

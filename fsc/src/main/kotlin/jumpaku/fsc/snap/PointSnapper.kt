@@ -10,7 +10,7 @@ import jumpaku.core.util.component2
 
 data class PointSnapResult(
         val grid: Option<Grid>,
-        val snappedGridCoordinate: Option<GridCoordinate>,
+        val snappedGridPoint: Option<GridPoint>,
         val snappedPoint: Point)
 
 class PointSnapper(
@@ -38,6 +38,6 @@ class PointSnapper(
         return PointSnapResult(
                 snapped.map { it.grid },
                 snapped,
-                snapped.map { it.toCrispPoint() }.getOrElse { cursor }.toCrisp())
+                snapped.map { it.toCrispPoint() }.getOrElse { cursor.toCrisp() })
     }
 }

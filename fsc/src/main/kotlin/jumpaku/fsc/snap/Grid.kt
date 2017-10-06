@@ -29,9 +29,9 @@ sealed class Grid: ToJson {
     /**
      * localToWorld transforms coordinates in local(grid) to coordinates in world.
      * Coordinates in world is transformed by the following transformations;
-     *  rotated by specified rotation,
-     *  scaled by gridSpacing,
-     *  translated to specified origin.
+     *  rotation by specified rotation,
+     *  scaling by gridSpacing,
+     *  translation to specified origin.
      */
     val localToWorld: Affine get() = rotation.andScale(gridSpacing).andTranslateTo(origin)
 
@@ -40,9 +40,9 @@ sealed class Grid: ToJson {
      */
     val worldToLocal: Affine get() = localToWorld.invert()
 
-    fun snap(cursor: Point): GridCoordinate {
+    fun snap(cursor: Point): GridPoint {
         return worldToLocal(cursor).toArray().map { FastMath.round(it) }
-                .let { (x, y, z) -> GridCoordinate(x, y, z, this) }
+                .let { (x, y, z) -> GridPoint(x, y, z, this) }
     }
 
     override fun toString(): String = toJsonString()
@@ -72,7 +72,8 @@ class BaseGrid(
         override val magnification: Int = 4,
         override val origin: Point = Point(0.0, 0.0, 0.0, 0.0),
         override val rotation: Affine = identity,
-        override val fuzziness: Double = 0.0): Grid() {
+        override val fuzziness: Double = 0.0
+): Grid() {
 
     override val resolution: Int = 0
 
