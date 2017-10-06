@@ -3,10 +3,10 @@ package jumpaku.fsc.snap
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 
-fun gridCoordinateAssertThat(actual: GridPoint): GridCoordinateAssert = GridCoordinateAssert(actual)
-class GridCoordinateAssert(actual: GridPoint) : AbstractAssert<GridCoordinateAssert, GridPoint>(actual, GridCoordinateAssert::class.java) {
+fun gridPointAssertThat(actual: GridPoint): GridPointAssert = GridPointAssert(actual)
+class GridPointAssert(actual: GridPoint) : AbstractAssert<GridPointAssert, GridPoint>(actual, GridPointAssert::class.java) {
 
-    fun isEqualToGridCoordinate(expected: GridPoint, eps: Double = 1.0e-10): GridCoordinateAssert {
+    fun isEqualToGridPoint(expected: GridPoint, eps: Double = 1.0e-10): GridPointAssert {
         isNotNull
 
         Assertions.assertThat(actual.x).isEqualTo(expected.x)

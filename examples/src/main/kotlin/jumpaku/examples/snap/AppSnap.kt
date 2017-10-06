@@ -13,6 +13,11 @@ import jumpaku.fsc.classify.reference.Elliptic
 import jumpaku.fsc.classify.reference.Linear
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.snap.*
+import jumpaku.fsc.snap.conicsection.CircularCandidateCreator
+import jumpaku.fsc.snap.conicsection.SnapCandidate
+import jumpaku.fsc.snap.conicsection.EllipticCandidateCreator
+import jumpaku.fsc.snap.conicsection.LinearCandidateCreator
+import jumpaku.fsc.snap.point.PointSnapper
 import jumpaku.fxcomponents.view.*
 import tornadofx.App
 import tornadofx.Scope
@@ -55,7 +60,7 @@ class ViewClassify : View() {
         cubicFsc(fsc) { stroke = Color.RED }
         val c4 = ClassifierOpen4()
         val r4 = c4.classify(fsc)
-        fun snapping(snapResult: Stream<ConicSectionSnapResult>) {
+        fun snapping(snapResult: Stream<SnapCandidate>) {
             val (fs, ss, _, curve) = snapResult.maxBy { r -> r.snappedConicSection.isPossible(fsc, 10).value }.get()
             fs.map { fuzzyPoint(it.point.copy(r = 5.0)) { fill = Color.GREEN } }
             ss.map { fuzzyPoint(it.snappedPoint.copy(r = 5.0)) { fill = Color.ORANGE } }
@@ -64,13 +69,13 @@ class ViewClassify : View() {
         }
         when(r4.curveClass) {
             CurveClass.LineSegment -> {
-                snapping(LinearSnapper(pointSnapper).snap(Linear.ofBeginEnd(fsc).conicSection))
+                snapping(LinearCandidateCreator(pointSnapper).createCandidate(Linear.ofBeginEnd(fsc).conicSection))
             }
             CurveClass.CircularArc -> {
-                snapping(CircularSnapper(pointSnapper).snap(Circular.ofBeginEnd(fsc).conicSection))
+                snapping(CircularCandidateCreator(pointSnapper).createCandidate(Circular.ofBeginEnd(fsc).conicSection))
             }
             CurveClass.EllipticArc -> {
-                snapping(EllipticSnapper(pointSnapper).snap(Elliptic.ofBeginEnd(fsc).conicSection))
+                snapping(EllipticCandidateCreator(pointSnapper).createCandidate(Elliptic.ofBeginEnd(fsc).conicSection))
             }
             else -> {}//fsc.toBeziers().map { ConicSection.ofQuadraticBezier(it) }
         }

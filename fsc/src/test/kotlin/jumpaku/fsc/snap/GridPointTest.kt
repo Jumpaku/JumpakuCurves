@@ -37,7 +37,7 @@ class GridPointTest {
     fun testToString() {
         println("ToString")
         val j = baseGridCoordinate.toString().parseToJson().get().gridPoint
-        gridCoordinateAssertThat(j).isEqualToGridCoordinate(baseGridCoordinate)
+        gridPointAssertThat(j).isEqualToGridPoint(baseGridCoordinate)
     }
 
     @Test

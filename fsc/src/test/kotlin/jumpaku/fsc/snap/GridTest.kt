@@ -82,16 +82,16 @@ class GridTest {
     @Test
     fun testSnap() {
         println("Snap")
-        gridCoordinateAssertThat(baseGrid.snap(Point.xy(0.0, 0.0)))
-                .isEqualToGridCoordinate(GridPoint(-1, 1, 0, baseGrid))
-        gridCoordinateAssertThat(baseGrid.snap(Point.xy(1.0, 0.0)))
-                .isEqualToGridCoordinate(GridPoint(-1, 1, 0, baseGrid))
-        gridCoordinateAssertThat(baseGrid.snap(Point.xy(2.0, 0.0)))
-                .isEqualToGridCoordinate(GridPoint(-1, 1, 0, baseGrid))
-        gridCoordinateAssertThat(baseGrid.snap(Point.xy(3.0, 0.0)))
-                .isEqualToGridCoordinate(GridPoint(-1, 0, 0, baseGrid))
-        gridCoordinateAssertThat(baseGrid.snap(Point.xy(4.0, 0.0)))
-                .isEqualToGridCoordinate(GridPoint(-1, 0, 0, baseGrid))
+        gridPointAssertThat(baseGrid.snap(Point.xy(0.0, 0.0)))
+                .isEqualToGridPoint(GridPoint(-1, 1, 0, baseGrid))
+        gridPointAssertThat(baseGrid.snap(Point.xy(1.0, 0.0)))
+                .isEqualToGridPoint(GridPoint(-1, 1, 0, baseGrid))
+        gridPointAssertThat(baseGrid.snap(Point.xy(2.0, 0.0)))
+                .isEqualToGridPoint(GridPoint(-1, 1, 0, baseGrid))
+        gridPointAssertThat(baseGrid.snap(Point.xy(3.0, 0.0)))
+                .isEqualToGridPoint(GridPoint(-1, 0, 0, baseGrid))
+        gridPointAssertThat(baseGrid.snap(Point.xy(4.0, 0.0)))
+                .isEqualToGridPoint(GridPoint(-1, 0, 0, baseGrid))
     }
 }
 
