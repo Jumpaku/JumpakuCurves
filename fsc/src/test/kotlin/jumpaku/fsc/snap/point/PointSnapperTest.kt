@@ -1,9 +1,10 @@
-package jumpaku.fsc.snap
+package jumpaku.fsc.snap.point
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.affine.rotation
+import jumpaku.fsc.snap.BaseGrid
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
