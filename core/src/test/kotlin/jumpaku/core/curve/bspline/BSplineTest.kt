@@ -37,7 +37,6 @@ class BSplineTest {
         assertThat(b.degree).isEqualTo(3)
     }
 
-
     @Test
     fun testToString() {
         println("ToString")
@@ -75,8 +74,8 @@ class BSplineTest {
     }
 
     @Test
-    fun testCrispTransform() {
-        println("CrispTransform")
+    fun testTransform() {
+        println("Transform")
         val b = BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9))
