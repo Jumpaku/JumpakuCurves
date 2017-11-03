@@ -145,13 +145,11 @@ fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Option<Affin
 fun similarityWithNormal(before: Tuple3<Point, Point, Vector>, after: Tuple3<Point, Point, Vector>): Option<Affine> {
     val (a0, b0, n0) = before
     val e0 = b0 - a0
-    val l0 = e0.length()
     val e1 = e0.cross(n0)//.resize(l0)
     val e2 = e1.cross(e0)//.resize(l0)
 
     val (a1, b1, n1) = after
     val f0 = b1 - a1
-    val l1 = f0.length()
     val f1 = f0.cross(n1)//.resize(l1)
     val f2 = f1.cross(f0)//.resize(l1)
 
