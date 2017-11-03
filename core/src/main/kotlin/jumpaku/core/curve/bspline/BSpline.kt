@@ -29,8 +29,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
 
     override val domain: Interval = knotVector.domain
 
-    override val derivative: BSplineDerivative
-        get() {
+    override val derivative: BSplineDerivative get() {
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
                 .zipWithIndex({ v, i ->
@@ -223,7 +222,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             return ns[0]
         }
 
-        private fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double {
+        internal fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double {
             return (a - b).divOption (c - d).getOrElse(0.0)
         }
     }
