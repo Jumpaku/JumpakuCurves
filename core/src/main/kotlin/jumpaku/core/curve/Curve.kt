@@ -1,5 +1,6 @@
 package jumpaku.core.curve
 
+import io.vavr.Function1
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 
@@ -11,7 +12,9 @@ interface Curve : Function1<Double, Point> {
 
     val domain: Interval
 
-    override fun invoke(t: Double): Point {
+    operator fun invoke(t: Double): Point = apply(t)
+
+    override fun apply(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
 
         return evaluate(t)

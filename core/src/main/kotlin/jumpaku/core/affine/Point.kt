@@ -5,6 +5,8 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
 import jumpaku.core.json.ToJson
@@ -14,6 +16,8 @@ import org.apache.commons.math3.geometry.euclidean.threed.Plane
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
+
+
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point>, ToJson {
 
@@ -40,11 +44,16 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     override fun isNecessary(u: Point): Grade {
         val d = this.dist(u)
         return d.divOption(r + u.r)
-                .map { when {
-                        it >= u.r -> Grade.FALSE
-                        else -> Grade.clamped(minOf(1 - (r - d) / (r + u.r), 1 - (r + d) / (r + u.r)))
-                } }
+                .map { if (d < u.r) Grade.clamped(1 - (r + d) / (r + u.r)) else Grade.FALSE }
                 .getOrElse(Grade(equalsPosition(this, u)))
+        /*val ra = r
+        val rb = u.r
+        val dd = this.dist(u)
+        return when {
+            (dd.divOption(ra + rb)).isEmpty -> Grade(equalsPosition(this, u, 1.0e-10))
+            dd < rb -> Grade(FastMath.min(1 - (ra - dd) / (ra + rb), 1 - (ra + dd) / (ra + rb)))
+            else -> Grade.FALSE
+        }*/
     }
 
     /**
@@ -126,7 +135,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @param p2
      * @return (p1-this)x(p2-this)/|(p1-this)x(p2-this)|
      */
-    fun normal(p1: Point, p2: Point): Vector = (p1 - this).cross(p2 - this).normalize()
+    fun normal(p1: Point, p2: Point): Option<Vector> = (p1 - this).cross(p2 - this).normalize()
 
     /**
      * @return A*p (crisp point)

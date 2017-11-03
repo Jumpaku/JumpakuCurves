@@ -13,6 +13,7 @@ import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthAdapter
 import jumpaku.core.curve.arclength.repeatBisection
+import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.clamp
@@ -156,6 +157,11 @@ class ConicSection(
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
+
+        fun ofQuadraticBezier(bezier: Bezier): ConicSection {
+            require(bezier.degree == 2) { "degree(${bezier.degree}) != 2" }
+            return ConicSection(bezier(0.0), bezier(0.5), bezier(1.0), 1.0)
+        }
     }
 }
 
