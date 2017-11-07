@@ -39,12 +39,11 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z)
 
-    fun normalize(): Vector {
-        require((1/length()).isFinite()) { "$this close to zero" }
-        return this/length()
-    }
+    fun normalize(): Option<Vector> = this.divOption(length())
 
-    fun resize(l: Double): Vector = l*normalize()
+    fun isZero(eps: Double = 0.0): Boolean = square() <= eps*eps || normalize().isEmpty
+
+    fun resize(l: Double): Option<Vector> = normalize().map { it*l }
 
     fun dot(v: Vector): Double = vector.dotProduct(Vector3D(v.x, v.y, v.z))
 

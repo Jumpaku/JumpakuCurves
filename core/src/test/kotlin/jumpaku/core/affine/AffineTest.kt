@@ -71,10 +71,20 @@ class AffineTest {
 
     @Test
     fun testSimilarity() {
-        println("similarity")
+        println("Similarity")
         val s = similarity(Tuple(Point.xyz(1.0, 0.0, 0.0), Point.xyz(0.0, 1.0, 0.0)), Tuple(Point.xyz(1.0, 1.0, -1.0), Point.xyz(-1.0, 1.0, 1.0)))
-                .invoke(Point.xyz(0.0, 0.0, 1.0))
+                .get().invoke(Point.xyz(0.0, 0.0, 1.0))
         pointAssertThat(s).isEqualToPoint(Point.xyz(1.0, -1.0, 1.0))
+    }
+
+    @Test
+    fun testSimilarityWithNormal() {
+        println("SimilarityWithNormal")
+        val s = similarityWithNormal(
+                Tuple(Point.xyz(1.0, 0.0, 0.0), Point.xyz(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)),
+                Tuple(Point.xyz(1.0, 1.0, -1.0), Point.xyz(-1.0, 1.0, 1.0), Vector(0.0, -1.0, 0.0)))
+                .get().invoke(Point.xyz(1.0, 1.0, 0.0))
+        pointAssertThat(s).isEqualToPoint(Point.xyz(1.0, 1.0, 1.0))
     }
 
     @Test
@@ -83,15 +93,15 @@ class AffineTest {
         val c = calibrate(
                 Tuple(Point.xyz(1.0, 0.0, 0.0), Point.xyz(0.0, 1.0, 0.0), Point.xyz(0.0, 0.0, 1.0), Point.xyz(-1.0, -1.0, -1.0)),
                 Tuple(Point.xyz(1.0, -1.0, 1.0), Point.xyz(1.0, 1.0, -1.0), Point.xyz(-1.0, 1.0, 1.0), Point.xyz(1.0, 1.0, 1.0)))
-        val c0 = c.invoke(Point.xyz(1.0, 0.0, 0.0))
+        val c0 = c.get().invoke(Point.xyz(1.0, 0.0, 0.0))
         pointAssertThat(c0).isEqualToPoint(Point.xyz(1.0, -1.0, 1.0))
-        val c1 = c.invoke(Point.xyz(0.0, 1.0, 0.0))
+        val c1 = c.get().invoke(Point.xyz(0.0, 1.0, 0.0))
         pointAssertThat(c1).isEqualToPoint(Point.xyz(1.0, 1.0, -1.0))
-        val c2 = c.invoke(Point.xyz(0.0, 0.0, 1.0))
+        val c2 = c.get().invoke(Point.xyz(0.0, 0.0, 1.0))
         pointAssertThat(c2).isEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
-        val c3 = c.invoke(Point.xyz(-1.0, -1.0, -1.0))
+        val c3 = c.get().invoke(Point.xyz(-1.0, -1.0, -1.0))
         pointAssertThat(c3).isEqualToPoint(Point.xyz(1.0, 1.0, 1.0))
-        val r0 = c.invoke(Point.xyz(0.0, 0.0, 0.0))
+        val r0 = c.get().invoke(Point.xyz(0.0, 0.0, 0.0))
         pointAssertThat(r0).isEqualToPoint(Point.xyz(0.5, 0.5, 0.5))
     }
     @Test

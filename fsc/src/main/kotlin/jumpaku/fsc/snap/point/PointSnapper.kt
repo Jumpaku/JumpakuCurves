@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap
+package jumpaku.fsc.snap.point
 
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
@@ -7,10 +7,13 @@ import jumpaku.core.affine.Point
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import jumpaku.fsc.snap.BaseGrid
+import jumpaku.fsc.snap.Grid
+import jumpaku.fsc.snap.GridPoint
 
 data class PointSnapResult(
         val grid: Option<Grid>,
-        val snappedGridCoordinate: Option<GridCoordinate>,
+        val snappedGridPoint: Option<GridPoint>,
         val snappedPoint: Point)
 
 class PointSnapper(
@@ -38,6 +41,6 @@ class PointSnapper(
         return PointSnapResult(
                 snapped.map { it.grid },
                 snapped,
-                snapped.map { it.toCrispPoint() }.getOrElse { cursor }.toCrisp())
+                snapped.map { it.toCrispPoint() }.getOrElse { cursor.toCrisp() })
     }
 }
