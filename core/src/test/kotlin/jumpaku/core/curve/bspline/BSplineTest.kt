@@ -6,7 +6,7 @@ import jumpaku.core.affine.*
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.bezierAssertThat
 import jumpaku.core.json.parseToJson
@@ -204,8 +204,8 @@ class BSplineTest {
                 Point.xyr(300.0, 0.0, 1.0),
                 Point.xyr(600.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9))
-        val a = ArcLengthAdapter(b, 1000).arcLength()
-        assertThat(b.toArcLengthCurve().arcLength()).isEqualTo(a, withPrecision(0.1))
+        val a = ArcLengthReparametrized(b, 1000).arcLength()
+        assertThat(b.reparametrizeArcLength().arcLength()).isEqualTo(a, withPrecision(0.1))
     }
 
     @Test

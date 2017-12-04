@@ -94,6 +94,6 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)) {
 }
 
 fun Parent.fuzzyCurve(fuzzyCurve: FuzzyCurve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
-    val curve = fuzzyCurve.toArcLengthCurve()
+    val curve = fuzzyCurve.reparametrizeArcLength()
     polyline(Polyline(curve.evaluateAll(maxOf(Math.floor(curve.domain.span/delta).toInt(), 2))), op)
 }

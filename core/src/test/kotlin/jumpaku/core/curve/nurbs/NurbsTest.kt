@@ -1,15 +1,9 @@
 package jumpaku.core.curve.nurbs
 
-import io.vavr.API
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.arclength.ArcLengthAdapter
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.bezierAssertThat
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.bSplineAssertThat
 import jumpaku.core.curve.knotVectorAssertThat
 import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
@@ -280,7 +274,7 @@ class NurbsTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        assertThat(n.toArcLengthCurve().arcLength()).isEqualTo(200*Math.PI, withPrecision(0.1))
+        assertThat(n.reparametrizeArcLength().arcLength()).isEqualTo(200*Math.PI, withPrecision(0.1))
     }
 
     @Test

@@ -100,7 +100,7 @@ class PolylineTest {
                 Point.xyr(100.0, 100.0, 1.0),
                 Point.xyr(100.0, -300.0, 3.0),
                 Point.xyzr(100.0, -300.0, 150.0, 2.0))
-                .toArcLengthCurve().arcLength()
+                .reparametrizeArcLength().arcLength()
         assertThat(l).isEqualTo(750.0, withPrecision(0.1))
     }
 }

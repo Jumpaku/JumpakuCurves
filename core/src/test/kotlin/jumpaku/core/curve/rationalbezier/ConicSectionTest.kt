@@ -130,7 +130,7 @@ class ConicSectionTest {
         val l = ConicSection(Point.xy(200.0, 300.0),
                 Point.xy(100.0 * (2 - R2 / 2), 100.0 * (2 - R2 / 2)),
                 Point.xy(300.0, 200.0),
-                -R2 / 2).toArcLengthCurve().arcLength()
+                -R2 / 2).reparametrizeArcLength().arcLength()
         assertThat(l).isEqualTo(Math.PI*150, withPrecision(0.1))
     }
 }

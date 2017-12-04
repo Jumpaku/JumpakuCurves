@@ -39,7 +39,7 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
             val tf = computeEllipticFar(t0, t1, fsc)
             val w = computeEllipticWeight(t0, t1, tf, fsc)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
-            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), conicSection)
+            val domain = createDomain(t0, t1, fsc.reparametrizeArcLength(), conicSection)
 
             return Elliptic(conicSection, domain)
         }
