@@ -3,16 +3,42 @@ package jumpaku.core.curve.bezier
 import io.vavr.API
 import jumpaku.core.affine.*
 import jumpaku.core.json.parseToJson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
+fun bezierAssertThat(actual: Bezier): BezierAssert = BezierAssert(actual)
+
+class BezierAssert(actual: Bezier) : AbstractAssert<BezierAssert, Bezier>(actual, BezierAssert::class.java) {
+
+    fun isEqualToBezier(expected: Bezier, eps: Double = 1.0e-10): BezierAssert {
+        isNotNull
+
+        if (actual.controlPoints.size() != expected.controlPoints.size()){
+            failWithMessage("Expected bezier size to be <%s> but was <%s>", expected.controlPoints.size(), actual.controlPoints.size())
+            return this
+        }
+
+        actual.controlPoints.zip(expected.controlPoints)
+                .forEachIndexed {
+                    i, (a, e) -> pointAssertThat(a).`as`("bezier.controlPoints[%d]", i).isEqualToPoint(e, eps)
+                }
+
+        return this
+    }
+}
+
 class BezierTest {
+
+    private val bc = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
 
     @Test
     fun testProperties() {
         println("Properties")
-        val b4 = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        val b4 = bc
         pointAssertThat(b4.controlPoints[0]).isEqualToPoint(Point.xyr(-2.0, 0.0, 1.0))
         pointAssertThat(b4.controlPoints[1]).isEqualToPoint(Point.xyr(-1.0, 0.0, 2.0))
         pointAssertThat(b4.controlPoints[2]).isEqualToPoint(Point.xyr( 0.0, 2.0, 0.0))
@@ -27,15 +53,14 @@ class BezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        val p = bc
         bezierAssertThat(p.toString().parseToJson().get().bezier).isEqualToBezier(p)
     }
 
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        val b4 = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-
+        val b4 = bc
         pointAssertThat(b4.evaluate(0.0)).isEqualToPoint(Point.xyr(-2.0, 0.0      , 1.0        ))
         pointAssertThat(b4.evaluate(0.25)).isEqualToPoint(Point.xyr(-1.0, 27 / 64.0, 161.0 / 128))
         pointAssertThat(b4.evaluate(0.5)).isEqualToPoint(Point.xyr( 0.0, 0.75     , 9.0 / 8    ))
@@ -45,7 +70,7 @@ class BezierTest {
 
     @Test
     fun testDifferentiate() {
-        val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        val b = bc
         val d = b.derivative
         bezierAssertThat(d.toBezier()).isEqualToBezier(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))
         vectorAssertThat(b.differentiate(0.0)).isEqualToVector(Vector(4.0, 0.0))
@@ -63,16 +88,24 @@ class BezierTest {
     @Test
     fun testCrispTransform() {
         print("CrispTransform")
-        val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
+        val b = bc
         val a = b.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0, 0.0)))
         val e = Bezier(Point.xy(1.0, -3.0), Point.xy(1.0, -1.0), Point.xy(-3.0, 1.0), Point.xy(1.0, 3.0), Point.xy(1.0, 5.0))
         bezierAssertThat(a).isEqualToBezier(e)
     }
+
+    @Test
+    fun testToCrisp() {
+        println("ToCrisp")
+        val b = bc.toCrisp()
+        bezierAssertThat(b).isEqualToBezier(
+                Bezier(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))
+    }
+
     @Test
     fun testRestrict() {
         println("Restrict")
-        val b = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-                .restrict(0.25, 0.5)
+        val b = bc.restrict(0.25, 0.5)
         bezierAssertThat(b).isEqualToBezier(Bezier(
                 Point.xyr(-1.0, 27 / 64.0, 161 / 128.0), Point.xyr(-3 / 4.0, 9 / 16.0, 39 / 32.0), Point.xyr(-1 / 2.0, 11 / 16.0, 37 / 32.0), Point.xyr(-1 / 4.0, 3 / 4.0, 9 / 8.0), Point.xyr(0.0, 3 / 4.0, 9 / 8.0)))
     }
@@ -80,8 +113,7 @@ class BezierTest {
     @Test
     fun testReverse() {
         println("Reverse")
-        val r = Bezier(Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
-                .reverse()
+        val r = bc.reverse()
         bezierAssertThat(r).isEqualToBezier(Bezier(
                 Point.xyr(2.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(-1.0, 0.0, 2.0), Point.xyr(-2.0, 0.0, 1.0)))
     }

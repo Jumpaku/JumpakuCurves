@@ -70,6 +70,8 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
 
     override fun transform(a: Affine): Polyline = Polyline(points.map(a))
 
+    override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
+
     fun reverse(): Polyline = Polyline(points.reverse().zipWith(parameters.map { domain.end + domain.begin - it }.reverse(), ::ParamPoint))
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)

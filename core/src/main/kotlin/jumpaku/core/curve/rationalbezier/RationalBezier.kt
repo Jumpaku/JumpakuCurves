@@ -82,6 +82,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override fun transform(a: Affine): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point)) })
 
+    override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)
+
     fun restrict(i: Interval): RationalBezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): RationalBezier {

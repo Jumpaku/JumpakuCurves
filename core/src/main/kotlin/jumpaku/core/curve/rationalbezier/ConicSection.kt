@@ -89,6 +89,8 @@ class ConicSection(
     override fun toJson(): JsonElement = jsonObject(
             "begin" to begin.toJson(), "far" to far.toJson(), "end" to end.toJson(), "weight" to weight.toJson())
 
+    override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
+
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
     fun complement(): ConicSection = ConicSection(begin, center().divide(-1.0, far), end, -weight)

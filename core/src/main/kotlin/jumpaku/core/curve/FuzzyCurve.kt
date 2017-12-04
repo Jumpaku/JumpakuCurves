@@ -9,6 +9,11 @@ interface FuzzyCurve : Curve {
 
     fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, 100)
 
+    fun toCrisp(): Curve = object : FuzzyCurve {
+        override val domain: Interval = this@FuzzyCurve.domain
+        override fun evaluate(t: Double): Point = this@FuzzyCurve.evaluate(t).toCrisp()
+    }
+
     fun isPossible(other: FuzzyCurve, n: Int = DEFAULT_FUZZY_MATCHING_POINTS): Grade {
         val selfSamples = reparametrizeArcLength().evaluateAll(n)
         val otherSamples = other.reparametrizeArcLength().evaluateAll(n)

@@ -99,6 +99,8 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         return ArcLengthReparametrized(this, ts.toArray())
     }
 
+    override fun toCrisp(): BSpline = BSpline(controlPoints.map { it.toCrisp() }, knotVector)
+
     /**
      * Multiplies more than degree + 1 knots at begin and end of domain.
      * Head and last of control points are moved to beginning point and end point of BSpline curve.

@@ -82,6 +82,8 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     override fun transform(a: Affine): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
+    override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
+
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 

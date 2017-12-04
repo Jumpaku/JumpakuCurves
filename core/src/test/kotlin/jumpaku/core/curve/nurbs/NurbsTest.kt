@@ -54,7 +54,6 @@ class NurbsTest {
     fun testProperties() {
         println("Properties")
 
-
         assertThat(n.weightedControlPoints.size()).isEqualTo(6)
         weightedPointAssertThat(n.weightedControlPoints[0]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
         weightedPointAssertThat(n.weightedControlPoints[1]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 100.0, 20.0), 1/9.0))
@@ -133,6 +132,21 @@ class NurbsTest {
                 WeightedPoint(Point.xy( 800.0, -400.0), 1/27.0),
                 WeightedPoint(Point.xy( 800.0,    0.0), 1/9.0),
                 WeightedPoint(Point.xy( 400.0,    0.0), 1.0)),
+                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+        nurbsAssertThat(a).isEqualToNurbs(e)
+    }
+
+    @Test
+    fun testToCrisp() {
+        println("ToCrisp")
+        val a = n.toCrisp()
+        val e = Nurbs(Array.of(
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0),
+                WeightedPoint(Point.xy( 200.0, 100.0), 1/9.0),
+                WeightedPoint(Point.xy( 400.0, 100.0), 1/27.0),
+                WeightedPoint(Point.xy( 400.0, 500.0), 1/27.0),
+                WeightedPoint(Point.xy( 200.0, 500.0), 1/9.0),
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0)),
                 KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
         nurbsAssertThat(a).isEqualToNurbs(e)
     }

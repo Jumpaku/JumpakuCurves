@@ -5,14 +5,40 @@ import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.Interval
 import jumpaku.core.json.parseToJson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import org.assertj.core.api.AbstractAssert
 import org.junit.Test
 
+fun polylineAssertThat(actual: Polyline): PolylineAssert = PolylineAssert(actual)
+
+class PolylineAssert(actual: Polyline) : AbstractAssert<PolylineAssert, Polyline>(actual, PolylineAssert::class.java) {
+
+    fun isEqualToPolyline(expected: Polyline, eps: Double = 1.0e-10): PolylineAssert {
+        isNotNull
+
+        if (actual.points.size() != expected.points.size()){
+            failWithMessage("Expected polyline size to be <%s> but was <%s>", expected.points.size(), actual.points.size())
+            return this
+        }
+
+        actual.points.zip(expected.points)
+                .forEachIndexed {
+                    i, (a, e) -> pointAssertThat(a).`as`("polyline.points[%d]", i).isEqualToPoint(e, eps)
+                }
+
+        return this
+    }
+}
 
 class PolylineTest {
+
+    private val pl = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+
     @Test
     fun testProperties() {
         println("Properties")
-        val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        val p = pl
         pointAssertThat(p.points[0]).isEqualToPoint(Point.xyr(-1.0, 1.0, 2.0))
         pointAssertThat(p.points[1]).isEqualToPoint(Point.xyr( 1.0, 1.0, 1.0))
         pointAssertThat(p.points[2]).isEqualToPoint(Point.xyr( 1.0,-3.0, 3.0))
@@ -24,7 +50,7 @@ class PolylineTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        val p = pl
         polylineAssertThat(p.toString().parseToJson().get().polyline).isEqualToPolyline(p)
     }
 
@@ -42,8 +68,7 @@ class PolylineTest {
     @Test
     fun testEvaluateAll() {
         println("EvaluateAll")
-        val ps = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-                .evaluateAll(6)
+        val ps = pl.evaluateAll(6)
         assertThat(ps.size()).isEqualTo(6)
         pointAssertThat(ps[0]).isEqualToPoint(Point.xyzr(-1.0, 1.0, 0.0, 2.0 ))
         pointAssertThat(ps[1]).isEqualToPoint(Point.xyzr( 0.5, 1.0, 0.0, 1.25))
@@ -56,17 +81,25 @@ class PolylineTest {
     @Test
     fun testTransform() {
         println("Transform")
-        val b = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        val b = pl
         val a = b.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
         val e = Polyline(Point.xy(-1.0, -1.0), Point.xy(-1.0, 3.0), Point.xy(7.0, 3.0), Point.xyz(7.0, 3.0, 3.0))
         polylineAssertThat(a).isEqualToPolyline(e)
     }
 
     @Test
+    fun testToCrisp() {
+        println("ToCrisp")
+        val p = pl.toCrisp()
+        polylineAssertThat(p).isEqualToPolyline(
+                Polyline(Point.xy(-1.0, 1.0), Point.xy(1.0, 1.0), Point.xy(1.0, -3.0), Point.xyz(1.0, -3.0, 1.5)))
+
+    }
+
+    @Test
     fun testReverse() {
         println("Reverse")
-        val p = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-                .reverse()
+        val p = pl.reverse()
         polylineAssertThat(p).isEqualToPolyline(
                 Polyline(Point.xyzr(1.0, -3.0, 1.5, 2.0), Point.xyr(1.0, -3.0, 3.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(-1.0, 1.0, 2.0)))
     }
@@ -74,20 +107,17 @@ class PolylineTest {
     @Test
     fun testRestrict() {
         println("Restrict")
-        val r0 = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-                .restrict(3.0, 4.5)
+        val r0 = pl.restrict(3.0, 4.5)
         polylineAssertThat(r0).isEqualToPolyline(Polyline(Point.xyr(1.0, 0.0, 1.5), Point.xyr(1.0, -1.5, 2.25)))
 
-        val r1 = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-                .restrict(Interval(3.0, 4.5))
+        val r1 = pl.restrict(Interval(3.0, 4.5))
         polylineAssertThat(r1).isEqualToPolyline(Polyline(Point.xyr(1.0, 0.0, 1.5), Point.xyr(1.0, -1.5, 2.25)))
     }
 
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val ps = Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
-                .subdivide(4.5)
+        val ps = pl.subdivide(4.5)
         polylineAssertThat(ps._1()).isEqualToPolyline(Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -1.5, 2.25)))
         polylineAssertThat(ps._2()).isEqualToPolyline(Polyline(Point.xyr(1.0, -1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
     }

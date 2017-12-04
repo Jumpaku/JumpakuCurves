@@ -7,34 +7,57 @@ import org.assertj.core.api.Assertions.*
 import org.junit.Test
 import jumpaku.core.curve.Interval
 import jumpaku.core.json.parseToJson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 
+fun rationalBezierAssertThat(actual: RationalBezier): RationalBezierAssert = RationalBezierAssert(actual)
+
+class RationalBezierAssert(actual: RationalBezier) : AbstractAssert<RationalBezierAssert, RationalBezier>(actual, RationalBezierAssert::class.java) {
+
+    fun isEqualToRationalBezier(expected: RationalBezier, eps: Double = 1.0e-10): RationalBezierAssert {
+        isNotNull
+
+        Assertions.assertThat(actual.controlPoints.size()).`as`("size of control points of rational bezier").isEqualTo(expected.controlPoints.size())
+
+        actual.weightedControlPoints.zip(expected.weightedControlPoints)
+                .forEachIndexed {
+                    i, (a, e) -> weightedPointAssertThat(a).`as`("rationalBezier.weightedControlPoints[%d]", i).isEqualToWeightedPoint(e, eps)
+                }
+
+        return this
+    }
+}
 
 class RationalBezierTest {
 
     private val R2 = FastMath.sqrt(2.0)
 
+    private val rb = RationalBezier(
+            WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
+            WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
+            WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
+            WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+
     @Test
     fun testProperties() {
         println("Properties")
-        val r = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3.0), 1.0))
+        val r = rb
 
         val wp = r.weightedControlPoints
         assertThat(wp.size()).isEqualTo(4)
         weightedPointAssertThat(wp[0]).isEqualToWeightedPoint(WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0))
         weightedPointAssertThat(wp[1]).isEqualToWeightedPoint(WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3))
         weightedPointAssertThat(wp[2]).isEqualToWeightedPoint(WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3))
-        weightedPointAssertThat(wp[3]).isEqualToWeightedPoint(WeightedPoint(Point.xyr(2 - R2, 1.0, 3.0), 1.0))
+        weightedPointAssertThat(wp[3]).isEqualToWeightedPoint(WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
 
         val cp = r.controlPoints
         assertThat(cp.size()).isEqualTo(4)
         pointAssertThat(cp[0]).isEqualToPoint(Point.xyr( 0.0,  1.0,  1.0))
         pointAssertThat(cp[1]).isEqualToPoint(Point.xyr(2-R2,  1.0, 3-R2))
         pointAssertThat(cp[2]).isEqualToPoint(Point.xyr( 1.0, 2-R2, 1+R2))
-        pointAssertThat(cp[3]).isEqualToPoint(Point.xyr(2-R2,  1.0,  3.0))
+        pointAssertThat(cp[3]).isEqualToPoint(Point.xyr(1.0, 0.0, 3.0))
 
         val w = r.weights
         assertThat(w.size()).isEqualTo(4)
@@ -54,11 +77,7 @@ class RationalBezierTest {
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        val r = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+        val r = rb
 
         pointAssertThat(r.evaluate(0.0)).isEqualToPoint(
                 Point.xyr(0.0, 1.0, 1.0))
@@ -75,11 +94,7 @@ class RationalBezierTest {
     @Test
     fun testDifferentiate() {
         println("Differentiate")
-        val r = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+        val r = rb
         val d = r.derivative
 
         vectorAssertThat(r.differentiate(0.0)).isEqualToVector(
@@ -108,11 +123,7 @@ class RationalBezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        val p = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+        val p = rb
 
         rationalBezierAssertThat(p.toString().parseToJson().get().rationalBezier).isEqualToRationalBezier(p)
     }
@@ -120,17 +131,26 @@ class RationalBezierTest {
     @Test
     fun testTransform() {
         println("Transform")
-        val i = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+        val i = rb
         val a = i.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
         val e = RationalBezier(
                 WeightedPoint(Point.xy(-1.0, 1.0), 1.0),
                 WeightedPoint(Point.xy(-1.0, 5 - 2 * R2), (1 + R2) / 3),
                 WeightedPoint(Point.xy(2 * R2 - 3, 3.0), (1 + R2) / 3),
                 WeightedPoint(Point.xy(1.0, 3.0), 1.0))
+        rationalBezierAssertThat(a).isEqualToRationalBezier(e)
+    }
+
+    @Test
+    fun testToCrisp() {
+        println("ToCrisp")
+        val r = rb
+        val a = r.toCrisp()
+        val e = RationalBezier(
+                WeightedPoint(Point.xy(0.0, 1.0), 1.0),
+                WeightedPoint(Point.xy(2 - R2, 1.0), (1 + R2) / 3),
+                WeightedPoint(Point.xy(1.0, 2 - R2), (1 + R2) / 3),
+                WeightedPoint(Point.xy(1.0, 0.0), 1.0))
         rationalBezierAssertThat(a).isEqualToRationalBezier(e)
     }
 
@@ -165,11 +185,7 @@ class RationalBezierTest {
     @Test
     fun testReverse() {
         println("Reverse")
-        val r = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
-                WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+        val r = rb
                 .reverse()
 
         rationalBezierAssertThat(r).isEqualToRationalBezier(RationalBezier(

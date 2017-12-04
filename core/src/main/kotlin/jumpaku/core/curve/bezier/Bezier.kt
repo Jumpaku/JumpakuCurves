@@ -59,6 +59,8 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun transform(a: Affine): Bezier = Bezier(controlPoints.map(a))
 
+    override fun toCrisp(): Bezier = Bezier(controlPoints.map { it.toCrisp() })
+
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): Bezier {
