@@ -23,8 +23,8 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
     val contents = Group()
 
     private val parent = group {
-        add(inputPolyline)
         add(contents)
+        add(inputPolyline)
     }
 
     override val root = pane {
