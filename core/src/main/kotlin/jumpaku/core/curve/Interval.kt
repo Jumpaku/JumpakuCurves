@@ -28,7 +28,7 @@ data class Interval(val begin: Double, val end: Double): ToJson {
                 .toArray()
     }
 
-    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt() + 1)
+    fun sample(delta: Double): Array<Double> = sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
 
     operator fun contains(t: Double): Boolean = t in begin..end
 
