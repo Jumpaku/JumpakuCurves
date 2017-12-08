@@ -29,7 +29,7 @@ fun <C> repeatBisection(
 /**
  * Approximates curve with polyline.
  */
-class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Array<Double>) : FuzzyCurve {
+class ArcLengthReparametrized(val originalCurve: Curve, private val originalParams: Array<Double>) : FuzzyCurve {
 
     constructor(curve: Curve, n: Int) : this(curve, curve.domain.sample(n))
 
@@ -49,7 +49,7 @@ class ArcLengthAdapter(val originalCurve: Curve, private val originalParams: Arr
 
     override fun evaluateAll(delta: Double): Array<Point> = polyline.evaluateAll(delta)
 
-    override fun toArcLengthCurve(): ArcLengthAdapter = this
+    override fun reparametrizeArcLength(): ArcLengthReparametrized = this
 
     fun arcLength(): Double = domain.end
 

@@ -5,14 +5,21 @@ import io.vavr.API
 import io.vavr.collection.Array
 import io.vavr.collection.List
 import javafx.scene.Group
+import javafx.scene.control.Control
+import javafx.scene.control.Skin
 import javafx.scene.paint.Color
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.polyline.Polyline
 import tornadofx.*
+import javafx.beans.property.*
+import javafx.event.*
+import javafx.scene.layout.Pane
+import javafx.scene.input.MouseEvent
 
 
-class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override val scope: Scope = DefaultScope) : View() {
+
+class CurveInputView(val width: Double = 640.0, val height: Double = 480.0, override val scope: Scope = DefaultScope) : View() {
 
     class CurveDoneEvent(val data: Array<ParamPoint>, scope: Scope = DefaultScope) : FXEvent(scope = scope)
 
@@ -23,15 +30,15 @@ class CurveInput(val width: Double = 640.0, val height: Double = 480.0, override
     val contents = Group()
 
     private val parent = group {
-        add(inputPolyline)
         add(contents)
+        add(inputPolyline)
     }
 
     override val root = pane {
-        prefWidth = this@CurveInput.width
-        prefHeight = this@CurveInput.height
+        prefWidth = this@CurveInputView.width
+        prefHeight = this@CurveInputView.height
 
-        add(this@CurveInput.parent)
+        add(this@CurveInputView.parent)
 
         setOnMousePressed {
             points = API.List()

@@ -11,7 +11,7 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
@@ -89,6 +89,8 @@ class ConicSection(
     override fun toJson(): JsonElement = jsonObject(
             "begin" to begin.toJson(), "far" to far.toJson(), "end" to end.toJson(), "weight" to weight.toJson())
 
+    override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
+
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
     fun complement(): ConicSection = ConicSection(begin, center().divide(-1.0, far), end, -weight)
@@ -130,16 +132,16 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override fun toArcLengthCurve(): ArcLengthAdapter {
+    override fun reparametrizeArcLength(): ArcLengthReparametrized {
         val ts = repeatBisection(this, this.domain, { rb, subDomain ->
             val sub = rb.restrict(subDomain)
             val rp = sub.representPoints
-            val polylineLength = Polyline(rp).toArcLengthCurve().arcLength()
+            val polylineLength = Polyline(rp).reparametrizeArcLength().arcLength()
             val beginEndLength = rp.head().dist(rp.last())
             !(sub.weight > 0.0 && Precision.equals(polylineLength, beginEndLength, 1.0 / 512))
         }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
-        return ArcLengthAdapter(this, ts.toArray())
+        return ArcLengthReparametrized(this, ts.toArray())
     }
 
     companion object {

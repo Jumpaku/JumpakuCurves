@@ -3,19 +3,38 @@ package jumpaku.core.curve.rationalbezier
 import jumpaku.core.affine.*
 import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 
 import org.junit.Test
 
+fun conicSectionAssertThat(actual: ConicSection): ConicSectionAssert = ConicSectionAssert(actual)
+
+class ConicSectionAssert(actual: ConicSection) : AbstractAssert<ConicSectionAssert, ConicSection>(actual, ConicSectionAssert::class.java) {
+
+    fun isEqualConicSection(expected: ConicSection, eps: Double = 1.0e-10): ConicSectionAssert {
+        isNotNull
+
+        pointAssertThat(actual.begin).`as`("begin").isEqualToPoint(expected.begin, eps)
+        pointAssertThat(actual.far).`as`("far").isEqualToPoint(expected.far, eps)
+        pointAssertThat(actual.end).`as`("end").isEqualToPoint(expected.end, eps)
+        Assertions.assertThat(actual.weight).`as`("weight").isEqualTo(expected.weight, Assertions.withPrecision(eps))
+
+        return this
+    }
+}
 
 class ConicSectionTest {
 
     private val R2 = FastMath.sqrt(2.0)
 
+    private val cs = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
+
     @Test
     fun testProperties() {
         println("Properties")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
+        val i = cs
         pointAssertThat(i.begin).isEqualToPoint(Point.xyr(0.0, 1.0, 1.0))
         pointAssertThat(i.far).isEqualToPoint(Point.xyr(R2/2, R2/2, 2.0))
         pointAssertThat(i.end).isEqualToPoint(Point.xyr(1.0, 0.0, 3.0))
@@ -35,7 +54,7 @@ class ConicSectionTest {
     @Test
     fun testToString() {
         println("ToString")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
+        val i = cs
         conicSectionAssertThat(i.toString().parseToJson().get().conicSection)
                 .isEqualConicSection(i)
     }
@@ -43,7 +62,7 @@ class ConicSectionTest {
     @Test
     fun testDifferentiate() {
         println("Differentiate")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
+        val i = cs
         val d = i.derivative
 
         vectorAssertThat(i.differentiate(0.0)).isEqualToVector(
@@ -72,7 +91,7 @@ class ConicSectionTest {
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
+        val i = cs
 
         pointAssertThat(i.evaluate(0.0)).isEqualToPoint(Point.xyr(0.0, 1.0, 1.0))
         pointAssertThat(i.evaluate(0.25)).isEqualToPoint(Point.xyr((3*R2+1)/(3*R2+10), (3*R2+9)/(3*R2+10), (24+6*R2)/(10+3*R2)))
@@ -84,17 +103,24 @@ class ConicSectionTest {
     @Test
     fun testTransform() {
         println("Transform")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
+        val i = cs
         val a = i.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
         val e = ConicSection(Point.xy(-1.0, 1.0), Point.xy(1 - R2, 1 + R2), Point.xy(1.0, 3.0), R2 / 2)
         conicSectionAssertThat(a).isEqualConicSection(e)
     }
 
     @Test
+    fun testToCrisp() {
+        println("ToCrisp")
+        val i = cs.toCrisp()
+        conicSectionAssertThat(i).isEqualConicSection(
+                ConicSection(Point.xy(0.0, 1.0), Point.xy(R2 / 2, R2 / 2), Point.xy(1.0, 0.0), R2 / 2))
+    }
+
+    @Test
     fun testReverse() {
         println("Reverse")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
-                .reverse()
+        val i = cs.reverse()
         conicSectionAssertThat(i).isEqualConicSection(ConicSection(
                 Point.xyr(1.0, 0.0, 3.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(0.0, 1.0, 1.0), R2 / 2))
     }
@@ -102,8 +128,7 @@ class ConicSectionTest {
     @Test
     fun testComplement() {
         println("Complement")
-        val i = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
-                .complement()
+        val i = cs.complement()
         conicSectionAssertThat(i).isEqualConicSection(ConicSection(
                 Point.xyr(0.0, 1.0, 1.0), Point.xyr(-R2 / 2, -R2 / 2, 14 + 8 * R2), Point.xyr(1.0, 0.0, 3.0), -R2 / 2))
     }
@@ -130,7 +155,7 @@ class ConicSectionTest {
         val l = ConicSection(Point.xy(200.0, 300.0),
                 Point.xy(100.0 * (2 - R2 / 2), 100.0 * (2 - R2 / 2)),
                 Point.xy(300.0, 200.0),
-                -R2 / 2).toArcLengthCurve().arcLength()
+                -R2 / 2).reparametrizeArcLength().arcLength()
         assertThat(l).isEqualTo(Math.PI*150, withPrecision(0.1))
     }
 }

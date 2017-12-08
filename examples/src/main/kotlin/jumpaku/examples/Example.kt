@@ -2,10 +2,9 @@ package jumpaku.examples
 
 import javafx.application.Application
 import javafx.scene.layout.Pane
-import tornadofx.App
-import tornadofx.Scope
-import tornadofx.View
-import tornadofx.pane
+import javafx.scene.paint.Color
+import jumpaku.fxcomponents.node.curveInputPane
+import tornadofx.*
 
 
 fun main(vararg args: String) = Application.launch(AppExample::class.java, *args)
@@ -16,8 +15,13 @@ class ViewExample : View() {
 
     override val scope: Scope = Scope()
 
-    override val root: Pane = pane {
-        prefWidth = 640.0
-        prefHeight = 480.0
+    override val root: Pane = curveInputPane(600.0, 600.0) { paramPoints ->
+        val (startX, startY) = paramPoints.head().point
+        val (endX, endY) = paramPoints.last().point
+        children.clear()
+        line(startX, startY, endX, endY){
+            strokeWidth=10.0
+            stroke = Color.ORANGE
+        }
     }
 }

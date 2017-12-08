@@ -13,7 +13,7 @@ import jumpaku.core.affine.Affine
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.point
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.fit.chordalParametrize
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
@@ -70,6 +70,8 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
 
     override fun transform(a: Affine): Polyline = Polyline(points.map(a))
 
+    override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
+
     fun reverse(): Polyline = Polyline(points.reverse().zipWith(parameters.map { domain.end + domain.begin - it }.reverse(), ::ParamPoint))
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
@@ -98,7 +100,7 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
         }
     }
 
-    override fun toArcLengthCurve(): ArcLengthAdapter = ArcLengthAdapter(this, parameters)
+    override fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, parameters)
 }
 
 val JsonElement.polyline: Polyline get() = Polyline(this["points"].array.map { it.point })

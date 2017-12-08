@@ -33,7 +33,7 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
         fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {
             val tf = computesCircularFar(t0, t1, fsc)
             val circular = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), circular)
+            val domain = createDomain(t0, t1, fsc.reparametrizeArcLength(), circular)
 
             return Circular(circular, domain)
         }
