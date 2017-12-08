@@ -10,9 +10,8 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
-import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
 import jumpaku.core.curve.polyline.Polyline
@@ -83,6 +82,8 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     override fun transform(a: Affine): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
+    override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
+
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
@@ -124,15 +125,15 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
         return Nurbs(newCp, newKnots)
     }
 
-    override fun toArcLengthCurve(): ArcLengthAdapter {
+    override fun reparametrizeArcLength(): ArcLengthReparametrized {
         val ts = repeatBisection(this, this.domain, { nurbs, subDomain ->
             val wcp = nurbs.restrict(subDomain).weightedControlPoints
-            val polylineLength = Polyline(wcp.map { it.point }).toArcLengthCurve().arcLength()
+            val polylineLength = Polyline(wcp.map { it.point }).reparametrizeArcLength().arcLength()
             val beginEndLength = wcp.head().point.dist(wcp.last().point)
             wcp.all { it.weight > 0 } && !Precision.equals(polylineLength, beginEndLength, 1.0 / 256)
         }).fold(API.Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
-        return ArcLengthAdapter(this, ts.toArray())
+        return ArcLengthReparametrized(this, ts.toArray())
     }
 
     fun toRationalBeziers(): Array<RationalBezier> {

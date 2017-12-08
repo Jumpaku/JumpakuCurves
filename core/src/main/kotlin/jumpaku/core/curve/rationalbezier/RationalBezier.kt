@@ -10,7 +10,7 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
@@ -82,6 +82,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override fun transform(a: Affine): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point)) })
 
+    override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)
+
     fun restrict(i: Interval): RationalBezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): RationalBezier {
@@ -108,17 +110,17 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override fun toArcLengthCurve(): ArcLengthAdapter {
+    override fun reparametrizeArcLength(): ArcLengthReparametrized {
         val ts = repeatBisection(this, this.domain, { rb, subDomain ->
             val sub = rb.restrict(subDomain)
             val cp = sub.controlPoints
             val ws = sub.weights
-            val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
+            val polylineLength = Polyline(cp).reparametrizeArcLength().arcLength()
             val beginEndLength = cp.head().dist(cp.last())
             !(ws.all { it >= 0.0 } && Precision.equals(polylineLength, beginEndLength, 1.0 / 128))
         }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
-        return ArcLengthAdapter(this, ts.toArray())
+        return ArcLengthReparametrized(this, ts.toArray())
     }
 
     companion object {

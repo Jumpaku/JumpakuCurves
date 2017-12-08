@@ -5,14 +5,13 @@ import io.vavr.Tuple3
 import io.vavr.collection.Array
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.fuzzy.TruthValue
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 
 
 class Fragmenter(
-        val threshold: TruthValue = TruthValue(0.4, 0.6),
+        val threshold: TruthValueThreshold = TruthValueThreshold(0.4, 0.6),
         val n: Int = 4,
         minStayTime: Double = 0.1
 ) {

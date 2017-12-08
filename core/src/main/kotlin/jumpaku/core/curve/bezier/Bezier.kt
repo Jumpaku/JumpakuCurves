@@ -11,7 +11,7 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
@@ -59,6 +59,8 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
 
     override fun transform(a: Affine): Bezier = Bezier(controlPoints.map(a))
 
+    override fun toCrisp(): Bezier = Bezier(controlPoints.map { it.toCrisp() })
+
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): Bezier {
@@ -94,15 +96,15 @@ class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differen
         }
     }
 
-    override fun toArcLengthCurve(): ArcLengthAdapter {
+    override fun reparametrizeArcLength(): ArcLengthReparametrized {
         val ts = repeatBisection(this, this.domain, { bezier, subDomain ->
             val cp = bezier.restrict(subDomain).controlPoints
-            val polylineLength = Polyline(cp).toArcLengthCurve().arcLength()
+            val polylineLength = Polyline(cp).reparametrizeArcLength().arcLength()
             val beginEndLength = cp.head().dist(cp.last())
             !Precision.equals(polylineLength, beginEndLength, 1.0 / 16)
         }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
-        return ArcLengthAdapter(this, ts.toArray())
+        return ArcLengthReparametrized(this, ts.toArray())
     }
 
     companion object {

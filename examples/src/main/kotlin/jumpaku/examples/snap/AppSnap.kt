@@ -34,7 +34,7 @@ class ViewClassify : View() {
 
     override val root: Pane
 
-    private val curveInput: CurveInput
+    private val curveInputView: CurveInputView
 
     private val baseGrid = BaseGrid(
             baseGridSpacing = 100.0,
@@ -43,12 +43,12 @@ class ViewClassify : View() {
     private val pointSnapper = PointSnapper(baseGrid, -2, 5)
 
     init {
-        curveInput = CurveInput(scope = scope)
-        root = curveInput.root
-        subscribe<CurveInput.CurveDoneEvent> {
+        curveInputView = CurveInputView(scope = scope)
+        root = curveInputView.root
+        subscribe<CurveInputView.CurveDoneEvent> {
             if (it.data.size() > 2) {
                 val fsc = FscGenerator(3, 0.1).generate(it.data)
-                with(curveInput.contents) {
+                with(curveInputView.contents) {
                     children.clear()
                     render(fsc)
                 }

@@ -9,7 +9,7 @@ import jumpaku.core.curve.ParamPoint
 import jumpaku.fsc.fragment.Fragment
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fxcomponents.view.CurveInput
+import jumpaku.fxcomponents.view.CurveInputView
 import jumpaku.fxcomponents.view.fuzzyCurve
 import tornadofx.App
 import tornadofx.Scope
@@ -26,12 +26,12 @@ class ViewFragment : View() {
 
     override val root: Pane
 
-    private val curveInput: CurveInput
+    private val curveInputView: CurveInputView
 
     init {
-        curveInput = CurveInput(scope = scope)
-        root = curveInput.root
-        subscribe<CurveInput.CurveDoneEvent> {
+        curveInputView = CurveInputView(scope = scope)
+        root = curveInputView.root
+        subscribe<CurveInputView.CurveDoneEvent> {
             render(it.data)
         }
     }
@@ -40,7 +40,7 @@ class ViewFragment : View() {
         if (data.size() <= 2) {
             return
         }
-        with(curveInput.contents) {
+        with(curveInputView.contents) {
             children.clear()
             val fsc = FscGenerator(3, 0.1).generate(data)//prettyGson.fromJson<BSplineJson>(File("/Users/jumpaku/Documents/fsc.json").readText()).bSpline()//
             //cubicFsc(fsc) { stroke = Color.BLUE }

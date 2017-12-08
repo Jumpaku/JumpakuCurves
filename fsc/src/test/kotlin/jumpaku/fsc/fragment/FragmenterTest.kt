@@ -1,20 +1,14 @@
 package jumpaku.fsc.fragment
 
-import com.github.salomonbrys.kotson.fromJson
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.BSplineAssert
 import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.curve.bspline.bSplineAssertThat
-import jumpaku.core.fuzzy.TruthValue
 import jumpaku.core.json.parseToJson
-import jumpaku.core.json.prettyGson
 import org.junit.Test
-import org.junit.Assert.*
 import java.nio.file.Paths
 
 class FragmenterTest {
 
-    private val threshold = TruthValue(0.4, 0.6)
+    private val threshold = TruthValueThreshold(0.4, 0.6)
     private val path = Paths.get("./src/test/resources/jumpaku/fsc/fragment/")
 
     @Test

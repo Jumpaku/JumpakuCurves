@@ -13,7 +13,7 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fxcomponents.view.CurveInput
+import jumpaku.fxcomponents.view.CurveInputView
 import jumpaku.fxcomponents.view.cubicFsc
 import tornadofx.App
 import tornadofx.Scope
@@ -30,15 +30,15 @@ class ViewBlend : View() {
 
     override val root: Pane
 
-    private val curveInput: CurveInput
+    private val curveInputView: CurveInputView
 
     init {
-        curveInput = CurveInput(scope = scope)
-        root = curveInput.root
-        subscribe<CurveInput.CurveDoneEvent> {
+        curveInputView = CurveInputView(scope = scope)
+        root = curveInputView.root
+        subscribe<CurveInputView.CurveDoneEvent> {
             if (it.data.size() > 2) {
                 val fsc = FscGenerator(3, 0.1).generate(it.data)
-                with(curveInput.contents) {
+                with(curveInputView.contents) {
                     children.clear()
                     render(fsc)
                 }

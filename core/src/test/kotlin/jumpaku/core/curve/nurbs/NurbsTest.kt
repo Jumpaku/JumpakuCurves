@@ -1,15 +1,9 @@
 package jumpaku.core.curve.nurbs
 
-import io.vavr.API
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.arclength.ArcLengthAdapter
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.bezierAssertThat
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.bSplineAssertThat
 import jumpaku.core.curve.knotVectorAssertThat
 import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
@@ -59,7 +53,6 @@ class NurbsTest {
     @Test
     fun testProperties() {
         println("Properties")
-
 
         assertThat(n.weightedControlPoints.size()).isEqualTo(6)
         weightedPointAssertThat(n.weightedControlPoints[0]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
@@ -139,6 +132,21 @@ class NurbsTest {
                 WeightedPoint(Point.xy( 800.0, -400.0), 1/27.0),
                 WeightedPoint(Point.xy( 800.0,    0.0), 1/9.0),
                 WeightedPoint(Point.xy( 400.0,    0.0), 1.0)),
+                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+        nurbsAssertThat(a).isEqualToNurbs(e)
+    }
+
+    @Test
+    fun testToCrisp() {
+        println("ToCrisp")
+        val a = n.toCrisp()
+        val e = Nurbs(Array.of(
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0),
+                WeightedPoint(Point.xy( 200.0, 100.0), 1/9.0),
+                WeightedPoint(Point.xy( 400.0, 100.0), 1/27.0),
+                WeightedPoint(Point.xy( 400.0, 500.0), 1/27.0),
+                WeightedPoint(Point.xy( 200.0, 500.0), 1/9.0),
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0)),
                 KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
         nurbsAssertThat(a).isEqualToNurbs(e)
     }
@@ -280,7 +288,7 @@ class NurbsTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        assertThat(n.toArcLengthCurve().arcLength()).isEqualTo(200*Math.PI, withPrecision(0.1))
+        assertThat(n.reparametrizeArcLength().arcLength()).isEqualTo(200*Math.PI, withPrecision(0.1))
     }
 
     @Test

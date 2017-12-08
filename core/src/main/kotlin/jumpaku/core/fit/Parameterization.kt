@@ -6,13 +6,17 @@ import jumpaku.core.affine.Point
 import jumpaku.core.affine.divide
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
+import jumpaku.core.util.divOption
 import jumpaku.core.util.divOrElse
 
 
 fun transformParams(paramPoints: Array<ParamPoint>, range: Interval): Array<ParamPoint> {
     val a0 = paramPoints.head().param
     val a1 = paramPoints.last().param
-    return paramPoints.map { it.copy(param = range.begin.divide((it.param - a0).divOrElse (a1 - a0, it.param), range.end)) }
+    return paramPoints.map {
+        val p = (it.param - a0).divOption(a1 - a0)
+                .getOrElseThrow { throw IllegalArgumentException("the same parameters($paramPoints)") }
+        it.copy(param = range.begin.divide(p, range.end)) }
 }
 
 fun uniformParametrize(points: Array<Point>): Array<ParamPoint> {
