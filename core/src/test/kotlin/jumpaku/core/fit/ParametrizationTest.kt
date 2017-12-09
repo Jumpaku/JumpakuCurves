@@ -16,7 +16,7 @@ class ParametrizationTest {
     fun testTransformParams() {
         println("TransformParams")
         val data = chordalParametrize(Array(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
-        val t = transformParams(data, Interval(2.0, 5.0))
+        val t = transformParams(data, Interval(2.0, 5.0)).get()
         assertThat(t.size()).isEqualTo(3)
         paramPointAssertThat(t[0]).isEqualToParamPoint(ParamPoint(Point.xyr(-1.0, 2.0, 3.0), 2.0))
         paramPointAssertThat(t[1]).isEqualToParamPoint(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 11 / 3.0))
