@@ -2,6 +2,7 @@ package jumpaku.core.fit
 
 import io.vavr.API
 import io.vavr.collection.Array
+import io.vavr.control.Option
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.divide
 import jumpaku.core.curve.Interval
@@ -10,13 +11,16 @@ import jumpaku.core.util.divOption
 import jumpaku.core.util.divOrElse
 
 
-fun transformParams(paramPoints: Array<ParamPoint>, range: Interval): Array<ParamPoint> {
+fun transformParams(paramPoints: Array<ParamPoint>, range: Interval): Option<Array<ParamPoint>> {
+    if (paramPoints.size() < 2){
+        return Option.none()
+    }
     val a0 = paramPoints.head().param
     val a1 = paramPoints.last().param
-    return paramPoints.map {
-        val p = (it.param - a0).divOption(a1 - a0)
-                .getOrElseThrow { throw IllegalArgumentException("the same parameters($paramPoints)") }
-        it.copy(param = range.begin.divide(p, range.end)) }
+    val (b, e) = range
+    return 1.0.divOption(a1 - a0).map { p -> paramPoints.map {
+        it.copy(param = b.divide((it.param - a0)*p, e))
+    } }
 }
 
 fun uniformParametrize(points: Array<Point>): Array<ParamPoint> {
