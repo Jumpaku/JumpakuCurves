@@ -1,7 +1,6 @@
 package jumpaku.examples.classify
 
 import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.toJsonArray
 import javafx.application.Application
 import javafx.scene.Parent
@@ -49,6 +48,7 @@ class ViewClassify : View() {
                 }
             }
         }
+        
         Paths.get("./fsc/src/test/resources/jumpaku/fsc/classify/Fscs.json").toFile()
                 .readText().parseToJson().get().array.map {
             val s = it.bSpline
