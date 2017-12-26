@@ -14,19 +14,15 @@ interface FuzzyCurve : Curve {
         override fun evaluate(t: Double): Point = this@FuzzyCurve.evaluate(t).toCrisp()
     }
 
-    fun isPossible(other: FuzzyCurve, n: Int = DEFAULT_FUZZY_MATCHING_POINTS): Grade {
+    fun isPossible(other: FuzzyCurve, n: Int): Grade {
         val selfSamples = reparametrizeArcLength().evaluateAll(n)
         val otherSamples = other.reparametrizeArcLength().evaluateAll(n)
         return selfSamples.zipWith(otherSamples, Point::isPossible).reduce(Grade::and)
     }
 
-    fun isNecessary(other: FuzzyCurve, n: Int = DEFAULT_FUZZY_MATCHING_POINTS): Grade {
+    fun isNecessary(other: FuzzyCurve, n: Int): Grade {
         val selfSamples = reparametrizeArcLength().evaluateAll(n)
         val otherSamples = other.reparametrizeArcLength().evaluateAll(n)
         return selfSamples.zipWith(otherSamples, Point::isNecessary).reduce(Grade::and)
-    }
-
-    companion object {
-        val DEFAULT_FUZZY_MATCHING_POINTS = 30
     }
 }
