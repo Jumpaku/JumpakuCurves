@@ -31,25 +31,25 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
         }
     }
 
-    override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
+    override fun isValidFor(fsc: FuzzyCurve, nFmps: Int): Grade = reference.isPossible(fsc, nFmps)
 
     companion object {
 
-        fun ofParams(t0: Double, t1: Double, fsc: BSpline): Elliptic {
-            val tf = computeEllipticFar(t0, t1, fsc)
-            val w = computeEllipticWeight(t0, t1, tf, fsc)
+        fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve, nSamples: Int): Elliptic {
+            val tf = computeEllipticFar(t0, t1, fsc, nSamples)
+            val w = computeEllipticWeight(t0, t1, tf, fsc, nSamples)
             val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
             val domain = createDomain(t0, t1, fsc.reparametrizeArcLength(), conicSection)
 
             return Elliptic(conicSection, domain)
         }
 
-        fun ofBeginEnd(fsc: BSpline): Elliptic = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
+        fun ofBeginEnd(fsc: FuzzyCurve, nSamples: Int = 99): Elliptic = ofParams(fsc.domain.begin, fsc.domain.end, fsc, nSamples)
 
-        fun of(fsc: BSpline): Elliptic {
-            val (t0, _, t1) = scatteredEllipticParams(fsc)
+        fun of(fsc: FuzzyCurve, nSamples: Int = 99): Elliptic {
+            val (t0, _, t1) = scatteredEllipticParams(fsc, nSamples)
 
-            return ofParams(t0, t1, fsc)
+            return ofParams(t0, t1, fsc, nSamples)
         }
     }
 
@@ -60,16 +60,15 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
  * Far point on the fsc is a point such that line segment(f, m) bisects an area surrounded by an elliptic arc(fsc(t0), fsc(t1)) and a line segment(fsc(t0), fsc(t1)),
  * where f is far point, m is the middle point between fsc(t0) and fsc(t1).
  */
-fun computeEllipticFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
+fun computeEllipticFar(t0: Double, t1: Double, fsc: FuzzyCurve, samplesCount: Int): Double {
     val middle = fsc(t0).middle(fsc(t1))
-    val ts = Interval(t0, t1).sample(100)
+    val ts = Interval(t0, t1).sample(samplesCount)
     val ps = ts.map(fsc)
-    val areas = ps.zipWith(ps.tail(), middle::area)
-            .foldLeft(Array(0.0), { arr, area -> arr.append(arr.last() + area) })
+    val areas = ps.zipWith(ps.tail(), middle::area).scanLeft(0.0, Double::plus)
     val index = areas.lastIndexWhere { it < areas.last()/2 }
 
-    val relative = 1.0e-7
-    val absolute = 1.0e-4
+    val relative = 1.0e-2
+    val absolute = 1.0e-2
     return BrentSolver(relative, absolute).solve(50, {
         val m = fsc(it)
         val l = areas[index] + middle.area(ps[index], m)
@@ -78,7 +77,7 @@ fun computeEllipticFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
     }, ts[index], ts[index + 1])
 }
 
-fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve, samplesCount: Int = 100): Double {
+fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve, samplesCount: Int): Double {
     val begin = fsc(t0)
     val end = fsc(t1)
     val far = fsc(tf)
@@ -110,11 +109,11 @@ fun computeEllipticWeight(t0: Double, t1: Double, tf: Double, fsc: FuzzyCurve, s
 /**
  * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
  */
-fun scatteredEllipticParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Double, Double> {
+fun scatteredEllipticParams(fsc: FuzzyCurve, nSamples: Int): Tuple3<Double, Double, Double> {
     val ts = fsc.domain.sample(nSamples)
     return API.For(ts.take(nSamples/3), ts.drop(2*nSamples/3))
             .yield({ t0, t1 ->
-                val tf = computeEllipticFar(t0, t1, fsc)
+                val tf = computeEllipticFar(t0, t1, fsc, nSamples)
                 API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
             })
             .maxBy { (_, area) -> area }

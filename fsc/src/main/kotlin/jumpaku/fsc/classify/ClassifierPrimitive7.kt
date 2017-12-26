@@ -5,12 +5,13 @@ import jumpaku.fsc.classify.reference.Circular
 import jumpaku.fsc.classify.reference.Elliptic
 import jumpaku.fsc.classify.reference.Linear
 
-class ClassifierPrimitive7 : Classifier {
+class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier {
 
     override fun classify(fsc: BSpline): ClassifyResult {
-        val muL = Linear.of(fsc).isValidFor(fsc)
-        val muC = Circular.of(fsc).isValidFor(fsc)
-        val muE = Elliptic.of(fsc).isValidFor(fsc)
+        val reparametrized = fsc.reparametrizeArcLength()
+        val muL = Linear.of(reparametrized).isValidFor(reparametrized)
+        val muC = Circular.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
+        val muE = Elliptic.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
         val muClosed = isClosed(fsc)
         return ClassifyResult(
                 CurveClass.LineSegment to (muL),

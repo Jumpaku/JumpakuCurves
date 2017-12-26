@@ -4,6 +4,7 @@ import io.vavr.API
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.affine.Point
+import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.bspline.BSpline
@@ -16,7 +17,7 @@ import jumpaku.core.util.divOption
 
 interface Reference {
 
-    fun isValidFor(fsc: BSpline): Grade
+    fun isValidFor(fsc: FuzzyCurve, nFmps: Int = 15): Grade
 }
 
 fun evaluateWithoutDomain(t: Double, conicSection: ConicSection): Point {
