@@ -1,10 +1,15 @@
 package jumpaku.examples.classify
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.toJsonArray
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.curve.bspline.bSpline
+import jumpaku.core.json.parseToJson
 import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.ClassifierPrimitive7
 import jumpaku.fsc.classify.reference.Circular
@@ -17,6 +22,7 @@ import jumpaku.fxcomponents.view.fuzzyCurve
 import tornadofx.App
 import tornadofx.Scope
 import tornadofx.View
+import java.nio.file.Paths
 
 
 fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
@@ -43,6 +49,17 @@ class ViewClassify : View() {
                 }
             }
         }
+        Paths.get("./fsc/src/test/resources/jumpaku/fsc/classify/Fscs.json").toFile()
+                .readText().parseToJson().get().array.map {
+            val s = it.bSpline
+            ClassifierOpen4(25, 15).classify(s).toJson()
+        }.toJsonArray().let { Paths.get("./Open4Results.json").toFile().writeText(it.toString()) }
+
+        Paths.get("./fsc/src/test/resources/jumpaku/fsc/classify/Fscs.json").toFile()
+                .readText().parseToJson().get().array.map {
+            val s = it.bSpline
+            ClassifierPrimitive7(25, 15).classify(s).toJson()
+        }.toJsonArray().let { Paths.get("./Primitive7Results.json").toFile().writeText(it.toString()) }
     }
 
     private fun Parent.render(fsc: BSpline) {

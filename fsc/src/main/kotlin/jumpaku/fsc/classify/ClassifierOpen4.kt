@@ -11,7 +11,7 @@ class ClassifierOpen4(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier 
 
     override fun classify(fsc: BSpline): ClassifyResult {
         val reparametrized = fsc.reparametrizeArcLength()
-        val muL = Linear.ofBeginEnd(reparametrized).isValidFor(reparametrized)
+        val muL = Linear.ofBeginEnd(reparametrized).isValidFor(reparametrized, nFmps)
         val muC = Circular.ofBeginEnd(reparametrized).isValidFor(reparametrized, nFmps)
         val muE = Elliptic.ofBeginEnd(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
 

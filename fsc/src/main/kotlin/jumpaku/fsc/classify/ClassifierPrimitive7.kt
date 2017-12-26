@@ -9,7 +9,7 @@ class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classi
 
     override fun classify(fsc: BSpline): ClassifyResult {
         val reparametrized = fsc.reparametrizeArcLength()
-        val muL = Linear.of(reparametrized).isValidFor(reparametrized)
+        val muL = Linear.of(reparametrized).isValidFor(reparametrized, nFmps)
         val muC = Circular.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
         val muE = Elliptic.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
         val muClosed = isClosed(fsc)
