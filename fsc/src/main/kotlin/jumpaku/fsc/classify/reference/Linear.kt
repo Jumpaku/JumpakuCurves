@@ -30,11 +30,11 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
         }
     }
 
-    override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
+    override fun isValidFor(fsc: FuzzyCurve, nFmps: Int): Grade = reference.isPossible(fsc, nFmps)
 
     companion object {
 
-        fun ofParams(t0: Double, t1: Double, fsc: BSpline): Linear {
+        fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Linear {
             val arcLengthFsc = fsc.reparametrizeArcLength()
             val l = arcLengthFsc.arcLength()
             val l0 = arcLengthFsc.arcLengthUntil(t0)
@@ -45,8 +45,8 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
                     .let { Linear(ConicSection.lineSegment(fsc(t0), fsc(t1)), it) }
         }
 
-        fun ofBeginEnd(fsc: BSpline): Linear = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
+        fun ofBeginEnd(fsc: FuzzyCurve): Linear = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
 
-        fun of(fsc: BSpline): Linear = ofBeginEnd(fsc)
+        fun of(fsc: FuzzyCurve): Linear = ofBeginEnd(fsc)
     }
 }
