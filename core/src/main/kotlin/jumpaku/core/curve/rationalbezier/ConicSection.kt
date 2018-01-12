@@ -9,6 +9,7 @@ import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
@@ -93,9 +94,10 @@ class ConicSection(
 
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
-    fun complement(): ConicSection = ConicSection(begin, center().divide(-1.0, far), end, -weight)
+    fun complement(): ConicSection = ConicSection(
+            begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
 
-    fun center(): Point = begin.middle(end).divide(weight/(weight - 1), far)
+    fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
     override fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
