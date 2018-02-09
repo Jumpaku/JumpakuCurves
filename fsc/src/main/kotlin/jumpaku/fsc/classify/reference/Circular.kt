@@ -26,22 +26,22 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
         }
     }
 
-    override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
+    override fun isValidFor(fsc: FuzzyCurve, nFmps: Int): Grade = reference.isPossible(fsc, nFmps)
 
     companion object {
 
         fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {
             val tf = computesCircularFar(t0, t1, fsc)
             val circular = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-            val domain = createDomain(t0, t1, fsc.toArcLengthCurve(), circular)
+            val domain = createDomain(t0, t1, fsc.reparametrizeArcLength(), circular)
 
             return Circular(circular, domain)
         }
 
-        fun ofBeginEnd(fsc: BSpline): Circular = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
+        fun ofBeginEnd(fsc: FuzzyCurve): Circular = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
 
-        fun of(fsc: BSpline): Circular {
-            val (t0, _, t1) = scatteredCircularParams(fsc)
+        fun of(fsc: FuzzyCurve, nSamples: Int = 99): Circular {
+            val (t0, _, t1) = scatteredCircularParams(fsc, nSamples)
 
             return ofParams(t0, t1, fsc)
         }
@@ -62,7 +62,7 @@ fun computesCircularFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
 /**
  * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
  */
-fun scatteredCircularParams(fsc: BSpline, nSamples: Int = 99): Tuple3<Double, Double, Double> {
+fun scatteredCircularParams(fsc: FuzzyCurve, nSamples: Int): Tuple3<Double, Double, Double> {
     val ts = fsc.domain.sample(nSamples)
     return API.For(ts.take(nSamples/3), ts.drop(2*nSamples/3))
             .yield({ t0, t1 ->

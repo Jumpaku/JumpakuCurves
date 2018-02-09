@@ -4,8 +4,9 @@ import io.vavr.API
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.affine.Point
+import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
@@ -16,7 +17,7 @@ import jumpaku.core.util.divOption
 
 interface Reference {
 
-    fun isValidFor(fsc: BSpline): Grade
+    fun isValidFor(fsc: FuzzyCurve, nFmps: Int = 15): Grade
 }
 
 fun evaluateWithoutDomain(t: Double, conicSection: ConicSection): Point {
@@ -30,7 +31,7 @@ fun evaluateWithoutDomain(t: Double, conicSection: ConicSection): Point {
 /**
  * absolute arc-length from beginning point of a conicSection.
  */
-fun conicSectionArcLengthWithoutDomain(t: Double, circular: ArcLengthAdapter, complement: ArcLengthAdapter): Double {
+fun conicSectionArcLengthWithoutDomain(t: Double, circular: ArcLengthReparametrized, complement: ArcLengthReparametrized): Double {
     val n = FastMath.floor(FastMath.abs(t) / 2)
     val circumference = circular.arcLength() + complement.arcLength()
     val rem = t - 2 * FastMath.floor(t / 2)
@@ -46,7 +47,7 @@ fun conicSectionArcLengthWithoutDomain(t: Double, circular: ArcLengthAdapter, co
 /**
  *
  */
-fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSection: ConicSection): Interval {
+fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthReparametrized, conicSection: ConicSection): Interval {
     val l0 = fscArcLength.arcLengthUntil(t0)
     val l1 = fscArcLength.arcLengthUntil(t1)
     if(1.0.divOption(l1 - l0).isEmpty){
@@ -55,8 +56,8 @@ fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSe
 
     val l = fscArcLength.arcLength()
 
-    val arcLengthConic = conicSection.toArcLengthCurve()
-    val arcLengthComplement = conicSection.complement().toArcLengthCurve()
+    val arcLengthConic = conicSection.reparametrizeArcLength()
+    val arcLengthComplement = conicSection.complement().reparametrizeArcLength()
 
     val relative = 1.0e-8
     val absolute = 1.0e-5

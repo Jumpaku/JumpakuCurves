@@ -17,7 +17,7 @@ class CircularCandidateCreator(override val pointSnapper: PointSnapper): Candida
         val r = 1 - FastMath.sqrt(2.0)
         val w = clamp(conicSection.weight, -0.999, 0.999)
         val f = conicSection.far
-        val o = conicSection.center()
+        val o = conicSection.center().get()
         val e3 = FeaturePoint(o, FeatureType.Center)
         val d1 = FeaturePoint(f, FeatureType.Diameter1)
         val e1 = FeaturePoint(f.divide(r, o), FeatureType.Extra1)

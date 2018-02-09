@@ -1,5 +1,6 @@
 package jumpaku.fsc.classify
 
+import com.github.salomonbrys.kotson.array
 import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.json.parseToJson
 import org.assertj.core.api.Assertions.*
@@ -14,12 +15,15 @@ class ClassifierPrimitive7Test {
     @Test
     fun testClassify() {
         println("ClassifierPrimitive7.Classify")
-        (0..6).forEach { i ->
-            val fsc = path.resolve("Fsc$i.json").toFile().readText().parseToJson().get().bSpline
-            val (eClass, eGrade) = path.resolve("Primitive7Result$i.json").toFile().readText().parseToJson().get().classifyResult
-            val (aClass, aGrade) = ClassifierPrimitive7().classify(fsc)
+        val fscs = path.resolve("Fscs.json").toFile().readText().parseToJson().get().array.map { it.bSpline }
+        val es = path.resolve("Primitive7Results.json").toFile().readText().parseToJson().get().array.map { it.classifyResult }
+        assertThat(fscs.size).isEqualTo(7)
+        assertThat(es.size).isEqualTo(7)
+        fscs.zip(es).forEachIndexed { i, (s, e) ->
+            val (eClass, eGrade) = e
+            val (aClass, aGrade) = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(s)
             assertThat(aClass).`as`("$i").isEqualTo(eClass)
-            assertThat(aGrade.value).isEqualTo(eGrade.value, withPrecision(1.0e-10))
+            assertThat(aGrade).`as`("$i").isEqualTo(eGrade)
         }
     }
 }

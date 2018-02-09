@@ -14,10 +14,10 @@ class FuzzyCurveAssert(actual: FuzzyCurve) : AbstractAssert<FuzzyCurveAssert, Fu
     fun isEqualToFuzzyCurve(expected: FuzzyCurve, eps: Double = 1.0e-10, sampleCount: Int = 30): FuzzyCurveAssert {
         isNotNull
 
-        actual.evaluateAll(30).zip(expected.evaluateAll(30)).forEachIndexed { index, (ap, ep) ->
+        actual.evaluateAll(sampleCount).zip(expected.evaluateAll(sampleCount)).forEachIndexed { index, (ap, ep) ->
             pointAssertThat(ap.toCrisp()).`as`("point[$index]").isEqualToPoint(ep.toCrisp(), eps)
         }
-        actual.evaluateAll(30).zip(expected.evaluateAll(30)).forEachIndexed { index, (ap, ep) ->
+        actual.evaluateAll(sampleCount).zip(expected.evaluateAll(sampleCount)).forEachIndexed { index, (ap, ep) ->
             Assertions.assertThat(ap.r).`as`("r[$index]").isEqualTo(ep.r, Assertions.withPrecision(eps))
         }
 

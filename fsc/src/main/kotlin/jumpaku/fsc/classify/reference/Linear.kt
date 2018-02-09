@@ -5,7 +5,7 @@ import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthAdapter
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
@@ -21,7 +21,7 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
 
         override val domain: Interval = this@Linear.domain
 
-        override fun toArcLengthCurve(): ArcLengthAdapter = ArcLengthAdapter(
+        override fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(
                 this, Array.of(domain.begin, 0.0, 1.0, domain.end).filter { it in domain })
 
         override fun evaluate(t: Double): Point {
@@ -30,12 +30,12 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
         }
     }
 
-    override fun isValidFor(fsc: BSpline): Grade = reference.isPossible(fsc)
+    override fun isValidFor(fsc: FuzzyCurve, nFmps: Int): Grade = reference.isPossible(fsc, nFmps)
 
     companion object {
 
-        fun ofParams(t0: Double, t1: Double, fsc: BSpline): Linear {
-            val arcLengthFsc = fsc.toArcLengthCurve()
+        fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Linear {
+            val arcLengthFsc = fsc.reparametrizeArcLength()
             val l = arcLengthFsc.arcLength()
             val l0 = arcLengthFsc.arcLengthUntil(t0)
             val l1 = arcLengthFsc.arcLengthUntil(t1)
@@ -45,8 +45,8 @@ class Linear(val conicSection: ConicSection, val domain: Interval) : Reference {
                     .let { Linear(ConicSection.lineSegment(fsc(t0), fsc(t1)), it) }
         }
 
-        fun ofBeginEnd(fsc: BSpline): Linear = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
+        fun ofBeginEnd(fsc: FuzzyCurve): Linear = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
 
-        fun of(fsc: BSpline): Linear = ofBeginEnd(fsc)
+        fun of(fsc: FuzzyCurve): Linear = ofBeginEnd(fsc)
     }
 }

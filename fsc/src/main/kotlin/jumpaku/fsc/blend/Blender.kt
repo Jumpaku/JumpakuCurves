@@ -74,13 +74,15 @@ class Blender(
         val f = front
         val m = when {
             front.isEmpty -> middle
-            else -> transformParams(middle,
-                    Interval(f.last().param, f.last().param + middle.last().param - middle.head().param))
+            else -> transformParams(
+                    middle, Interval(f.last().param, f.last().param + middle.last().param - middle.head().param))
+                    .getOrElse { middle.map { it.copy(param = f.last().param) } }
         }
         val b = when {
             back.isEmpty -> back
-            else -> transformParams(back,
-                    Interval(m.last().param, m.last().param + back.last().param - back.head().param))
+            else -> transformParams(
+                    back, Interval(m.last().param, m.last().param + back.last().param - back.head().param))
+                    .getOrElse { back.map { it.copy(param = m.last().param) } }
         }
 
         return Stream.concat(f, m, b).toArray()
