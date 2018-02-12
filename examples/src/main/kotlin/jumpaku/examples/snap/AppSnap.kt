@@ -69,9 +69,8 @@ class ViewSnap : View() {
             val cs = conicSection(fsc, r4)
             val arcLength = fsc.reparametrizeArcLength()
             val (snapped, _, candidates) = conicSectionSnapper.snap(cs, r4) { it.conicSection.isPossible(arcLength, 20) }
-            println(candidates.map { it.features.toArray().map { it._1 } })
             fuzzyCurve(snapped.conicSection.toCrisp()) { strokeWidth = 5.0; stroke = Color.RED }
-            println(snapped.features.toArray().map { it._1 })
+            println(candidates.map { it.features.keySet() }.toArray())
             snapped.features.forEach { (_, result) ->
                 val (grid, _, _p, _) = result
                 val p = _p.copy(r = 5.0)

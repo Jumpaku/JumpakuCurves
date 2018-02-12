@@ -72,7 +72,7 @@ class EllipticCandidateCreator(
                 val d = Stream.of(FeatureType.Center, FeatureType.Diameter0, FeatureType.Diameter1, FeatureType.Diameter2)
                         .combinations(3)
                 Stream.concat(be, e, d)
-                be.map { (t0, t1, t2) -> Tuple3(t0, t1, t2) }
+                        .map { (t0, t1, t2) -> Tuple3(t0, t1, t2) }
             }
             else -> {
                 val be = Stream.of(
