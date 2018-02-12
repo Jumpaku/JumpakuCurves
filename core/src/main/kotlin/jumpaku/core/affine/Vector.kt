@@ -13,6 +13,12 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
 
+fun unitX(): Vector = Vector(x = 1.0)
+
+fun unitY(): Vector = Vector(y = 1.0)
+
+fun unitZ(): Vector = Vector(z = 1.0)
+
 data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0): ToJson {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
