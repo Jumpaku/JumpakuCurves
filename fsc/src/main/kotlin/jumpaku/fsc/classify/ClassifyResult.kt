@@ -16,11 +16,12 @@ import jumpaku.core.json.hashMap
 import jumpaku.core.json.jsonMap
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import jumpaku.core.util.hashMap
 
 
 class ClassifyResult(val grades: Map<CurveClass, Grade>): ToJson {
 
-    constructor(vararg pairs: Pair<CurveClass, Grade>) : this(HashMap.ofAll(mutableMapOf(*pairs)))
+    constructor(vararg pairs: Pair<CurveClass, Grade>) : this(hashMap(*pairs))
 
     init {
         require(grades.nonEmpty()) { "empty grades" }

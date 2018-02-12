@@ -10,85 +10,64 @@ import jumpaku.core.util.component3
 import org.apache.commons.math3.util.FastMath
 
 
-sealed class Grid: ToJson {
-
-    abstract val baseGridSpacing: Double
-
-    abstract val magnification: Int
-
-    abstract val origin: Point
-
-    abstract val rotation: Affine
-
-    abstract val fuzziness: Double
-
-    abstract val resolution: Int
-
-    val gridSpacing: Double get() = baseGridSpacing * FastMath.pow(magnification.toDouble(), -resolution)
+sealed class Grid(
+        val spacing: Double,
+        val magnification: Int,
+        val origin: Point,
+        val fuzziness: Double,
+        val resolution: Int) {
 
     /**
      * localToWorld transforms coordinates in local(grid) to coordinates in world.
      * Coordinates in world is transformed by the following transformations;
-     *  rotation by specified rotation,
-     *  scaling by gridSpacing,
+     *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Affine get() = rotation.andScale(gridSpacing).andTranslateTo(origin)
+    val localToWorld: Affine get() = identity.andScale(spacing).andTranslateTo(origin)
 
-    /**
-     * worldToLocal is the inverse of localToWorld
-     */
-    val worldToLocal: Affine get() = localToWorld.invert()
-
-    fun snap(cursor: Point): GridPoint {
-        return worldToLocal(cursor).toArray().map { FastMath.round(it) }
-                .let { (x, y, z) -> GridPoint(x, y, z, this) }
-    }
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "baseGridSpacing" to baseGridSpacing.toJson(),
-            "magnification" to magnification.toJson(),
-            "origin" to origin.toJson(),
-            "rotation" to rotation.toJson(),
-            "fuzziness" to fuzziness.toJson(),
-            "resolution" to resolution.toJson())
-}
-
-val JsonElement.grid: Grid get() {
-    val base = BaseGrid(this["baseGridSpacing"].double,
-            this["magnification"].int,
-            this["origin"].point,
-            this["rotation"].affine,
-            this["fuzziness"].double)
-    val resolution = this["resolution"].int
-
-    return if (resolution == 0) base else base.deriveGrid(resolution)
+    fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert()(cursor)
+            .toArray()
+            .map { FastMath.round(it) }
+            .let { (x, y, z) -> GridPoint(x, y, z) }
 }
 
 class BaseGrid(
-        override val baseGridSpacing: Double,
-        override val magnification: Int = 4,
-        override val origin: Point = Point(0.0, 0.0, 0.0, 0.0),
-        override val rotation: Affine = identity,
-        override val fuzziness: Double = 0.0
-): Grid() {
-
-    override val resolution: Int = 0
+        spacing: Double,
+        magnification: Int = 4,
+        origin: Point = Point(0.0, 0.0, 0.0, 0.0),
+        fuzziness: Double = 0.0
+): Grid(spacing = spacing,
+        magnification = magnification,
+        origin = origin,
+        fuzziness = fuzziness,
+        resolution = 0) {
 
     fun deriveGrid(resolution: Int): Grid = if (resolution == 0) this else DerivedGrid(this, resolution)
 }
 
-class DerivedGrid(baseGrid: BaseGrid, override val resolution: Int): Grid() {
+class DerivedGrid(
+        val baseGrid: BaseGrid,
+        resolution: Int
+): Grid(spacing = spacing(baseGrid.spacing, baseGrid.magnification, resolution),
+        magnification = baseGrid.magnification,
+        origin = baseGrid.origin,
+        fuzziness = gridFuzziness(baseGrid.fuzziness, baseGrid.magnification, resolution),
+        resolution = resolution) {
 
-    override val baseGridSpacing = baseGrid.baseGridSpacing
+    companion object {
 
-    override val magnification = baseGrid.magnification
+        private fun spacing(baseGridSpacing: Double, baseGridMagnification: Int, resolution: Int): Double =
+                baseGridSpacing * FastMath.pow(baseGridMagnification.toDouble(), -resolution)
 
-    override val origin = baseGrid.origin
-
-    override val rotation = baseGrid.rotation
-
-    override val fuzziness: Double = baseGrid.fuzziness * FastMath.pow(magnification.toDouble(), -resolution)
+        private fun gridFuzziness(baseGridFuzziness: Double, baseGridMagnification: Int, resolution: Int): Double =
+                baseGridFuzziness * FastMath.pow(baseGridMagnification.toDouble(), -resolution)
+    }
 }
+
+class NoGrid(
+        val baseGrid: BaseGrid
+): Grid(spacing = 0.0,
+        magnification = baseGrid.magnification,
+        origin = baseGrid.origin,
+        fuzziness = 0.0,
+        resolution = Int.MAX_VALUE)
