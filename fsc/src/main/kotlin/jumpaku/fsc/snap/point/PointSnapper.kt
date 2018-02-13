@@ -1,10 +1,8 @@
 package jumpaku.fsc.snap.point
 
-import com.google.gson.JsonElement
 import io.vavr.collection.Stream
 import jumpaku.core.affine.Point
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.snap.BaseGrid
@@ -31,12 +29,10 @@ class PointSnapper(
     }
 
     fun snap(cursor: Point): PointSnapResult {
-
         val candidates = Stream.rangeClosed(minResolution, maxResolution).map {
             val grid = baseGrid.deriveGrid(it)
             val gridPoint = grid.snapToNearestGrid(cursor)
-            val worldPoint = grid
-                    .localToWorld(Point.xyz(gridPoint.x.toDouble(), gridPoint.y.toDouble(), gridPoint.z.toDouble()))
+            val worldPoint = gridPoint.toWorldPoint(grid.localToWorld)
             PointSnapResult(grid, gridPoint, worldPoint, worldPoint.copy(r = grid.fuzziness).isNecessary(cursor))
         }.toArray()
         val mus = candidates

@@ -1,6 +1,5 @@
 package jumpaku.fsc.snap.conicsection
 
-import io.vavr.API
 import io.vavr.Tuple3
 import io.vavr.Tuple4
 import io.vavr.collection.Map

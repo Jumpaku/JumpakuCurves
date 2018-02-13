@@ -3,8 +3,14 @@ package jumpaku.examples
 import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
+import jumpaku.core.affine.Point
+import jumpaku.core.affine.WeightedPoint
+import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.fxcomponents.node.curveControl
 import jumpaku.fxcomponents.node.onCurveDone
+import jumpaku.fxcomponents.view.fuzzyCurve
+import jumpaku.fxcomponents.view.polyline
 import tornadofx.*
 
 
@@ -20,12 +26,9 @@ class ViewExample : View() {
             prefWidth = 640.0
             prefHeight = 480.0
             onCurveDone {
-                val (startX, startY) = it.data.head().point
-                val (endX, endY) = it.data.last().point
                 clear()
                 with(group) {
                     children.clear()
-                    line(startX, startY, endX, endY) { stroke = Color.ORANGE }
                 }
             }
         }
