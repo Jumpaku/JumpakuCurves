@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.fsc.snap.conicsection.candidate
 
 import io.vavr.API
 import io.vavr.Tuple2
@@ -10,6 +10,7 @@ import jumpaku.core.affine.*
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.*
 import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.snap.conicsection.FeatureType
 import jumpaku.fsc.snap.point.PointSnapper
 
 

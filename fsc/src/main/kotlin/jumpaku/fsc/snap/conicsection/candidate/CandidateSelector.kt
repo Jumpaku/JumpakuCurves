@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.fsc.snap.conicsection.candidate
 
 import io.vavr.Tuple2
 import io.vavr.collection.Stream
