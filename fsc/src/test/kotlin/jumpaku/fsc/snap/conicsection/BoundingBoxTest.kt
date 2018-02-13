@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection.boundingbox
+package jumpaku.fsc.snap.conicsection
 
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
