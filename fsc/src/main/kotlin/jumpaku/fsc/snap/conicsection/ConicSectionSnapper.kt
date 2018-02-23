@@ -8,6 +8,7 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.snap.conicsection.candidate.*
 import jumpaku.fsc.snap.point.PointSnapper
 
 

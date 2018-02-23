@@ -1,6 +1,5 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.fsc.snap.conicsection.candidate
 
-import io.vavr.API
 import io.vavr.Tuple3
 import io.vavr.Tuple4
 import io.vavr.collection.Map
@@ -12,6 +11,7 @@ import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.snap.conicsection.FeatureType
 import jumpaku.fsc.snap.point.PointSnapper
 
 

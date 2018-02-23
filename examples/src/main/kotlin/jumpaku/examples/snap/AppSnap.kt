@@ -76,12 +76,12 @@ class ViewSnap : View() {
                 val p = _p.copy(r = 5.0)
                 val s = grid.spacing
                 group {
-                    line(startX = p.x - s, startY = p.y - s, endX = p.x + s, endY = p.y - s) { stroke = Color.ORANGE }
-                    line(startX = p.x - s, startY = p.y, endX = p.x + s, endY = p.y) { stroke = Color.ORANGE }
-                    line(startX = p.x - s, startY = p.y + s, endX = p.x + s, endY = p.y + s) { stroke = Color.ORANGE }
-                    line(startX = p.x - s, startY = p.y - s, endX = p.x - s, endY = p.y + s) { stroke = Color.ORANGE }
-                    line(startX = p.x, startY = p.y - s, endX = p.x, endY = p.y + s) { stroke = Color.ORANGE }
-                    line(startX = p.x + s, startY = p.y - s, endX = p.x + s, endY = p.y + s) { stroke = Color.ORANGE }
+                    line(startX = p.x - s, startY = p.y - s, endX = p.x + s, endY = p.y - s) { stroke = Color.ORANGE; strokeWidth = 2.0 }
+                    line(startX = p.x - s, startY = p.y, endX = p.x + s, endY = p.y) { stroke = Color.ORANGE; strokeWidth = 2.0 }
+                    line(startX = p.x - s, startY = p.y + s, endX = p.x + s, endY = p.y + s) { stroke = Color.ORANGE; strokeWidth = 2.0 }
+                    line(startX = p.x - s, startY = p.y - s, endX = p.x - s, endY = p.y + s) { stroke = Color.ORANGE; strokeWidth = 2.0 }
+                    line(startX = p.x, startY = p.y - s, endX = p.x, endY = p.y + s) { stroke = Color.ORANGE; strokeWidth = 2.0 }
+                    line(startX = p.x + s, startY = p.y - s, endX = p.x + s, endY = p.y + s) { stroke = Color.ORANGE; strokeWidth = 2.0 }
                 }
                 group {
                     circle(p.x, p.y, p.r) {

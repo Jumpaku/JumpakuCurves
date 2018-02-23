@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.fsc.snap.conicsection.candidate
 
 import io.vavr.collection.Map
 import io.vavr.collection.Stream
@@ -6,11 +6,10 @@ import jumpaku.core.affine.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.hashMap
 import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.snap.conicsection.FeatureType
 import jumpaku.fsc.snap.point.PointSnapResult
 import jumpaku.fsc.snap.point.PointSnapper
 import org.apache.commons.math3.util.FastMath
-
-enum class FeatureType { Begin, End, Center, Diameter0, Diameter1, Diameter2, Diameter3, Extra0, Extra1, Extra2, Extra3 }
 
 fun unitCircularArc(weight: Double): ConicSection = ConicSection(
             Point.xy(-FastMath.sqrt(1-weight*weight), weight),
