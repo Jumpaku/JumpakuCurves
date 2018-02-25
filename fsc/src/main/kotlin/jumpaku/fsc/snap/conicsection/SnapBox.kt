@@ -4,7 +4,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple4
-import io.vavr.collection.Array
 import io.vavr.collection.Map
 import io.vavr.collection.Stream
 import io.vavr.control.Option
@@ -21,14 +20,14 @@ import jumpaku.fsc.snap.conicsection.candidate.unitCircularArc
 import org.apache.commons.math3.util.FastMath
 
 
-fun boundingBox(conicSection: ConicSection, type: BoundingBox.Type): Option<BoundingBox> {
+fun snapBox(conicSection: ConicSection, type: SnapBox.Type): Option<SnapBox> {
     val cs = if (conicSection.weight >= 0.0) conicSection.complement() else conicSection
     val csFeatures = cs.featurePoints(CurveClass.Ellipse)
     val unit = unitCircularArc(cs.weight)
     val unitFeatures = unit.featurePoints(CurveClass.Circle)
     val features = when (type) {
-        BoundingBox.Type.Square -> Stream.of(FeatureType.Diameter0, FeatureType.Diameter1, FeatureType.Diameter2)
-        BoundingBox.Type.Diamond -> Stream.of(FeatureType.Extra0, FeatureType.Extra1, FeatureType.Extra2)
+        SnapBox.Type.Square -> Stream.of(FeatureType.Diameter0, FeatureType.Diameter1, FeatureType.Diameter2)
+        SnapBox.Type.Diamond -> Stream.of(FeatureType.Extra0, FeatureType.Extra1, FeatureType.Extra2)
     }
 
     val (u0, u1, u2) = features.map { unitFeatures[it].get() }
@@ -38,20 +37,20 @@ fun boundingBox(conicSection: ConicSection, type: BoundingBox.Type): Option<Boun
 
     return calibrate(Tuple4(u0, u1, u2, u3), Tuple4(c0, c1, c2, c3)).map {
         val a = when(type) {
-            BoundingBox.Type.Square -> it
-            BoundingBox.Type.Diamond -> identity
+            SnapBox.Type.Square -> it
+            SnapBox.Type.Diamond -> identity
                     .andRotate(unitZ(), FastMath.PI/4)
                     .andScale(FastMath.sqrt(2.0))
                     .andThen(it)
         }
-        BoundingBox(a)
+        SnapBox(a)
     }
 }
 
 
-class BoundingBox(val a: Affine = identity) : ToJson {
+class SnapBox(val transform: Affine = identity) : ToJson {
 
-    operator fun get(row: Row, column: Column): Point = boundingBox[row].flatMap { it[column] }.map(a).get()
+    operator fun get(row: Row, column: Column): Point = boundingBox[row].flatMap { it[column] }.get()
 
     private val boundingBox: Map<Row, Map<Column, Point>> = hashMap(
             Row.Top to hashMap(
@@ -68,11 +67,13 @@ class BoundingBox(val a: Affine = identity) : ToJson {
                     Column.Left to Point.xy(-1.0, -1.0),
                     Column.Center to Point.xy(0.0, -1.0),
                     Column.Right to Point.xy(1.0, -1.0))
-    )
+    ).mapValues { it.mapValues(transform) }
+
+    fun transform(a: Affine): SnapBox = SnapBox(transform.andThen(a))
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("transform" to a.toJson())
+    override fun toJson(): JsonElement = jsonObject("transform" to transform.toJson())
 
     enum class Type {
         Square, Diamond
@@ -87,4 +88,4 @@ class BoundingBox(val a: Affine = identity) : ToJson {
     }
 }
 
-fun JsonElement.boundingBox(): BoundingBox = BoundingBox(this["transform"].affine)
+fun JsonElement.snapBox(): SnapBox = SnapBox(this["transform"].affine)
