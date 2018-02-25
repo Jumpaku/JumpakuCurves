@@ -6,16 +6,11 @@ import org.junit.Test
 class BoundingBoxTest {
 
 
+
     @Test
     fun testCreate() {
         println("Create")
         fail("ToString not implemented.")
-    }
-
-    @Test
-    fun testTransform() {
-        println("Transform")
-        fail("Transform not implemented.")
     }
 
     @Test
