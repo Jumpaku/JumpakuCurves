@@ -1,6 +1,7 @@
 package jumpaku.core.curve.rationalbezier
 
 import jumpaku.core.affine.*
+import jumpaku.core.curve.Interval
 import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.AbstractAssert
@@ -45,10 +46,17 @@ class ConicSectionTest {
         pointAssertThat(i.representPoints[0]).isEqualToPoint(Point.xyr(0.0, 1.0, 1.0))
         pointAssertThat(i.representPoints[1]).isEqualToPoint(Point.xyr(R2/2, R2/2, 2.0))
         pointAssertThat(i.representPoints[2]).isEqualToPoint(Point.xyr(1.0, 0.0, 3.0))
-        rationalBezierAssertThat(i.toCrispRationalBezier()).isEqualToRationalBezier(RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 1.0, 0.0), 1.0),
-                WeightedPoint(Point.xyr(1.0, 1.0, 0.0), 1 / R2),
-                WeightedPoint(Point.xyr(1.0, 0.0, 0.0), 1.0)))
+    }
+
+
+    @Test
+    fun testToCrispQuadratic() {
+        println("ToCrispQuadratic")
+        val i = cs
+        rationalBezierAssertThat(i.toCrispQuadratic().get()).isEqualToRationalBezier(RationalBezier(
+                WeightedPoint(Point.xy(0.0, 1.0), 1.0),
+                WeightedPoint(Point.xy(1.0, 1.0), 1 / R2),
+                WeightedPoint(Point.xy(1.0, 0.0), 1.0)))
     }
 
     @Test
@@ -134,6 +142,13 @@ class ConicSectionTest {
     }
 
     @Test
+    fun testCenter() {
+        println("Center")
+        val i = cs.center()
+        pointAssertThat(i.get()).isEqualToPoint(Point.xyr(0.0, 0.0, 4*R2 + 6))
+    }
+
+    @Test
     fun testSubdivide() {
         println("Subdivide")
         val rs = ConicSection(
@@ -144,6 +159,21 @@ class ConicSectionTest {
                 Point.xyr((3 * R2 + 1) / (10 + 3 * R2), (3 * R2 + 9) / (10 + 3 * R2), 2.3027176028699587),
                 Point.xyr(R2 / 2, R2 / 2, 2.0), Math.sqrt(2 + R2) / 2), 0.1)
         conicSectionAssertThat(rs._2()).isEqualConicSection(ConicSection(
+                Point.xyr(R2 / 2, R2 / 2, 2.0),
+                Point.xyr((3 * R2 + 9) / (10 + 3 * R2), (3 * R2 + 1) / (10 + 3 * R2), 2.3027176028699587),
+                Point.xyr(1.0, 0.0, 3.0), Math.sqrt(2 + R2) / 2), 0.1)
+    }
+
+    @Test
+    fun testRestrict(){
+        println("Restrict")
+        val r0 = cs.restrict(Interval(0.0, 0.5))
+        conicSectionAssertThat(r0).isEqualConicSection(ConicSection(
+                Point.xyr(0.0, 1.0, 1.0),
+                Point.xyr((3 * R2 + 1) / (10 + 3 * R2), (3 * R2 + 9) / (10 + 3 * R2), 2.3027176028699587),
+                Point.xyr(R2 / 2, R2 / 2, 2.0), Math.sqrt(2 + R2) / 2), 0.1)
+        val r1 = cs.restrict(0.5, 1.0)
+        conicSectionAssertThat(r1).isEqualConicSection(ConicSection(
                 Point.xyr(R2 / 2, R2 / 2, 2.0),
                 Point.xyr((3 * R2 + 9) / (10 + 3 * R2), (3 * R2 + 1) / (10 + 3 * R2), 2.3027176028699587),
                 Point.xyr(1.0, 0.0, 3.0), Math.sqrt(2 + R2) / 2), 0.1)

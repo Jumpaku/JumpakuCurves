@@ -14,13 +14,12 @@ import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
-import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.clamp
-import jumpaku.core.util.divOption
+import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
+import kotlin.math.absoluteValue
 
 
 /**
@@ -30,16 +29,6 @@ class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
     : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection>, ToJson {
 
-    fun toCrispRationalBezier(): RationalBezier {
-        check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
-
-        return RationalBezier(Stream(
-                begin.toCrisp(),
-                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
-                end.toCrisp()
-        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
-    }
-
     val representPoints: Array<Point> get() = Array(begin, far, end)
 
     val degree = 2
@@ -48,8 +37,16 @@ class ConicSection(
 
     override val derivative: Derivative
         get() = object : Derivative {
-        override val domain: Interval = this@ConicSection.domain
-        override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+            override val domain: Interval = this@ConicSection.domain
+            override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+        }
+
+    fun toCrispQuadratic(): Option<RationalBezier> = Option.`when`(1.0.divOption(weight).isDefined) {
+        RationalBezier(Stream(
+                begin.toCrisp(),
+                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
+                end.toCrisp()
+        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
     }
 
     override fun differentiate(t: Double): Vector {
@@ -67,17 +64,14 @@ class ConicSection(
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
-
-        val p0 = begin.toVector()
-        val p1 = far.toVector()
-        val p2 = end.toVector()
-        val p = ((1 - t)*(1 - 2*t)*p0 + 2*t*(1 - t)*(1 + weight)*p1 + t*(2*t - 1)*p2)/wt
-        val r0 = representPoints[0].r
-        val r1 = representPoints[1].r
-        val r2 = representPoints[2].r
-        val r = FastMath.abs(r0 * (1 - t) * (1 - 2 * t) / wt) +
-                FastMath.abs(r1 * 2 * (weight + 1) * t * (1 - t) / wt) +
-                FastMath.abs(r2 * t * (2 * t - 1) / wt)
+        val (p0, p1, p2) = representPoints.map { it.toVector() }
+        val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + weight) * p1 + t * (2 * t - 1) * p2) / wt
+        val (r0, r1, r2) = representPoints.map { it.r }
+        val r = listOf(
+                r0 * (1 - t) * (1 - 2 * t) / wt,
+                r1 * 2 * (weight + 1) * t * (1 - t) / wt,
+                r2 * t * (2 * t - 1) / wt
+        ).map { it.absoluteValue }.sum()
 
         return Point(p, r)
     }
@@ -161,11 +155,6 @@ class ConicSection(
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
-
-        fun ofQuadraticBezier(bezier: Bezier): ConicSection {
-            require(bezier.degree == 2) { "degree(${bezier.degree}) != 2" }
-            return ConicSection(bezier(0.0), bezier(0.5), bezier(1.0), 1.0)
-        }
     }
 }
 

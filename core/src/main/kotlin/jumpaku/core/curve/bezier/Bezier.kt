@@ -23,7 +23,7 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
 
-class Bezier constructor(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier>, ToJson {
+class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, Subdividible<Bezier>, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
