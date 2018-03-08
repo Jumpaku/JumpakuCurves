@@ -14,7 +14,6 @@ import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
-import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.*
@@ -30,16 +29,6 @@ class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
     : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection>, ToJson {
 
-    fun toCrispRationalBezier(): RationalBezier {
-        check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
-
-        return RationalBezier(Stream(
-                begin.toCrisp(),
-                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
-                end.toCrisp()
-        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
-    }
-
     val representPoints: Array<Point> get() = Array(begin, far, end)
 
     val degree = 2
@@ -48,8 +37,16 @@ class ConicSection(
 
     override val derivative: Derivative
         get() = object : Derivative {
-        override val domain: Interval = this@ConicSection.domain
-        override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+            override val domain: Interval = this@ConicSection.domain
+            override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+        }
+
+    fun toCrispQuadratic(): Option<RationalBezier> = Option.`when`(1.0.divOption(weight).isDefined) {
+        RationalBezier(Stream(
+                begin.toCrisp(),
+                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
+                end.toCrisp()
+        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
     }
 
     override fun differentiate(t: Double): Vector {
@@ -158,11 +155,6 @@ class ConicSection(
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
-
-        fun ofQuadraticBezier(bezier: Bezier): ConicSection {
-            require(bezier.degree == 2) { "degree(${bezier.degree}) != 2" }
-            return ConicSection(bezier(0.0), bezier(0.5), bezier(1.0), 1.0)
-        }
     }
 }
 
