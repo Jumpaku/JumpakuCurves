@@ -55,9 +55,9 @@ class ViewSnap : View() {
     private fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection {
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
         return when {
-            curveClass.isLinear -> Linear.ofBeginEnd(fsc).conicSection
-            curveClass.isCircular -> Circular.ofBeginEnd(fsc).conicSection
-            else -> Elliptic.ofBeginEnd(fsc).conicSection
+            curveClass.isLinear -> Linear.ofBeginEnd(fsc).reference.conicSection
+            curveClass.isCircular -> Circular.ofBeginEnd(fsc).reference.conicSection
+            else -> Elliptic.ofBeginEnd(fsc).reference.conicSection
         }
     }
 

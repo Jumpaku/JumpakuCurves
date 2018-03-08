@@ -1,0 +1,32 @@
+{
+  "grades": [
+    {
+      "key": "Circle",
+      "value": 0.0
+    },
+    {
+      "key": "EllipticArc",
+      "value": 0.18568710549826517
+    },
+    {
+      "key": "CircularArc",
+      "value": 0.8143128945017348
+    },
+    {
+      "key": "ClosedFreeCurve",
+      "value": 0.0
+    },
+    {
+      "key": "OpenFreeCurve",
+      "value": 0.14859039207618374
+    },
+    {
+      "key": "Ellipse",
+      "value": 0.0
+    },
+    {
+      "key": "LineSegment",
+      "value": 0.0
+    }
+  ]
+}

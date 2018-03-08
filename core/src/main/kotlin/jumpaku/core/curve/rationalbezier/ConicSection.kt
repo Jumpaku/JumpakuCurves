@@ -17,10 +17,10 @@ import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.clamp
-import jumpaku.core.util.divOption
+import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
+import kotlin.math.absoluteValue
 
 
 /**
@@ -67,17 +67,14 @@ class ConicSection(
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
-
-        val p0 = begin.toVector()
-        val p1 = far.toVector()
-        val p2 = end.toVector()
-        val p = ((1 - t)*(1 - 2*t)*p0 + 2*t*(1 - t)*(1 + weight)*p1 + t*(2*t - 1)*p2)/wt
-        val r0 = representPoints[0].r
-        val r1 = representPoints[1].r
-        val r2 = representPoints[2].r
-        val r = FastMath.abs(r0 * (1 - t) * (1 - 2 * t) / wt) +
-                FastMath.abs(r1 * 2 * (weight + 1) * t * (1 - t) / wt) +
-                FastMath.abs(r2 * t * (2 * t - 1) / wt)
+        val (p0, p1, p2) = representPoints.map { it.toVector() }
+        val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + weight) * p1 + t * (2 * t - 1) * p2) / wt
+        val (r0, r1, r2) = representPoints.map { it.r }
+        val r = listOf(
+                r0 * (1 - t) * (1 - 2 * t) / wt,
+                r1 * 2 * (weight + 1) * t * (1 - t) / wt,
+                r2 * t * (2 * t - 1) / wt
+        ).map { it.absoluteValue }.sum()
 
         return Point(p, r)
     }
