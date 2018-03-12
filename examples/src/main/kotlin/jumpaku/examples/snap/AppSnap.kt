@@ -12,7 +12,6 @@ import jumpaku.fsc.classify.reference.Elliptic
 import jumpaku.fsc.classify.reference.Linear
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.snap.*
-import jumpaku.fsc.snap.conicsection.*
 import jumpaku.fsc.snap.point.PointSnapper
 import jumpaku.fxcomponents.node.curveControl
 import jumpaku.fxcomponents.node.onCurveDone

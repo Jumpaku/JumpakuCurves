@@ -39,7 +39,10 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s0 = pointSnapper.snap(f0)
                 val s1 = pointSnapper.snap(f1)
                 similarity(Tuple2(f0, f1), Tuple2(s0.worldPoint, s1.worldPoint)).map {
-                    ConicSectionSnapResult.Candidate(Array.of(s0, s1), it, conicSection.transform(it))
+                    ConicSectionSnapResult.Candidate(
+                            Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
+                            it,
+                            conicSection.transform(it))
                 }
             }
 
@@ -49,7 +52,10 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s1 = pointSnapper.snap(f1)
                 fn.normal(f0, f1).flatMap {
                     similarityWithNormal(Tuple3(f0, f1, it), Tuple3(s0.worldPoint, s1.worldPoint, Vector())).map {
-                        ConicSectionSnapResult.Candidate(Array.of(s0, s1), it, conicSection.transform(it))
+                        ConicSectionSnapResult.Candidate(
+                                Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
+                                it,
+                                conicSection.transform(it))
                     }
                 }
             }
@@ -60,7 +66,13 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s1 = pointSnapper.snap(f1)
                 val s2 = pointSnapper.snap(f2)
                 calibrateToPlane(Tuple3(f0, f1, f2), Tuple3(s0.worldPoint, s1.worldPoint, s2.worldPoint)).map {
-                    ConicSectionSnapResult.Candidate(Array.of(s0, s1, s2), it, conicSection.transform(it))
+                    ConicSectionSnapResult.Candidate(
+                            Array.of(
+                                    ConicSectionSnapResult.SnapPointPair(f0, s0),
+                                    ConicSectionSnapResult.SnapPointPair(f1, s1),
+                                    ConicSectionSnapResult.SnapPointPair(f2, s2)),
+                            it,
+                            conicSection.transform(it))
                 }
             }
 }

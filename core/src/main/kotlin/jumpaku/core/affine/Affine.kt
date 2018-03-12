@@ -39,7 +39,10 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
 
     override fun toJson(): JsonElement = jsonObject("matrix" to jsonArray(matrix.data.map { jsonArray(it.map { it.toJson() }) }))
 
-    fun invert(): Affine = Affine(MatrixUtils.inverse(matrix))
+    fun invert(): Option<Affine> {
+        val solver = QRDecomposition(matrix).solver
+        return Option.`when`(solver.isNonSingular) { Affine(solver.inverse) }
+    }
 
     fun andThen(a: Affine) = Affine(a.matrix.multiply(matrix))
 
@@ -152,13 +155,13 @@ fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Option<Affin
 fun similarityWithNormal(before: Tuple3<Point, Point, Vector>, after: Tuple3<Point, Point, Vector>): Option<Affine> {
     val (a0, b0, n0) = before
     val e0 = b0 - a0
-    val e1 = e0.cross(n0)//.resize(l0)
-    val e2 = e1.cross(e0)//.resize(l0)
+    val e1 = e0.cross(n0)
+    val e2 = e1.cross(e0)
 
     val (a1, b1, n1) = after
     val f0 = b1 - a1
-    val f1 = f0.cross(n1)//.resize(l1)
-    val f2 = f1.cross(f0)//.resize(l1)
+    val f1 = f0.cross(n1)
+    val f2 = f1.cross(f0)
 
     return calibrate(
             Tuple4(a0, a0 + e0, a0 + e1, a0 + e2),

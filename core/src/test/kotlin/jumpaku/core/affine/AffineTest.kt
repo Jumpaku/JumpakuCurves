@@ -39,11 +39,11 @@ class AffineTest {
     @Test
     fun testInvert() {
         println("Invert")
-        val ti = translation(Vector(-2.3, 5.4, 0.5)).invert().invoke(Point.xyz(3.3, -2.4, -1.0))
+        val ti = translation(Vector(-2.3, 5.4, 0.5)).invert().get().invoke(Point.xyz(3.3, -2.4, -1.0))
         pointAssertThat(ti).isEqualToPoint(Point.xyz(5.6, -7.8, -1.5))
-        val ri = rotation(Vector(1.0, 1.0, 1.0), Math.PI * 4.0 / 3.0).invert().invoke(Point.xyz(1.0, 1.0, -1.0))
+        val ri = rotation(Vector(1.0, 1.0, 1.0), Math.PI * 4.0 / 3.0).invert().get().invoke(Point.xyz(1.0, 1.0, -1.0))
         pointAssertThat(ri).isEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
-        val si = scaling(2.0, 2.0, 0.5).invert().invoke(Point.xyz(3.0, -2.0, -1.0))
+        val si = scaling(2.0, 2.0, 0.5).invert().get().invoke(Point.xyz(3.0, -2.0, -1.0))
         pointAssertThat(si).isEqualToPoint(Point.xyz(1.5, -1.0, -2.0))
     }
 
