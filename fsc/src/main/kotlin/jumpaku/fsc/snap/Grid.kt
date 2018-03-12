@@ -25,7 +25,7 @@ sealed class Grid(
      */
     val localToWorld: Affine get() = identity.andScale(spacing).andTranslateTo(origin)
 
-    fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert()(cursor)
+    fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert().get()(cursor)
             .toArray()
             .map { FastMath.round(it) }
             .let { (x, y, z) -> GridPoint(x, y, z) }
