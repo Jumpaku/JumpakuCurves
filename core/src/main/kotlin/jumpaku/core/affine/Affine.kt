@@ -77,8 +77,6 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
 
     fun andTranslate(v: Vector): Affine = andThen(translation(v))
 
-    fun andTranslateTo(p: Point): Affine = andThen(translation(p.toVector()))
-
     fun andTranslate(x: Double, y: Double, z: Double): Affine = andTranslate(Vector(x, y, z))
 }
 
