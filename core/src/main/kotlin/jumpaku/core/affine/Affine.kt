@@ -133,6 +133,13 @@ fun calibrate(before: Tuple4<Point, Point, Point, Point>,
     return Option.`when`(solver.isNonSingular) { Affine(solver.solve(bt).transpose()) }
 }
 
+fun calibrateToPlane(before: Tuple3<Point, Point, Point>, after: Tuple3<Point, Point, Point>): Option<Affine> {
+    val (a0, b0, c0) = before
+    val n = a0.normal(b0, c0)
+    val (a1, b1, c1) = after
+    return n.flatMap { calibrate(Tuple4(a0, b0, c0, a0 + it), Tuple4(a1, b1, c1, a1)) }
+}
+
 fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Option<Affine> {
     val a = ab._2() - ab._1()
     val b = cd._2() - cd._1()
@@ -157,3 +164,4 @@ fun similarityWithNormal(before: Tuple3<Point, Point, Vector>, after: Tuple3<Poi
             Tuple4(a0, a0 + e0, a0 + e1, a0 + e2),
             Tuple4(a1, a1 + f0, a1 + f1, a1 + f2))
 }
+

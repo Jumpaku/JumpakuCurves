@@ -2,7 +2,9 @@ package jumpaku.core.affine
 
 import io.vavr.API.*
 import jumpaku.core.json.parseToJson
+import org.assertj.core.api.Assertions
 import org.junit.Test
+import kotlin.math.sqrt
 
 /**
  * Created by jumpaku on 2017/05/10.
@@ -104,6 +106,25 @@ class AffineTest {
         val r0 = c.get().invoke(Point.xyz(0.0, 0.0, 0.0))
         pointAssertThat(r0).isEqualToPoint(Point.xyz(0.5, 0.5, 0.5))
     }
+
+    @Test
+    fun testCalibrateToPlane() {
+        println("CalibrateToPlane")
+        val c = calibrateToPlane(
+                Tuple(Point.xyz(1.0, 0.0, 0.0), Point.xyz(0.0, 1.0, 0.0), Point.xyz(0.0, 0.0, 1.0)),
+                Tuple(Point.xyz(1.0, -1.0, 1.0), Point.xyz(1.0, 1.0, -1.0), Point.xyz(-1.0, 1.0, 1.0)))
+        val c0 = c.get().invoke(Point.xyz(1.0, 0.0, 0.0))
+        pointAssertThat(c0).isEqualToPoint(Point.xyz(1.0, -1.0, 1.0))
+        val c1 = c.get().invoke(Point.xyz(0.0, 1.0, 0.0))
+        pointAssertThat(c1).isEqualToPoint(Point.xyz(1.0, 1.0, -1.0))
+        val c2 = c.get().invoke(Point.xyz(0.0, 0.0, 1.0))
+        pointAssertThat(c2).isEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
+        val c3 = c.get().invoke(Point.xyz(1 + sqrt(3.0), sqrt(3.0), sqrt(3.0)))
+        pointAssertThat(c3).isEqualToPoint(Point.xyz(1.0, -1.0, 1.0))
+        val r0 = c.get().invoke(Point.xyz(1.0, 1.0, 2.0))
+        pointAssertThat(r0).isEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
+    }
+
     @Test
     fun testScale() {
         println("Scale")

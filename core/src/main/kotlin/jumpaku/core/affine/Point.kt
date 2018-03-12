@@ -144,6 +144,8 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     companion object {
 
+        val origin: Point = Point(0.0, 0.0, 0.0)
+
         fun x(x: Double): Point = Point(x, 0.0, 0.0, 0.0)
 
         fun xr(x: Double, r: Double): Point = Point(x, 0.0, 0.0, r)

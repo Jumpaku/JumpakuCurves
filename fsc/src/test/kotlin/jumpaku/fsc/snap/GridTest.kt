@@ -17,7 +17,9 @@ class GridTest {
             magnification = 4,
             origin = Point.xyz(4.0, 4.0, 0.0),
             fuzziness = 2.0)
+
     val higherGrid = DerivedGrid(baseGrid, 1)
+
     val lowerGrid = DerivedGrid(baseGrid, -1)
 
     @Test

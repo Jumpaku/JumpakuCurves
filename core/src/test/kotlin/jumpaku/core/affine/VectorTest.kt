@@ -1,16 +1,28 @@
 package jumpaku.core.affine
 
-import com.github.salomonbrys.kotson.fromJson
 import jumpaku.core.json.parseToJson
 import org.apache.commons.math3.util.FastMath
+import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.withPrecision
-import jumpaku.core.json.prettyGson
 import org.junit.Test
 
-/**
- * Created by jumpaku on 2017/05/09.
- */
+fun vectorAssertThat(actual: Vector): VectorAssert = VectorAssert(actual)
+
+class VectorAssert(actual: Vector) : AbstractAssert<VectorAssert, Vector>(actual, VectorAssert::class.java) {
+
+    fun isEqualToVector(expected: Vector, eps: Double = 1.0e-10): VectorAssert {
+        isNotNull
+
+        Assertions.assertThat(actual.x).`as`("x of point").isEqualTo(expected.x, Assertions.withPrecision(eps))
+        Assertions.assertThat(actual.y).`as`("y of point").isEqualTo(expected.y, Assertions.withPrecision(eps))
+        Assertions.assertThat(actual.z).`as`("z of point").isEqualTo(expected.z, Assertions.withPrecision(eps))
+
+        return this
+    }
+}
+
 class VectorTest {
 
     @Test
@@ -20,6 +32,14 @@ class VectorTest {
         assertThat(v.x).isEqualTo( 1.0, withPrecision(1.0e-10))
         assertThat(v.y).isEqualTo(-2.0, withPrecision(1.0e-10))
         assertThat(v.z).isEqualTo( 3.0, withPrecision(1.0e-10))
+    }
+
+    @Test
+    fun testIJK() {
+        println("IJK")
+        vectorAssertThat(Vector.I).isEqualToVector( Vector(1.0, 0.0,0.0))
+        vectorAssertThat(Vector.J).isEqualToVector( Vector(0.0,1.0, 0.0))
+        vectorAssertThat(Vector.K).isEqualToVector( Vector(0.0, 0.0,1.0))
     }
 
     @Test

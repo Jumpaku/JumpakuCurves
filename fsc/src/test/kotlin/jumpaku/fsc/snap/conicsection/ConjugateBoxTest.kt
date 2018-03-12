@@ -6,7 +6,7 @@ import org.junit.Test
 class SnapBoxTest {
 
     @Test
-    fun testCreate() {
+    fun testConjugate() {
         println("Create")
         fail("ToString not implemented.")
     }
