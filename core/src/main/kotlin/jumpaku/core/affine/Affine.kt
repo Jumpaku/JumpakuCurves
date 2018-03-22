@@ -44,7 +44,7 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
         return Option.`when`(solver.isNonSingular) { Affine(solver.inverse) }
     }
 
-    fun andThen(a: Affine) = Affine(a.matrix.multiply(matrix))
+    fun andThen(a: Affine): Affine = Affine(a.matrix.multiply(matrix))
 
     fun andTransformAt(p: Point, a: Affine): Affine = andThen(transformationAt(p, a))
 
@@ -62,7 +62,7 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
 
     fun andRotate(from: Vector, to: Vector, radian: Double): Affine = from.cross(to).let {
         when {
-            it.isZero() && from.dot(to) >= 0 -> identity
+            it.isZero() && from.dot(to) >= 0 -> this
             else -> andRotate(it, radian)
         }
     }
@@ -114,9 +114,7 @@ fun scaling(x: Double, y: Double, z: Double): Affine {
             doubleArrayOf(x, y, z, 1.0)))
 }
 
-fun transformationAt(p: Point, a: Affine): Affine {
-    return translation(p.toVector().unaryMinus()).andThen(a).andTranslate(p.toVector())
-}
+fun transformationAt(p: Point, a: Affine): Affine = translation(-p.toVector()).andThen(a).andTranslate(p.toVector())
 
 fun calibrate(before: Tuple4<Point, Point, Point, Point>,
               after: Tuple4<Point, Point, Point, Point>): Option<Affine> {

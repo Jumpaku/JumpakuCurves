@@ -4,9 +4,9 @@ import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fxcomponents.node.curveControl
-import jumpaku.fxcomponents.node.onCurveDone
-import jumpaku.fxcomponents.view.cubicFsc
+import jumpaku.fxcomponents.nodes.curveControl
+import jumpaku.fxcomponents.nodes.onCurveDone
+import jumpaku.fxcomponents.nodes.cubicFsc
 import tornadofx.App
 import tornadofx.View
 import tornadofx.group

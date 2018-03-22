@@ -1,4 +1,4 @@
-package jumpaku.fxcomponents.node
+package jumpaku.fxcomponents.nodes
 
 import io.vavr.API
 import io.vavr.collection.Array
@@ -19,7 +19,6 @@ import javafx.scene.paint.Color
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.fxcomponents.view.polyline
 import tornadofx.add
 import tornadofx.circle
 import tornadofx.opcr
