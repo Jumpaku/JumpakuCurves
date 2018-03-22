@@ -14,6 +14,8 @@ class PointSnapperTest {
             spacing = 1.0,
             magnification = 4,
             origin = Point.xyz(0.0, 0.0, 0.0),
+            axis = Vector.K,
+            radian = 0.0,
             fuzziness = 0.25)
 
     private val snapper = PointSnapper(baseGrid, -1, 1)

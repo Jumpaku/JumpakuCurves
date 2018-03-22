@@ -50,8 +50,10 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
             featurePointsCombinator.circularCombinations(conicSection, isOpen).flatMap { (f0, f1, fn) ->
                 val s0 = pointSnapper.snap(f0)
                 val s1 = pointSnapper.snap(f1)
+                val sn = pointSnapper.snap(fn)
+                val n = sn.worldPoint.normal(s0.worldPoint, s1.worldPoint).getOrElse(Vector())
                 fn.normal(f0, f1).flatMap {
-                    similarityWithNormal(Tuple3(f0, f1, it), Tuple3(s0.worldPoint, s1.worldPoint, Vector())).map {
+                    similarityWithNormal(Tuple3(f0, f1, it), Tuple3(s0.worldPoint, s1.worldPoint, n)).map {
                         ConicSectionSnapResult.Candidate(
                                 Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
                                 it,

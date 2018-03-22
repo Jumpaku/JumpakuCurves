@@ -1,9 +1,6 @@
 package jumpaku.fsc.snap
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
 import jumpaku.core.affine.*
-import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
@@ -14,6 +11,8 @@ sealed class Grid(
         val spacing: Double,
         val magnification: Int,
         val origin: Point,
+        val axis: Vector,
+        val radian: Double,
         val fuzziness: Double,
         val resolution: Int) {
 
@@ -23,7 +22,7 @@ sealed class Grid(
      *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Affine get() = identity.andScale(spacing).andTranslateTo(origin)
+    val localToWorld: Affine get() = identity.andRotate(axis, radian).andScale(spacing).andTranslate(origin - Point.origin)
 
     fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert().get()(cursor)
             .toArray()
@@ -33,12 +32,16 @@ sealed class Grid(
 
 class BaseGrid(
         spacing: Double,
-        magnification: Int = 4,
+        magnification: Int = 2,
         origin: Point = Point(0.0, 0.0, 0.0, 0.0),
+        axis: Vector = Vector.K,
+        radian: Double = 0.0,
         fuzziness: Double = 0.0
 ): Grid(spacing = spacing,
         magnification = magnification,
         origin = origin,
+        axis = axis,
+        radian = radian,
         fuzziness = fuzziness,
         resolution = 0) {
 
@@ -51,6 +54,8 @@ class DerivedGrid(
 ): Grid(spacing = spacing(baseGrid.spacing, baseGrid.magnification, resolution),
         magnification = baseGrid.magnification,
         origin = baseGrid.origin,
+        axis = baseGrid.axis,
+        radian = baseGrid.radian,
         fuzziness = gridFuzziness(baseGrid.fuzziness, baseGrid.magnification, resolution),
         resolution = resolution) {
 
@@ -69,5 +74,7 @@ class NoGrid(
 ): Grid(spacing = 0.0,
         magnification = baseGrid.magnification,
         origin = baseGrid.origin,
+        axis = baseGrid.axis,
+        radian = baseGrid.radian,
         fuzziness = 0.0,
         resolution = Int.MAX_VALUE)
