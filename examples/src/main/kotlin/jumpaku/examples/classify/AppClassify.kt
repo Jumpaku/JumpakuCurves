@@ -1,28 +1,20 @@
 package jumpaku.examples.classify
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.jsonArray
-import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.bSpline
-import jumpaku.core.json.parseToJson
-import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.ClassifierPrimitive7
-import jumpaku.fsc.classify.classifyResult
 import jumpaku.fsc.classify.reference.Circular
 import jumpaku.fsc.classify.reference.Elliptic
 import jumpaku.fsc.classify.reference.Linear
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fxcomponents.node.curveControl
-import jumpaku.fxcomponents.node.onCurveDone
-import jumpaku.fxcomponents.view.cubicFsc
-import jumpaku.fxcomponents.view.fuzzyCurve
+import jumpaku.fxcomponents.nodes.curveControl
+import jumpaku.fxcomponents.nodes.onCurveDone
+import jumpaku.fxcomponents.nodes.cubicFsc
+import jumpaku.fxcomponents.nodes.fuzzyCurve
 import tornadofx.*
-import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
