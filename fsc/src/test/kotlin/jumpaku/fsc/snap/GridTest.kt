@@ -27,20 +27,20 @@ class GridTest {
         println("Properties")
         assertThat(baseGrid.resolution).isEqualTo(0)
 
-        assertThat(higherGrid.spacing).isEqualTo(1.0, withPrecision(1.0e-10))
+        assertThat(higherGrid.spacing).isEqualTo(2.0, withPrecision(1.0e-10))
         assertThat(higherGrid.magnification).isEqualTo(2)
         pointAssertThat(higherGrid.origin).isEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
         vectorAssertThat(higherGrid.axis).isEqualToVector(Vector.K)
         assertThat(higherGrid.radian).isEqualTo(p2, withPrecision(1.0e-10))
-        assertThat(higherGrid.fuzziness).isEqualTo(0.5, withPrecision(1.0e-10))
+        assertThat(higherGrid.fuzziness).isEqualTo(1.0, withPrecision(1.0e-10))
         assertThat(higherGrid.resolution).isEqualTo(1)
 
-        assertThat(lowerGrid.spacing).isEqualTo(16.0, withPrecision(1.0e-10))
+        assertThat(lowerGrid.spacing).isEqualTo(8.0, withPrecision(1.0e-10))
         assertThat(lowerGrid.magnification).isEqualTo(2)
         pointAssertThat(lowerGrid.origin).isEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
         vectorAssertThat(lowerGrid.axis).isEqualToVector(Vector.K)
         assertThat(lowerGrid.radian).isEqualTo(p2, withPrecision(1.0e-10))
-        assertThat(lowerGrid.fuzziness).isEqualTo(8.0, withPrecision(1.0e-10))
+        assertThat(lowerGrid.fuzziness).isEqualTo(4.0, withPrecision(1.0e-10))
         assertThat(lowerGrid.resolution).isEqualTo(-1)
     }
 

@@ -22,7 +22,7 @@ class ConjugateBoxTest {
     @Test
     fun testCreate() {
         println("Create")
-        val c0 = ConjugateBox(e)
+        val c0 = ConjugateBox.ofConicSection(e)
         pointAssertThat(c0.topLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 2.0))
         pointAssertThat(c0.topRight).isEqualToPoint(Point.xyz(0.0, 2.0, 2.0))
         pointAssertThat(c0.bottomLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 0.0))
@@ -33,7 +33,7 @@ class ConjugateBoxTest {
         pointAssertThat(c0.right).isEqualToPoint(Point.xyz(0.0, 2*r2, 1.0))
         pointAssertThat(c0.center).isEqualToPoint(Point.xyz(0.0, 0.0, 1.0))
 
-        val c1 = ConjugateBox(e.complement())
+        val c1 = ConjugateBox.ofConicSection(e.complement())
         pointAssertThat(c1.topLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 2.0))
         pointAssertThat(c1.topRight).isEqualToPoint(Point.xyz(0.0, 2.0, 2.0))
         pointAssertThat(c1.bottomLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 0.0))
@@ -44,7 +44,7 @@ class ConjugateBoxTest {
         pointAssertThat(c0.right).isEqualToPoint(Point.xyz(0.0, 2*r2, 1.0))
         pointAssertThat(c0.center).isEqualToPoint(Point.xyz(0.0, 0.0, 1.0))
 
-        val c2 = ConjugateBox(l)
+        val c2 = ConjugateBox.ofConicSection(l)
         pointAssertThat(c2.topLeft).isEqualToPoint(Point.xyz(0.0, 1.0, 1.0))
         pointAssertThat(c2.topRight).isEqualToPoint(Point.xyz(0.0, -1.0, -1.0))
         pointAssertThat(c2.bottomLeft).isEqualToPoint(Point.xyz(0.0, 1.0, 1.0))
