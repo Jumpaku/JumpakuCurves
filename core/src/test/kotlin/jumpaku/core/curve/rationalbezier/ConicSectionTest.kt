@@ -63,7 +63,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = cs
-        conicSectionAssertThat(i.toString().parseJson().get().conicSection)
+        conicSectionAssertThat(i.toString().let { ConicSection.fromJsonString(it) }.get())
                 .isEqualConicSection(i)
     }
 
