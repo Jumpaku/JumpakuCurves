@@ -15,8 +15,8 @@ class ClassifierOpen4Test {
     fun testClassify() {
         println("ClassifierOpen4.classify")
         for (i in (0..9)) {
-            val s = path.resolve("fsc$i.json").toFile().readText().parseJson().get().bSpline
-            val e = path.resolve("openResult$i.json").toFile().readText().parseJson().get().classifyResult
+            val s = path.resolve("fsc$i.json").parseJson().get().bSpline
+            val e = path.resolve("openResult$i.json").parseJson().flatMap { ClassifyResult.fromJson(it) }.get()
             val (eClass, eGrade) = e
             val (aClass, aGrade) = ClassifierOpen4(nSamples = 25, nFmps = 15).classify(s)
             assertThat(aClass).`as`("$i").isEqualTo(eClass)

@@ -15,8 +15,8 @@ class ClassifierPrimitive7Test {
     fun testClassify() {
         println("ClassifierPrimitive.classify")
         for (i in (0..9)) {
-            val s = path.resolve("fsc$i.json").toFile().readText().parseJson().get().bSpline
-            val e = path.resolve("primitiveResult$i.json").toFile().readText().parseJson().get().classifyResult
+            val s = path.resolve("fsc$i.json").parseJson().get().bSpline
+            val e = path.resolve("primitiveResult$i.json").parseJson().flatMap { ClassifyResult.fromJson(it) }.get()
             val (eClass, eGrade) = e
             val (aClass, aGrade) = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(s)
             assertThat(aClass).`as`("$i").isEqualTo(eClass)
