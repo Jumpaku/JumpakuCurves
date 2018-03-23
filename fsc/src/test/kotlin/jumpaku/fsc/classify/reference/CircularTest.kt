@@ -2,7 +2,7 @@ package jumpaku.fsc.classify.reference
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
-import jumpaku.core.affine.point
+import jumpaku.core.affine.Point
 import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.json.parseJson
@@ -21,7 +21,7 @@ class CircularTest {
     fun testReference() {
         println("Reference")
         val s = path.resolve("circularFsc.json").toFile().readText().parseJson().get().bSpline
-        val eps = Array.ofAll(path.resolve("circularReference.json").toFile().readText().parseJson().get().array.map { it.point })
+        val eps = Array.ofAll(path.resolve("circularReference.json").toFile().readText().parseJson().get().array.flatMap { Point.fromJson(it) })
         val rps = Circular.of(s, nSamples = 99).reference.evaluateAll(eps.size())
         rps.zip(eps).forEach { (r, e) -> pointAssertThat(r).isEqualToPoint(e) }
     }

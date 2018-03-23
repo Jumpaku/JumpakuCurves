@@ -27,4 +27,4 @@ data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoin
     }
 }
 
-val JsonElement.paramPoint: ParamPoint get() = ParamPoint(this["point"].point, this["param"].double)
+val JsonElement.paramPoint: ParamPoint get() = ParamPoint(Point.fromJson(this["point"]).get(), this["param"].double)

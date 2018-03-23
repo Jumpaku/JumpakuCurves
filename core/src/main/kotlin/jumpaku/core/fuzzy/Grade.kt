@@ -1,7 +1,6 @@
 package jumpaku.core.fuzzy
 
 import com.github.salomonbrys.kotson.double
-import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import io.vavr.control.Option
 import io.vavr.control.Try
@@ -46,4 +45,3 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
     }
 }
 
-val JsonElement.grade: Grade get() = Grade(double)

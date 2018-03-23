@@ -238,8 +238,8 @@ class PointTest {
         println("ToString")
         val f = Point.xyzr(1.0, -2.0, 3.0, 2.0)
         val c = Point.xyz(1.0, -2.0, 3.0)
-        pointAssertThat(f.toString().parseJson().get().point).isEqualToPoint(f)
-        pointAssertThat(c.toString().parseJson().get().point).isEqualToPoint(c)
+        pointAssertThat(f.toString().parseJson().flatMap { Point.fromJson(it) }.get()).isEqualToPoint(f)
+        pointAssertThat(c.toString().parseJson().flatMap { Point.fromJson(it) }.get()).isEqualToPoint(c)
     }
 
     @Test

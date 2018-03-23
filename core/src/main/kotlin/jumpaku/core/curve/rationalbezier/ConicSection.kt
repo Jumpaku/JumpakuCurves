@@ -159,7 +159,7 @@ class ConicSection(
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
         fun fromJson(json: JsonElement): Option<ConicSection> = Try.ofSupplier {
-            ConicSection(json["begin"].point, json["far"].point, json["end"].point, json["weight"].double)
+            ConicSection(Point.fromJson(json["begin"]).get(), Point.fromJson(json["far"]).get(), Point.fromJson(json["end"]).get(), json["weight"].double)
         }.toOption()
 
         fun fromJsonString(json: String): Option<ConicSection> = json.parseJson().flatMap { fromJson(it) }

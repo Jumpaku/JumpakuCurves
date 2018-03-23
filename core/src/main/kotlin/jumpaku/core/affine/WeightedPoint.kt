@@ -20,4 +20,4 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<
     override fun toJson(): JsonElement = jsonObject("point" to point.toJson(), "weight" to weight.toJson())
 }
 
-val JsonElement.weightedPoint: WeightedPoint get() = WeightedPoint(this["point"].point, this["weight"].double)
+val JsonElement.weightedPoint: WeightedPoint get() = WeightedPoint(Point.fromJson(this["point"]).get(), this["weight"].double)

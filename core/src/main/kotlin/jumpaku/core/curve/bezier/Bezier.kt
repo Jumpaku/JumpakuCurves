@@ -184,4 +184,4 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
     }
 }
 
-val JsonElement.bezier: Bezier get() = Bezier(this["controlPoints"].array.map { it.point })
+val JsonElement.bezier: Bezier get() = Bezier(this["controlPoints"].array.flatMap { Point.fromJson(it) })

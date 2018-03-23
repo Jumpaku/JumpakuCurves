@@ -6,11 +6,9 @@ import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.HashMap
 import io.vavr.collection.Map
 import io.vavr.collection.Set
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.fuzzy.grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.hashMap
 import jumpaku.core.json.jsonMap

@@ -7,7 +7,6 @@ import io.vavr.Tuple2
 import io.vavr.collection.HashMap
 import io.vavr.control.Option
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.point
 import jumpaku.core.affine.pointAssertThat
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -51,7 +50,7 @@ class JsonCollectionsKtTest {
         val str2point = HashMap.ofEntries(
                 Tuple2("A", Point.x(1.0)), Tuple2("B", Point.x(2.0)), Tuple2("C", Point.x(3.0)))
         val ssp = jsonMap(str2point.map { k, v -> Tuple2(k.toJson(), v.toJson()) }).toString()
-        val dsp = ssp.parseJson().get().hashMap.map { k, v -> Tuple2(k.string, v.point) }
+        val dsp = ssp.parseJson().get().hashMap.map { k, v -> Tuple2(k.string, Point.fromJson(v).get()) }
         assertThat(dsp.size()).isEqualTo(3)
         assertThat(dsp["A"].get()).isEqualTo(str2point["A"].get())
         assertThat(dsp["B"].get()).isEqualTo(str2point["B"].get())
@@ -73,12 +72,12 @@ class JsonCollectionsKtTest {
 
         val nonepoint = Option.`when`(false, Point.x(1.0))
         val snp= jsonOption(nonepoint.map { it.toJson() }).toString()
-        val dnp= snp.parseJson().get().option.map { it.point }
+        val dnp= snp.parseJson().get().option.flatMap { Point.fromJson(it) }
         assertThat(dnp.isEmpty).isTrue()
 
         val somepoint = Option.`when`(true, Point.x(1.0))
         val ssp = jsonOption(somepoint.map { it.toJson() }).toString()
-        val dsp = ssp.parseJson().get().option.map { it.point }
+        val dsp = ssp.parseJson().get().option.flatMap { Point.fromJson(it) }
         pointAssertThat(dsp.get()).isEqualToPoint(somepoint.get())
     }
 

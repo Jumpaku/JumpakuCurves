@@ -9,7 +9,6 @@ import io.vavr.control.Try
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.fuzzy.grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonOption
 import jumpaku.core.json.option
@@ -43,7 +42,7 @@ data class BlendResult(
     companion object {
 
         fun fromJson(json: JsonElement): Option<BlendResult> = Try.ofSupplier {
-            val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map { Array.ofAll(it.array.map { it.grade }) }))
+            val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map { Array.ofAll(it.array.flatMap { Grade.fromJson(it.asJsonPrimitive) }) }))
             val path = json["path"].option.map {
                 OverlappingPath(
                         osm,

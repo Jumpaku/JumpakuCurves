@@ -231,4 +231,4 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
 }
 
 val JsonElement.bSpline: BSpline get() = BSpline(
-        this["controlPoints"].array.map { it.point }, this["knotVector"].knotVector)
+        this["controlPoints"].array.flatMap { Point.fromJson(it) }, this["knotVector"].knotVector)

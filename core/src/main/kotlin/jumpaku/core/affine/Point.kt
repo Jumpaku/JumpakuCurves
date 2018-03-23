@@ -10,6 +10,7 @@ import io.vavr.control.Try
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
 import jumpaku.core.json.ToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
@@ -157,7 +158,10 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
         fun xyz(x: Double, y: Double, z: Double): Point = Point(x, y, z, 0.0)
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
+
+        fun fromJson(json: JsonElement): Option<Point> =
+                Try.ofSupplier { Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double) }.toOption()
+
+        fun fromJsonString(json: String): Option<Point> = json.parseJson().flatMap { fromJson(it) }
     }
 }
-
-val JsonElement.point: Point get() = Point(this["x"].double, this["y"].double, this["z"].double, this["r"].double)
