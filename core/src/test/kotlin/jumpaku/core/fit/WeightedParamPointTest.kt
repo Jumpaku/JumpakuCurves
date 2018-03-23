@@ -5,7 +5,7 @@ import jumpaku.core.affine.Point
 import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.paramPointAssertThat
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import org.junit.Test
@@ -45,6 +45,6 @@ class WeightedParamPointTest {
     fun testToString() {
         println("ToString")
         val w = ParamPoint(Point.xr(1.0, 10.0), 1.0).weighted(2.0)
-        weightedParamPointAssertThat(w.toString().parseToJson().get().weightedParamPoint).isEqualToWeightedParamPoint(w)
+        weightedParamPointAssertThat(w.toString().parseJson().get().weightedParamPoint).isEqualToWeightedParamPoint(w)
     }
 }

@@ -1,7 +1,7 @@
 package jumpaku.fsc.snap
 
 import jumpaku.core.affine.Point
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
@@ -43,7 +43,7 @@ class GridPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        val j = gridPoint.toString().parseToJson().get().gridPoint
+        val j = gridPoint.toString().parseJson().get().gridPoint
         gridPointAssertThat(j).isEqualToGridPoint(gridPoint)
     }
 }

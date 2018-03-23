@@ -5,12 +5,14 @@ import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.fuzzy.grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonOption
 import jumpaku.core.json.option
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 
@@ -36,17 +38,22 @@ data class BlendResult(
                 "path" to pathJson,
                 "blended" to blendedJson)
     }
-}
 
-val JsonElement.blendResult: BlendResult get() {
-    val osm = OverlappingMatrix(Array.ofAll(this["osm"].array.map { Array.ofAll(it.array.map { it.grade }) }))
-    val path = this["path"].option.map {
-        OverlappingPath(
-                osm,
-                it["grade"].grade,
-                Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<BlendResult> = Try.ofSupplier {
+            val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map { Array.ofAll(it.array.map { it.grade }) }))
+            val path = json["path"].option.map {
+                OverlappingPath(
+                        osm,
+                        it["grade"].grade,
+                        Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
+            }
+            val blended = json["blended"].option.map { it.bSpline }
+
+            BlendResult(osm, path, blended)
+        }.toOption()
+
+        fun fromJsonString(json: String): Option<BlendResult> = json.parseJson().flatMap { fromJson(it) }
     }
-    val blended = this["blended"].option.map { it.bSpline }
-
-    return BlendResult(osm, path, blended)
 }

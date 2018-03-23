@@ -2,7 +2,7 @@ package jumpaku.core.curve.bezier
 
 import io.vavr.API
 import jumpaku.core.affine.*
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.apache.commons.math3.util.FastMath
@@ -54,7 +54,7 @@ class BezierTest {
     fun testToString() {
         println("ToString")
         val p = bc
-        bezierAssertThat(p.toString().parseToJson().get().bezier).isEqualToBezier(p)
+        bezierAssertThat(p.toString().parseJson().get().bezier).isEqualToBezier(p)
     }
 
     @Test

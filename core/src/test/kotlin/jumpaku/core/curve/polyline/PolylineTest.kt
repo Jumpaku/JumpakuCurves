@@ -4,7 +4,7 @@ import jumpaku.core.affine.*
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.Interval
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert
@@ -51,7 +51,7 @@ class PolylineTest {
     fun testToString() {
         println("ToString")
         val p = pl
-        polylineAssertThat(p.toString().parseToJson().get().polyline).isEqualToPolyline(p)
+        polylineAssertThat(p.toString().parseJson().get().polyline).isEqualToPolyline(p)
     }
 
     @Test

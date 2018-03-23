@@ -1,9 +1,7 @@
 package jumpaku.core.curve
 
-import com.github.salomonbrys.kotson.fromJson
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.Assertions.*
-import jumpaku.core.json.prettyGson
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import org.junit.Test
@@ -93,6 +91,6 @@ class IntervalTest {
     fun testToString() {
         println("ToString")
         val i = Interval(-2.3, 3.4)
-        intervalAssertThat(i.toString().parseToJson().get().interval).isEqualTo(i)
+        intervalAssertThat(i.toString().parseJson().get().interval).isEqualTo(i)
     }
 }

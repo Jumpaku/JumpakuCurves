@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.*
 
 import org.junit.Test
 import jumpaku.core.curve.Interval
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert
@@ -125,7 +125,7 @@ class RationalBezierTest {
         println("ToString")
         val p = rb
 
-        rationalBezierAssertThat(p.toString().parseToJson().get().rationalBezier).isEqualToRationalBezier(p)
+        rationalBezierAssertThat(p.toString().parseJson().get().rationalBezier).isEqualToRationalBezier(p)
     }
 
     @Test

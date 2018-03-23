@@ -2,7 +2,7 @@ package jumpaku.core.curve.rationalbezier
 
 import jumpaku.core.affine.*
 import jumpaku.core.curve.Interval
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
@@ -63,7 +63,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = cs
-        conicSectionAssertThat(i.toString().parseToJson().get().conicSection)
+        conicSectionAssertThat(i.toString().parseJson().get().conicSection)
                 .isEqualConicSection(i)
     }
 

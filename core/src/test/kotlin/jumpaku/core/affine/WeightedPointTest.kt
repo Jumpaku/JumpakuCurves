@@ -1,9 +1,7 @@
 package jumpaku.core.affine
 
-import com.github.salomonbrys.kotson.fromJson
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.Assertions.*
-import jumpaku.core.json.prettyGson
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import org.junit.Test
@@ -38,7 +36,7 @@ class WeightedPointTest {
     fun testToString() {
         println("ToString")
         val wp = WeightedPoint(Point.xyzr(1.0, 2.0, 3.0, 4.0), -0.4)
-        weightedPointAssertThat(wp.toString().parseToJson().get().weightedPoint).isEqualToWeightedPoint(wp)
+        weightedPointAssertThat(wp.toString().parseJson().get().weightedPoint).isEqualToWeightedPoint(wp)
     }
 
     @Test
