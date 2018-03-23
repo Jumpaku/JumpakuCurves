@@ -60,4 +60,4 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 }
 
 val JsonElement.bSplineDerivative: BSplineDerivative get() = BSplineDerivative(
-        this["controlVectors"].array.map { it.vector }, this["knotVector"].knotVector)
+        this["controlVectors"].array.flatMap { Vector.fromJson(it) }, this["knotVector"].knotVector)

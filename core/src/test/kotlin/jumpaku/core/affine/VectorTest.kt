@@ -148,7 +148,7 @@ class VectorTest {
         println("Json")
         val v = Vector(1.0, -2.0, 3.0)
 
-        vectorAssertThat(v.toString().parseJson().get().vector).isEqualToVector(v)
+        vectorAssertThat(v.toString().parseJson().flatMap { Vector.fromJson(it) }.get()).isEqualToVector(v)
     }
 
     @Test

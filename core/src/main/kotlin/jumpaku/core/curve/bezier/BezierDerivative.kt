@@ -9,8 +9,6 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import jumpaku.core.affine.point
-import jumpaku.core.affine.vector
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
@@ -60,4 +58,4 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
     fun extend(t: Double): BezierDerivative = BezierDerivative(toBezier().extend(t))
 }
 
-val JsonElement.bezierDerivative: BezierDerivative get() = BezierDerivative(this["controlVectors"].array.map { it.vector })
+val JsonElement.bezierDerivative: BezierDerivative get() = BezierDerivative(this["controlVectors"].array.flatMap { Vector.fromJson(it) })

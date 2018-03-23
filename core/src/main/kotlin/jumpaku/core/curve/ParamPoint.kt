@@ -8,7 +8,6 @@ import com.google.gson.JsonElement
 import jumpaku.core.affine.Divisible
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.divide
-import jumpaku.core.affine.point
 import jumpaku.core.json.ToJson
 
 data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {
