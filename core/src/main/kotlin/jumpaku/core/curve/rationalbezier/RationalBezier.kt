@@ -136,5 +136,5 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 }
 
 val JsonElement.rationalBezier: RationalBezier get() = RationalBezier(
-        this["weightedControlPoints"].array.map { it.weightedPoint })
+        this["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) })
 

@@ -164,4 +164,4 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 }
 
 val JsonElement.nurbs: Nurbs get() = Nurbs(
-        this["weightedControlPoints"].array.map { it.weightedPoint }, this["knotVector"].knotVector)
+        this["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) }, this["knotVector"].knotVector)
