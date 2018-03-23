@@ -9,6 +9,7 @@ import io.vavr.Tuple3
 import io.vavr.Tuple4
 import io.vavr.collection.Array
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -78,12 +79,18 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
     fun andTranslate(v: Vector): Affine = andThen(translation(v))
 
     fun andTranslate(x: Double, y: Double, z: Double): Affine = andTranslate(Vector(x, y, z))
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<Affine> = Try.ofSupplier {
+            Affine(MatrixUtils.createRealMatrix(
+                    json["matrix"].array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()))
+        }.toOption()
+    }
 }
 
-val JsonElement.affine: Affine get() {
-    return Affine(MatrixUtils.createRealMatrix(
-            this["matrix"].array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()))
-}
+val JsonElement.affine: Affine get() = Affine(MatrixUtils.createRealMatrix(
+        this["matrix"].array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()))
 
 val identity = Affine(MatrixUtils.createRealIdentityMatrix(4))
 
@@ -109,10 +116,8 @@ fun rotation(axis: Vector, radian: Double): Affine {
     )))
 }
 
-fun scaling(x: Double, y: Double, z: Double): Affine {
-    return Affine(MatrixUtils.createRealDiagonalMatrix(
-            doubleArrayOf(x, y, z, 1.0)))
-}
+fun scaling(x: Double, y: Double, z: Double): Affine = Affine(MatrixUtils.createRealDiagonalMatrix(
+        doubleArrayOf(x, y, z, 1.0)))
 
 fun transformationAt(p: Point, a: Affine): Affine = translation(-p.toVector()).andThen(a).andTranslate(p.toVector())
 

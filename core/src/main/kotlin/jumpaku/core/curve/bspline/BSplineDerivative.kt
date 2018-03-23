@@ -9,7 +9,6 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import jumpaku.core.affine.vector
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.json.ToJson

@@ -24,13 +24,13 @@ class AffineTest {
     @Test
     fun testToString() {
         println("ToString")
-        val t = translation(Vector(2.3, -5.4, -0.5)).toString().parseJson().get().affine
+        val t = translation(Vector(2.3, -5.4, -0.5)).toString().parseJson().flatMap { Affine.fromJson(it) }.get()
                 .invoke(Point.xyz(3.3, -2.4, -1.0))
         pointAssertThat(t).isEqualToPoint(Point.xyz(5.6, -7.8, -1.5))
-        val r = rotation(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0).toString().parseJson().get().affine
+        val r = rotation(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0).toString().parseJson().flatMap { Affine.fromJson(it) }.get()
                 .invoke(Point.xyz(1.0, 1.0, -1.0))
         pointAssertThat(r).isEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
-        val s = scaling(0.5, 0.5, 2.0).toString().parseJson().get().affine
+        val s = scaling(0.5, 0.5, 2.0).toString().parseJson().flatMap { Affine.fromJson(it) }.get()
                 .invoke(Point.xyz(3.0, -2.0, -1.0))
         pointAssertThat(s).isEqualToPoint(Point.xyz(1.5, -1.0, -2.0))
     }
