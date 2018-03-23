@@ -29,6 +29,14 @@ class GradeTest {
     }
 
     @Test
+    fun testFromJson() {
+        println("FromJson")
+        assertThat(Grade.fromJsonString("1.0").get().value).isEqualTo(1.0, withPrecision(1.0e-10))
+        assertThat(Grade.fromJsonString("0.0").get().value).isEqualTo(0.0, withPrecision(1.0e-10))
+        assertThat(Grade.fromJsonString("0.5").get().value).isEqualTo(0.5, withPrecision(1.0e-10))
+    }
+
+    @Test
     fun testCompareTo() {
         println("CompareTo")
         assertThat(Grade(0.3).compareTo(Grade(0.8))).isNegative()

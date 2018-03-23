@@ -44,4 +44,4 @@ class ClassifyResult(val grades: Map<CurveClass, Grade>): ToJson {
 }
 
 val JsonElement.classifyResult: ClassifyResult get() = ClassifyResult(
-        this["grades"].hashMap.map { c, g -> Tuple2(CurveClass.valueOf(c.string), g.grade) })
+        this["grades"].hashMap.map { c, g -> Tuple2(CurveClass.valueOf(c.string), Grade.fromJson(g.asJsonPrimitive).get()) })
