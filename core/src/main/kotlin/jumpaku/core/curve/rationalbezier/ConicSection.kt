@@ -166,6 +166,3 @@ class ConicSection(
 
     }
 }
-
-val JsonElement.conicSection: ConicSection get() = ConicSection(
-        this["begin"].point, this["far"].point, this["end"].point, this["weight"].double)
