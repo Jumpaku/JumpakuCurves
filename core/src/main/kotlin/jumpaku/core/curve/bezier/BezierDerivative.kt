@@ -7,6 +7,8 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.curve.Derivative
@@ -56,6 +58,11 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
             .subdivide(t).map(::BezierDerivative, ::BezierDerivative)
 
     fun extend(t: Double): BezierDerivative = BezierDerivative(toBezier().extend(t))
-}
 
-val JsonElement.bezierDerivative: BezierDerivative get() = BezierDerivative(this["controlVectors"].array.flatMap { Vector.fromJson(it) })
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<BezierDerivative> = Try.ofSupplier {
+            BezierDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) })
+        }.toOption()
+    }
+}
