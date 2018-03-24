@@ -6,6 +6,7 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
@@ -64,7 +65,9 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
         val J: Vector = Vector(y = 1.0)
 
         val K: Vector = Vector(z = 1.0)
+
+        fun fromJson(json: JsonElement): Option<Vector> {
+            return Try.ofSupplier { Vector(json["x"].double, json["y"].double, json["z"].double) }.toOption()
+        }
     }
 }
-
-val JsonElement.vector: Vector get() = Vector(this["x"].double, this["y"].double, this["z"].double)

@@ -2,10 +2,10 @@ package jumpaku.fsc.classify.reference
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
-import jumpaku.core.affine.point
+import jumpaku.core.affine.Point
 import jumpaku.core.affine.pointAssertThat
-import jumpaku.core.curve.bspline.bSpline
-import jumpaku.core.json.parseToJson
+import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.junit.Test
@@ -20,8 +20,8 @@ class LinearTest {
     @Test
     fun testReference() {
         println("Reference")
-        val s = path.resolve("linearFsc.json").toFile().readText().parseToJson().get().bSpline
-        val eps = Array.ofAll(path.resolve("linearReference.json").toFile().readText().parseToJson().get().array.map { it.point })
+        val s = path.resolve("linearFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+        val eps = Array.ofAll(path.resolve("linearReference.json").parseJson().get().array.flatMap { Point.fromJson(it) })
         val rps = Linear.of(s).reference.evaluateAll(eps.size())
         rps.zip(eps).forEach { (r, e) -> pointAssertThat(r).isEqualToPoint(e) }
     }

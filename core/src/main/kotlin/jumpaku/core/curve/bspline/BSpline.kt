@@ -9,6 +9,8 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
@@ -160,6 +162,10 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
 
     companion object {
 
+        fun fromJson(json: JsonElement): Option<BSpline> = Try.ofSupplier {
+            BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
+        }.toOption()
+
         internal fun <D : Divisible<D>> createKnotInsertedControlPoints(
                 u: Double, controlPoints: Array<D>, knots: KnotVector): Array<D> {
             val p = knots.degree
@@ -224,11 +230,8 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             return ns[0]
         }
 
-        internal fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double {
-            return (a - b).divOption (c - d).getOrElse(0.0)
-        }
+        internal fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double =
+                (a - b).divOption (c - d).getOrElse(0.0)
     }
 }
 
-val JsonElement.bSpline: BSpline get() = BSpline(
-        this["controlPoints"].array.map { it.point }, this["knotVector"].knotVector)

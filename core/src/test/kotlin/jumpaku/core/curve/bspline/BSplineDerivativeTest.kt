@@ -1,6 +1,5 @@
 package jumpaku.core.curve.bspline
 
-import com.github.salomonbrys.kotson.fromJson
 import io.vavr.API.Array
 import io.vavr.collection.Array
 import org.assertj.core.api.Assertions.*
@@ -10,8 +9,7 @@ import jumpaku.core.affine.vectorAssertThat
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.bezierAssertThat
-import jumpaku.core.json.parseToJson
-import jumpaku.core.json.prettyGson
+import jumpaku.core.json.parseJson
 import org.junit.Test
 
 
@@ -45,7 +43,7 @@ class BSplineDerivativeTest {
         val b = BSplineDerivative(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
-        bSplineAssertThat(b.toString().parseToJson().get().bSplineDerivative.toBSpline())
+        bSplineAssertThat(b.toString().parseJson().flatMap { BSplineDerivative.fromJson(it) }.get().toBSpline())
                 .isEqualToBSpline(BSpline(
                         Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                         KnotVector.clampedUniform(3.0, 4.0, 3, 9)))

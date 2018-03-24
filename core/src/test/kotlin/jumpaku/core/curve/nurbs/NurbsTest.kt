@@ -7,7 +7,7 @@ import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.knotVectorAssertThat
 import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.apache.commons.math3.util.FastMath
@@ -86,7 +86,7 @@ class NurbsTest {
     @Test
     fun testToString() {
         println("ToString")
-        nurbsAssertThat(n.toString().parseToJson().get().nurbs).isEqualToNurbs(n)
+        nurbsAssertThat(n.toString().parseJson().flatMap { Nurbs.fromJson(it) }.get()).isEqualToNurbs(n)
     }
 
     @Test

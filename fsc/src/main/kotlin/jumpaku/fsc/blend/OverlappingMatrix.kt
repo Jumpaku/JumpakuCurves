@@ -27,15 +27,5 @@ data class OverlappingMatrix(val matrix: Array<Array<Grade>>) {
     val columnLastIndex: Int = columnSize - 1
 
     operator fun get(i: Int, j: Int): Grade = matrix[i][j]
-
-    fun emptyPath() = OverlappingPath(this, Grade.FALSE, Array.empty())
-
-    fun initialPath(grade: Grade, i: Int, j: Int): OverlappingPath {
-        require(i == 0 || j == 0) { "index i($i) or j($j) are not beginning index" }
-        return when {
-            grade <= Grade.FALSE -> emptyPath()
-            else -> OverlappingPath(this, grade, Array.of(Tuple2(i, j)))
-        }
-    }
 }
 

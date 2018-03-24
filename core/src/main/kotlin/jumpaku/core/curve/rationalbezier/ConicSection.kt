@@ -10,12 +10,14 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.repeatBisection
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
@@ -155,8 +157,12 @@ class ConicSection(
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
+
+        fun fromJson(json: JsonElement): Option<ConicSection> = Try.ofSupplier {
+            ConicSection(Point.fromJson(json["begin"]).get(), Point.fromJson(json["far"]).get(), Point.fromJson(json["end"]).get(), json["weight"].double)
+        }.toOption()
+
+        fun fromJsonString(json: String): Option<ConicSection> = json.parseJson().flatMap { fromJson(it) }
+
     }
 }
-
-val JsonElement.conicSection: ConicSection get() = ConicSection(
-        this["begin"].point, this["far"].point, this["end"].point, this["weight"].double)
