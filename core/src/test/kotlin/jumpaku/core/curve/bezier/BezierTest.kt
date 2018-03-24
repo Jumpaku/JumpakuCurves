@@ -54,7 +54,7 @@ class BezierTest {
     fun testToString() {
         println("ToString")
         val p = bc
-        bezierAssertThat(p.toString().parseJson().get().bezier).isEqualToBezier(p)
+        bezierAssertThat(p.toString().parseJson().flatMap { Bezier.fromJson(it) }.get()).isEqualToBezier(p)
     }
 
     @Test
