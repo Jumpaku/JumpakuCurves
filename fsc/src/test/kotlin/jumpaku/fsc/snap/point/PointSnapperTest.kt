@@ -8,7 +8,7 @@ import org.junit.Test
 
 class PointSnapperTest {
 
-    private val baseGrid = Grid(
+    val baseGrid = Grid(
             spacing = 1.0,
             magnification = 4,
             origin = Point.xyz(0.0, 0.0, 0.0),
@@ -17,7 +17,7 @@ class PointSnapperTest {
             fuzziness = 0.25,
             resolution = 0)
 
-    private val snapper = PointSnapper(baseGrid, -1, 1)
+    val snapper = PointSnapper(baseGrid, -1, 1)
 
     @Test
     fun testSnap0() {

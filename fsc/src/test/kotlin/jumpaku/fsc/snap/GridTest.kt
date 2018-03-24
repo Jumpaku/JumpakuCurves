@@ -98,7 +98,6 @@ class GridTest {
     fun testToString() {
         println("ToString")
         gridAssertThat(baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get()).isEqualToGrid(baseGrid)
-
     }
 }
 
