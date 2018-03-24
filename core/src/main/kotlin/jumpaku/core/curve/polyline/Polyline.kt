@@ -9,6 +9,8 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.Affine
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.*
@@ -100,6 +102,10 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
     }
 
     override fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, parameters)
-}
 
-val JsonElement.polyline: Polyline get() = Polyline(this["points"].array.flatMap { Point.fromJson(it) })
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<Polyline> =
+                Try.ofSupplier { Polyline(json["points"].array.flatMap { Point.fromJson(it) }) } .toOption()
+    }
+}

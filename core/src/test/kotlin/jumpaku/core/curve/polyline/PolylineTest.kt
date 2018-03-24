@@ -51,7 +51,7 @@ class PolylineTest {
     fun testToString() {
         println("ToString")
         val p = pl
-        polylineAssertThat(p.toString().parseJson().get().polyline).isEqualToPolyline(p)
+        polylineAssertThat(p.toString().parseJson().flatMap { Polyline.fromJson(it) }.get()).isEqualToPolyline(p)
     }
 
     @Test
