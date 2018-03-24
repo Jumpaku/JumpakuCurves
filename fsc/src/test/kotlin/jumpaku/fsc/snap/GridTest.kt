@@ -1,6 +1,7 @@
 package jumpaku.fsc.snap
 
 import jumpaku.core.affine.*
+import jumpaku.core.json.parseJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.*
@@ -91,6 +92,13 @@ class GridTest {
                 .isEqualToGridPoint(GridPoint( -1, 0, 0))
         gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0)))
                 .isEqualToGridPoint(GridPoint( -1, 0, 0))
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        gridAssertThat(baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get()).isEqualToGrid(baseGrid)
+
     }
 }
 

@@ -1,6 +1,11 @@
 package jumpaku.fsc.snap
 
+import com.github.salomonbrys.kotson.*
+import com.google.gson.JsonElement
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
@@ -15,7 +20,7 @@ class Grid(
         val axis: Vector,
         val radian: Double = 0.0,
         val fuzziness: Double = 0.0,
-        val resolution: Int = 0) {
+        val resolution: Int = 0): ToJson {
 
     val isNoGrid: Boolean = 1.0.divOption(spacing).isEmpty
 
@@ -40,6 +45,17 @@ class Grid(
             fuzziness = gridFuzziness(fuzziness, magnification, resolution),
             resolution = resolution)
 
+    override fun toString(): String = toJsonString()
+
+    override fun toJson(): JsonElement = jsonObject(
+            "spacing" to spacing.toJson(),
+            "magnification" to magnification.toJson(),
+            "origin" to origin.toJson(),
+            "axis" to axis.toJson(),
+            "radian" to radian.toJson(),
+            "fuzziness" to fuzziness.toJson(),
+            "resolution" to resolution.toJson())
+
     companion object {
 
         fun noGrid(baseGrid: Grid): Grid = Grid(
@@ -56,5 +72,15 @@ class Grid(
 
         fun gridFuzziness(baseGridFuzziness: Double, magnification: Int, resolution: Int): Double =
                 baseGridFuzziness * FastMath.pow(magnification.toDouble(), -resolution)
+
+        fun fromJson(json: JsonElement): Option<Grid> = Try.ofSupplier { Grid(
+                    spacing = json["spacing"].double,
+                    magnification = json["magnification"].int,
+                    origin = Point.fromJson(json["origin"]).get(),
+                    axis = Vector.fromJson(json["axis"]).get(),
+                    radian = json["radian"].double,
+                    fuzziness = json["fuzziness"].double,
+                    resolution = json["resolution"].int)
+        }.toOption()
     }
 }
