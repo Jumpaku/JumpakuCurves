@@ -8,18 +8,19 @@ import io.vavr.Tuple2
 import io.vavr.collection.HashMap
 import io.vavr.collection.Map
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 
 
 fun <E : JsonElement>jsonOption(opt: Option<E>): JsonObject = jsonObject(
-        "value" to if(opt.isDefined) opt.get() else jsonNull)
-val JsonElement.option: Option<JsonElement> get() = Option
-        .`when`(!obj["value"].isJsonNull) { obj["value"] }
+        "value" to opt.map { it as JsonElement }.getOrElse { jsonNull })
+
+val JsonElement.option: Option<JsonElement> get() = Option.`when`(!obj["value"].isJsonNull) { obj["value"] }
 
 fun <K : JsonElement, V: JsonElement, M : Map<K, V>>jsonMap(map: M): JsonArray = jsonArray(map.toArray().map { (key, value) ->
     jsonObject("key" to key, "value" to value) })
-val JsonElement.hashMap: Map<JsonElement, JsonElement> get() = HashMap
-        .ofEntries(array.map { Tuple2(it["key"], it["value"]) })
+
+val JsonElement.hashMap: Map<JsonElement, JsonElement> get() = HashMap.ofEntries(array.map { Tuple2(it["key"], it["value"]) })
 
 

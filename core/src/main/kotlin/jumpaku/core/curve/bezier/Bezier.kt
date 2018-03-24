@@ -9,6 +9,8 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
@@ -114,9 +116,11 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
             return comb(degree, i) * FastMath.pow(t, i)*FastMath.pow(1 - t, degree - i)
         }
 
-        fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> {
-            return cps.zipWith(cps.tail()) { p0, p1 -> p0.divide(t, p1) }
-        }
+        fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> =
+                cps.zipWith(cps.tail()) { p0, p1 -> p0.divide(t, p1) }
+
+        fun fromJson(json: JsonElement): Option<Bezier> =
+                Try.ofSupplier { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it) }) }.toOption()
 
         internal fun <P : Divisible<P>> createElevatedControlPoints(cp: Array<P>): Array<P> {
             val n = cp.size() - 1
@@ -183,5 +187,3 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
         }
     }
 }
-
-val JsonElement.bezier: Bezier get() = Bezier(this["controlPoints"].array.map { it.point })

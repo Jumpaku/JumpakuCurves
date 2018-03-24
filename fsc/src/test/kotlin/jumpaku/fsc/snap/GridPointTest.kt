@@ -1,8 +1,7 @@
 package jumpaku.fsc.snap
 
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
@@ -25,15 +24,6 @@ class GridPointAssert(actual: GridPoint) : AbstractAssert<GridPointAssert, GridP
 
 class GridPointTest {
 
-    val baseGrid = Grid(
-            spacing = 4.0,
-            magnification = 4,
-            origin = Point.xyz(4.0, 4.0, 0.0),
-            axis = Vector.K,
-            radian = 0.0,
-            fuzziness = 2.0,
-            resolution = 0)
-
     val gridPoint = GridPoint(4, -3, 0)
 
     @Test
@@ -47,7 +37,7 @@ class GridPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        val j = gridPoint.toString().parseToJson().get().gridPoint
+        val j = gridPoint.toString().parseJson().flatMap { GridPoint.fromJson(it) }.get()
         gridPointAssertThat(j).isEqualToGridPoint(gridPoint)
     }
 }

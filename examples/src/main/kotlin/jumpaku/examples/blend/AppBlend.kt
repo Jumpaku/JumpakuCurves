@@ -22,6 +22,25 @@ class AppBlend : App(ViewBlend::class)
 
 class ViewBlend : View() {
 
+    val generator = FscGenerator(3, 0.1, generateFuzziness = { crisp, ts ->
+        val derivative1 = crisp.derivative
+        val derivative2 = derivative1.derivative
+        val velocityCoefficient = 0.004
+        val accelerationCoefficient = 0.003
+        ts.map {
+            val v = derivative1(it).length()
+            val a = derivative2(it).length()
+            velocityCoefficient * v + a * accelerationCoefficient + 1.0
+        }
+    })
+
+    val blender = Blender(
+            1.0/128,
+            0.5,
+            generator,
+            { _ -> grade.value }
+    )
+
     override val root: Pane = pane {
         val group = group {  }
         curveControl {
@@ -40,7 +59,10 @@ class ViewBlend : View() {
         children.clear()
         existing.forEach { cubicFsc(it) { stroke = Color.BLACK } }
         cubicFsc(overlap) { stroke = Color.BLUE; strokeWidth = 1.0 }
-        existing = existing.flatMap { Blender().blend(it, overlap).blended.orElse { Option.of(it) } }.orElse { Option.of(overlap) }
+        existing = existing.flatMap {
+            val br = blender.blend(it, overlap)
+            br.blended.orElse { Option.of(it) }
+        }.orElse { Option.of(overlap) }
         existing.forEach { cubicFsc(it) { stroke = Color.RED } }
     }
 }

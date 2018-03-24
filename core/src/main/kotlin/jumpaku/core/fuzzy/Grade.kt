@@ -1,9 +1,11 @@
 package jumpaku.core.fuzzy
 
 import com.github.salomonbrys.kotson.double
-import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.json.ToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.clamp
 
 
@@ -27,7 +29,7 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
     override fun toString(): String = value.toString()
 
-    override fun toJson(): JsonElement = JsonPrimitive(value)
+    override fun toJson(): JsonPrimitive = JsonPrimitive(value)
 
     companion object {
 
@@ -36,7 +38,10 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
         val FALSE = Grade(0.0)
 
         fun clamped(value: Double): Grade = Grade(clamp(value, 0.0, 1.0))
+
+        fun fromJson(json: JsonPrimitive): Option<Grade> = Try.ofSupplier { Grade(json.double) }.toOption()
+
+        fun fromJsonString(json: String): Option<Grade> = json.parseJson().flatMap { fromJson(it.asJsonPrimitive) }
     }
 }
 
-val JsonElement.grade: Grade get() = Grade(double)
