@@ -7,6 +7,8 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.divide
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.clamp
@@ -39,8 +41,10 @@ data class Interval(val begin: Double, val end: Double): ToJson {
     override fun toJson(): JsonElement = jsonObject("begin" to begin.toJson(), "end" to end.toJson())
 
     companion object {
+
         val ZERO_ONE = Interval(0.0, 1.0)
+
+        fun fromJson(json: JsonElement): Option<Interval> =
+                Try.ofSupplier { Interval(json["begin"].double, json["end"].double) }.toOption()
     }
 }
-
-val JsonElement.interval: Interval get() = Interval(this["begin"].double, this["end"].double)

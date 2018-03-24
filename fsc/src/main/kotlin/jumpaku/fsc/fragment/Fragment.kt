@@ -8,7 +8,6 @@ import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.interval
 
 data class Fragment(val interval: Interval, val type: Type) {
 
@@ -24,10 +23,7 @@ data class Fragment(val interval: Interval, val type: Type) {
     companion object {
 
         fun fromJson(json: JsonElement): Option<Fragment> = Try.ofSupplier {
-            Fragment(json["interval"].interval, Fragment.Type.valueOf(json["type"].string))
+            Fragment(Interval.fromJson(json["interval"]).get(), Fragment.Type.valueOf(json["type"].string))
         }.toOption()
     }
 }
-
-val JsonElement.fragment: Fragment get() = Fragment(
-        this["interval"].interval, Fragment.Type.valueOf(this["type"].string))

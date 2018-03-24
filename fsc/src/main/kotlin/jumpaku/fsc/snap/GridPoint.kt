@@ -25,6 +25,3 @@ data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {
                 Try.ofSupplier { GridPoint(json["x"].long, json["y"].long, json["z"].long) }.toOption()
     }
 }
-
-val JsonElement.gridPoint: GridPoint
-    get() = GridPoint(this["x"].long, this["y"].long, this["z"].long)

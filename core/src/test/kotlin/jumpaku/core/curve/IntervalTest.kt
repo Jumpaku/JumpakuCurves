@@ -91,6 +91,6 @@ class IntervalTest {
     fun testToString() {
         println("ToString")
         val i = Interval(-2.3, 3.4)
-        intervalAssertThat(i.toString().parseJson().get().interval).isEqualTo(i)
+        intervalAssertThat(i.toString().parseJson().flatMap { Interval.fromJson(it) }.get()).isEqualTo(i)
     }
 }
