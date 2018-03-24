@@ -9,6 +9,7 @@ import io.vavr.Tuple3
 import io.vavr.Tuple4
 import io.vavr.collection.Array
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -39,9 +40,12 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
 
     override fun toJson(): JsonElement = jsonObject("matrix" to jsonArray(matrix.data.map { jsonArray(it.map { it.toJson() }) }))
 
-    fun invert(): Affine = Affine(MatrixUtils.inverse(matrix))
+    fun invert(): Option<Affine> {
+        val solver = QRDecomposition(matrix).solver
+        return Option.`when`(solver.isNonSingular) { Affine(solver.inverse) }
+    }
 
-    fun andThen(a: Affine) = Affine(a.matrix.multiply(matrix))
+    fun andThen(a: Affine): Affine = Affine(a.matrix.multiply(matrix))
 
     fun andTransformAt(p: Point, a: Affine): Affine = andThen(transformationAt(p, a))
 
@@ -59,7 +63,7 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
 
     fun andRotate(from: Vector, to: Vector, radian: Double): Affine = from.cross(to).let {
         when {
-            it.isZero() && from.dot(to) >= 0 -> identity
+            it.isZero() && from.dot(to) >= 0 -> this
             else -> andRotate(it, radian)
         }
     }
@@ -74,14 +78,15 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
 
     fun andTranslate(v: Vector): Affine = andThen(translation(v))
 
-    fun andTranslateTo(p: Point): Affine = andThen(translation(p.toVector()))
-
     fun andTranslate(x: Double, y: Double, z: Double): Affine = andTranslate(Vector(x, y, z))
-}
 
-val JsonElement.affine: Affine get() {
-    return Affine(MatrixUtils.createRealMatrix(
-            this["matrix"].array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()))
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<Affine> = Try.ofSupplier {
+            Affine(MatrixUtils.createRealMatrix(
+                    json["matrix"].array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()))
+        }.toOption()
+    }
 }
 
 val identity = Affine(MatrixUtils.createRealIdentityMatrix(4))
@@ -108,14 +113,10 @@ fun rotation(axis: Vector, radian: Double): Affine {
     )))
 }
 
-fun scaling(x: Double, y: Double, z: Double): Affine {
-    return Affine(MatrixUtils.createRealDiagonalMatrix(
-            doubleArrayOf(x, y, z, 1.0)))
-}
+fun scaling(x: Double, y: Double, z: Double): Affine = Affine(MatrixUtils.createRealDiagonalMatrix(
+        doubleArrayOf(x, y, z, 1.0)))
 
-fun transformationAt(p: Point, a: Affine): Affine {
-    return translation(p.toVector().unaryMinus()).andThen(a).andTranslate(p.toVector())
-}
+fun transformationAt(p: Point, a: Affine): Affine = translation(-p.toVector()).andThen(a).andTranslate(p.toVector())
 
 fun calibrate(before: Tuple4<Point, Point, Point, Point>,
               after: Tuple4<Point, Point, Point, Point>): Option<Affine> {
@@ -133,6 +134,13 @@ fun calibrate(before: Tuple4<Point, Point, Point, Point>,
     return Option.`when`(solver.isNonSingular) { Affine(solver.solve(bt).transpose()) }
 }
 
+fun calibrateToPlane(before: Tuple3<Point, Point, Point>, after: Tuple3<Point, Point, Point>): Option<Affine> {
+    val (a0, b0, c0) = before
+    val n = a0.normal(b0, c0)
+    val (a1, b1, c1) = after
+    return n.flatMap { calibrate(Tuple4(a0, b0, c0, a0 + it), Tuple4(a1, b1, c1, a1)) }
+}
+
 fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Option<Affine> {
     val a = ab._2() - ab._1()
     val b = cd._2() - cd._1()
@@ -145,15 +153,16 @@ fun similarity(ab: Tuple2<Point, Point>, cd: Tuple2<Point, Point>): Option<Affin
 fun similarityWithNormal(before: Tuple3<Point, Point, Vector>, after: Tuple3<Point, Point, Vector>): Option<Affine> {
     val (a0, b0, n0) = before
     val e0 = b0 - a0
-    val e1 = e0.cross(n0)//.resize(l0)
-    val e2 = e1.cross(e0)//.resize(l0)
+    val e1 = e0.cross(n0)
+    val e2 = e1.cross(e0)
 
     val (a1, b1, n1) = after
     val f0 = b1 - a1
-    val f1 = f0.cross(n1)//.resize(l1)
-    val f2 = f1.cross(f0)//.resize(l1)
+    val f1 = f0.cross(n1)
+    val f2 = f1.cross(f0)
 
     return calibrate(
             Tuple4(a0, a0 + e0, a0 + e1, a0 + e2),
             Tuple4(a1, a1 + f0, a1 + f1, a1 + f2))
 }
+

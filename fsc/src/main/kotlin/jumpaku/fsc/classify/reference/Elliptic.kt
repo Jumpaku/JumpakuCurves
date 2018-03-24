@@ -19,17 +19,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
 
 
-class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference {
-
-    val reference: FuzzyCurve = object : FuzzyCurve {
-
-        override val domain: Interval = this@Elliptic.domain
-
-        override fun evaluate(t: Double): Point {
-            require(t in domain) { "t($t) is out of domain($domain)" }
-            return evaluateWithoutDomain(t, conicSection)
-        }
-    }
+class Elliptic(val reference: ReferenceCurve) : Reference {
 
     override fun isValidFor(fsc: FuzzyCurve, nFmps: Int): Grade = reference.isPossible(fsc, nFmps)
 
@@ -38,10 +28,11 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
         fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve, nSamples: Int): Elliptic {
             val tf = computeEllipticFar(t0, t1, fsc, nSamples)
             val w = computeEllipticWeight(t0, t1, tf, fsc, nSamples)
-            val conicSection = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
-            val domain = createDomain(t0, t1, fsc.reparametrizeArcLength(), conicSection)
-
-            return Elliptic(conicSection, domain)
+            val reparametrized = fsc.reparametrizeArcLength()
+            return Elliptic(reference(reparametrized,
+                    reparametrized.arcLengthUntil(t0),
+                    reparametrized.arcLengthUntil(t1),
+                    ConicSection(fsc(t0), fsc(tf), fsc(t1), w)))
         }
 
         fun ofBeginEnd(fsc: FuzzyCurve, nSamples: Int = 99): Elliptic = ofParams(fsc.domain.begin, fsc.domain.end, fsc, nSamples)
@@ -52,7 +43,6 @@ class Elliptic(val conicSection: ConicSection, val domain: Interval) : Reference
             return ofParams(t0, t1, fsc, nSamples)
         }
     }
-
 }
 
 /**

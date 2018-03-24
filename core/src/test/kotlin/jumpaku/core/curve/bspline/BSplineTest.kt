@@ -9,7 +9,7 @@ import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.bezierAssertThat
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert
@@ -67,7 +67,7 @@ class BSplineTest {
     fun testToString() {
         println("ToString")
         val b = bsc
-        bSplineAssertThat(b.toString().parseToJson().get().bSpline).isEqualToBSpline(b)
+        bSplineAssertThat(b.toString().parseJson().flatMap { BSpline.fromJson(it) }.get()).isEqualToBSpline(b)
     }
 
     @Test

@@ -9,18 +9,18 @@ class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classi
 
     override fun classify(fsc: BSpline): ClassifyResult {
         val reparametrized = fsc.reparametrizeArcLength()
-        val muL = Linear.of(reparametrized).isValidFor(reparametrized, nFmps)
-        val muC = Circular.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
-        val muE = Elliptic.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
-        val muClosed = isClosed(fsc)
+        val pL = Linear.of(reparametrized).isValidFor(reparametrized, nFmps)
+        val pC = Circular.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
+        val pE = Elliptic.of(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
+        val pClosed = isClosed(fsc)
         return ClassifyResult(
-                CurveClass.LineSegment to (muL),
-                CurveClass.Circle to (muClosed and !muL and muC),
-                CurveClass.CircularArc to (!muClosed and !muL and muC),
-                CurveClass.Ellipse to (muClosed and !muL and !muC and muE),
-                CurveClass.EllipticArc to (!muClosed and !muL and !muC and muE),
-                CurveClass.ClosedFreeCurve to (muClosed and !muL and !muC and !muE),
-                CurveClass.OpenFreeCurve to (!muClosed and !muL and !muC and !muE)
+                CurveClass.LineSegment to (pL),
+                CurveClass.Circle to (pClosed and !pL and pC),
+                CurveClass.CircularArc to (!pClosed and !pL and pC),
+                CurveClass.Ellipse to (pClosed and !pL and !pC and pE),
+                CurveClass.EllipticArc to (!pClosed and !pL and !pC and pE),
+                CurveClass.ClosedFreeCurve to (pClosed and !pL and !pC and !pE),
+                CurveClass.OpenFreeCurve to (!pClosed and !pL and !pC and !pE)
         )
     }
 }

@@ -1,11 +1,26 @@
 package jumpaku.core.affine
 
-import com.github.salomonbrys.kotson.fromJson
-import jumpaku.core.json.parseToJson
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.Assertions.*
-import jumpaku.core.json.prettyGson
+import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 import org.junit.Test
 
+fun weightedPointAssertThat(actual: WeightedPoint): WeightedPointAssert = WeightedPointAssert(actual)
+
+class WeightedPointAssert(actual: WeightedPoint) : AbstractAssert<WeightedPointAssert, WeightedPoint>(actual, WeightedPointAssert::class.java) {
+
+    fun isEqualToWeightedPoint(expected: WeightedPoint, eps: Double = 1.0e-10): WeightedPointAssert {
+        isNotNull
+
+        Assertions.assertThat(actual.weight).`as`("weight of weighted point")
+                .isEqualTo(expected.weight, Assertions.withPrecision(eps))
+
+        pointAssertThat(actual.point).`as`("point of weighted point").isEqualToPoint(expected.point, eps)
+
+        return this
+    }
+}
 
 class WeightedPointTest {
 
@@ -21,7 +36,7 @@ class WeightedPointTest {
     fun testToString() {
         println("ToString")
         val wp = WeightedPoint(Point.xyzr(1.0, 2.0, 3.0, 4.0), -0.4)
-        weightedPointAssertThat(wp.toString().parseToJson().get().weightedPoint).isEqualToWeightedPoint(wp)
+        weightedPointAssertThat(wp.toString().parseJson().flatMap { WeightedPoint.fromJson(it) }.get()).isEqualToWeightedPoint(wp)
     }
 
     @Test

@@ -8,6 +8,8 @@ import com.google.gson.JsonElement
 import io.vavr.API
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
@@ -136,15 +138,13 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
         return ArcLengthReparametrized(this, ts.toArray())
     }
 
-    fun toRationalBeziers(): Array<RationalBezier> {
-        return knotVector.knots
-                .slice(degree + 1, knotVector.size() - degree - 1)
-                .fold(this, { bSpline, knot -> bSpline.insertKnot(knot, degree) })
-                .weightedControlPoints
-                .grouped(degree + 1)
-                .map(::RationalBezier)
-                .toArray()
-    }
+    fun toRationalBeziers(): Array<RationalBezier> = knotVector.knots
+            .slice(degree + 1, knotVector.size() - degree - 1)
+            .fold(this, { bSpline, knot -> bSpline.insertKnot(knot, degree) })
+            .weightedControlPoints
+            .grouped(degree + 1)
+            .map(::RationalBezier)
+            .toArray()
 
     override fun subdivide(t: Double): Tuple2<Nurbs, Nurbs> {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -161,7 +161,11 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
         return Nurbs(cp, knot)
     }
-}
 
-val JsonElement.nurbs: Nurbs get() = Nurbs(
-        this["weightedControlPoints"].array.map { it.weightedPoint }, this["knotVector"].knotVector)
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<Nurbs> = Try.ofSupplier {
+            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
+        }.toOption()
+    }
+}

@@ -2,9 +2,8 @@ package jumpaku.examples
 
 import javafx.application.Application
 import javafx.scene.layout.Pane
-import javafx.scene.paint.Color
-import jumpaku.fxcomponents.node.curveControl
-import jumpaku.fxcomponents.node.onCurveDone
+import jumpaku.fxcomponents.nodes.curveControl
+import jumpaku.fxcomponents.nodes.onCurveDone
 import tornadofx.*
 
 
@@ -20,12 +19,9 @@ class ViewExample : View() {
             prefWidth = 640.0
             prefHeight = 480.0
             onCurveDone {
-                val (startX, startY) = it.data.head().point
-                val (endX, endY) = it.data.last().point
                 clear()
                 with(group) {
                     children.clear()
-                    line(startX, startY, endX, endY) { stroke = Color.ORANGE }
                 }
             }
         }

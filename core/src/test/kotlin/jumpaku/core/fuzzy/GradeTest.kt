@@ -1,5 +1,6 @@
 package jumpaku.core.fuzzy
 
+import jumpaku.core.json.parseJson
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
@@ -23,10 +24,11 @@ class GradeTest {
     @Test
     fun testToString() {
         println("ToString")
-        assertThat(Grade(1.0).toString()).isEqualTo("1.0")
-        assertThat(Grade(0.0).toString()).isEqualTo("0.0")
-        assertThat(Grade(0.5).toString()).isEqualTo("0.5")
+        assertThat(Grade(1.0).toString().parseJson().flatMap { Grade.fromJson(it.asJsonPrimitive) }.get()).isEqualTo(Grade(1.0))
+        assertThat(Grade(0.0).toString().parseJson().flatMap { Grade.fromJson(it.asJsonPrimitive) }.get()).isEqualTo(Grade(0.0))
+        assertThat(Grade(0.5).toString().parseJson().flatMap { Grade.fromJson(it.asJsonPrimitive) }.get()).isEqualTo(Grade(0.5))
     }
+
 
     @Test
     fun testCompareTo() {

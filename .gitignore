@@ -24,3 +24,8 @@ nbproject/
 *.idea/
 *.iml
 *.ipr
+
+core/out/
+fsc/out/
+fxcomponents/out/
+examples/out/

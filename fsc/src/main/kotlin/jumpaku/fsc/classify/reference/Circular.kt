@@ -14,17 +14,7 @@ import jumpaku.core.util.component3
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 
-class Circular(val conicSection: ConicSection, val domain: Interval) : Reference {
-
-    val reference: FuzzyCurve = object : FuzzyCurve {
-
-        override val domain: Interval = this@Circular.domain
-
-        override fun evaluate(t: Double): Point {
-            require(t in domain) { "t($t) is out of domain($domain)" }
-            return evaluateWithoutDomain(t, conicSection)
-        }
-    }
+class Circular(val reference: ReferenceCurve) : Reference {
 
     override fun isValidFor(fsc: FuzzyCurve, nFmps: Int): Grade = reference.isPossible(fsc, nFmps)
 
@@ -33,9 +23,11 @@ class Circular(val conicSection: ConicSection, val domain: Interval) : Reference
         fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Circular {
             val tf = computesCircularFar(t0, t1, fsc)
             val circular = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-            val domain = createDomain(t0, t1, fsc.reparametrizeArcLength(), circular)
-
-            return Circular(circular, domain)
+            val reparametrized = fsc.reparametrizeArcLength()
+            return Circular(reference(reparametrized,
+                    reparametrized.arcLengthUntil(t0),
+                    reparametrized.arcLengthUntil(t1),
+                    circular))
         }
 
         fun ofBeginEnd(fsc: FuzzyCurve): Circular = ofParams(fsc.domain.begin, fsc.domain.end, fsc)
