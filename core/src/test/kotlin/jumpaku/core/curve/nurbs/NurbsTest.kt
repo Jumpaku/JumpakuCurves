@@ -86,7 +86,7 @@ class NurbsTest {
     @Test
     fun testToString() {
         println("ToString")
-        nurbsAssertThat(n.toString().parseJson().get().nurbs).isEqualToNurbs(n)
+        nurbsAssertThat(n.toString().parseJson().flatMap { Nurbs.fromJson(it) }.get()).isEqualToNurbs(n)
     }
 
     @Test
