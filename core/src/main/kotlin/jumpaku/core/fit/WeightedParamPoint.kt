@@ -7,7 +7,6 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.ParamPoint
-import jumpaku.core.curve.paramPoint
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 
@@ -25,4 +24,4 @@ data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1
 }
 
 val JsonElement.weightedParamPoint: WeightedParamPoint get() = WeightedParamPoint(
-        this["paramPoint"].paramPoint, this["weight"].double)
+        ParamPoint.fromJson(this["paramPoint"]).get(), this["weight"].double)

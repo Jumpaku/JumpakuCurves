@@ -108,5 +108,3 @@ data class Knot(val value: Double, val multiplicity: Int = 1) {
         require(multiplicity > 0) { "multiplicity($multiplicity) < 0" }
     }
 }
-
-val JsonElement.knotVector: KnotVector get() = KnotVector(this["degree"].int, this["knots"].array.map { it.double })

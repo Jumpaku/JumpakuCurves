@@ -41,6 +41,6 @@ class ParamPointTest {
     fun testToString() {
         println("ToString")
         val t = ParamPoint(Point.xr(1.0, 10.0), 1.0)
-        paramPointAssertThat(t.toString().parseJson().get().paramPoint).isEqualToParamPoint(t)
+        paramPointAssertThat(t.toString().parseJson().flatMap { ParamPoint.fromJson(it) }.get()).isEqualToParamPoint(t)
     }
 }

@@ -5,6 +5,8 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.Divisible
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.divide
@@ -23,7 +25,8 @@ data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoin
     companion object{
 
         fun now(point: Point): ParamPoint = ParamPoint(point, System.nanoTime() * 1.0e-9)
+
+        fun fromJson(json: JsonElement): Option<ParamPoint> =
+                Try.ofSupplier { ParamPoint(Point.fromJson(json["point"]).get(), json["param"].double) }.toOption()
     }
 }
-
-val JsonElement.paramPoint: ParamPoint get() = ParamPoint(Point.fromJson(this["point"]).get(), this["param"].double)

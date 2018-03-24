@@ -2,9 +2,9 @@ package jumpaku.fsc.generate
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.bSplineAssertThat
-import jumpaku.core.curve.paramPoint
 import jumpaku.core.json.parseJson
 import org.junit.Test
 import java.nio.file.Path
@@ -21,7 +21,7 @@ class FscGeneratorTest {
         println("Generate")
         (0..2).forEach { i ->
             val data = Array.ofAll(path.resolve("Data$i.json").parseJson().get()
-                    .array.map { it.paramPoint })
+                    .array.flatMap { ParamPoint.fromJson(it) })
             val e = path.resolve("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = FscGenerator(degree = 3, knotSpan = 0.1, generateFuzziness = { crisp, ts ->
                 val derivative1 = crisp.derivative
