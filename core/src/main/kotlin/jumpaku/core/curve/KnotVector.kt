@@ -6,6 +6,8 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import  io.vavr.control.Try
 import jumpaku.core.affine.divide
 import jumpaku.core.json.ToJson
 
@@ -94,6 +96,9 @@ class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double>, 
                             .appendAll(Stream.range(1, nSpans).map { begin.divide(it / nSpans.toDouble(), end) })
                             .appendAll(Stream.fill(degree + 1, { end })))
         }
+
+        fun fromJson(json: JsonElement): Option<KnotVector> =
+                Try.ofSupplier { KnotVector(json["degree"].int, json["knots"].array.map { it.double }) } .toOption()
     }
 }
 

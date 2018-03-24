@@ -62,7 +62,7 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
     companion object {
 
         fun fromJson(json: JsonElement): Option<BSplineDerivative> = Try.ofSupplier {
-            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) }, json["knotVector"].knotVector)
+            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
         }.toOption()
     }
 }

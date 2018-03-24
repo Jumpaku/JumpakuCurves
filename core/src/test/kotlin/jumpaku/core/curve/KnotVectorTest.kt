@@ -60,7 +60,7 @@ class KnotVectorTest {
     fun testToString() {
         println("ToString")
         val k = KnotVector.clampedUniform(3.5, 5.0, 3, 10)
-        knotVectorAssertThat(k.toString().parseJson().get().knotVector).isEqualToKnotVector(k)
+        knotVectorAssertThat(k.toString().parseJson().flatMap { KnotVector.fromJson(it) }.get()).isEqualToKnotVector(k)
     }
 
     @Test

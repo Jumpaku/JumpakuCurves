@@ -163,7 +163,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
     companion object {
 
         fun fromJson(json: JsonElement): Option<BSpline> = Try.ofSupplier {
-            BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it) }, json["knotVector"].knotVector)
+            BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
         }.toOption()
 
         internal fun <D : Divisible<D>> createKnotInsertedControlPoints(

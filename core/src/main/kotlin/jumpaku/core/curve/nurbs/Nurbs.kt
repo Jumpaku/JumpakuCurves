@@ -165,7 +165,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     companion object {
 
         fun fromJson(json: JsonElement): Option<Nurbs> = Try.ofSupplier {
-            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) }, json["knotVector"].knotVector)
+            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
         }.toOption()
     }
 }
