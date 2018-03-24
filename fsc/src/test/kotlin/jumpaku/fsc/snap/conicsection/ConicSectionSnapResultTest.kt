@@ -2,13 +2,16 @@ package jumpaku.fsc.snap.conicsection
 
 import jumpaku.core.affine.pointAssertThat
 import jumpaku.core.curve.rationalbezier.conicSectionAssertThat
+import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.snap.point.pointSnapResultAssertThat
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.withPrecision
 import org.junit.Test
+import java.nio.file.Paths
 
 
 fun conicSectionSnapResultAssertThat(actual: ConicSectionSnapResult): ConicSectionSnapResultAssert = ConicSectionSnapResultAssert(actual)
@@ -27,7 +30,9 @@ class ConicSectionSnapResultAssert(actual: ConicSectionSnapResult) : AbstractAss
         }
         conicSectionAssertThat(actual.candidate.snappedConicSection).isEqualConicSection(expected.candidate.snappedConicSection)
 
-        assertThat(actual.candidates.size()).isEqualTo(expected.candidates.size())
+        val acs = actual.candidates.toArray()
+        val ecs = expected.candidates.toArray()
+        assertThat(acs.size()).isEqualTo(ecs.size())
         actual.candidates.zip(expected.candidates).forEach { (a, e) ->
             a.featurePoints.zip(e.featurePoints).forEach { (af, ef) ->
                 pointAssertThat(af.cursor).isEqualToPoint(ef.cursor)
@@ -41,10 +46,17 @@ class ConicSectionSnapResultAssert(actual: ConicSectionSnapResult) : AbstractAss
 }
 
 class ConicSectionSnapResultTest {
+
+    val path = Paths.get("./src/test/resources/jumpaku/fsc/snap/conicsection/")
+
     @Test
     fun testToString() {
         println("ToString")
-        fail("ToString not implemented.")
+        for (i in 0..4) {
+            val e = path.resolve("ConicSectionSnapResult$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
+            val a = e.toString().parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
+            conicSectionSnapResultAssertThat(a).`as`("$i").isEqualToConicSectionSnapResult(e)
+        }
     }
 
 }

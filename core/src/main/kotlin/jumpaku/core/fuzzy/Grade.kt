@@ -40,8 +40,6 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
         fun clamped(value: Double): Grade = Grade(clamp(value, 0.0, 1.0))
 
         fun fromJson(json: JsonPrimitive): Option<Grade> = Try.ofSupplier { Grade(json.double) }.toOption()
-
-        fun fromJsonString(json: String): Option<Grade> = json.parseJson().flatMap { fromJson(it.asJsonPrimitive) }
     }
 }
 

@@ -24,6 +24,7 @@ import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
+import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppSnap::class.java, *args)
@@ -42,7 +43,7 @@ class ViewSnap : View() {
             origin = Point.xy(w/2, h/2),
             axis = Vector.K,
             radian = 0.0,
-            fuzziness = 10.0)
+            fuzziness = 20.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
             PointSnapper(
@@ -69,7 +70,17 @@ class ViewSnap : View() {
                 clear()
                 with(group) {
                     children.clear()
-                    this.update(FscGenerator().generate(it.data))
+                    this.update(FscGenerator { crisp, ts ->
+                        val derivative1 = crisp.derivative
+                        val derivative2 = derivative1.derivative
+                        val velocityCoefficient = 0.008
+                        val accelerationCoefficient = 0.006
+                        ts.map {
+                            val v = derivative1(it).length()
+                            val a = derivative2(it).length()
+                            velocityCoefficient * v + a * accelerationCoefficient + 1.0
+                        }
+                    }.generate(it.data))
                 }
             }
         }
@@ -80,14 +91,14 @@ class ViewSnap : View() {
 
         cubicFsc(fsc) { stroke = Color.BLACK }
 
-        val curveClass = classifier.classify(fsc).curveClass
-        println(curveClass)
-        if (curveClass.isFreeCurve) {
+        val classifyResult = classifier.classify(fsc)
+        println(classifyResult.curveClass)
+        if (classifyResult.curveClass.isFreeCurve) {
             cubicFsc(fsc.toCrisp()) { stroke = Color.RED }
             return
         }
-        val cs = conicSection(fsc, curveClass)
-        val snapped = conicSectionSnapper.snap(cs, curveClass) { candidate ->
+        val cs = conicSection(fsc, classifyResult.curveClass)
+        val snapped = conicSectionSnapper.snap(cs, classifyResult.curveClass) { candidate ->
             candidate.snappedConicSection.isPossible(fsc, n = 15)
         }
 
@@ -97,6 +108,10 @@ class ViewSnap : View() {
         conjugateBox(ConjugateBox.ofConicSection(snapped.candidate.snappedConicSection)) { stroke = Color.GREEN }
         snapped.candidate.featurePoints.forEach { snappedPoint(it.snapped) { stroke = Color.GREEN; fill = Color.GREEN } }
 
+        File("./Fsc.json").writeText(fsc.toString())
+        File("./ClassifyResult.json").writeText(classifyResult.toString())
+        File("./ConicSection.json").writeText(cs.toString())
+        File("./ConicSectionSnapResult.json").writeText(snapped.toString())
     }
 }
 

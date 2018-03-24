@@ -30,7 +30,7 @@ class PointSnapResultAssert(actual: PointSnapResult) : AbstractAssert<PointSnapR
 }
 
 class PointSnapResultTest {
-    
+
     val baseGrid = Grid(
             spacing = 1.0,
             magnification = 4,

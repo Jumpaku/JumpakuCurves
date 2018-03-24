@@ -77,7 +77,7 @@ data class ConicSectionSnapResult(
             ConicSectionSnapResult(
                     Candidate.fromJson(json["candidate"]).get(),
                     Grade.fromJson(json["grade"].asJsonPrimitive).get(),
-                    Stream.ofAll(json["candidates"].array.flatMap { Candidate.fromJson(json["candidate"]) }))
+                    Stream.ofAll(json["candidates"].array.flatMap { Candidate.fromJson(it) }))
         }.toOption()
     }
 }
