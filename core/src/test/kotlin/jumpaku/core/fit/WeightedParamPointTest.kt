@@ -45,6 +45,6 @@ class WeightedParamPointTest {
     fun testToString() {
         println("ToString")
         val w = ParamPoint(Point.xr(1.0, 10.0), 1.0).weighted(2.0)
-        weightedParamPointAssertThat(w.toString().parseJson().get().weightedParamPoint).isEqualToWeightedParamPoint(w)
+        weightedParamPointAssertThat(w.toString().parseJson().flatMap { WeightedParamPoint.fromJson(it) }.get()).isEqualToWeightedParamPoint(w)
     }
 }
