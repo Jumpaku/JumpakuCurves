@@ -7,6 +7,8 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.curve.*
@@ -33,7 +35,8 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }), "knotVector" to knotVector.toJson())
+    override fun toJson(): JsonElement =
+            jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }), "knotVector" to knotVector.toJson())
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 
@@ -53,10 +56,13 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun toBeziers(): Array<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
 
-    fun subdivide(t: Double): Tuple2<BSplineDerivative, BSplineDerivative> {
-        return toBSpline().subdivide(t).map(::BSplineDerivative, ::BSplineDerivative)
+    fun subdivide(t: Double): Tuple2<BSplineDerivative, BSplineDerivative> =
+            toBSpline().subdivide(t).map(::BSplineDerivative, ::BSplineDerivative)
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<BSplineDerivative> = Try.ofSupplier {
+            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) }, json["knotVector"].knotVector)
+        }.toOption()
     }
 }
-
-val JsonElement.bSplineDerivative: BSplineDerivative get() = BSplineDerivative(
-        this["controlVectors"].array.flatMap { Vector.fromJson(it) }, this["knotVector"].knotVector)

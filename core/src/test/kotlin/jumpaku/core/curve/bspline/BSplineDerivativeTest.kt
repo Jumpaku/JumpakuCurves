@@ -43,7 +43,7 @@ class BSplineDerivativeTest {
         val b = BSplineDerivative(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
-        bSplineAssertThat(b.toString().parseJson().get().bSplineDerivative.toBSpline())
+        bSplineAssertThat(b.toString().parseJson().flatMap { BSplineDerivative.fromJson(it) }.get().toBSpline())
                 .isEqualToBSpline(BSpline(
                         Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                         KnotVector.clampedUniform(3.0, 4.0, 3, 9)))
