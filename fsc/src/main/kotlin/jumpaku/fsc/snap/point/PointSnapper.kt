@@ -5,23 +5,11 @@ import jumpaku.core.affine.Point
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.fsc.snap.BaseGrid
 import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.GridPoint
-import jumpaku.fsc.snap.NoGrid
 
-
-data class PointSnapResult(
-        val grid: Grid,
-        val gridPoint: GridPoint,
-        val worldPoint: Point,
-        val grade: Grade)
-
-fun noPointSnap(baseGrid: BaseGrid, cursor: Point): PointSnapResult
-        = PointSnapResult(NoGrid(baseGrid), GridPoint(0, 0, 0), cursor.toCrisp(), Grade.TRUE)
 
 class PointSnapper(
-        val baseGrid: BaseGrid,
+        val baseGrid: Grid,
         val minResolution: Int = 0,
         val maxResolution: Int = 0) {
     init {

@@ -3,22 +3,21 @@ package jumpaku.fsc.snap.point
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.pointAssertThat
-import jumpaku.core.affine.rotation
-import jumpaku.fsc.snap.BaseGrid
-import org.assertj.core.api.Assertions.*
+import jumpaku.fsc.snap.Grid
 import org.junit.Test
 
 class PointSnapperTest {
 
-    private val baseGrid = BaseGrid(
+    val baseGrid = Grid(
             spacing = 1.0,
             magnification = 4,
             origin = Point.xyz(0.0, 0.0, 0.0),
             axis = Vector.K,
             radian = 0.0,
-            fuzziness = 0.25)
+            fuzziness = 0.25,
+            resolution = 0)
 
-    private val snapper = PointSnapper(baseGrid, -1, 1)
+    val snapper = PointSnapper(baseGrid, -1, 1)
 
     @Test
     fun testSnap0() {

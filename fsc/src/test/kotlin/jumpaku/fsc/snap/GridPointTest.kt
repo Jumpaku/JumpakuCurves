@@ -1,6 +1,5 @@
 package jumpaku.fsc.snap
 
-import jumpaku.core.affine.Point
 import jumpaku.core.json.parseJson
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions

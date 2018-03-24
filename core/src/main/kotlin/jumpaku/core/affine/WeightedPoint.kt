@@ -26,8 +26,6 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<
 
         fun fromJson(json: JsonElement): Option<WeightedPoint> =
                 Try.ofSupplier { WeightedPoint(Point.fromJson(json["point"]).get(), json["weight"].double) }.toOption()
-
-        fun fromJsonString(json: String): Option<WeightedPoint> = json.parseJson().flatMap { fromJson(it) }
     }
 }
 

@@ -1,6 +1,7 @@
 package jumpaku.fsc.snap
 
 import jumpaku.core.affine.*
+import jumpaku.core.json.parseJson
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.*
@@ -10,22 +11,24 @@ class GridTest {
 
     val p2 = FastMath.PI/2
 
-    val baseGrid = BaseGrid(
+    val baseGrid = Grid(
             spacing = 4.0,
             magnification = 2,
             origin = Point.xyz(4.0, 4.0, 0.0),
             axis = Vector.K,
             radian = p2,
-            fuzziness = 2.0)
+            fuzziness = 2.0,
+            resolution = 0)
 
-    val higherGrid = DerivedGrid(baseGrid, 1)
+    val higherGrid = baseGrid.deriveGrid(1)
 
-    val lowerGrid = DerivedGrid(baseGrid, -1)
+    val lowerGrid = baseGrid.deriveGrid(-1)
 
     @Test
     fun testProperties() {
         println("Properties")
         assertThat(baseGrid.resolution).isEqualTo(0)
+        assertThat(baseGrid.isNoGrid).isFalse()
 
         assertThat(higherGrid.spacing).isEqualTo(2.0, withPrecision(1.0e-10))
         assertThat(higherGrid.magnification).isEqualTo(2)
@@ -34,6 +37,7 @@ class GridTest {
         assertThat(higherGrid.radian).isEqualTo(p2, withPrecision(1.0e-10))
         assertThat(higherGrid.fuzziness).isEqualTo(1.0, withPrecision(1.0e-10))
         assertThat(higherGrid.resolution).isEqualTo(1)
+        assertThat(higherGrid.isNoGrid).isFalse()
 
         assertThat(lowerGrid.spacing).isEqualTo(8.0, withPrecision(1.0e-10))
         assertThat(lowerGrid.magnification).isEqualTo(2)
@@ -42,6 +46,9 @@ class GridTest {
         assertThat(lowerGrid.radian).isEqualTo(p2, withPrecision(1.0e-10))
         assertThat(lowerGrid.fuzziness).isEqualTo(4.0, withPrecision(1.0e-10))
         assertThat(lowerGrid.resolution).isEqualTo(-1)
+        assertThat(lowerGrid.isNoGrid).isFalse()
+
+        assertThat(Grid.noGrid(baseGrid).isNoGrid).isTrue()
     }
 
     @Test
@@ -86,6 +93,12 @@ class GridTest {
         gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0)))
                 .isEqualToGridPoint(GridPoint( -1, 0, 0))
     }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        gridAssertThat(baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get()).isEqualToGrid(baseGrid)
+    }
 }
 
 
@@ -99,6 +112,8 @@ class GridAssert(actual: Grid) : AbstractAssert<GridAssert, Grid>(actual, GridAs
         assertThat(actual.spacing).isEqualTo(expected.spacing, withPrecision(eps))
         assertThat(actual.magnification).isEqualTo(expected.magnification)
         pointAssertThat(actual.origin).isEqualToPoint(expected.origin, eps)
+        vectorAssertThat(actual.axis).isEqualToVector(expected.axis, eps)
+        assertThat(actual.radian).isEqualTo(expected.radian, withPrecision(eps))
         assertThat(actual.fuzziness).isEqualTo(expected.fuzziness, withPrecision(eps))
         assertThat(actual.resolution).isEqualTo(expected.resolution)
 

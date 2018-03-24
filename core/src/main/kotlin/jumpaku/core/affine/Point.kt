@@ -161,7 +161,5 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
         fun fromJson(json: JsonElement): Option<Point> =
                 Try.ofSupplier { Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double) }.toOption()
-
-        fun fromJsonString(json: String): Option<Point> = json.parseJson().flatMap { fromJson(it) }
     }
 }
