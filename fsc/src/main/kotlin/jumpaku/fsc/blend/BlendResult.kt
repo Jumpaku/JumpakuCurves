@@ -12,7 +12,6 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonOption
 import jumpaku.core.json.option
-import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 
@@ -25,7 +24,7 @@ data class BlendResult(
 
     override fun toJson(): JsonElement {
         val osmJson = jsonArray(osm.matrix.map { jsonArray(it.map { it.toJson() }) })
-        val pathJson = jsonOption(path.map { (_, grade, path) ->
+        val pathJson = jsonOption(path.map { (grade, path) ->
             jsonObject(
                     "grade" to grade.toJson(),
                     "pairs" to jsonArray(path.map { (i, j) ->
@@ -45,7 +44,6 @@ data class BlendResult(
             val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map { Array.ofAll(it.array.flatMap { Grade.fromJson(it.asJsonPrimitive) }) }))
             val path = json["path"].option.map {
                 OverlappingPath(
-                        osm,
                         Grade.fromJson(it["grade"].asJsonPrimitive).get(),
                         Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
             }
@@ -53,7 +51,5 @@ data class BlendResult(
 
             BlendResult(osm, path, blended)
         }.toOption()
-
-        fun fromJsonString(json: String): Option<BlendResult> = json.parseJson().flatMap { fromJson(it) }
     }
 }

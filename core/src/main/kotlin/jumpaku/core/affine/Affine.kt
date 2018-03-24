@@ -89,9 +89,6 @@ class Affine internal constructor(private val matrix: RealMatrix): Function1<Poi
     }
 }
 
-val JsonElement.affine: Affine get() = Affine(MatrixUtils.createRealMatrix(
-        this["matrix"].array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()))
-
 val identity = Affine(MatrixUtils.createRealIdentityMatrix(4))
 
 fun translation(v: Vector): Affine {

@@ -24,12 +24,6 @@ class GridPointAssert(actual: GridPoint) : AbstractAssert<GridPointAssert, GridP
 
 class GridPointTest {
 
-    val baseGrid = BaseGrid(
-            spacing = 4.0,
-            magnification = 4,
-            origin = Point.xyz(4.0, 4.0, 0.0),
-            fuzziness = 2.0)
-
     val gridPoint = GridPoint(4, -3, 0)
 
     @Test
@@ -43,7 +37,7 @@ class GridPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        val j = gridPoint.toString().parseJson().get().gridPoint
+        val j = gridPoint.toString().parseJson().flatMap { GridPoint.fromJson(it) }.get()
         gridPointAssertThat(j).isEqualToGridPoint(gridPoint)
     }
 }
