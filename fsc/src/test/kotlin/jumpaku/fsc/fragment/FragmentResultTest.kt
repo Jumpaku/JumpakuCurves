@@ -16,9 +16,9 @@ class FragmentResultTest {
         val fscData = File("./src/test/resources/jumpaku/fsc/fragment/FragmenterTestFsc0.json")
         val fsc = fscData.parseJson().flatMap { BSpline.fromJson(it) }.get()
         val result = Fragmenter(TruthValueThreshold(0.4, 0.6), 4, 0.1).fragment(fsc)
-        val jsonResult = result.toString().parseJson().get().fragmentResult
+        val jsonResult = result.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get()
 
-        jsonResult.fragments.zip(result.fragments).map { (a, e) ->
+        jsonResult.fragments.zip(result.fragments).forEach { (a, e) ->
             fragmentAssertThat(a).isEqualToFragment(e)
         }
     }
