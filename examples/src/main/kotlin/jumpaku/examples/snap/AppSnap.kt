@@ -107,11 +107,6 @@ class ViewSnap : View() {
 
         conjugateBox(ConjugateBox.ofConicSection(snapped.candidate.snappedConicSection)) { stroke = Color.GREEN }
         snapped.candidate.featurePoints.forEach { snappedPoint(it.snapped) { stroke = Color.GREEN; fill = Color.GREEN } }
-
-        File("./Fsc.json").writeText(fsc.toString())
-        File("./ClassifyResult.json").writeText(classifyResult.toString())
-        File("./ConicSection.json").writeText(cs.toString())
-        File("./ConicSectionSnapResult.json").writeText(snapped.toString())
     }
 }
 
