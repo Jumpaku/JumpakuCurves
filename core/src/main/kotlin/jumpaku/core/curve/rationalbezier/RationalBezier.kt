@@ -8,6 +8,8 @@ import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
@@ -132,6 +134,10 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
             }
             return ws.head()
         }
+
+        fun fromJson(json: JsonElement): Option<RationalBezier> = Try.ofSupplier {
+            RationalBezier(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) })
+        }.toOption()
     }
 }
 

@@ -125,7 +125,7 @@ class RationalBezierTest {
         println("ToString")
         val p = rb
 
-        rationalBezierAssertThat(p.toString().parseJson().get().rationalBezier).isEqualToRationalBezier(p)
+        rationalBezierAssertThat(p.toString().parseJson().flatMap { RationalBezier.fromJson(it) }.get()).isEqualToRationalBezier(p)
     }
 
     @Test
