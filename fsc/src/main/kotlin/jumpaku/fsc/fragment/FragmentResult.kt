@@ -19,7 +19,7 @@ data class FragmentResult(val fragments: Array<Fragment>): ToJson {
     companion object {
 
         fun fromJson(json: JsonElement): Option<FragmentResult> = Try.ofSupplier {
-            FragmentResult(Array.ofAll(json["fragments"].array.map { it.fragment }))
+            FragmentResult(Array.ofAll(json["fragments"].array.flatMap { Fragment.fromJson(it) }))
         }.toOption()
     }
 }
