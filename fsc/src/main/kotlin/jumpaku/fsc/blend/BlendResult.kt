@@ -7,7 +7,6 @@ import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonOption
@@ -47,7 +46,7 @@ data class BlendResult(
                         Grade.fromJson(it["grade"].asJsonPrimitive).get(),
                         Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
             }
-            val blended = json["blended"].option.map { it.bSpline }
+            val blended = json["blended"].option.flatMap { BSpline.fromJson(it) }
 
             BlendResult(osm, path, blended)
         }.toOption()

@@ -67,7 +67,7 @@ class BSplineTest {
     fun testToString() {
         println("ToString")
         val b = bsc
-        bSplineAssertThat(b.toString().parseJson().get().bSpline).isEqualToBSpline(b)
+        bSplineAssertThat(b.toString().parseJson().flatMap { BSpline.fromJson(it) }.get()).isEqualToBSpline(b)
     }
 
     @Test

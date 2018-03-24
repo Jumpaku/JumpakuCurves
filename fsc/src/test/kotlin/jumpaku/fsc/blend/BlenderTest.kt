@@ -2,9 +2,9 @@ package jumpaku.fsc.blend
 
 import io.vavr.API
 import io.vavr.Tuple2
+import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.core.curve.bspline.bSpline
 import jumpaku.core.curve.bspline.bSplineAssertThat
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.generate.FscGenerator
@@ -39,8 +39,8 @@ class BlenderTest {
     fun testBlend() {
         println("Blend")
         for (i in 0..4) {
-            val existing = path.resolve("BlendExisting$i.json").toFile().readText().parseJson().get().bSpline
-            val overlapping = path.resolve("BlendOverlapping$i.json").toFile().readText().parseJson().get().bSpline
+            val existing = path.resolve("BlendExisting$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+            val overlapping = path.resolve("BlendOverlapping$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = path.resolve("BlendResult$i.json").parseJson().flatMap { BlendResult.fromJson(it) }.get()
             val e = blender.blend(existing, overlapping)
             //println("${a.blended.isDefined}, ${e.blended.isDefined}")

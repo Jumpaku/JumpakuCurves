@@ -6,9 +6,6 @@ import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.bSpline
-import jumpaku.core.json.parseJson
-import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fxcomponents.nodes.curveControl
@@ -18,7 +15,6 @@ import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
-import java.io.File
 
 fun main(vararg args: String) = Application.launch(AppBlend::class.java, *args)
 

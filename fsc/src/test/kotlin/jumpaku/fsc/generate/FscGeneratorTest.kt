@@ -2,7 +2,7 @@ package jumpaku.fsc.generate
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
-import jumpaku.core.curve.bspline.bSpline
+import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.bSplineAssertThat
 import jumpaku.core.curve.paramPoint
 import jumpaku.core.json.parseJson
@@ -20,9 +20,9 @@ class FscGeneratorTest {
     fun testGenerate() {
         println("Generate")
         (0..2).forEach { i ->
-            val data = Array.ofAll(path.resolve("Data$i.json").toFile().readText().parseJson().get()
+            val data = Array.ofAll(path.resolve("Data$i.json").parseJson().get()
                     .array.map { it.paramPoint })
-            val e = path.resolve("Fsc$i.json").toFile().readText().parseJson().get().bSpline
+            val e = path.resolve("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = FscGenerator(degree = 3, knotSpan = 0.1, generateFuzziness = { crisp, ts ->
                 val derivative1 = crisp.derivative
                 val derivative2 = derivative1.derivative

@@ -1,6 +1,6 @@
 package jumpaku.fsc.classify
 
-import jumpaku.core.curve.bspline.bSpline
+import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -15,7 +15,7 @@ class ClassifierPrimitive7Test {
     fun testClassify() {
         println("ClassifierPrimitive.classify")
         for (i in (0..9)) {
-            val s = path.resolve("fsc$i.json").parseJson().get().bSpline
+            val s = path.resolve("fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val e = path.resolve("primitiveResult$i.json").parseJson().flatMap { ClassifyResult.fromJson(it) }.get()
             val (eClass, eGrade) = e
             val (aClass, aGrade) = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(s)
