@@ -132,7 +132,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             val wcp = nurbs.restrict(subDomain).weightedControlPoints
             val polylineLength = Polyline(wcp.map { it.point }).reparametrizeArcLength().arcLength()
             val beginEndLength = wcp.head().point.dist(wcp.last().point)
-            wcp.all { it.weight > 0 } && !Precision.equals(polylineLength, beginEndLength, 1.0 / 256)
+            !(wcp.all { it.weight > 0 } && Precision.equals(polylineLength, beginEndLength, 1.0 / 256))
         }).fold(API.Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
 
         return ArcLengthReparametrized(this, ts.toArray())
