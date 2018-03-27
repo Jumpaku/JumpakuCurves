@@ -10,6 +10,7 @@ import io.vavr.control.Try
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.parseJson
 
+fun Point.weighted(weight: Double = 1.0): WeightedPoint = WeightedPoint(this, weight)
 
 data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint>, ToJson {
 
