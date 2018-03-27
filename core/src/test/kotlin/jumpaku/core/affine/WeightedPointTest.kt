@@ -50,4 +50,12 @@ class WeightedPointTest {
         weightedPointAssertThat(p1.divide(1.0, p2)).isEqualToWeightedPoint(WeightedPoint(Point.xr(-4.0 / 2.0, 40.0 / 2.0), 2.0))
         weightedPointAssertThat(p1.divide(2.0, p2)).isEqualToWeightedPoint(WeightedPoint(Point.xr(-14.0 / 1.0, 110.0 / 1.0), 1.0))
     }
+
+    @Test
+    fun testWeighted() {
+        println("Point.weighted")
+        val a = Point.xyzr(1.0, 2.0, 3.0, 4.0).weighted(-0.4)
+        val e = WeightedPoint(Point.xyzr(1.0, 2.0, 3.0, 4.0), -0.4)
+        weightedPointAssertThat(a).isEqualToWeightedPoint(e)
+    }
 }
