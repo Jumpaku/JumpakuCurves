@@ -20,7 +20,7 @@ class NnlsTest {
         println("NonNegativeLinearLeastSquareFitting")
         val b0 = BSpline(
                 API.Array(Point.x(1.0), Point.x(2.0), Point.x(2.0), Point.x(1.0), Point.x(1.0)),
-                KnotVector.clampedUniform(Interval(-1.0, 1.0), 3, 9))
+                KnotVector.clamped(Interval(-1.0, 1.0), 3, 9))
         val data0 = b0.domain.sample(100).map { ParamPoint(b0(it), it) }
         val targetVector0 = data0.map { (p, _) -> p.x } .toJavaArray(Double::class.java).run(::ArrayRealVector)
         val modelMatrix0 = createModelMatrix(data0.map(ParamPoint::param), 3, b0.knotVector)
@@ -34,7 +34,7 @@ class NnlsTest {
         println("NonNegativeLinearLeastSquareNonNegative")
         val b1 = BSpline(
                 API.Array(Point.x(-1.0), Point.x(2.0), Point.x(-2.0), Point.x(1.0), Point.x(-1.0)),
-                KnotVector.clampedUniform(Interval(-1.0, 1.0), 3, 9))
+                KnotVector.clamped(Interval(-1.0, 1.0), 3, 9))
         val data1 = b1.domain.sample(100).map { ParamPoint(b1(it), it) }
         val targetVector1 = data1.map { (p, _) -> p.x } .toJavaArray(Double::class.java).run(::ArrayRealVector)
         val modelMatrix1 = createModelMatrix(data1.map(ParamPoint::param), 3, b1.knotVector)

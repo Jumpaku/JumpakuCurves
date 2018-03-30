@@ -25,7 +25,7 @@ nbproject/
 *.iml
 *.ipr
 
-core/out/
-fsc/out/
-fxcomponents/out/
-examples/out/
+core/out/*
+fsc/out/*
+fxcomponents/out/*
+examples/out/*

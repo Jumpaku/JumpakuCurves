@@ -43,8 +43,7 @@ class BlenderTest {
             val overlapping = path.resolve("BlendOverlapping$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = path.resolve("BlendResult$i.json").parseJson().flatMap { BlendResult.fromJson(it) }.get()
             val e = blender.blend(existing, overlapping)
-            //println("${a.blended.isDefined}, ${e.blended.isDefined}")
-            assertThat(a.blended.isDefined).isEqualTo(e.blended.isDefined)
+            assertThat(a.blended.isDefined).`as`("$i").isEqualTo(e.blended.isDefined)
             API.For(a.blended, e.blended).`yield` { t, u -> Tuple2(t, u) }.forEach { (t, u) ->
                 bSplineAssertThat(t).isEqualToBSpline(u)
             }
