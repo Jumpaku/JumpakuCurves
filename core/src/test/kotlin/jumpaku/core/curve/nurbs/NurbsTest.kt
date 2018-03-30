@@ -3,6 +3,7 @@ package jumpaku.core.curve.nurbs
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.Interval
+import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.knotVectorAssertThat
 import jumpaku.core.curve.rationalbezier.RationalBezier
@@ -30,7 +31,7 @@ class NurbsAssert(actual: Nurbs) : AbstractAssert<NurbsAssert, Nurbs>(actual, Nu
                     i, (a, e) -> weightedPointAssertThat(a).`as`("nurbs.weightedControlPoints[%d]", i).isEqualToWeightedPoint(e, eps)
                 }
 
-        Assertions.assertThat(actual.knotVector.size()).`as`("knotVector size").isEqualTo(expected.knotVector.size())
+        Assertions.assertThat(actual.knotVector.knots.size()).`as`("knotVector size").isEqualTo(expected.knotVector.knots.size())
 
         knotVectorAssertThat(actual.knotVector).isEqualToKnotVector(expected.knotVector)
 
@@ -48,7 +49,7 @@ class NurbsTest {
             WeightedPoint(Point.xyr( 400.0, 500.0, 30.0), 1/27.0),
             WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0),
             WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
-            KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+            KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
 
     @Test
     fun testProperties() {
@@ -78,7 +79,7 @@ class NurbsTest {
         assertThat(n.weights[4]).isEqualTo(1/9.0)
         assertThat(n.weights[5]).isEqualTo(1.0)
 
-        knotVectorAssertThat(n.knotVector).isEqualToKnotVector(KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+        knotVectorAssertThat(n.knotVector).isEqualToKnotVector(KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
 
         assertThat(n.degree).isEqualTo(3)
     }
@@ -132,7 +133,7 @@ class NurbsTest {
                 WeightedPoint(Point.xy( 800.0, -400.0), 1/27.0),
                 WeightedPoint(Point.xy( 800.0,    0.0), 1/9.0),
                 WeightedPoint(Point.xy( 400.0,    0.0), 1.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+                KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
         nurbsAssertThat(a).isEqualToNurbs(e)
     }
 
@@ -147,7 +148,7 @@ class NurbsTest {
                 WeightedPoint(Point.xy( 400.0, 500.0), 1/27.0),
                 WeightedPoint(Point.xy( 200.0, 500.0), 1/9.0),
                 WeightedPoint(Point.xy( 200.0, 300.0), 1.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+                KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
         nurbsAssertThat(a).isEqualToNurbs(e)
     }
 
@@ -158,10 +159,8 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(220.0, 240.0, 14.25), 5/27.0),
                 WeightedPoint(Point.xyr(300.0, 400/3.0, 25.0), 1/18.0),
                 WeightedPoint(Point.xyr(400.0, 200.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0)),
-                KnotVector(3, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0))
+                KnotVector(3, Knot(0.5, 4), Knot(1.0, 4)))
         nurbsAssertThat(n.restrict(0.5, 1.0)).isEqualToNurbs(e)
         nurbsAssertThat(n.restrict(Interval(0.5, 1.0))).isEqualToNurbs(e)
     }
@@ -177,7 +176,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr( 400.0, 100.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr( 200.0, 100.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+                KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
         nurbsAssertThat(a).isEqualToNurbs(e)
     }
 
@@ -192,48 +191,40 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0))
         val e1 = RationalBezier(
                 WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0))
-        val e2 = RationalBezier(
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0))
-        assertThat(qs.size()).isEqualTo(3)
+        assertThat(qs.size()).isEqualTo(2)
         rationalBezierAssertThat(qs[0]).isEqualToRationalBezier(e0)
         rationalBezierAssertThat(qs[1]).isEqualToRationalBezier(e1)
-        rationalBezierAssertThat(qs[2]).isEqualToRationalBezier(e2)
     }
 
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val a0 = n.subdivide(1.0)
+        val (a00, a01) = n.subdivide(1.0)
         val e00 = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
                 WeightedPoint(Point.xyr(200.0, 100.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(400.0, 100.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
-                WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0))
+                KnotVector(3, Knot(0.0, 4), Knot(1.0, 4)))
         val e01 = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
-        nurbsAssertThat(a0._1).isEqualToNurbs(e00)
-        nurbsAssertThat(a0._2).isEqualToNurbs(e01)
+                KnotVector(3, Knot(1.0, 4), Knot(2.0, 4)))
+        nurbsAssertThat(a00).isEqualToNurbs(e00)
+        nurbsAssertThat(a01).isEqualToNurbs(e01)
 
-        val a1 = n.subdivide(0.5)
+        val (a10, a11) = n.subdivide(0.5)
         val e10 = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
                 WeightedPoint(Point.xyr(200.0, 280.0, 11.0), 5/9.0),
                 WeightedPoint(Point.xyr(3500/17.0, 4400/17.0, 210/17.0), 17/54.0),
                 WeightedPoint(Point.xyr(220.0, 240.0, 14.25), 5/27.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5))
+                KnotVector(3, Knot(0.0, 4), Knot(0.5, 4)))
         val e11 = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(220.0, 240.0, 14.25), 5/27.0),
                 WeightedPoint(Point.xyr(300.0, 400/3.0, 25.0), 1/18.0),
@@ -241,21 +232,20 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
-        nurbsAssertThat(a1._1).isEqualToNurbs(e10)
-        nurbsAssertThat(a1._2).isEqualToNurbs(e11)
+                KnotVector(3, Knot(0.5, 4), Knot(1.0, 2), Knot(2.0, 4)))
+        nurbsAssertThat(a10).isEqualToNurbs(e10)
+        nurbsAssertThat(a11).isEqualToNurbs(e11)
 
-        val a2 = n.subdivide(0.0)
+        val (a20, a21) = n.subdivide(0.0)
         val e20 = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+                KnotVector(3, Knot(0.0, 4), Knot(0.0, 4)))
         val e21 = n
-        println(a2._1)
-        nurbsAssertThat(a2._1).isEqualToNurbs(e20)
-        nurbsAssertThat(a2._2).isEqualToNurbs(e21)
+        nurbsAssertThat(a20).isEqualToNurbs(e20)
+        nurbsAssertThat(a21).isEqualToNurbs(e21)
     }
 
     @Test
@@ -269,7 +259,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr( 400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+                KnotVector(3, Knot(0.0, 4), Knot(0.5), Knot(1.0, 2), Knot(2.0, 4)))
         nurbsAssertThat(n.insertKnot(0.5)).isEqualToNurbs(e0)
 
         val e1 = Nurbs(Array.of(
@@ -281,7 +271,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr( 400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+                KnotVector(3, Knot(0.0, 4), Knot(0.5, 2), Knot(1.0, 2), Knot(2.0, 4)))
         nurbsAssertThat(n.insertKnot(0.5, 2)).isEqualToNurbs(e1)
     }
 
@@ -300,7 +290,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(0.0, 1.0, 2.0), 1.0),
                 WeightedPoint(Point.xyr(0.0, 0.0, 1.0), 1.0),
                 WeightedPoint(Point.xyr(1.0, 0.0, 0.0), 1.0)),
-                KnotVector.clampedUniform(3, 9))
+                KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
                 .clamp()
         val e = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(-1.0, 0.0, 0.0), 1.0),
@@ -308,7 +298,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(0.0, 1.0, 2.0), 1.0),
                 WeightedPoint(Point.xyr(0.0, 0.0, 1.0), 1.0),
                 WeightedPoint(Point.xyr(1.0, 0.0, 0.0), 1.0)),
-                KnotVector.clampedUniform(3, 9))
+                KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
 
         nurbsAssertThat(c).isEqualToNurbs(e)
     }
@@ -322,7 +312,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(0.0, 1.0, 2.0), 1.0),
                 WeightedPoint(Point.xyr(0.0, 0.0, 1.0), 1.0),
                 WeightedPoint(Point.xyr(1.0, 0.0, 0.0), 1.0)),
-                KnotVector.clampedUniform(3, 9))
+                KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
                 .close()
         val e = Nurbs(Array.of(
                 WeightedPoint(Point.xyr(0.0, 0.0, 0.0), 1.0),
@@ -330,7 +320,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(0.0, 1.0, 2.0),  1.0),
                 WeightedPoint(Point.xyr(0.0, 0.0, 1.0),  1.0),
                 WeightedPoint(Point.xyr(0.0, 0.0, 0.0), 1.0)),
-                KnotVector.clampedUniform(3, 9))
+                KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
 
         nurbsAssertThat(c).isEqualToNurbs(e)
     }

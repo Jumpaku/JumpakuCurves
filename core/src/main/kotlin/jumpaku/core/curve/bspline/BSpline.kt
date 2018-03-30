@@ -59,13 +59,6 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "knotVector" to knotVector.toJson())
 
     override fun reparametrizeArcLength(): ArcLengthReparametrized {
-        toBeziers().map {
-            val reparametrized = it.reparametrizeArcLength()
-
-        }
-
-
-
         val ts = repeatBisection(this, this.domain, { bSpline, subDomain ->
             val cp = bSpline.restrict(subDomain).controlPoints
             val polylineLength = Polyline(cp).reparametrizeArcLength().arcLength()

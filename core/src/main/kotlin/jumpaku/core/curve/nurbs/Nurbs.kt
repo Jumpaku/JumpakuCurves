@@ -18,7 +18,8 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.curve.bspline.KnotVector
+import jumpaku.core.curve.KnotVector
+import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -108,11 +109,16 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     fun close(): Nurbs = Nurbs(BSpline.closedControlPoints(weightedControlPoints, knotVector), knotVector.clamp())
 
-    fun toRationalBeziers(): Array<RationalBezier> = BSpline.segmentedControlPoints(weightedControlPoints, knotVector)
-            .run { slice(degree, size() - degree) }
-            .sliding(degree + 1, degree + 1)
-            .map { RationalBezier(it) }
-            .toArray()
+    fun toRationalBeziers(): Array<RationalBezier> {
+        val (b, e) = domain
+        val sb = knotVector.multiplicityOf(b)
+        val se = knotVector.multiplicityOf(e)
+        return BSpline.segmentedControlPoints(weightedControlPoints, knotVector)
+                .run { slice(degree + 1 - sb, size() - degree - 1 + se) }
+                .sliding(degree + 1, degree + 1)
+                .map { RationalBezier(it) }
+                .toArray()
+    }
 
     override fun subdivide(t: Double): Tuple2<Nurbs, Nurbs> {
         require(t in domain) { "t($t) is out of domain($domain)" }
