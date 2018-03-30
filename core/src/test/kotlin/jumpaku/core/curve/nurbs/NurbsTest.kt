@@ -278,7 +278,32 @@ class NurbsTest {
     @Test
     fun testRemoveKnot() {
         println("RemoveKnot")
-        fail("not tested")
+        val n0 = Nurbs(Array.of(
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0),
+                WeightedPoint(Point.xy( 200.0, 280.0), 5/9.0),
+                WeightedPoint(Point.xy( 250.0, 100.0), 2/27.0),
+                WeightedPoint(Point.xy( 400.0, 200.0), 1/27.0),
+                WeightedPoint(Point.xy( 400.0, 500.0), 1/27.0),
+                WeightedPoint(Point.xy( 200.0, 500.0), 1/9.0),
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0)),
+                KnotVector(3,
+                        Knot(0.0, 4), Knot(0.5), Knot(1.0, 2), Knot(2.0, 4)))
+        val e0 = n.toCrisp()
+        nurbsAssertThat(n0.removeKnot(1, 1)).isEqualToNurbs(e0)
+
+        val n1 = Nurbs(Array.of(
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0),
+                WeightedPoint(Point.xy( 200.0, 280.0), 5/9.0),
+                WeightedPoint(Point.xy(3500/17.0, 4400/17.0), 17/54.0),
+                WeightedPoint(Point.xy( 300.0, 400/3.0), 1/18.0),
+                WeightedPoint(Point.xy( 400.0, 200.0), 1/27.0),
+                WeightedPoint(Point.xy( 400.0, 500.0), 1/27.0),
+                WeightedPoint(Point.xy( 200.0, 500.0), 1/9.0),
+                WeightedPoint(Point.xy( 200.0, 300.0), 1.0)),
+                KnotVector(3,
+                        Knot(0.0, 4), Knot(0.5, 2), Knot(1.0, 2), Knot(2.0, 4)))
+        val e1 = n.toCrisp()
+        nurbsAssertThat(n1.removeKnot(1, 2)).isEqualToNurbs(e1)
     }
 
     @Test

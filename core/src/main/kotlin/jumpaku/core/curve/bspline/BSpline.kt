@@ -125,6 +125,9 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         return BSpline(insertedControlPoints(controlPoints, knotVector, t, h), knotVector.insert(t, h))
     }
 
+    /**
+     *
+     */
     fun removeKnot(knotIndex: Int, times: Int = 1): BSpline {
         val s = knotVector.knots[knotIndex].multiplicity
         val h = times.coerceIn(0..s)
