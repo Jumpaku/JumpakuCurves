@@ -59,6 +59,13 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "knotVector" to knotVector.toJson())
 
     override fun reparametrizeArcLength(): ArcLengthReparametrized {
+        toBeziers().map {
+            val reparametrized = it.reparametrizeArcLength()
+
+        }
+
+
+
         val ts = repeatBisection(this, this.domain, { bSpline, subDomain ->
             val cp = bSpline.restrict(subDomain).controlPoints
             val polylineLength = Polyline(cp).reparametrizeArcLength().arcLength()
@@ -97,13 +104,18 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
      * Closes BSpline.
      * Moves head and last of clamped control points to head.middle(last).
      */
-    fun close(): BSpline = BSpline(clampedControlPoints(controlPoints, knotVector), knotVector.clamp())
+    fun close(): BSpline = BSpline(closedControlPoints(controlPoints, knotVector), knotVector.clamp())
 
-    fun toBeziers(): Array<Bezier> = segmentedControlPoints(controlPoints, knotVector)
-            .run { slice(degree, size() - degree) }
-            .sliding(degree + 1, degree + 1)
-            .map { Bezier(it) }
-            .toArray()
+    fun toBeziers(): Array<Bezier> {
+        val (b, e) = domain
+        val sb = knotVector.multiplicityOf(b)
+        val se = knotVector.multiplicityOf(e)
+        return segmentedControlPoints(controlPoints, knotVector)
+                .run { slice(degree + 1 - sb, size() - degree - 1 + se) }
+                .sliding(degree + 1, degree + 1)
+                .map { Bezier(it) }
+                .toArray()
+    }
 
     override fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -210,8 +222,16 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             val p = knotVector.degree
             val s = knotVector.multiplicityOf(t)
             val k = knotVector.lastIndexUnder(t)
-            val cp = insertedControlPoints(controlPoints, knotVector, t, p + 1 - s)
-            return Tuple2(cp.take(k - p), cp.drop(k - p))
+            val times = p + 1 - s
+            val cp = insertedControlPoints(controlPoints, knotVector, t, times)
+            val (b, e) = knotVector.domain
+            val front = cp.take(k - p + times)
+            val back = cp.drop(k - p + times)
+            return when (t) {
+                b -> Tuple2(Array.fill(p + 1) { cp[0] }, cp.drop(times))
+                e -> Tuple2(cp.dropRight(times), Array.fill(p + 1) { cp[cp.lastIndex - times] })
+                else -> Tuple2(front, back)
+            }
         }
 
         fun <D : Divisible<D>> segmentedControlPoints(controlPoints: Array<D>, knotVector: KnotVector): Array<D> {
@@ -232,12 +252,15 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             var tmpControlPoints = controlPoints
             var tmpKnots = knotVector
             val (b, e) = knotVector.domain
+            val bTimes = p + 1 - knotVector.multiplicityOf(b)
+            val eTimes = p + 1 - knotVector.multiplicityOf(e)
+
             knotVector.knots.filter { it.value == b || it.value == e }.forEach { (u, s) ->
                 val times = p + 1 - s
                 tmpControlPoints = insertedControlPoints(tmpControlPoints, tmpKnots, u, times)
                 tmpKnots = tmpKnots.insert(u, times)
             }
-            return tmpControlPoints.run { slice(p, size() - p) }
+            return tmpControlPoints.run { slice(bTimes, size() - eTimes) }
         }
 
         fun <D : Divisible<D>> closedControlPoints(controlPoints: Array<D>, knotVector: KnotVector): Array<D> {
@@ -269,98 +292,5 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         }
 
         fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double = (a - b).divOption (c - d).getOrElse(0.0)
-    }
-}
-
-class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
-
-    data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
-
-        override fun toString(): String = toJsonString()
-
-        override fun toJson(): JsonElement = jsonObject("value" to value, "multiplicity" to multiplicity)
-
-        companion object {
-
-            fun fromJson(json: JsonElement): Option<Knot> = Try.ofSupplier {
-                Knot(json["value"].double, json["multiplicity"].int)
-            }.toOption()
-        }
-    }
-
-    val domain: Interval by lazy { extract().run { Interval(get(degree), get(lastIndex - degree)) } }
-
-    constructor(degree: Int, knots: Iterable<Knot>) : this(degree, Array.ofAll(knots))
-
-    constructor(degree: Int, vararg knots: Knot) : this(degree, Array.of(*knots))
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
-
-    fun extract(): Array<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
-
-    fun multiplicityOf(knotValue: Double): Int = search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
-
-    fun lastIndexUnder(value: Double): Int = extract().zipWithNext { a, b -> value in a..b }.indexOfLast { it }
-
-    fun insert(knotValue: Double, times: Int): KnotVector {
-        val i = search(knotValue)
-        return if (i >= 0) multiply(i, times)
-        else KnotVector(degree, knots.insert(-i-1, Knot(knotValue, times)))
-    }
-
-    fun multiply(knotIndex: Int, times: Int): KnotVector {
-        val knot = knots[knotIndex]
-        return KnotVector(degree, knots.update(knotIndex, knot.copy(multiplicity = knot.multiplicity + times)))
-    }
-
-    fun remove(knotIndex: Int, times: Int): KnotVector {
-        val (u, s) = knots[knotIndex]
-        return KnotVector(degree,
-                if (s <= times) knots.removeAt(knotIndex) else knots.update(knotIndex, Knot(u, s - times)))
-    }
-
-    fun derivativeKnotVector(): KnotVector = KnotVector(degree - 1, knots
-            .run { if (head().multiplicity == 1) tail() else update(0) { (v, m) -> Knot(v, m - 1) } }
-            .run { if (last().multiplicity == 1) init() else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
-
-    fun subdivide(t: Double): Tuple2<KnotVector, KnotVector> {
-        val s = multiplicityOf(t)
-        val inserted = insert(t, degree + 1 - s)
-        val i = inserted.search(t)
-        return Tuple2(KnotVector(degree, inserted.knots.take(i + 1)), KnotVector(degree, inserted.knots.drop(i)))
-    }
-
-    fun reverse(): KnotVector =
-            domain.let { (b, e) -> KnotVector(degree, knots.map { it.copy(value = e - it.value + b) }.reverse()) }
-
-    fun clamp(): KnotVector {
-        val (b, e) = domain
-        val bh = degree + 1 - multiplicityOf(b)
-        val eh = degree + 1 - multiplicityOf(e)
-        return KnotVector(degree, insert(b, bh).insert(e, eh).knots.filter { it.value in domain })
-    }
-
-    private fun search(knotValue: Double): Int =
-            knots.search(Knot(knotValue)) { (v0), (v1) -> when { v0 < v1 -> -1; v0 > v1 -> 1; else -> 0 } }
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Option<KnotVector> = Try.ofSupplier {
-            KnotVector(json["degree"].int, Array.ofAll(json["knots"].array.flatMap { Knot.fromJson(it) }))
-        }.toOption()
-
-        fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector = KnotVector(degree,
-                (0 until knotSize).map { Knot(domain.begin.divide(it / knotSize.toDouble(), domain.end)) })
-
-        fun clamped(domain: Interval, degree: Int, knotSize: Int): KnotVector {
-            val nSpans = knotSize - 2 * degree - 1
-            val (b, e) = domain
-            return KnotVector(degree,
-                    listOf(Knot(b, degree + 1)) +
-                    (1 until nSpans).map { Knot(b.divide(it / nSpans.toDouble(), e)) } +
-                    listOf(Knot(e, degree + 1)))
-        }
     }
 }
