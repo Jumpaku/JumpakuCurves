@@ -150,6 +150,12 @@ class BSplineDerivativeTest {
     }
 
     @Test
+    fun testRemoveKnot() {
+        println("RemoveKnot")
+        fail("not tested")
+    }
+
+    @Test
     fun testClamp() {
         println("Clamp")
         val c = BSplineDerivative(BSpline(

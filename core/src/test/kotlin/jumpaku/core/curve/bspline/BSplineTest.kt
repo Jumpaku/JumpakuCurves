@@ -194,6 +194,12 @@ class BSplineTest {
     }
 
     @Test
+    fun testRemoveKnot() {
+        println("RemoveKnot")
+        fail("not tested")
+    }
+
+    @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
         val b = BSpline(Array(

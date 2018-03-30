@@ -276,6 +276,12 @@ class NurbsTest {
     }
 
     @Test
+    fun testRemoveKnot() {
+        println("RemoveKnot")
+        fail("not tested")
+    }
+
+    @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
         assertThat(n.reparametrizeArcLength().arcLength()).isEqualTo(200*Math.PI, withPrecision(0.1))
