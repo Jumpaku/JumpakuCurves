@@ -17,9 +17,10 @@ class BSplineFitterTest {
         println("Fit")
         val b = BSpline(
                 API.Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
-                KnotVector.clampedUniform(Interval(1.0, 1.7), 3, 9))
+                KnotVector.clamped(Interval(1.0, 1.7), 3, 9))
         val data = b.domain.sample(10).map { ParamPoint(b(it), it) }
-        val f = BSplineFitter(b.degree, b.knotVector).fit(data)
+        val f = BSplineFitter(b.degree, b.knotVector)
+                .fit(data)
         bSplineAssertThat(f).isEqualToBSpline(b)
     }
 
