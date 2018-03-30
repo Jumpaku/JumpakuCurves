@@ -73,14 +73,6 @@ class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double>, 
                     Stream.ofAll(knots).sortBy { it.value }.flatMap { Stream.fill(it.multiplicity, { it.value }) })
         }
 
-        fun clampedUniform(begin: Double, end: Double, degree: Int, knotSpan: Double): KnotVector {
-            return clampedUniform(Interval(begin, end), degree, knotSpan)
-        }
-
-        fun clampedUniform(domain: Interval, degree: Int, knotSpan: Double): KnotVector {
-            return clampedUniform(domain.begin, domain.end, degree, domain.sample(knotSpan).size() + degree * 2)
-        }
-
         fun clampedUniform(degree: Int, knotSize: Int): KnotVector {
             return clampedUniform(0.0, knotSize - 1.0 - 2 * degree, degree, knotSize)
         }
