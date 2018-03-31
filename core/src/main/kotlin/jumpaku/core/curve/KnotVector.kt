@@ -42,7 +42,7 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
 
     fun multiplicityOf(knotValue: Double): Int = search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
-    fun lastIndexUnder(value: Double): Int = extract()
+    fun lastExtractedIndexUnder(value: Double): Int = extract()
             .run { slice(degree, size() - degree) }.zipWithNext { a, b -> value in a..b }.indexOfLast { it } + degree
 
     fun insert(knotValue: Double, times: Int): KnotVector {
@@ -71,16 +71,14 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
 
     fun subdivide(t: Double): Tuple2<KnotVector, KnotVector> {
         val s = multiplicityOf(t)
-        val inserted = insert(t, degree + 1 - s)
+        val p = degree
+        val times = p + 1 - s
+        val inserted = insert(t, times)
         val i = inserted.search(t)
-        val front = inserted.knots.take(i + 1)
-        val back = inserted.knots.drop(i)
-        val (b, e) = domain
-        return when (t) {
-            b -> Tuple2(KnotVector(degree, front.append(Knot(b, degree + 1))), KnotVector(degree, back))
-            e -> Tuple2(KnotVector(degree, front), KnotVector(degree, back.prepend(Knot(e, degree + 1))))
-            else -> Tuple2(KnotVector(degree, front), KnotVector(degree, back))
-        }
+        val kv = inserted.knots
+        val front = if (t == domain.begin) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
+        val back = if (t == domain.end) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
+        return Tuple2(KnotVector(p, front), KnotVector(p, back))
     }
 
     fun reverse(): KnotVector =
@@ -93,8 +91,7 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
         return KnotVector(degree, insert(b, bh).insert(e, eh).knots.filter { it.value in domain })
     }
 
-    private fun search(knotValue: Double): Int =
-            knots.search(Knot(knotValue)) { (v0), (v1) -> when { v0 < v1 -> -1; v0 > v1 -> 1; else -> 0 } }
+    fun search(knotValue: Double): Int = knots.search(Knot(knotValue)) { (v0), (v1) -> when { v0 < v1 -> -1; v0 > v1 -> 1; else -> 0 } }
 
     companion object {
 
