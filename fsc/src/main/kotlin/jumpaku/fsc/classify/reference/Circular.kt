@@ -43,8 +43,8 @@ class Circular(val reference: ReferenceCurve) : Reference {
 fun computesCircularFar(t0: Double, t1: Double, fsc: FuzzyCurve): Double {
     val begin = fsc(t0)
     val end = fsc(t1)
-    val relative = 1.0e-8
-    val absolute = 1.0e-5
+    val relative = 1.0e-10
+    val absolute = 1.0e-8
     return BrentSolver(relative, absolute).solve(50, {
         val f = fsc(it)
         f.distSquare(begin) - f.distSquare(end)
