@@ -155,14 +155,14 @@ class BSplineDerivativeTest {
         val b0 = BSplineDerivative(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 0.5), Point.xy(-0.75, 1.0), Point.xy(0.0, 0.75), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector(3, Knot(3.0, 4), Knot(3.25), Knot(3.5), Knot(4.0, 4))))
-                .removeKnot(1, 1)
+                .removeKnot(3.25, 1)
         val e0 = b
         bSplineAssertThat(b0.toBSpline()).isEqualToBSpline(e0.toBSpline())
 
         val b1 = BSplineDerivative(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector(3, Knot(3.0, 4), Knot(3.5, 3), Knot(4.0, 4))))
-                .removeKnot(1, 2)
+                .removeKnot(3.5, 2)
         val e1 = b
         bSplineAssertThat(b1.toBSpline()).isEqualToBSpline(e1.toBSpline())
     }
