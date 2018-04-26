@@ -84,36 +84,36 @@ class KnotVectorTest {
     fun testSubdivide() {
         println("Subdivide")
         val (a00, a01) = k.subdivide(3.5)
-        knotVectorAssertThat(a00).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 3.5), 3, 8))
-        knotVectorAssertThat(a01).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
+        assertThat(a00.isDefined).isFalse()
+        knotVectorAssertThat(a01.get()).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
 
         val (a10, a11) = k.subdivide(3.7)
-        knotVectorAssertThat(a10).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 3.7), 3, 8))
-        knotVectorAssertThat(a11).isEqualToKnotVector(KnotVector(3,
+        knotVectorAssertThat(a10.get()).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 3.7), 3, 8))
+        knotVectorAssertThat(a11.get()).isEqualToKnotVector(KnotVector(3,
                 Knot(3.7, 4), Knot(4.0), Knot(4.5), Knot(5.0, 4)))
 
         val (a20, a21) = k.subdivide(4.0)
-        knotVectorAssertThat(a20).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.0), 3, 8))
-        knotVectorAssertThat(a21).isEqualToKnotVector(KnotVector.clamped(Interval(4.0, 5.0), 3, 9))
+        knotVectorAssertThat(a20.get()).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.0), 3, 8))
+        knotVectorAssertThat(a21.get()).isEqualToKnotVector(KnotVector.clamped(Interval(4.0, 5.0), 3, 9))
 
         val (a30, a31) = k.subdivide(4.2)
-        knotVectorAssertThat(a30).isEqualToKnotVector(KnotVector(3,
+        knotVectorAssertThat(a30.get()).isEqualToKnotVector(KnotVector(3,
                 Knot(3.5, 4), Knot(4.0), Knot(4.2, 4)))
-        knotVectorAssertThat(a31).isEqualToKnotVector(KnotVector(3,
+        knotVectorAssertThat(a31.get()).isEqualToKnotVector(KnotVector(3,
                 Knot(4.2, 4), Knot(4.5), Knot(5.0, 4)))
 
         val (a40, a41) = k.subdivide(4.5)
-        knotVectorAssertThat(a40).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.5), 3, 9))
-        knotVectorAssertThat(a41).isEqualToKnotVector(KnotVector.clamped(Interval(4.5, 5.0), 3, 8))
+        knotVectorAssertThat(a40.get()).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.5), 3, 9))
+        knotVectorAssertThat(a41.get()).isEqualToKnotVector(KnotVector.clamped(Interval(4.5, 5.0), 3, 8))
 
         val (a50, a51) = k.subdivide(4.6)
-        knotVectorAssertThat(a50).isEqualToKnotVector(KnotVector(3,
+        knotVectorAssertThat(a50.get()).isEqualToKnotVector(KnotVector(3,
                 Knot(3.5, 4), Knot(4.0), Knot(4.5), Knot(4.6, 4)))
-        knotVectorAssertThat(a51).isEqualToKnotVector(KnotVector.clamped(Interval(4.6, 5.0), 3, 8))
+        knotVectorAssertThat(a51.get()).isEqualToKnotVector(KnotVector.clamped(Interval(4.6, 5.0), 3, 8))
 
         val (a60, a61) = k.subdivide(5.0)
-        knotVectorAssertThat(a60).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
-        knotVectorAssertThat(a61).isEqualToKnotVector(KnotVector.clamped(Interval(5.0, 5.0), 3, 8))
+        knotVectorAssertThat(a60.get()).isEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
+        assertThat(a61.isDefined).isFalse()
     }
 
     @Test

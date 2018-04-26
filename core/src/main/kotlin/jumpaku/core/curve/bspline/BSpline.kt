@@ -2,7 +2,6 @@ package jumpaku.core.curve.bspline
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
@@ -10,7 +9,7 @@ import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
-import jumpaku.core.curve.arclength.repeatBisection
+import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
@@ -22,14 +21,14 @@ import org.apache.commons.math3.util.Precision
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, Subdividible<BSpline>, ToJson {
+    : FuzzyCurve, Differentiable, Transformable, ToJson {
 
     val degree: Int = knotVector.degree
 
     override val domain: Interval = knotVector.domain
 
     override val derivative: BSplineDerivative get() {
-        val us = knotVector.extract()
+        val us = knotVector.extractedKnots
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
                 .zipWithIndex({ v, i ->
@@ -40,13 +39,14 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
     }
 
     init {
-        val us = knotVector.extract()
+        val us = knotVector.extractedKnots
         val p = knotVector.degree
         val n = controlPoints.size()
         val m = us.size()
         require(n >= p + 1) { "controlPoints.size()($n) < degree($p) + 1" }
         require(m - p - 1 == n) { "knotVector.size()($m) - degree($p) - 1 != controlPoints.size()($n)" }
         require(degree > 0) { "degree($degree) <= 0" }
+        require(domain.begin < domain.end) { "domain.begin(${domain.begin}) < domain.end(${domain.end})" }
     }
 
     constructor(controlPoints: Iterable<Point>, knotVector: KnotVector) : this(Array.ofAll(controlPoints), knotVector)
@@ -57,16 +57,14 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized {
-        val ts = repeatBisection(this, this.domain, { bSpline, subDomain ->
-            val cp = bSpline.restrict(subDomain).controlPoints
-            val polylineLength = Polyline(cp).reparametrizeArcLength().arcLength()
-            val beginEndLength = cp.head().dist(cp.last())
-            !Precision.equals(polylineLength, beginEndLength, 1.0 / 256)
-        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
-
-        return ArcLengthReparametrized(this, ts.toArray())
-    }
+    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(clamp(),
+            {
+                val cp = (it as BSpline).controlPoints
+                val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
+                val l1 = cp.run { head().dist(last()) }
+                !Precision.equals(l0, l1, 1.0 / 256)
+            },
+            { b, i: Interval -> (b as BSpline).restrict(i) })
 
     override fun toCrisp(): BSpline = BSpline(controlPoints.map { it.toCrisp() }, knotVector)
 
@@ -79,7 +77,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
     fun restrict(begin: Double, end: Double): BSpline {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin)._2().subdivide(end)._1()
+        return subdivide(begin)._2().get().subdivide(end)._1().get()
     }
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
@@ -109,11 +107,11 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
                 .toArray()
     }
 
-    override fun subdivide(t: Double): Tuple2<BSpline, BSpline> {
+    fun subdivide(t: Double): Tuple2<Option<BSpline>, Option<BSpline>> {
         require(t in domain) { "t($t) is out of domain($domain)" }
         val (cp0, cp1) = subdividedControlPoints(t, controlPoints, knotVector)
         val (kv0, kv1) = knotVector.subdivide(t)
-        return Tuple2(BSpline(cp0, kv0), BSpline(cp1, kv1))
+        return Tuple2(kv0.map { BSpline(cp0, it) }, kv1.map { BSpline(cp1, it) })
     }
 
     fun insertKnot(t: Double, times: Int = 1): BSpline {
@@ -139,10 +137,12 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
         }.toOption()
 
-        fun <D : Divisible<D>> evaluate(controlPoints: Array<D>, knotVector: KnotVector, t: Double): D {
+        tailrec fun <D : Divisible<D>> evaluate(controlPoints: Array<D>, knotVector: KnotVector, t: Double): D {
+            val us = knotVector.extractedKnots
+            val (b, e) = knotVector.domain
+            if (b < e && t == e) return evaluate(controlPoints.reverse(), knotVector.reverse(), b)
+
             val l = knotVector.lastExtractedIndexUnder(t)
-            val us = knotVector.extract()
-            if(l == us.size() - 1) return controlPoints.last()
 
             val result = controlPoints.toMutableList()
             val d = knotVector.degree
@@ -158,15 +158,13 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         }
 
         fun <D : Divisible<D>> insertedControlPoints(controlPoints: Array<D>, knotVector: KnotVector, knotValue: Double, times: Int): Array<D> {
-            val us = knotVector.extract()
+            val (b, e) = knotVector.domain
+            if(b < e && knotValue == e) return insertedControlPoints(
+                    controlPoints.reverse(), knotVector.reverse(), b, times).reverse()
+            val us = knotVector.extractedKnots
             val p = knotVector.degree
             val s = knotVector.multiplicityOf(knotValue)
             val k = knotVector.lastExtractedIndexUnder(knotValue)
-
-            val (b, e) = knotVector.domain
-            if(knotValue == e) return insertedControlPoints(
-                    controlPoints.reverse(), knotVector.reverse(), b + knotValue - e, times).reverse()
-
             var cp = controlPoints.toJavaList()
 
             for (r in 1..times) {
@@ -182,16 +180,19 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         }
 
         fun <D : Divisible<D>> removedControlPoints(controlPoints: Array<D>, knotVector: KnotVector, knotIndex: Int, times: Int): Array<D> {
-            val us = knotVector.extract()
-            val p = knotVector.degree
-            val (u, s) = knotVector.knots[knotIndex]
-            val k = knotVector.lastExtractedIndexUnder(u)
             if (times == 0) return controlPoints
-            val (_, e) = knotVector.domain
-            if (u == e) return removedControlPoints(
+
+            val (u, s) = knotVector.knots[knotIndex]
+            val (b, e) = knotVector.domain
+            if (b < e && u == e) return removedControlPoints(
                     controlPoints.reverse(), knotVector.reverse(), knotVector.knots.size() - knotIndex - 1, times).reverse()
+
+            val p = knotVector.degree
+            val k = knotVector.lastExtractedIndexUnder(u)
             if (s > p) return removedControlPoints(
                     controlPoints.removeAt(k - p), knotVector.remove(knotIndex, 1), knotIndex, times - 1)
+
+            val us = knotVector.extractedKnots
 
             val cp = controlPoints.toMutableList()
             for (t in 1..times) {
@@ -217,13 +218,17 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         fun <D : Divisible<D>> subdividedControlPoints(t: Double, controlPoints: Array<D>, knotVector: KnotVector): Tuple2<Array<D>, Array<D>> {
             val p = knotVector.degree
             val s = knotVector.multiplicityOf(t)
-            val k = knotVector.lastExtractedIndexUnder(t)
             val times = p + 1 - s
+            val (b, e) = knotVector.domain
+            if (b < e && t == e)
+                return subdividedControlPoints(b, controlPoints.reverse(), knotVector.reverse())
+                        .let { (x, y) -> Tuple2(y.reverse(), x.reverse()) }
+
+            val k = knotVector.lastExtractedIndexUnder(t)
             val cp = insertedControlPoints(controlPoints, knotVector, t, times)
             val i = k - p + times
-            val (b, e) = knotVector.domain
-            val front = if (t == b) cp.take(i).appendAll(Array.fill(s) { cp[i] }) else if (t == e) cp.dropRight(times) else cp.take(i)
-            val back = if (t == e) cp.takeRight(times).prependAll(Array.fill(s) { cp[cp.lastIndex - times] }) else cp.drop(i)
+            val front = if (b < e && t == b) cp.take(i).appendAll(Array.fill(s) { cp[i] }) else if (t == e) cp.dropRight(times) else cp.take(i)
+            val back = if (b < e && t == e) cp.takeRight(times).prependAll(Array.fill(s) { cp[cp.lastIndex - times] }) else cp.drop(i)
             return Tuple2(front, back)
         }
 
@@ -264,7 +269,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         fun basis(t: Double, i: Int, knotVector: KnotVector): Double {
             val domain = knotVector.domain
             require(t in knotVector.domain) { "knot($t) is out of domain($domain)." }
-            val us = knotVector.extract()
+            val us = knotVector.extractedKnots
             val (_, e) = domain
             val p = knotVector.degree
             if (t == e) return if (i == us.size() - p - 2) 1.0 else 0.0

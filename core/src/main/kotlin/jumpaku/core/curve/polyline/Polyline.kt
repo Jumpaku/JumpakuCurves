@@ -23,7 +23,7 @@ import org.apache.commons.math3.util.Precision
 /**
  * Polyline parametrized by arc-arcLength.
  */
-class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, Subdividible<Polyline>, ToJson {
+class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, ToJson {
 
     val points: Array<Point> = paramPoints.map(ParamPoint::point)
 
@@ -79,7 +79,7 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
 
     fun restrict(begin: Double, end: Double): Polyline = subdivide(begin)._2().subdivide(end-begin)._1()
 
-    override fun subdivide(t: Double): Tuple2<Polyline, Polyline> {
+    fun subdivide(t: Double): Tuple2<Polyline, Polyline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val index = parameters.search(t)

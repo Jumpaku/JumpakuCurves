@@ -14,10 +14,9 @@ import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
-import jumpaku.core.curve.arclength.repeatBisection
+import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.parseJson
 import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
@@ -29,7 +28,7 @@ import kotlin.math.absoluteValue
  */
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
-    : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection>, ToJson {
+    : FuzzyCurve, Differentiable, Transformable, ToJson {
 
     val representPoints: Array<Point> get() = Array(begin, far, end)
 
@@ -95,7 +94,7 @@ class ConicSection(
 
     fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
-    override fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
+    fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
         val p0 = begin.toVector()
         val p1 = far.toVector()
@@ -130,17 +129,14 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized {
-        val ts = repeatBisection(this, this.domain, { rb, subDomain ->
-            val sub = rb.restrict(subDomain)
-            val rp = sub.representPoints
-            val polylineLength = Polyline(rp).reparametrizeArcLength().arcLength()
-            val beginEndLength = rp.head().dist(rp.last())
-            !(sub.weight > 0.0 && Precision.equals(polylineLength, beginEndLength, 1.0 / 512))
-        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
-
-        return ArcLengthReparametrized(this, ts.toArray())
-    }
+    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(this,
+            {
+                val cp = (it as ConicSection).representPoints
+                val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
+                val l1 = cp.run { head().dist(last()) }
+                !(Precision.equals(l0, l1, 1.0 / 512) && listOf(1.0, it.weight, 1.0).all { it > 0 })
+            },
+            { b, i: Interval -> (b as ConicSection).restrict(i) })
 
     companion object {
 

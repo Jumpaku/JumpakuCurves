@@ -28,7 +28,9 @@ data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
 
 class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
 
-    val domain: Interval by lazy { extract().run { Interval(get(degree), get(lastIndex - degree)) } }
+    val domain: Interval by lazy { extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) } }
+
+    val extractedKnots: Array<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
 
     constructor(degree: Int, knots: Iterable<Knot>) : this(degree, Array.ofAll(knots))
 
@@ -38,11 +40,9 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
 
     override fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
 
-    fun extract(): Array<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
-
     fun multiplicityOf(knotValue: Double): Int = search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
-    fun lastExtractedIndexUnder(value: Double): Int = extract()
+    fun lastExtractedIndexUnder(value: Double): Int = extractedKnots
             .run { slice(degree, size() - degree) }.zipWithNext { a, b -> value in a..b }.indexOfLast { it } + degree
 
     fun insert(knotValue: Double, times: Int): KnotVector {
@@ -69,16 +69,19 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
             .run { if (head().multiplicity == 1) tail() else update(0) { (v, m) -> Knot(v, m - 1) } }
             .run { if (last().multiplicity == 1) init() else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
 
-    fun subdivide(t: Double): Tuple2<KnotVector, KnotVector> {
+    fun subdivide(t: Double): Tuple2<Option<KnotVector>, Option<KnotVector>> {
         val s = multiplicityOf(t)
         val p = degree
         val times = p + 1 - s
         val inserted = insert(t, times)
         val i = inserted.search(t)
         val kv = inserted.knots
-        val front = if (t == domain.begin) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
-        val back = if (t == domain.end) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
-        return Tuple2(KnotVector(p, front), KnotVector(p, back))
+        val (b, e) = domain
+        val front = if (t == b) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
+        val back = if (t == e) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
+        return Tuple2(
+                Option.`when`(t > b) { KnotVector(p, front) },
+                Option.`when`(t < e) { KnotVector(p, back) })
     }
 
     fun reverse(): KnotVector =

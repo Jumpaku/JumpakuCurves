@@ -5,7 +5,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.API
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
@@ -13,20 +12,19 @@ import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
-import jumpaku.core.curve.arclength.repeatBisection
+import jumpaku.core.curve.arclength.approximate
+import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.apache.commons.math3.util.Precision
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, Subdividible<Nurbs>, ToJson {
+    : FuzzyCurve, Differentiable, Transformable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -56,7 +54,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     }
 
     init {
-        val us = knotVector.extract()
+        val us = knotVector.extractedKnots
         val p = knotVector.degree
         val n = controlPoints.size()
         val m = us.size()
@@ -74,16 +72,14 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized {
-        val ts = repeatBisection(this, this.domain, { nurbs, subDomain ->
-            val wcp = nurbs.restrict(subDomain).weightedControlPoints
-            val polylineLength = Polyline(wcp.map { it.point }).reparametrizeArcLength().arcLength()
-            val beginEndLength = wcp.head().point.dist(wcp.last().point)
-            !(wcp.all { it.weight > 0 } && Precision.equals(polylineLength, beginEndLength, 1.0 / 256))
-        }).fold(API.Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
-
-        return ArcLengthReparametrized(this, ts.toArray())
-    }
+    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(clamp(),
+            {
+                val cp = (it as Nurbs).weightedControlPoints
+                val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
+                val l1 = cp.run { head().point.dist(last().point) }
+                !(Precision.equals(l0, l1, 1.0 / 256) && cp.all { it.weight > 0 })
+            },
+            { b, i: Interval -> (b as Nurbs).restrict(i) })
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 
@@ -94,7 +90,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin)._2().subdivide(end)._1()
+        return subdivide(begin)._2().get().subdivide(end)._1().get()
     }
 
     fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
@@ -120,11 +116,11 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
                 .toArray()
     }
 
-    override fun subdivide(t: Double): Tuple2<Nurbs, Nurbs> {
+    fun subdivide(t: Double): Tuple2<Option<Nurbs>, Option<Nurbs>> {
         require(t in domain) { "t($t) is out of domain($domain)" }
         val (cp0, cp1) = BSpline.subdividedControlPoints(t, weightedControlPoints, knotVector)
         val (kv0, kv1) = knotVector.subdivide(t)
-        return Tuple2(Nurbs(cp0, kv0), Nurbs(cp1, kv1))
+        return Tuple2(kv0.map { Nurbs(cp0, it) }, kv1.map { Nurbs(cp1, it) })
     }
 
     fun insertKnot(t: Double, times: Int = 1): Nurbs {
