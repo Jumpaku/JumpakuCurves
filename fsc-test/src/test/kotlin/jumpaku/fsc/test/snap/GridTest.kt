@@ -7,7 +7,6 @@ import jumpaku.core.test.affine.vectorAssertThat
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
 import org.apache.commons.math3.util.FastMath
-import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
@@ -106,21 +105,3 @@ class GridTest {
 }
 
 
-fun gridAssertThat(actual: Grid): GridAssert = GridAssert(actual)
-
-class GridAssert(actual: Grid) : AbstractAssert<GridAssert, Grid>(actual, GridAssert::class.java) {
-
-    fun isEqualToGrid(expected: Grid, eps: Double = 1.0e-10): GridAssert {
-        isNotNull
-
-        assertThat(actual.spacing).isEqualTo(expected.spacing, withPrecision(eps))
-        assertThat(actual.magnification).isEqualTo(expected.magnification)
-        pointAssertThat(actual.origin).isEqualToPoint(expected.origin, eps)
-        vectorAssertThat(actual.axis).isEqualToVector(expected.axis, eps)
-        assertThat(actual.radian).isEqualTo(expected.radian, withPrecision(eps))
-        assertThat(actual.fuzziness).isEqualTo(expected.fuzziness, withPrecision(eps))
-        assertThat(actual.resolution).isEqualTo(expected.resolution)
-
-        return this
-    }
-}
