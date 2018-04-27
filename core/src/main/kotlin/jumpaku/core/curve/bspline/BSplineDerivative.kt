@@ -58,8 +58,8 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun toBeziers(): Array<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
 
-    fun subdivide(t: Double): Tuple2<BSplineDerivative, BSplineDerivative> =
-            toBSpline().subdivide(t).map(::BSplineDerivative, ::BSplineDerivative)
+    fun subdivide(t: Double): Tuple2<Option<BSplineDerivative>, Option<BSplineDerivative>> =
+            toBSpline().subdivide(t).map({ it.map { BSplineDerivative(it) } }, { it.map { BSplineDerivative(it) } })
 
     companion object {
 

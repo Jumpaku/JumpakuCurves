@@ -189,40 +189,32 @@ class BSplineTest {
     fun testSubdivide() {
         println("Subdivide")
         val (s01, s02) = clamped.subdivide(3.0)
-        bSplineAssertThat(s01).isEqualToBSpline(BSpline(
-                Array.fill(4, { Point.xyr(-1.0, 0.0, 0.0) }),
-                KnotVector(3, Knot(3.0, 4), Knot(3.0, 4))))
-        bSplineAssertThat(s02).isEqualToBSpline(clamped)
+        assertThat(s01.isDefined).isFalse()
+        bSplineAssertThat(s02.get()).isEqualToBSpline(clamped)
 
         val (s11, s12) = clamped.subdivide(3.5)
-        bSplineAssertThat(s11).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s11.get()).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
                 KnotVector.clamped(Interval(3.0, 3.5), 3, 8)))
-        bSplineAssertThat(s12).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s12.get()).isEqualToBSpline(BSpline(
                 Array(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clamped(Interval(3.5, 4.0), 3, 8)))
 
         val (s21, s22) = clamped.subdivide(4.0)
-        bSplineAssertThat(s21).isEqualToBSpline(clamped)
-        bSplineAssertThat(s22).isEqualToBSpline(BSpline(
-                Array.fill(4, { Point.xyr(1.0, 0.0, 0.0) }),
-                KnotVector(3, Knot(4.0, 4), Knot(4.0, 4))))
+        bSplineAssertThat(s21.get()).isEqualToBSpline(clamped)
+        assertThat(s22.isDefined).isFalse()
 
         val (s31, s32) = uniform.subdivide(3.0)
-        bSplineAssertThat(s31).isEqualToBSpline(BSpline(
-                Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 0.5), Point.xy(-1.0, 0.5)),
-                KnotVector(2, Knot(7/3.0), Knot(8/3.0), Knot(3.0), Knot(3.0, 3))))
-        bSplineAssertThat(s32).isEqualToBSpline(BSpline(
+        assertThat(s31.isDefined).isFalse()
+        bSplineAssertThat(s32.get()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector(2, Knot(3.0, 3), Knot(10/3.0), Knot(11/3.0), Knot(4.0), Knot(13/3.0), Knot(14/3.0))))
 
         val (s41, s42) = uniform.subdivide(4.0)
-        bSplineAssertThat(s41).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s41.get()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.5, 0.0)),
                 KnotVector(2, Knot(7/3.0), Knot(8/3.0), Knot(3.0), Knot(10/3.0), Knot(11/3.0), Knot(4.0, 3))))
-        bSplineAssertThat(s42).isEqualToBSpline(BSpline(
-                Array(Point.xy(0.5, 0.0), Point.xy(0.5, 0.0), Point.xy(1.0, 0.0)),
-                KnotVector(2, Knot(4.0, 3), Knot(4.0), Knot(13/3.0), Knot(14/3.0))))
+        assertThat(s42.isDefined).isFalse()
     }
 
     @Test

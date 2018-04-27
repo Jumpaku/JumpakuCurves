@@ -1,6 +1,5 @@
 package jumpaku.core.curve.arclength
 
-import io.vavr.API
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.analysis.solvers.BrentSolver
@@ -8,22 +7,28 @@ import jumpaku.core.affine.Point
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.Subdividible
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.fit.chordalParametrize
 
 
-fun <C> repeatBisection(
+tailrec fun <C: Curve> repeatBisect(
         curve: C,
-        subDomain: Interval,
-        shouldBisect: (C, Interval) -> Boolean): Stream<Interval> where C : Curve, C : Subdividible<C> {
-    return when {
-        shouldBisect(curve, subDomain) -> subDomain.sample(3)
-                .let { API.Tuple(Interval(it[0], it[1]), Interval(it[1], it[2])) }
-                .map({ repeatBisection(curve, it, shouldBisect) }, { repeatBisection(curve, it, shouldBisect) })
-                .apply { front, back -> front.appendAll(back) }
-        else -> API.Stream(subDomain)
-    }
+        shouldBisect: (C) -> Boolean,
+        restrict: (C, Interval) -> C,
+        result: Stream<Interval> = Stream.of(curve.domain)): Stream<Interval> {
+    val restricted = result.map { it to restrict(curve, it) }
+    return if (restricted.none { (_, c) -> shouldBisect(c) }) result
+    else repeatBisect(curve, shouldBisect, restrict, restricted.flatMap { (i, c) ->
+        if (shouldBisect(c)) i.sample(3).zipWithNext(::Interval)
+        else Stream.of(i)
+    })
+}
+
+fun approximate(curve: Curve,
+                shouldBisect: (Curve) -> Boolean,
+                restrict: (Curve, Interval) -> Curve): ArcLengthReparametrized {
+    val subDomain = repeatBisect(curve, shouldBisect, restrict).map { it.begin }.append(curve.domain.end)
+    return ArcLengthReparametrized(curve, subDomain.toArray())
 }
 
 /**
@@ -49,7 +54,9 @@ class ArcLengthReparametrized(val originalCurve: Curve, private val originalPara
 
     override fun evaluateAll(delta: Double): Array<Point> = polyline.evaluateAll(delta)
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, arcLengthParams)
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        ArcLengthReparametrized(this, arcLengthParams)
+    }
 
     fun arcLength(): Double = domain.end
 

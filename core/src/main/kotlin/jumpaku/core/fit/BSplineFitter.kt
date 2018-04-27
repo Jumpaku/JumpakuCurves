@@ -13,7 +13,7 @@ import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 
 fun createModelMatrix(sataParams: Array<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
-    val n = knotVector.extract().size() - degree - 1
+    val n = knotVector.extractedKnots.size() - degree - 1
     val sparse = OpenMapRealMatrix(sataParams.size(), n)
     sataParams.map { t ->
                 (0..(n - 1)).map { BSpline.basis(t, it, knotVector) }
