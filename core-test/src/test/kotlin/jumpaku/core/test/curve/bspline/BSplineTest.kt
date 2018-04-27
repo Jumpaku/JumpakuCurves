@@ -15,31 +15,7 @@ import jumpaku.core.test.curve.intervalAssertThat
 import jumpaku.core.test.curve.knotVectorAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.Assertions
 import org.junit.Test
-
-fun bSplineAssertThat(actual: BSpline): BSplineAssert = BSplineAssert(actual)
-
-class BSplineAssert(actual: BSpline) : AbstractAssert<BSplineAssert, BSpline>(actual, BSplineAssert::class.java) {
-
-    fun isEqualToBSpline(expected: BSpline, eps: Double = 1.0e-10): BSplineAssert {
-        isNotNull
-
-        Assertions.assertThat(actual.controlPoints.size()).`as`("controlPoints size").isEqualTo(expected.controlPoints.size())
-
-        actual.controlPoints.zip(expected.controlPoints)
-                .forEachIndexed {
-                    i, (a, e) -> pointAssertThat(a).`as`("bSpline.controlPoints[%d]", i).isEqualToPoint(e, eps)
-                }
-
-        Assertions.assertThat(actual.knotVector.knots.size()).`as`("knotVector size").isEqualTo(expected.knotVector.knots.size())
-
-        knotVectorAssertThat(actual.knotVector).isEqualToKnotVector(expected.knotVector)
-
-        return this
-    }
-}
 
 class BSplineTest {
 
@@ -94,8 +70,8 @@ class BSplineTest {
         pointAssertThat(clamped.evaluate(4.0)).isEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
 
         pointAssertThat(uniform.evaluate(3.0)).isEqualToPoint(Point.xy(-1.0, 0.5))
-        pointAssertThat(uniform.evaluate(3 + 1/3.0)).isEqualToPoint(Point.xy(-0.5, 1.0))
-        pointAssertThat(uniform.evaluate(3 + 2/3.0)).isEqualToPoint(Point.xy(0.0, 0.5))
+        pointAssertThat(uniform.evaluate(3 + 1 / 3.0)).isEqualToPoint(Point.xy(-0.5, 1.0))
+        pointAssertThat(uniform.evaluate(3 + 2 / 3.0)).isEqualToPoint(Point.xy(0.0, 0.5))
         pointAssertThat(uniform.evaluate(4.0)).isEqualToPoint(Point.xy(0.5, 0.0))
     }
 

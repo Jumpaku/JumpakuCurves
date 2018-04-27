@@ -17,7 +17,7 @@ buildscript {
 
 subprojects {
     group 'jumpaku'
-    version '0.6.4'
+    version '0.7'
 
     apply plugin: 'kotlin'
 
@@ -64,6 +64,8 @@ project(':core') {
 
 project(':core-test') {
     dependencies {
+        compile group: 'junit', name: 'junit', version: '4.12'
+        compile 'org.assertj:assertj-core:3.8.0'
         compile project(':core')
     }
 }
@@ -78,7 +80,10 @@ project(':fsc') {
 
 project(':fsc-test') {
     dependencies {
+        compile group: 'junit', name: 'junit', version: '4.12'
+        compile 'org.assertj:assertj-core:3.8.0'
         compile project(':fsc')
+        compile project(':core-test')
     }
 }
 

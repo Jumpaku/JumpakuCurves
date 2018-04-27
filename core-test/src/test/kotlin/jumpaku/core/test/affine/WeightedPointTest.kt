@@ -5,25 +5,7 @@ import jumpaku.core.affine.WeightedPoint
 import jumpaku.core.affine.weighted
 import jumpaku.core.json.parseJson
 import org.assertj.core.api.Assertions.*
-import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.Assertions
 import org.junit.Test
-
-fun weightedPointAssertThat(actual: WeightedPoint): WeightedPointAssert = WeightedPointAssert(actual)
-
-class WeightedPointAssert(actual: WeightedPoint) : AbstractAssert<WeightedPointAssert, WeightedPoint>(actual, WeightedPointAssert::class.java) {
-
-    fun isEqualToWeightedPoint(expected: WeightedPoint, eps: Double = 1.0e-10): WeightedPointAssert {
-        isNotNull
-
-        Assertions.assertThat(actual.weight).`as`("weight of weighted point")
-                .isEqualTo(expected.weight, Assertions.withPrecision(eps))
-
-        pointAssertThat(actual.point).`as`("point of weighted point").isEqualToPoint(expected.point, eps)
-
-        return this
-    }
-}
 
 class WeightedPointTest {
 
