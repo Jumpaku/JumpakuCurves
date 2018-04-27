@@ -101,7 +101,9 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
         }
     }
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, parameters)
+    override val reparametrized: ArcLengthReparametrized by lazy{
+        ArcLengthReparametrized(this, parameters)
+    }
 
     companion object {
 

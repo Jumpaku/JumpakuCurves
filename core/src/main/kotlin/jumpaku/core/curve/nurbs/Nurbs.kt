@@ -72,14 +72,16 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(clamp(),
-            {
-                val cp = (it as Nurbs).weightedControlPoints
-                val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
-                val l1 = cp.run { head().point.dist(last().point) }
-                !(Precision.equals(l0, l1, 1.0 / 256) && cp.all { it.weight > 0 })
-            },
-            { b, i: Interval -> (b as Nurbs).restrict(i) })
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(clamp(),
+                {
+                    val cp = (it as Nurbs).weightedControlPoints
+                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().point.dist(last().point) }
+                    !(Precision.equals(l0, l1, 1.0 / 256) && cp.all { it.weight > 0 })
+                },
+                { b, i: Interval -> (b as Nurbs).restrict(i) })
+    }
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 

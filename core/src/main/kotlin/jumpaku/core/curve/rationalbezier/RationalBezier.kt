@@ -112,15 +112,16 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(this,
-            {
-                val cp = (it as RationalBezier).weightedControlPoints
-                val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
-                val l1 = cp.run { head().point.dist(last().point) }
-                !(Precision.equals(l0, l1, 1.0 / 128) && cp.all { it.weight > 0 })
-            },
-            { b, i: Interval -> (b as RationalBezier).restrict(i) })
-
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(this,
+                {
+                    val cp = (it as RationalBezier).weightedControlPoints
+                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().point.dist(last().point) }
+                    !(Precision.equals(l0, l1, 1.0 / 128) && cp.all { it.weight > 0 })
+                },
+                { b, i: Interval -> (b as RationalBezier).restrict(i) })
+    }
 
     companion object {
 

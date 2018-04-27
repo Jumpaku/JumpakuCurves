@@ -57,14 +57,16 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(clamp(),
-            {
-                val cp = (it as BSpline).controlPoints
-                val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
-                val l1 = cp.run { head().dist(last()) }
-                !Precision.equals(l0, l1, 1.0 / 256)
-            },
-            { b, i: Interval -> (b as BSpline).restrict(i) })
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(clamp(),
+                {
+                    val cp = (it as BSpline).controlPoints
+                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().dist(last()) }
+                    !Precision.equals(l0, l1, 1.0 / 256)
+                },
+                { b, i: Interval -> (b as BSpline).restrict(i) })
+    }
 
     override fun toCrisp(): BSpline = BSpline(controlPoints.map { it.toCrisp() }, knotVector)
 

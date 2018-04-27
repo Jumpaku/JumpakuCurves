@@ -98,14 +98,16 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
         }
     }
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(this,
-            {
-                val cp = (it as Bezier).controlPoints
-                val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
-                val l1 = cp.run { head().dist(last()) }
-                !Precision.equals(l0, l1, 1.0 / 16)
-            },
-            { b, i: Interval -> (b as Bezier).restrict(i) })
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(this,
+                {
+                    val cp = (it as Bezier).controlPoints
+                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().dist(last()) }
+                    !Precision.equals(l0, l1, 1.0 / 16)
+                },
+                { b, i: Interval -> (b as Bezier).restrict(i) })
+    }
 
     companion object {
 

@@ -54,7 +54,9 @@ class ArcLengthReparametrized(val originalCurve: Curve, private val originalPara
 
     override fun evaluateAll(delta: Double): Array<Point> = polyline.evaluateAll(delta)
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, arcLengthParams)
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        ArcLengthReparametrized(this, arcLengthParams)
+    }
 
     fun arcLength(): Double = domain.end
 

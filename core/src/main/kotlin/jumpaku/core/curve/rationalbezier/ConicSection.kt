@@ -129,14 +129,16 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized = approximate(this,
-            {
-                val cp = (it as ConicSection).representPoints
-                val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
-                val l1 = cp.run { head().dist(last()) }
-                !(Precision.equals(l0, l1, 1.0 / 512) && listOf(1.0, it.weight, 1.0).all { it > 0 })
-            },
-            { b, i: Interval -> (b as ConicSection).restrict(i) })
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(this,
+                {
+                    val cp = (it as ConicSection).representPoints
+                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().dist(last()) }
+                    !(Precision.equals(l0, l1, 1.0 / 512) && listOf(1.0, it.weight, 1.0).all { it > 0 })
+                },
+                { b, i: Interval -> (b as ConicSection).restrict(i) })
+    }
 
     companion object {
 

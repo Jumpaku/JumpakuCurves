@@ -21,8 +21,11 @@ interface Reference {
     fun isValidFor(fsc: FuzzyCurve, nFmps: Int = 15): Grade
 }
 
-interface ReferenceCurve : FuzzyCurve {
-    val conicSection: ConicSection
+abstract class ReferenceCurve : FuzzyCurve {
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        ArcLengthReparametrized(this, 100)
+    }
+    abstract val conicSection: ConicSection
 }
 
 
@@ -53,7 +56,7 @@ fun reference(fsc: ArcLengthReparametrized, s0: Double, s1: Double, cs: ConicSec
             fun changeParam(s: Double): Double {
                 return (s - l0) / l1
             }
-            object : ReferenceCurve {
+            object : ReferenceCurve() {
 
                 override val domain: Interval = Interval(0.0, l0 + l1 + l2)
 
@@ -82,7 +85,7 @@ fun reference(fsc: ArcLengthReparametrized, s0: Double, s1: Double, cs: ConicSec
                     if ((s < l0 && l < lc) || (s >= l0 && l >= l1)) p / (2 * p - 1) else p
                 }
             }
-            object : ReferenceCurve {
+            object : ReferenceCurve() {
 
                 override val domain: Interval = Interval(0.0, l0 + l1 + l2)
 
