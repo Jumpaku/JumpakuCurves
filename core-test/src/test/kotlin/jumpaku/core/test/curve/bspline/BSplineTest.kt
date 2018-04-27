@@ -1,15 +1,18 @@
-package jumpaku.core.curve.bspline
+package jumpaku.core.test.curve.bspline
 
 import io.vavr.API.Array
-import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.bezierAssertThat
+import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
+import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.test.curve.bezier.bezierAssertThat
+import jumpaku.core.test.curve.intervalAssertThat
+import jumpaku.core.test.curve.knotVectorAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert

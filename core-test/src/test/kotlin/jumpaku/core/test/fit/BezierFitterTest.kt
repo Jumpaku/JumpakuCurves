@@ -1,9 +1,10 @@
-package jumpaku.core.fit
+package jumpaku.core.test.fit
 
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.bezierAssertThat
+import jumpaku.core.fit.BezierFitter
+import jumpaku.core.test.curve.bezier.bezierAssertThat
 import org.junit.Test
 
 

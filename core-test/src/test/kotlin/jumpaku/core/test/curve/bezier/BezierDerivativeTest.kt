@@ -1,11 +1,13 @@
-package jumpaku.core.curve.bezier
+package jumpaku.core.test.curve.bezier
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import jumpaku.core.affine.vectorAssertThat
-import org.assertj.core.api.Assertions.*
 import jumpaku.core.curve.Interval
+import jumpaku.core.curve.bezier.Bezier
+import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.json.parseJson
+import jumpaku.core.test.affine.vectorAssertThat
+import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
 /**

@@ -1,13 +1,14 @@
-package jumpaku.core.curve.arclength
+package jumpaku.core.test.curve.arclength
 
 import org.apache.commons.math3.util.FastMath
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.pointAssertThat
+import jumpaku.core.test.affine.pointAssertThat
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.intervalAssertThat
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.curve.rationalbezier.conicSectionAssertThat
+import jumpaku.core.test.curve.intervalAssertThat
+import jumpaku.core.test.curve.rationalbezier.conicSectionAssertThat
 import org.junit.Test
 
 

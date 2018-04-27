@@ -1,14 +1,18 @@
-package jumpaku.core.curve.nurbs
+package jumpaku.core.test.curve.nurbs
 
 import io.vavr.collection.Array
 import jumpaku.core.affine.*
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.knotVectorAssertThat
+import jumpaku.core.curve.nurbs.Nurbs
 import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.curve.rationalbezier.rationalBezierAssertThat
 import jumpaku.core.json.parseJson
+import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.test.affine.vectorAssertThat
+import jumpaku.core.test.affine.weightedPointAssertThat
+import jumpaku.core.test.curve.knotVectorAssertThat
+import jumpaku.core.test.curve.rationalbezier.rationalBezierAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.apache.commons.math3.util.FastMath

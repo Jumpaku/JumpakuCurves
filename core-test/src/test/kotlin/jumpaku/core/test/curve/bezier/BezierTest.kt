@@ -1,8 +1,11 @@
-package jumpaku.core.curve.bezier
+package jumpaku.core.test.curve.bezier
 
 import io.vavr.API
 import jumpaku.core.affine.*
+import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.json.parseJson
+import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.test.affine.vectorAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.apache.commons.math3.util.FastMath
