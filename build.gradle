@@ -5,19 +5,15 @@ buildscript {
 
     repositories {
         mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "gradle.plugin.gradle-plugins:jartest:1.0"
     }
 }
 
 subprojects {
     group 'jumpaku'
-    version '0.6.4'
+    version '0.7'
 
     apply plugin: 'kotlin'
 
@@ -49,33 +45,43 @@ subprojects {
 
         // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-
         // https://mvnrepository.com/artifact/com.github.salomonbrys.kotson/kotson
         compile group: 'com.github.salomonbrys.kotson', name: 'kotson', version: '2.5.0'
-
         // https://mvnrepository.com/artifact/io.vavr/vavr
         compile group: 'io.vavr', name: 'vavr', version: '0.9.1'
     }
 }
 
 project(':core') {
-    apply plugin: 'com.github.hauner.jarTest'
+}
+
+project(':core-test') {
+    dependencies {
+        compile group: 'junit', name: 'junit', version: '4.12'
+        compile 'org.assertj:assertj-core:3.8.0'
+        compile project(':core')
+    }
 }
 
 project(':fsc') {
     dependencies {
-        testCompile project (path: ':core', configuration: 'testArchives')
-
         compile project(':core')
+    }
+}
+
+project(':fsc-test') {
+    dependencies {
+        compile group: 'junit', name: 'junit', version: '4.12'
+        compile 'org.assertj:assertj-core:3.8.0'
+        compile project(':fsc')
+        compile project(':core-test')
     }
 }
 
 project(':fxcomponents') {
     dependencies {
         compile project(':core')
-
         compile project(':fsc')
-
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.12'
     }
@@ -84,11 +90,8 @@ project(':fxcomponents') {
 project(':examples'){
     dependencies {
         compile project(':core')
-
         compile project(':fsc')
-
         compile project(':fxcomponents')
-
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.12'
     }
