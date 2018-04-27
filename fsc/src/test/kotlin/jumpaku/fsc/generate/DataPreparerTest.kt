@@ -70,8 +70,8 @@ class DataPreparerTest {
         val b = BSpline(API.Array<Point>(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.5, 3.0).sample(100).map { ParamPoint(b(it), it) }
         val subdivided = BSplineFitter(2, knots).fit(jumpaku.fsc.generate.DataPreparer.extendFront(data, 0.5)).subdivide(2.0)
-        bSplineAssertThat(subdivided._1()).isEqualToBSpline(b.subdivide(2.0)._1(), 0.2)
-        bSplineAssertThat(subdivided._2()).isEqualToBSpline(b.subdivide(2.0)._2(), 0.01)
+        bSplineAssertThat(subdivided._1().get()).isEqualToBSpline(b.subdivide(2.0)._1().get(), 0.2)
+        bSplineAssertThat(subdivided._2().get()).isEqualToBSpline(b.subdivide(2.0)._2().get(), 0.01)
     }
 
     @Test
@@ -81,7 +81,7 @@ class DataPreparerTest {
         val b = BSpline(API.Array<Point>(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val subdivided = BSplineFitter(2, knots).fit(jumpaku.fsc.generate.DataPreparer.extendBack(data, 0.5)).subdivide(1.0)
-        bSplineAssertThat(subdivided._1()).isEqualToBSpline(b.subdivide(1.0)._1(), 0.01)
-        bSplineAssertThat(subdivided._2()).isEqualToBSpline(b.subdivide(1.0)._2(), 0.2)
+        bSplineAssertThat(subdivided._1().get()).isEqualToBSpline(b.subdivide(1.0)._1().get(), 0.01)
+        bSplineAssertThat(subdivided._2().get()).isEqualToBSpline(b.subdivide(1.0)._2().get(), 0.2)
     }
 }

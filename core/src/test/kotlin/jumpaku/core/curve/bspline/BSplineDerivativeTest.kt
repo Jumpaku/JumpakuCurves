@@ -109,28 +109,24 @@ class BSplineDerivativeTest {
     fun testSubdivide() {
         println("Subdivide")
         val (s00, s01) = b.subdivide(3.0)
-        bSplineAssertThat(s00.toBSpline()).isEqualToBSpline(BSpline(
-                Array.fill(4, { Point.xy(-1.0, 0.0) }),
-                KnotVector(3, Knot(3.0, 4), Knot(3.0, 4))))
-        bSplineAssertThat(s01.toBSpline()).isEqualToBSpline(BSpline(
+        assertThat(s00.isDefined).isFalse()
+        bSplineAssertThat(s01.get().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 3, 9)))
 
         val (s10, s11) = b.subdivide(3.5)
-        bSplineAssertThat(s10.toBSpline()).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s10.get().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75)),
                 KnotVector(3, Knot(3.0, 4), Knot(3.5, 4))))
-        bSplineAssertThat(s11.toBSpline()).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s11.get().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(3.5, 4.0), 3, 8)))
 
         val (s20, s21) = b.subdivide(4.0)
-        bSplineAssertThat(s20.toBSpline()).isEqualToBSpline(BSpline(
+        bSplineAssertThat(s20.get().toBSpline()).isEqualToBSpline(BSpline(
                 Array(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 3, 9)))
-        bSplineAssertThat(s21.toBSpline()).isEqualToBSpline(BSpline(
-                Array.fill(4, { Point.xy(1.0, 0.0) }),
-                KnotVector(3, Knot(4.0, 4), Knot(4.0, 4))))
+        assertThat(s21.isDefined).isFalse()
     }
 
     @Test
