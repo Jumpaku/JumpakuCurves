@@ -13,7 +13,7 @@ import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
-import jumpaku.core.curve.arclength.repeatBisection
+import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.curve.polyline.Polyline
@@ -21,7 +21,7 @@ import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, Subdividible<RationalBezier>, ToJson {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, ToJson {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -105,24 +105,22 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         return RationalBezier(Bezier.createReducedControlPoints(weightedControlPoints))
     }
 
-    override fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
+    fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         return Bezier.createSubdividedControlPoints(t, weightedControlPoints)
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override fun reparametrizeArcLength(): ArcLengthReparametrized {
-        val ts = repeatBisection(this, this.domain, { rb, subDomain ->
-            val sub = rb.restrict(subDomain)
-            val cp = sub.controlPoints
-            val ws = sub.weights
-            val polylineLength = Polyline(cp).reparametrizeArcLength().arcLength()
-            val beginEndLength = cp.head().dist(cp.last())
-            !(ws.all { it >= 0.0 } && Precision.equals(polylineLength, beginEndLength, 1.0 / 128))
-        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
-
-        return ArcLengthReparametrized(this, ts.toArray())
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(this,
+                {
+                    val cp = (it as RationalBezier).weightedControlPoints
+                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().point.dist(last().point) }
+                    !(Precision.equals(l0, l1, 1.0 / 128) && cp.all { it.weight > 0 })
+                },
+                { b, i: Interval -> (b as RationalBezier).restrict(i) })
     }
 
     companion object {

@@ -7,9 +7,14 @@ import jumpaku.core.fuzzy.Grade
 
 interface FuzzyCurve : Curve {
 
-    fun reparametrizeArcLength(): ArcLengthReparametrized = ArcLengthReparametrized(this, 100)
+    val reparametrized: ArcLengthReparametrized
+
+    fun reparametrizeArcLength(): ArcLengthReparametrized = reparametrized
 
     fun toCrisp(): Curve = object : FuzzyCurve {
+        override val reparametrized: ArcLengthReparametrized by lazy {
+            ArcLengthReparametrized(this, 100)
+        }
         override val domain: Interval = this@FuzzyCurve.domain
         override fun evaluate(t: Double): Point = this@FuzzyCurve.evaluate(t).toCrisp()
     }

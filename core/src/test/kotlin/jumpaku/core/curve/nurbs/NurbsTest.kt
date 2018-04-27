@@ -215,8 +215,8 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(1.0, 4), Knot(2.0, 4)))
-        nurbsAssertThat(a00).isEqualToNurbs(e00)
-        nurbsAssertThat(a01).isEqualToNurbs(e01)
+        nurbsAssertThat(a00.get()).isEqualToNurbs(e00)
+        nurbsAssertThat(a01.get()).isEqualToNurbs(e01)
 
         val (a10, a11) = n.subdivide(0.5)
         val e10 = Nurbs(Array.of(
@@ -233,19 +233,13 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(0.5, 4), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(a10).isEqualToNurbs(e10)
-        nurbsAssertThat(a11).isEqualToNurbs(e11)
+        nurbsAssertThat(a10.get()).isEqualToNurbs(e10)
+        nurbsAssertThat(a11.get()).isEqualToNurbs(e11)
 
         val (a20, a21) = n.subdivide(0.0)
-        val e20 = Nurbs(Array.of(
-                WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
-                WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
-                WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
-                WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
-                KnotVector(3, Knot(0.0, 4), Knot(0.0, 4)))
         val e21 = n
-        nurbsAssertThat(a20).isEqualToNurbs(e20)
-        nurbsAssertThat(a21).isEqualToNurbs(e21)
+        assertThat(a20.isDefined).isFalse()
+        nurbsAssertThat(a21.get()).isEqualToNurbs(e21)
     }
 
     @Test

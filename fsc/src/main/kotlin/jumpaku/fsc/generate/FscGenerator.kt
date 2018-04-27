@@ -41,7 +41,7 @@ class FscGenerator(
                 .zip(bSpline.controlPoints, { r, (x, y, z) -> Point.xyzr(x, y, z, r) })
 
         val fsc = BSpline(fuzzyControlPoints, bSpline.knotVector)
-        val us = fsc.knotVector.extract()
+        val us = fsc.knotVector.extractedKnots
         val domain = us.slice(degree + 1, us.size() - degree - 1)
                 .let { Interval(it.head(), it.last()) }
 
