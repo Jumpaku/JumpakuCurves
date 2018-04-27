@@ -62,11 +62,23 @@ project(':core') {
     apply plugin: 'com.github.hauner.jarTest'
 }
 
+project(':core-test') {
+    dependencies {
+        compile project(':core')
+    }
+}
+
 project(':fsc') {
     dependencies {
         testCompile project (path: ':core', configuration: 'testArchives')
 
         compile project(':core')
+    }
+}
+
+project(':fsc-test') {
+    dependencies {
+        compile project(':fsc')
     }
 }
 
