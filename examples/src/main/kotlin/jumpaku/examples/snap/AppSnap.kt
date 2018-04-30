@@ -24,7 +24,6 @@ import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
-import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppSnap::class.java, *args)
@@ -55,9 +54,9 @@ class ViewSnap : View() {
     val classifier = ClassifierOpen4(nSamples = 99)
 
     fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
-        curveClass.isLinear -> Linear.ofBeginEnd(fsc).reference.conicSection
-        curveClass.isCircular -> Circular.ofBeginEnd(fsc).reference.conicSection
-        curveClass.isElliptic -> Elliptic.ofBeginEnd(fsc, nSamples = 99).reference.conicSection
+        curveClass.isLinear -> Linear.ofBeginEnd(fsc).reference.baseConicSection
+        curveClass.isCircular -> Circular.ofBeginEnd(fsc).reference.baseConicSection
+        curveClass.isElliptic -> Elliptic.ofBeginEnd(fsc, nSamples = 99).reference.baseConicSection
         else -> kotlin.error("")
     }
 
