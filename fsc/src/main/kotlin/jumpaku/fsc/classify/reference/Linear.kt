@@ -13,7 +13,7 @@ class Linear(val reference: ReferenceCurve) : Reference {
 
         fun ofParams(t0: Double, t1: Double, fsc: FuzzyCurve): Linear {
             val reparametrized = fsc.reparametrizeArcLength()
-            return Linear(reference(
+            return Linear(referenceCurve(
                     reparametrized,
                     reparametrized.arcLengthUntil(t0),
                     reparametrized.arcLengthUntil(t1),

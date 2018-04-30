@@ -1,16 +1,13 @@
 package jumpaku.fsc.classify.reference
 
 import io.vavr.API
-import io.vavr.API.Array
 import io.vavr.API.For
 import io.vavr.Tuple
 import io.vavr.Tuple3
-import jumpaku.core.affine.Point
 import jumpaku.core.affine.line
 import jumpaku.core.affine.plane
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.*
@@ -29,7 +26,7 @@ class Elliptic(val reference: ReferenceCurve) : Reference {
             val tf = computeEllipticFar(t0, t1, fsc, nSamples)
             val w = computeEllipticWeight(t0, t1, tf, fsc, nSamples)
             val reparametrized = fsc.reparametrizeArcLength()
-            return Elliptic(reference(reparametrized,
+            return Elliptic(referenceCurve(reparametrized,
                     reparametrized.arcLengthUntil(t0),
                     reparametrized.arcLengthUntil(t1),
                     ConicSection(fsc(t0), fsc(tf), fsc(t1), w)))

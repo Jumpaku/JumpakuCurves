@@ -22,47 +22,47 @@ interface Reference {
 }
 
 abstract class ReferenceCurve : FuzzyCurve {
+
     override val reparametrized: ArcLengthReparametrized by lazy {
         ArcLengthReparametrized(this, 100)
     }
-    abstract val conicSection: ConicSection
+
+    abstract val baseConicSection: ConicSection
+
+    fun conicSectionWithoutDomain(cs: ConicSection, t: Double): Point {
+        val wt = RationalBezier.bezier1D(t, API.Array(1.0, cs.weight, 1.0))
+        val (p0, p1, p2) = cs.representPoints.map { it.toVector() }
+        val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + cs.weight) * p1 + t * (2 * t - 1) * p2) / wt
+        val (r0, r1, r2) = cs.representPoints.map { it.r }
+        val r = listOf(
+                r0 * (1 - t) * (1 - 2 * t) / wt,
+                r1 * 2 * (cs.weight + 1) * t * (1 - t) / wt,
+                r2 * t * (2 * t - 1) / wt
+        ).map { it.absoluteValue }.sum()
+
+        return Point(p, r)
+    }
 }
 
-
-fun evaluateWithoutDomain(cs: ConicSection, t: Double): Point {
-    val wt = RationalBezier.bezier1D(t, API.Array(1.0, cs.weight, 1.0))
-    val (p0, p1, p2) = cs.representPoints.map { it.toVector() }
-    val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + cs.weight) * p1 + t * (2 * t - 1) * p2) / wt
-    val (r0, r1, r2) = cs.representPoints.map { it.r }
-    val r = listOf(
-            r0 * (1 - t) * (1 - 2 * t) / wt,
-            r1 * 2 * (cs.weight + 1) * t * (1 - t) / wt,
-            r2 * t * (2 * t - 1) / wt
-    ).map { it.absoluteValue }.sum()
-
-    return Point(p, r)
-}
-
-fun reference(fsc: ArcLengthReparametrized, s0: Double, s1: Double, cs: ConicSection): ReferenceCurve {
-    val csReparametrized = cs.reparametrizeArcLength()
+fun referenceCurve(fsc: FuzzyCurve, s0: Double, s1: Double, cs: ConicSection): ReferenceCurve {
+    val csReparametrized = cs.reparametrized
+    val fscReperametrized = fsc.reparametrized
     val l1 = csReparametrized.arcLength()
     val l0 = l1 * s0 / (s1 - s0)
-    val l2 = l1 * (fsc.arcLength() - s1) / (s1 - s0)
+    val l2 = l1 * (fscReperametrized.arcLength() - s1) / (s1 - s0)
 
     fun isLinear(cs: ConicSection): Boolean = cs.center().isEmpty
 
     return when{
         isLinear(cs) -> {
-            fun changeParam(s: Double): Double {
-                return (s - l0) / l1
-            }
+            fun changeParam(s: Double): Double = (s - l0) / l1
             object : ReferenceCurve() {
 
                 override val domain: Interval = Interval(0.0, l0 + l1 + l2)
 
-                override val conicSection: ConicSection = cs
+                override val baseConicSection: ConicSection = cs
 
-                override fun evaluate(t: Double): Point = evaluateWithoutDomain(cs, changeParam(t))
+                override fun evaluate(t: Double): Point = conicSectionWithoutDomain(cs, changeParam(t))
             }
         }
         else -> {
@@ -89,9 +89,9 @@ fun reference(fsc: ArcLengthReparametrized, s0: Double, s1: Double, cs: ConicSec
 
                 override val domain: Interval = Interval(0.0, l0 + l1 + l2)
 
-                override val conicSection: ConicSection = cs
+                override val baseConicSection: ConicSection = cs
 
-                override fun evaluate(t: Double): Point = evaluateWithoutDomain(cs, changeParam(t))
+                override fun evaluate(t: Double): Point = conicSectionWithoutDomain(cs, changeParam(t))
             }
         }
     }
