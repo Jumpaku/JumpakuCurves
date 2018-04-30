@@ -2,10 +2,7 @@ package jumpaku.fsc.classify.reference
 
 import io.vavr.API
 import io.vavr.Tuple3
-import jumpaku.core.affine.Point
 import jumpaku.core.curve.FuzzyCurve
-import jumpaku.core.curve.Interval
-import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
@@ -24,7 +21,7 @@ class Circular(val reference: ReferenceCurve) : Reference {
             val tf = computesCircularFar(t0, t1, fsc)
             val circular = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
             val reparametrized = fsc.reparametrizeArcLength()
-            return Circular(reference(reparametrized,
+            return Circular(referenceCurve(reparametrized,
                     reparametrized.arcLengthUntil(t0),
                     reparametrized.arcLengthUntil(t1),
                     circular))
