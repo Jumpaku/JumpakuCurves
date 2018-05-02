@@ -4,11 +4,11 @@ import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
+import jumpaku.core.affine.Point
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.fsc.classify.ClassifierPrimitive7
-import jumpaku.fsc.classify.reference.Circular
-import jumpaku.fsc.classify.reference.Elliptic
-import jumpaku.fsc.classify.reference.Linear
+import jumpaku.fsc.classify.reference.*
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
@@ -39,14 +39,16 @@ class ViewClassify : View() {
         children.clear()
         cubicFsc(fsc) { stroke = Color.BLACK; strokeWidth = 1.0 }
         listOf(
-                Linear.of(fsc).reference,
-                Circular.of(fsc).reference,
-                Elliptic.of(fsc, nSamples = 25).reference
+                LinearReferenceGenerator().generate(fsc).conicSection,
+                CircularReferenceGenerator().generateScattered(fsc, 25),
+                EllipticReferenceGenerator(25).generateScattered(fsc)
         ).forEachIndexed { i, r ->
-                    fuzzyCurve(r) { stroke = Color.hsb(i*120.0, 1.0, 1.0); strokeWidth = 1.0 }
-                }
-        val r7 = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(fsc)
-        println(r7)
+            fuzzyCurve(r) { stroke = Color.hsb(i * 120.0, 1.0, 1.0); strokeWidth = 1.0 }
+        }
+
+        println("done")
+        //val r7 = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(fsc)
+        //println(r7)
     }
 }
 

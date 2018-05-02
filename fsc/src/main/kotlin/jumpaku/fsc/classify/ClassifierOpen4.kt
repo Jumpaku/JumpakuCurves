@@ -1,19 +1,16 @@
 package jumpaku.fsc.classify
 
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.fsc.classify.reference.Circular
-import jumpaku.fsc.classify.reference.Elliptic
-import jumpaku.fsc.classify.reference.Linear
+import jumpaku.fsc.classify.reference.*
 
 
 class ClassifierOpen4(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier {
 
     override fun classify(fsc: BSpline): ClassifyResult {
         val reparametrized = fsc.reparametrizeArcLength()
-        val pL = Linear.ofBeginEnd(reparametrized).isValidFor(reparametrized, nFmps)
-        val pC = Circular.ofBeginEnd(reparametrized).isValidFor(reparametrized, nFmps)
-        val pE = Elliptic.ofBeginEnd(reparametrized, nSamples).isValidFor(reparametrized, nFmps)
+        val pL = LinearReferenceGenerator().generate(reparametrized).isPossible(reparametrized, nFmps)
+        val pC = CircularReferenceGenerator().generate(reparametrized).isPossible(reparametrized, nFmps)
+        val pE = EllipticReferenceGenerator(nSamples).generate(reparametrized).isPossible(reparametrized, nFmps)
 
         return ClassifyResult(
                 CurveClass.LineSegment to (pL),

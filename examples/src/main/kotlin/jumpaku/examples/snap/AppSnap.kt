@@ -10,9 +10,9 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.CurveClass
-import jumpaku.fsc.classify.reference.Circular
-import jumpaku.fsc.classify.reference.Elliptic
-import jumpaku.fsc.classify.reference.Linear
+import jumpaku.fsc.classify.reference.CircularReferenceGenerator
+import jumpaku.fsc.classify.reference.EllipticReferenceGenerator
+import jumpaku.fsc.classify.reference.LinearReferenceGenerator
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
@@ -54,9 +54,9 @@ class ViewSnap : View() {
     val classifier = ClassifierOpen4(nSamples = 99)
 
     fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
-        curveClass.isLinear -> Linear.ofBeginEnd(fsc).reference.baseConicSection
-        curveClass.isCircular -> Circular.ofBeginEnd(fsc).reference.baseConicSection
-        curveClass.isElliptic -> Elliptic.ofBeginEnd(fsc, nSamples = 99).reference.baseConicSection
+        curveClass.isLinear -> LinearReferenceGenerator().generate(fsc).conicSection
+        curveClass.isCircular -> CircularReferenceGenerator().generateScattered(fsc, 25).conicSection
+        curveClass.isElliptic -> EllipticReferenceGenerator(25).generateScattered(fsc).conicSection
         else -> kotlin.error("")
     }
 

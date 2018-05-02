@@ -8,7 +8,7 @@ import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.pointAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.fsc.classify.reference.Linear
+import jumpaku.fsc.classify.reference.LinearReferenceGenerator
 import org.junit.Test
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -23,7 +23,7 @@ class LinearTest {
         println("Reference")
         val s = path.resolve("linearFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
         val eps = Array.ofAll(path.resolve("linearReference.json").parseJson().get().array.flatMap { Point.fromJson(it) })
-        val rps = Linear.of(s).reference.evaluateAll(eps.size())
+        val rps = LinearReferenceGenerator().generate(s).evaluateAll(eps.size())
         rps.zip(eps).forEach { (r, e) -> pointAssertThat(r).isEqualToPoint(e) }
     }
 }

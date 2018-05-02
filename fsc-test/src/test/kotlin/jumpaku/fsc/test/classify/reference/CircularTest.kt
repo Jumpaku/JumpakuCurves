@@ -8,7 +8,7 @@ import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.pointAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.fsc.classify.reference.Circular
+import jumpaku.fsc.classify.reference.CircularReferenceGenerator
 import org.junit.Test
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -23,7 +23,7 @@ class CircularTest {
         println("Reference")
         val s = path.resolve("circularFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
         val eps = Array.ofAll(path.resolve("circularReference.json").parseJson().get().array.flatMap { Point.fromJson(it) })
-        val rps = Circular.of(s, nSamples = 99).reference.evaluateAll(eps.size())
+        val rps = CircularReferenceGenerator().generateScattered(s, nSamples = 99).evaluateAll(eps.size())
         rps.zip(eps).forEach { (r, e) -> pointAssertThat(r).isEqualToPoint(e) }
     }
 }
