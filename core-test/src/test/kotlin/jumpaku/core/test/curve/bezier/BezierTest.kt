@@ -173,7 +173,7 @@ class BezierTest {
     fun testDecasteljau(){
         println("Decasteljau")
         val result = Bezier.decasteljau(0.25,
-                API.Array(Point.xyzr(1.0, 0.0, -2.0, 1.0) as Point, Point.xyzr(0.0, 3.0, 4.0, 0.0), Point.xyzr(-1.0, -1.0, 0.0, 2.0)))
+                API.Array(Point.xyzr(1.0, 0.0, -2.0, 1.0), Point.xyzr(0.0, 3.0, 4.0, 0.0), Point.xyzr(-1.0, -1.0, 0.0, 2.0)))
         assertThat(result.size()).isEqualTo(result.size())
         pointAssertThat(result.get(0)).isEqualToPoint(Point.xyzr(0.75, 0.75, -0.5, 0.75))
         pointAssertThat(result.get(1)).isEqualToPoint(Point.xyzr(-0.25, 2.0, 3.0, 0.5))

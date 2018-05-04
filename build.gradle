@@ -8,12 +8,13 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
     }
 }
 
 subprojects {
     group 'jumpaku'
-    version '0.7.5'
+    version '0.7.6'
 
     apply plugin: 'kotlin'
 
@@ -28,20 +29,9 @@ subprojects {
         kotlinOptions.jvmTarget = '1.8'
     }
 
-    apply plugin: 'maven'
-    task sourcesJar(type: Jar, dependsOn:classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-    artifacts {
-        archives sourcesJar
-    }
-
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 
-        testCompile group: 'junit', name: 'junit', version: '4.12'
-        testCompile 'org.assertj:assertj-core:3.8.0'
 
         // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
@@ -59,7 +49,11 @@ project(':core-test') {
     dependencies {
         compile group: 'junit', name: 'junit', version: '4.12'
         compile 'org.assertj:assertj-core:3.8.0'
+
         compile project(':core')
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 
@@ -75,6 +69,9 @@ project(':fsc-test') {
         compile 'org.assertj:assertj-core:3.8.0'
         compile project(':fsc')
         compile project(':core-test')
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 

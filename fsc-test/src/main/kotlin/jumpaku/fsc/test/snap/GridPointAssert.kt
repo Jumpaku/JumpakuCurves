@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions
 fun gridPointAssertThat(actual: GridPoint): GridPointAssert = GridPointAssert(actual)
 class GridPointAssert(actual: GridPoint) : AbstractAssert<GridPointAssert, GridPoint>(actual, GridPointAssert::class.java) {
 
-    fun isEqualToGridPoint(expected: GridPoint, eps: Double = 1.0e-10): GridPointAssert {
+    fun isEqualToGridPoint(expected: GridPoint): GridPointAssert {
         isNotNull
 
         Assertions.assertThat(actual.x).isEqualTo(expected.x)

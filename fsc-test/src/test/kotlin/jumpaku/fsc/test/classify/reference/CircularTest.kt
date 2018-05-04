@@ -27,7 +27,6 @@ class CircularTest {
     @Test
     fun testCircularGenerate() {
         println("CircularGenerate")
-        val i = 0
         val s = path.resolve("circularFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
         val e = path.resolve("circularPolyline.json").parseJson().flatMap { Polyline.fromJson(it) }.get()
         val a = generator.generate(s, t0 = s.domain.begin, t1 = s.domain.end).polyline
