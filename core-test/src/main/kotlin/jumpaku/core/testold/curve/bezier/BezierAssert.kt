@@ -1,7 +1,7 @@
-package jumpaku.core.test.curve.bezier
+package jumpaku.core.testold.curve.bezier
 
 import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert

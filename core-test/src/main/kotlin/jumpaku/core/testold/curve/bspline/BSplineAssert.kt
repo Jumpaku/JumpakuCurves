@@ -1,8 +1,8 @@
-package jumpaku.core.test.curve.bspline
+package jumpaku.core.testold.curve.bspline
 
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.test.affine.pointAssertThat
-import jumpaku.core.test.curve.knotVectorAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
+import jumpaku.core.testold.curve.knotVectorAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert

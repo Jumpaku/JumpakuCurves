@@ -1,8 +1,8 @@
-package jumpaku.core.test.curve.nurbs
+package jumpaku.core.testold.curve.nurbs
 
 import jumpaku.core.curve.nurbs.Nurbs
-import jumpaku.core.test.affine.weightedPointAssertThat
-import jumpaku.core.test.curve.knotVectorAssertThat
+import jumpaku.core.testold.affine.weightedPointAssertThat
+import jumpaku.core.testold.curve.knotVectorAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert
