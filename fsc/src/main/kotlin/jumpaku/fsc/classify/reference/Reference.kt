@@ -1,82 +1,33 @@
 package jumpaku.fsc.classify.reference
 
 import io.vavr.API
-import io.vavr.Tuple
 import io.vavr.Tuple3
+import io.vavr.collection.Array
 import jumpaku.core.affine.Point
-import jumpaku.core.affine.line
-import jumpaku.core.affine.plane
 import jumpaku.core.affine.times
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.util.*
-import org.apache.commons.math3.analysis.solvers.BrentSolver
-import org.apache.commons.math3.geometry.euclidean.threed.Line
-import org.apache.commons.math3.geometry.euclidean.threed.Plane
+import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.component3
+import org.apache.commons.math3.util.FastMath
 import kotlin.math.absoluteValue
 
 
-abstract class ReferenceCurve : FuzzyCurve {
+abstract class Reference(val polyline: Polyline) : FuzzyCurve by polyline {
 
     abstract val conicSection: ConicSection
-
-    override val reparametrized: ArcLengthReparametrized by lazy {
-        ArcLengthReparametrized(this, 100)
-    }
 }
 
 interface ReferenceGenerator {
-    fun generate(fsc: FuzzyCurve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): ReferenceCurve
+    fun generate(fsc: FuzzyCurve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
 
     companion object {
 
-        fun conicSectionWithoutDomain(cs: ConicSection, t: Double): Point {
-            val wt = RationalBezier.bezier1D(t, API.Array(1.0, cs.weight, 1.0))
-            val (p0, p1, p2) = cs.representPoints.map { it.toVector() }
-            val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + cs.weight) * p1 + t * (2 * t - 1) * p2) / wt
-            val (r0, r1, r2) = cs.representPoints.map { it.r }
-            val r = listOf(
-                    r0 * (1 - t) * (1 - 2 * t) / wt,
-                    r1 * 2 * (cs.weight + 1) * t * (1 - t) / wt,
-                    r2 * t * (2 * t - 1) / wt
-            ).map { it.absoluteValue }.sum()
-
-            return Point(p, r)
-        }
-
-        /**
-         * Changes from conic section arc-length parameter into conic section original parameter in [0, 1]
-         */
-        fun changeLinearParam(l0: Double, l1: Double): (Double)->Double = { s -> (s - l0) / l1 }
-
-        /**
-         * Changes from conic section arc-length parameter into conic section original parameter in [0, 1]
-         */
-        fun changeEllipticParam(l0: Double, l1: Double, base: ConicSection): (Double)->Double {
-            val csReparametrized = base.reparametrized
-            val complementReparametrized = base.complement().reparametrized
-            val lc = complementReparametrized.arcLength()
-            val lRound = l1 + lc
-            fun changeEllipticParam(s: Double): Double {
-                val l = (s - l0).absoluteValue.rem(lRound)
-                val p = when {
-                    s < l0 -> when {
-                        l < lc -> complementReparametrized.toOriginalParam(l)
-                        else -> csReparametrized.toOriginalParam(clamp(lRound - l, csReparametrized.domain))
-                    }
-                    else -> when {
-                        l < l1 -> csReparametrized.toOriginalParam(l)
-                        else -> complementReparametrized.toOriginalParam(clamp(lRound - l, complementReparametrized.domain))
-                    }
-                }
-                return if ((s < l0 && l < lc) || (s >= l0 && l >= l1)) p / (2 * p - 1) else p
-
-            }
-            return ::changeEllipticParam
-        }
         fun referenceSubLength(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): Tuple3<Double, Double, Double> {
             val reparametrized = fsc.reparametrized
             val s0 = reparametrized.arcLengthUntil(t0)
@@ -86,10 +37,45 @@ interface ReferenceGenerator {
             val l2 = l1 * (reparametrized.arcLength() - s1) / (s1 - s0)
             return Tuple3(l0, l1, l2)
         }
-        fun ellipticReferenceEvaluator(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): (Double)->Point{
-            val (l0, l1, _) = referenceSubLength(fsc, t0, t1, base)
-            val changeEllipticParam = ReferenceGenerator.changeEllipticParam(l0, l1, base)
-            return { t -> conicSectionWithoutDomain(base, changeEllipticParam(t)) }
+
+        fun linearPolyline(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection, nSamples: Int): Polyline {
+            val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
+            fun linearEvaluate(s: Double): Point {
+                val t = (s - l0) / l1
+                val wt = RationalBezier.bezier1D(t, API.Array(1.0, base.weight, 1.0))
+                val (p0, p1, p2) = base.representPoints.map { it.toVector() }
+                val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + base.weight) * p1 + t * (2 * t - 1) * p2) / wt
+                val (r0, r1, r2) = base.representPoints.map { it.r }
+                val r = listOf(
+                        r0 * (1 - t) * (1 - 2 * t) / wt,
+                        r1 * 2 * (base.weight + 1) * t * (1 - t) / wt,
+                        r2 * t * (2 * t - 1) / wt
+                ).map { it.absoluteValue }.sum()
+
+                return Point(p, r)
+            }
+            return Polyline(Interval(0.0, l0 + l1 + l2).sample(nSamples).map { linearEvaluate(it) })
+        }
+
+        fun ellipticPolyline(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): Polyline {
+            val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
+            val reparametrized = base.reparametrized
+            val reparametrizedC = base.complement().reparametrized
+            val round = l1 + reparametrizedC.arcLength()
+            fun ellipticEvaluate(s: Double): Point {
+                val ss = (s - l0).rem(round).let { if (it > 0) it else it + round }
+                return when(ss) {
+                    in reparametrized.domain -> reparametrized(ss)
+                    else -> reparametrizedC((round - ss).coerceIn(reparametrizedC.domain))
+                }
+            }
+            val ps = chordalParametrize(Array.of(reparametrized.polyline, (reparametrizedC.polyline.reverse())).flatMap { it.points })
+            val length = l0 + l1 + l2
+            val n0 = FastMath.floor(l0/round).toInt()
+            val front = listOf(ellipticEvaluate(0.0)) + (ps.filter { it.param > (n0 + 1)*round - l0 } + (0 until n0).flatMap { ps }).map { it.point }
+            val n2 = FastMath.floor((length - l0)/round).toInt()
+            val back = ((0 until n2).flatMap { ps } + ps.filter { it.param < length - n2*round - l0 }).map { it.point } + ellipticEvaluate(length)
+            return Polyline((front + back).asIterable())
         }
     }
 }

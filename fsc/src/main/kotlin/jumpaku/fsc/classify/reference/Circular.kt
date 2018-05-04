@@ -2,40 +2,37 @@ package jumpaku.fsc.classify.reference
 
 import io.vavr.API
 import io.vavr.Tuple3
-import jumpaku.core.affine.Point
 import jumpaku.core.curve.FuzzyCurve
-import jumpaku.core.curve.Interval
+import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
+class Circular(polyline: Polyline) : Reference(polyline) {
+    override val conicSection: ConicSection by lazy {
+        val (b, e) = domain
+        val f = polyline(CircularGenerator.computeCircularFar(this, b, e))
+        ConicSection.shearedCircularArc(polyline(b), f, polyline(e))
+    }
+}
 
-class CircularReferenceGenerator : ReferenceGenerator {
-    override fun generate(fsc: FuzzyCurve, t0: Double, t1: Double): ReferenceCurve {
+class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
+    override fun generate(fsc: FuzzyCurve, t0: Double, t1: Double): Reference {
         val tf = computeCircularFar(fsc, t0, t1)
         val base = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-        val (l0, l1, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
-        val eval = ReferenceGenerator.ellipticReferenceEvaluator(fsc, t0, t1, base)
-        return object : ReferenceCurve() {
-            override val domain: Interval = Interval(0.0, l0 + l1 + l2)
-            override val conicSection: ConicSection by lazy {
-                val (b, e) = domain
-                val f = eval(computeCircularFar(this, b, e))
-                ConicSection.shearedCircularArc(eval(b), f, eval(e))
-            }
-
-            override fun evaluate(t: Double): Point = eval(t)
-        }
+        val polyline = ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
+        return Circular(polyline)
     }
 
-    fun generateScattered(fsc: FuzzyCurve, nSamples: Int): ReferenceCurve {
+    fun generateScattered(fsc: FuzzyCurve): Reference {
         val (t0, _, t1) = scatteredCircularParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }
 
     companion object {
+
         /**
          * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
          */
@@ -53,8 +50,8 @@ class CircularReferenceGenerator : ReferenceGenerator {
         fun computeCircularFar(fsc: FuzzyCurve, t0: Double, t1: Double): Double {
             val begin = fsc(t0)
             val end = fsc(t1)
-            val relative = 1.0e-8
-            val absolute = 1.0e-5
+            val relative = 1.0e-9
+            val absolute = 1.0e-7
             return BrentSolver(relative, absolute).solve(50, {
                 val f = fsc(it)
                 f.distSquare(begin) - f.distSquare(end)

@@ -32,10 +32,6 @@ class ClassifyResult(val grades: Map<CurveClass, Grade>): ToJson {
     override fun toJson(): JsonElement = jsonObject(
             "grades" to jsonMap(grades.map { k, v -> Tuple2(k.name.toJson(), v.toJson()) }))
 
-    operator fun component1(): CurveClass = curveClass
-
-    operator fun component2(): Grade = grade
-
     val curveClass: CurveClass = grades.maxBy { (_, m) -> m } .map { it._1() }.get()
 
     val grade: Grade = grades.values().max().get()
