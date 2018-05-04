@@ -89,8 +89,7 @@ class ConicSection(
 
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
-    fun complement(): ConicSection = ConicSection(
-            begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
+    fun complement(): ConicSection = ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
 
     fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
