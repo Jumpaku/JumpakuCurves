@@ -15,13 +15,17 @@ import jumpaku.core.util.clamp
 import org.apache.commons.math3.util.FastMath
 
 
-data class Interval(val begin: Double, val end: Double): ToJson {
+data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Double> {
 
     val span: Double = end - begin
 
     init {
         require(begin <= end){ "begin($begin) > end($end)" }
     }
+
+    override val start: Double = begin
+
+    override val endInclusive: Double = end
 
     fun sample(samplesCount: Int): Array<Double> {
         require(samplesCount >= 2) { "samplesCount($samplesCount) < 2" }
@@ -32,7 +36,7 @@ data class Interval(val begin: Double, val end: Double): ToJson {
 
     fun sample(delta: Double): Array<Double> = sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
 
-    operator fun contains(t: Double): Boolean = t in begin..end
+    override operator fun contains(value: Double): Boolean = value in begin..end
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 
