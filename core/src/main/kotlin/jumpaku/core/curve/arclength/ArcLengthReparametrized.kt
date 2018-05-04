@@ -38,7 +38,7 @@ class ArcLengthReparametrized(val originalCurve: Curve, private val originalPara
 
     constructor(curve: Curve, n: Int) : this(curve, curve.domain.sample(n))
 
-    private val polyline: Polyline = Polyline(originalParams.map(originalCurve))
+    val polyline: Polyline = Polyline(originalParams.map(originalCurve))
 
     private val arcLengthParams: Array<Double> = chordalParametrize(polyline.points).map { it.param }
 
