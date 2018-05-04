@@ -5,7 +5,7 @@ import io.vavr.collection.Array
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.bSplineAssertThat
+import jumpaku.core.testold.curve.bspline.bSplineAssertThat
 import jumpaku.fsc.generate.FscGenerator
 import org.junit.Test
 import java.nio.file.Path

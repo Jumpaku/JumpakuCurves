@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.fragment
 
-import jumpaku.core.test.curve.intervalAssertThat
+import jumpaku.core.testold.curve.intervalAssertThat
 import jumpaku.fsc.fragment.Fragment
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions

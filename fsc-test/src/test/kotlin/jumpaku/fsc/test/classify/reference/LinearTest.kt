@@ -6,9 +6,9 @@ import jumpaku.core.affine.Point
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.pointAssertThat
-import jumpaku.core.test.curve.polyline.polylineAssertThat
-import jumpaku.core.test.curve.rationalbezier.conicSectionAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
+import jumpaku.core.testold.curve.polyline.polylineAssertThat
+import jumpaku.core.testold.curve.rationalbezier.conicSectionAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.classify.reference.Linear

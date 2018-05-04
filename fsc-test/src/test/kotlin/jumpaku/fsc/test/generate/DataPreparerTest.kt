@@ -8,8 +8,8 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.BSplineFitter
-import jumpaku.core.test.curve.bspline.bSplineAssertThat
-import jumpaku.core.test.curve.paramPointAssertThat
+import jumpaku.core.testold.curve.bspline.bSplineAssertThat
+import jumpaku.core.testold.curve.paramPointAssertThat
 import org.junit.Test
 
 

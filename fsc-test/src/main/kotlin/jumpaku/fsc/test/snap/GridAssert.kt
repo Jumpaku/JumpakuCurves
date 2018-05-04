@@ -1,7 +1,7 @@
 package jumpaku.fsc.test.snap
 
-import jumpaku.core.test.affine.pointAssertThat
-import jumpaku.core.test.affine.vectorAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
+import jumpaku.core.testold.affine.vectorAssertThat
 import jumpaku.fsc.snap.Grid
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions

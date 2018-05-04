@@ -2,7 +2,7 @@ package jumpaku.fsc.test.fragment
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.bSplineAssertThat
+import jumpaku.core.testold.curve.bspline.bSplineAssertThat
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.fragment.TruthValueThreshold
 import org.junit.Test

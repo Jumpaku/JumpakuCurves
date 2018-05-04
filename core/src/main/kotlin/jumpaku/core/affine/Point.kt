@@ -24,6 +24,10 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
 
+    init {
+        require(r >= -0.0) { "r($r) must be positive"}
+    }
+
     fun toCrisp(): Point = copy(r = 0.0)
 
     fun toVector(): Vector = Vector(x, y, z)

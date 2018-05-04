@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.snap.point
 
-import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
 import jumpaku.fsc.snap.point.PointSnapResult
 import jumpaku.fsc.test.snap.gridAssertThat
 import jumpaku.fsc.test.snap.gridPointAssertThat

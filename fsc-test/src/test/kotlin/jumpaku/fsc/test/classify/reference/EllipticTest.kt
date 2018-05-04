@@ -3,8 +3,8 @@ package jumpaku.fsc.test.classify.reference
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.polyline.polylineAssertThat
-import jumpaku.core.test.curve.rationalbezier.conicSectionAssertThat
+import jumpaku.core.testold.curve.polyline.polylineAssertThat
+import jumpaku.core.testold.curve.rationalbezier.conicSectionAssertThat
 import jumpaku.fsc.classify.reference.Elliptic
 import jumpaku.fsc.classify.reference.EllipticGenerator
 import org.junit.Test

@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.blend
 
-import jumpaku.core.test.curve.bspline.bSplineAssertThat
+import jumpaku.core.testold.curve.bspline.bSplineAssertThat
 import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.OverlappingMatrix
 import org.assertj.core.api.AbstractAssert

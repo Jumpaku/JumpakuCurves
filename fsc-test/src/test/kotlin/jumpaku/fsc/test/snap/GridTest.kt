@@ -2,8 +2,8 @@ package jumpaku.fsc.test.snap
 
 import jumpaku.core.affine.*
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.pointAssertThat
-import jumpaku.core.test.affine.vectorAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
+import jumpaku.core.testold.affine.vectorAssertThat
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
 import org.apache.commons.math3.util.FastMath

@@ -3,7 +3,7 @@ package jumpaku.fsc.test.snap.conicsection
 import io.vavr.collection.Stream
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.testold.affine.pointAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.snap.conicsection.CircularFeaturePoints

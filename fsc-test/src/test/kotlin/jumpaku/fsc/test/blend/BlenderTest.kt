@@ -6,7 +6,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.bSplineAssertThat
+import jumpaku.core.testold.curve.bspline.bSplineAssertThat
 import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.generate.FscGenerator

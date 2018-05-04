@@ -9,7 +9,7 @@ import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.createModelMatrix
-import jumpaku.core.test.curve.bspline.bSplineAssertThat
+import jumpaku.core.testold.curve.bspline.bSplineAssertThat
 import jumpaku.fsc.generate.nonNegativeLinearLeastSquare
 import org.junit.Test
 
