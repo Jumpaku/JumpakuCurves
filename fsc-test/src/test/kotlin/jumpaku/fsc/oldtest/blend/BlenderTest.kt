@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.blend
+package jumpaku.fsc.oldtest.blend
 
 import io.vavr.API
 import io.vavr.Tuple2

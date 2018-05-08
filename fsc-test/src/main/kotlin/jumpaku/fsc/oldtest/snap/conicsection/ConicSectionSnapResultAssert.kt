@@ -1,9 +1,9 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.fsc.oldtest.snap.conicsection
 
 import jumpaku.core.testold.affine.pointAssertThat
 import jumpaku.core.testold.curve.rationalbezier.conicSectionAssertThat
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
-import jumpaku.fsc.test.snap.point.pointSnapResultAssertThat
+import jumpaku.fsc.oldtest.snap.point.pointSnapResultAssertThat
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.assertj.core.api.AbstractAssert

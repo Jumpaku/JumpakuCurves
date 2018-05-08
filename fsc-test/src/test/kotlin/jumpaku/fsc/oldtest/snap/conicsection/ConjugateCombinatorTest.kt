@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.fsc.oldtest.snap.conicsection
 
 import io.vavr.collection.Stream
 import jumpaku.core.affine.Point

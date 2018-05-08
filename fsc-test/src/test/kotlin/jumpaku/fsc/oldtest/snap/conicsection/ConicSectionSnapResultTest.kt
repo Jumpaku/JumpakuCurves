@@ -1,6 +1,7 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.fsc.oldtest.snap.conicsection
 
 import jumpaku.core.json.parseJson
+import jumpaku.fsc.oldtest.snap.conicsection.conicSectionSnapResultAssertThat
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import org.junit.Test
 import java.nio.file.Paths

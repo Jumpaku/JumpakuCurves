@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.fragment
+package jumpaku.fsc.oldtest.fragment
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson

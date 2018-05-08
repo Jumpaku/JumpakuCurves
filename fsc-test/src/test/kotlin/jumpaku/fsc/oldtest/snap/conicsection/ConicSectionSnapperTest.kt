@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.fsc.oldtest.snap.conicsection
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
@@ -6,6 +6,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.classify.ClassifyResult
+import jumpaku.fsc.oldtest.snap.conicsection.conicSectionSnapResultAssertThat
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper

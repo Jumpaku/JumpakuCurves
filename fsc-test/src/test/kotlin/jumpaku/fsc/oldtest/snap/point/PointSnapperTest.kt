@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.snap.point
+package jumpaku.fsc.oldtest.snap.point
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
