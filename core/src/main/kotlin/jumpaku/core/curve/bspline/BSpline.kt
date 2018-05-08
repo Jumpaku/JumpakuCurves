@@ -252,7 +252,6 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             var tmpKnots = knotVector
             val (b, e) = knotVector.domain
             val bTimes = p + 1 - knotVector.multiplicityOf(b)
-            val eTimes = p + 1 - knotVector.multiplicityOf(e)
 
             knotVector.knots.filter { it.value == b || it.value == e }.forEach { (u, s) ->
                 val times = p + 1 - s

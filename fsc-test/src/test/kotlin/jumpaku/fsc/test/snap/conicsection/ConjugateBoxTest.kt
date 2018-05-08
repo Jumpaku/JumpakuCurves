@@ -2,7 +2,7 @@ package jumpaku.fsc.test.snap.conicsection
 
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.pointAssertThat
+import jumpaku.core.test.affine.shouldBePoint
 import jumpaku.fsc.snap.conicsection.ConjugateBox
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
@@ -23,36 +23,36 @@ class ConjugateBoxTest {
     fun testCreate() {
         println("Create")
         val c0 = ConjugateBox.ofConicSection(e)
-        pointAssertThat(c0.topLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 2.0))
-        pointAssertThat(c0.topRight).isEqualToPoint(Point.xyz(0.0, 2.0, 2.0))
-        pointAssertThat(c0.bottomLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 0.0))
-        pointAssertThat(c0.bottomRight).isEqualToPoint(Point.xyz(0.0, 2.0, 0.0))
-        pointAssertThat(c0.top).isEqualToPoint(Point.xyz(0.0, 0.0, 1+r2))
-        pointAssertThat(c0.bottom).isEqualToPoint(Point.xyz(0.0, 0.0, 1-r2))
-        pointAssertThat(c0.left).isEqualToPoint(Point.xyz(0.0, -2*r2, 1.0))
-        pointAssertThat(c0.right).isEqualToPoint(Point.xyz(0.0, 2*r2, 1.0))
-        pointAssertThat(c0.center).isEqualToPoint(Point.xyz(0.0, 0.0, 1.0))
+        c0.topLeft.shouldBePoint(Point.xyz(0.0, -2.0, 2.0))
+        c0.topRight.shouldBePoint(Point.xyz(0.0, 2.0, 2.0))
+        c0.bottomLeft.shouldBePoint(Point.xyz(0.0, -2.0, 0.0))
+        c0.bottomRight.shouldBePoint(Point.xyz(0.0, 2.0, 0.0))
+        c0.top.shouldBePoint(Point.xyz(0.0, 0.0, 1+r2))
+        c0.bottom.shouldBePoint(Point.xyz(0.0, 0.0, 1-r2))
+        c0.left.shouldBePoint(Point.xyz(0.0, -2*r2, 1.0))
+        c0.right.shouldBePoint(Point.xyz(0.0, 2*r2, 1.0))
+        c0.center.shouldBePoint(Point.xyz(0.0, 0.0, 1.0))
 
         val c1 = ConjugateBox.ofConicSection(e.complement())
-        pointAssertThat(c1.topLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 2.0))
-        pointAssertThat(c1.topRight).isEqualToPoint(Point.xyz(0.0, 2.0, 2.0))
-        pointAssertThat(c1.bottomLeft).isEqualToPoint(Point.xyz(0.0, -2.0, 0.0))
-        pointAssertThat(c1.bottomRight).isEqualToPoint(Point.xyz(0.0, 2.0, 0.0))
-        pointAssertThat(c0.top).isEqualToPoint(Point.xyz(0.0, 0.0, 1+r2))
-        pointAssertThat(c0.bottom).isEqualToPoint(Point.xyz(0.0, 0.0, 1-r2))
-        pointAssertThat(c0.left).isEqualToPoint(Point.xyz(0.0, -2*r2, 1.0))
-        pointAssertThat(c0.right).isEqualToPoint(Point.xyz(0.0, 2*r2, 1.0))
-        pointAssertThat(c0.center).isEqualToPoint(Point.xyz(0.0, 0.0, 1.0))
+        c1.topLeft.shouldBePoint(Point.xyz(0.0, -2.0, 2.0))
+        c1.topRight.shouldBePoint(Point.xyz(0.0, 2.0, 2.0))
+        c1.bottomLeft.shouldBePoint(Point.xyz(0.0, -2.0, 0.0))
+        c1.bottomRight.shouldBePoint(Point.xyz(0.0, 2.0, 0.0))
+        c0.top.shouldBePoint(Point.xyz(0.0, 0.0, 1+r2))
+        c0.bottom.shouldBePoint(Point.xyz(0.0, 0.0, 1-r2))
+        c0.left.shouldBePoint(Point.xyz(0.0, -2*r2, 1.0))
+        c0.right.shouldBePoint(Point.xyz(0.0, 2*r2, 1.0))
+        c0.center.shouldBePoint(Point.xyz(0.0, 0.0, 1.0))
 
         val c2 = ConjugateBox.ofConicSection(l)
-        pointAssertThat(c2.topLeft).isEqualToPoint(Point.xyz(0.0, 1.0, 1.0))
-        pointAssertThat(c2.topRight).isEqualToPoint(Point.xyz(0.0, -1.0, -1.0))
-        pointAssertThat(c2.bottomLeft).isEqualToPoint(Point.xyz(0.0, 1.0, 1.0))
-        pointAssertThat(c2.bottomRight).isEqualToPoint(Point.xyz(0.0, -1.0, -1.0))
-        pointAssertThat(c2.top).isEqualToPoint(Point.xyz(0.0, 0.0, 0.0))
-        pointAssertThat(c2.bottom).isEqualToPoint(Point.xyz(0.0, 0.0, 0.0))
-        pointAssertThat(c2.left).isEqualToPoint(Point.xyz(0.0, r2, r2))
-        pointAssertThat(c2.right).isEqualToPoint(Point.xyz(0.0, -r2, -r2))
-        pointAssertThat(c2.center).isEqualToPoint(Point.xyz(0.0, 0.0, 0.0))
+        c2.topLeft.shouldBePoint(Point.xyz(0.0, 1.0, 1.0))
+        c2.topRight.shouldBePoint(Point.xyz(0.0, -1.0, -1.0))
+        c2.bottomLeft.shouldBePoint(Point.xyz(0.0, 1.0, 1.0))
+        c2.bottomRight.shouldBePoint(Point.xyz(0.0, -1.0, -1.0))
+        c2.top.shouldBePoint(Point.xyz(0.0, 0.0, 0.0))
+        c2.bottom.shouldBePoint(Point.xyz(0.0, 0.0, 0.0))
+        c2.left.shouldBePoint(Point.xyz(0.0, r2, r2))
+        c2.right.shouldBePoint(Point.xyz(0.0, -r2, -r2))
+        c2.center.shouldBePoint(Point.xyz(0.0, 0.0, 0.0))
     }
 }

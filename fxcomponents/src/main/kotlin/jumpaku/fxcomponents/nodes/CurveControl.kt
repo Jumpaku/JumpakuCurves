@@ -17,7 +17,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
 import jumpaku.core.affine.Point
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.polyline.Polyline
 import tornadofx.add
 import tornadofx.circle

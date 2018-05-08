@@ -3,7 +3,7 @@ package jumpaku.fsc.generate
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.BSplineFitter
 import jumpaku.core.fit.createModelMatrix

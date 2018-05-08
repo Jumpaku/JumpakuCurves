@@ -1,22 +1,27 @@
 package jumpaku.core.test.curve.nurbs
 
 import io.vavr.collection.Array
-import jumpaku.core.affine.*
+import jumpaku.core.affine.Point
+import jumpaku.core.affine.Vector
+import jumpaku.core.affine.WeightedPoint
+import jumpaku.core.affine.identity
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.nurbs.Nurbs
 import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.pointAssertThat
-import jumpaku.core.test.affine.vectorAssertThat
-import jumpaku.core.test.affine.weightedPointAssertThat
-import jumpaku.core.test.curve.knotVectorAssertThat
-import jumpaku.core.test.curve.rationalbezier.rationalBezierAssertThat
+import jumpaku.core.test.affine.shouldBePoint
+import jumpaku.core.test.affine.shouldBeVector
+import jumpaku.core.test.affine.shouldBeWeightedPoint
+import jumpaku.core.test.curve.rationalbezier.shouldBeRationalBezier
+import jumpaku.core.test.curve.shouldBeKnotVector
+import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeFalse
 import org.apache.commons.math3.util.FastMath
-import org.assertj.core.api.Assertions.*
 import org.junit.Test
 
 
@@ -35,49 +40,49 @@ class NurbsTest {
     fun testProperties() {
         println("Properties")
 
-        assertThat(n.weightedControlPoints.size()).isEqualTo(6)
-        weightedPointAssertThat(n.weightedControlPoints[0]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
-        weightedPointAssertThat(n.weightedControlPoints[1]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 100.0, 20.0), 1/9.0))
-        weightedPointAssertThat(n.weightedControlPoints[2]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 400.0, 100.0, 30.0), 1/27.0))
-        weightedPointAssertThat(n.weightedControlPoints[3]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 400.0, 500.0, 30.0), 1/27.0))
-        weightedPointAssertThat(n.weightedControlPoints[4]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0))
-        weightedPointAssertThat(n.weightedControlPoints[5]).isEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
+        n.weightedControlPoints.size().shouldBe(6)
+        n.weightedControlPoints[0].shouldBeWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
+        n.weightedControlPoints[1].shouldBeWeightedPoint(WeightedPoint(Point.xyr( 200.0, 100.0, 20.0), 1/9.0))
+        n.weightedControlPoints[2].shouldBeWeightedPoint(WeightedPoint(Point.xyr( 400.0, 100.0, 30.0), 1/27.0))
+        n.weightedControlPoints[3].shouldBeWeightedPoint(WeightedPoint(Point.xyr( 400.0, 500.0, 30.0), 1/27.0))
+        n.weightedControlPoints[4].shouldBeWeightedPoint(WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0))
+        n.weightedControlPoints[5].shouldBeWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
 
-        assertThat(n.controlPoints.size()).isEqualTo(6)
-        pointAssertThat(n.controlPoints[0]).isEqualToPoint(Point.xyr( 200.0, 300.0, 10.0))
-        pointAssertThat(n.controlPoints[1]).isEqualToPoint(Point.xyr( 200.0, 100.0, 20.0))
-        pointAssertThat(n.controlPoints[2]).isEqualToPoint(Point.xyr( 400.0, 100.0, 30.0))
-        pointAssertThat(n.controlPoints[3]).isEqualToPoint(Point.xyr( 400.0, 500.0, 30.0))
-        pointAssertThat(n.controlPoints[4]).isEqualToPoint(Point.xyr( 200.0, 500.0, 20.0))
-        pointAssertThat(n.controlPoints[5]).isEqualToPoint(Point.xyr( 200.0, 300.0, 10.0))
+        n.controlPoints.size().shouldBe(6)
+        n.controlPoints[0].shouldBePoint(Point.xyr( 200.0, 300.0, 10.0))
+        n.controlPoints[1].shouldBePoint(Point.xyr( 200.0, 100.0, 20.0))
+        n.controlPoints[2].shouldBePoint(Point.xyr( 400.0, 100.0, 30.0))
+        n.controlPoints[3].shouldBePoint(Point.xyr( 400.0, 500.0, 30.0))
+        n.controlPoints[4].shouldBePoint(Point.xyr( 200.0, 500.0, 20.0))
+        n.controlPoints[5].shouldBePoint(Point.xyr( 200.0, 300.0, 10.0))
 
-        assertThat(n.controlPoints.size()).isEqualTo(6)
-        assertThat(n.weights[0]).isEqualTo(1.0)
-        assertThat(n.weights[1]).isEqualTo(1/9.0)
-        assertThat(n.weights[2]).isEqualTo(1/27.0)
-        assertThat(n.weights[3]).isEqualTo(1/27.0)
-        assertThat(n.weights[4]).isEqualTo(1/9.0)
-        assertThat(n.weights[5]).isEqualTo(1.0)
+        n.controlPoints.size().shouldBe(6)
+        n.weights[0].shouldBeCloseTo(1.0)
+        n.weights[1].shouldBeCloseTo(1/9.0)
+        n.weights[2].shouldBeCloseTo(1/27.0)
+        n.weights[3].shouldBeCloseTo(1/27.0)
+        n.weights[4].shouldBeCloseTo(1/9.0)
+        n.weights[5].shouldBeCloseTo(1.0)
 
-        knotVectorAssertThat(n.knotVector).isEqualToKnotVector(KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
+        n.knotVector.shouldBeKnotVector(KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
 
-        assertThat(n.degree).isEqualTo(3)
+        n.degree.shouldBe(3)
     }
 
     @Test
     fun testToString() {
         println("ToString")
-        nurbsAssertThat(n.toString().parseJson().flatMap { Nurbs.fromJson(it) }.get()).isEqualToNurbs(n)
+        n.toString().parseJson().flatMap { Nurbs.fromJson(it) }.get().shouldBeNurbs(n)
     }
 
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        pointAssertThat(n(0.0)).isEqualToPoint(Point.xyr( 200.0, 300.0, 10.0))
-        pointAssertThat(n(0.5)).isEqualToPoint(Point.xyr(220.0, 240.0, 228/16.0))
-        pointAssertThat(n(1.0)).isEqualToPoint(Point.xyr( 400.0, 300.0, 30.0))
-        pointAssertThat(n(1.5)).isEqualToPoint(Point.xyr(220.0, 360.0, 228/16.0))
-        pointAssertThat(n(2.0)).isEqualToPoint(Point.xyr( 200.0, 300.0, 10.0))
+        n(0.0).shouldBePoint(Point.xyr( 200.0, 300.0, 10.0))
+        n(0.5).shouldBePoint(Point.xyr(220.0, 240.0, 228/16.0))
+        n(1.0).shouldBePoint(Point.xyr( 400.0, 300.0, 30.0))
+        n(1.5).shouldBePoint(Point.xyr(220.0, 360.0, 228/16.0))
+        n(2.0).shouldBePoint(Point.xyr( 200.0, 300.0, 10.0))
     }
 
     @Test
@@ -89,17 +94,17 @@ class NurbsTest {
         val v3 = Vector(-144.0, -192.0)
         val v4 = Vector(0.0, -200/3.0)
 
-        vectorAssertThat(n.differentiate(0.0)).isEqualToVector(v0)
-        vectorAssertThat(n.differentiate(0.5)).isEqualToVector(v1)
-        vectorAssertThat(n.differentiate(1.0)).isEqualToVector(v2)
-        vectorAssertThat(n.differentiate(1.5)).isEqualToVector(v3)
-        vectorAssertThat(n.differentiate(2.0)).isEqualToVector(v4)
+        n.differentiate(0.0).shouldBeVector(v0)
+        n.differentiate(0.5).shouldBeVector(v1)
+        n.differentiate(1.0).shouldBeVector(v2)
+        n.differentiate(1.5).shouldBeVector(v3)
+        n.differentiate(2.0).shouldBeVector(v4)
 
-        vectorAssertThat(n.derivative(0.0)).isEqualToVector(v0)
-        vectorAssertThat(n.derivative(0.5)).isEqualToVector(v1)
-        vectorAssertThat(n.derivative(1.0)).isEqualToVector(v2)
-        vectorAssertThat(n.derivative(1.5)).isEqualToVector(v3)
-        vectorAssertThat(n.derivative(2.0)).isEqualToVector(v4)
+        n.derivative(0.0).shouldBeVector(v0)
+        n.derivative(0.5).shouldBeVector(v1)
+        n.derivative(1.0).shouldBeVector(v2)
+        n.derivative(1.5).shouldBeVector(v3)
+        n.derivative(2.0).shouldBeVector(v4)
     }
 
     @Test
@@ -114,13 +119,12 @@ class NurbsTest {
                 WeightedPoint(Point.xy( 800.0,    0.0), 1/9.0),
                 WeightedPoint(Point.xy( 400.0,    0.0), 1.0)),
                 KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(a).isEqualToNurbs(e)
+        a.shouldBeNurbs(e)
     }
 
     @Test
     fun testToCrisp() {
         println("ToCrisp")
-        val a = n.toCrisp()
         val e = Nurbs(Array.of(
                 WeightedPoint(Point.xy( 200.0, 300.0), 1.0),
                 WeightedPoint(Point.xy( 200.0, 100.0), 1/9.0),
@@ -129,7 +133,7 @@ class NurbsTest {
                 WeightedPoint(Point.xy( 200.0, 500.0), 1/9.0),
                 WeightedPoint(Point.xy( 200.0, 300.0), 1.0)),
                 KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(a).isEqualToNurbs(e)
+        n.toCrisp().shouldBeNurbs(e)
     }
 
     @Test
@@ -141,14 +145,13 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(400.0, 200.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(400.0, 300.0, 30.0), 1/27.0)),
                 KnotVector(3, Knot(0.5, 4), Knot(1.0, 4)))
-        nurbsAssertThat(n.restrict(0.5, 1.0)).isEqualToNurbs(e)
-        nurbsAssertThat(n.restrict(Interval(0.5, 1.0))).isEqualToNurbs(e)
+        n.restrict(0.5, 1.0).shouldBeNurbs(e)
+        n.restrict(Interval(0.5, 1.0)).shouldBeNurbs(e)
     }
 
     @Test
     fun testReverse() {
         println("Reverse")
-        val a = n.reverse()
         val e = Nurbs(Array.of(
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0),
                 WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0),
@@ -157,7 +160,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr( 200.0, 100.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(a).isEqualToNurbs(e)
+        n.reverse().shouldBeNurbs(e)
     }
 
     @Test
@@ -174,9 +177,9 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0))
-        assertThat(qs.size()).isEqualTo(2)
-        rationalBezierAssertThat(qs[0]).isEqualToRationalBezier(e0)
-        rationalBezierAssertThat(qs[1]).isEqualToRationalBezier(e1)
+        qs.size().shouldBe(2)
+        qs[0].shouldBeRationalBezier(e0)
+        qs[1].shouldBeRationalBezier(e1)
     }
 
     @Test
@@ -195,8 +198,8 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(1.0, 4), Knot(2.0, 4)))
-        nurbsAssertThat(a00.get()).isEqualToNurbs(e00)
-        nurbsAssertThat(a01.get()).isEqualToNurbs(e01)
+        a00.get().shouldBeNurbs(e00)
+        a01.get().shouldBeNurbs(e01)
 
         val (a10, a11) = n.subdivide(0.5)
         val e10 = Nurbs(Array.of(
@@ -213,13 +216,13 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(0.5, 4), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(a10.get()).isEqualToNurbs(e10)
-        nurbsAssertThat(a11.get()).isEqualToNurbs(e11)
+        a10.get().shouldBeNurbs(e10)
+        a11.get().shouldBeNurbs(e11)
 
         val (a20, a21) = n.subdivide(0.0)
         val e21 = n
-        assertThat(a20.isDefined).isFalse()
-        nurbsAssertThat(a21.get()).isEqualToNurbs(e21)
+        a20.isDefined.shouldBeFalse()
+        a21.get().shouldBeNurbs(e21)
     }
 
     @Test
@@ -234,7 +237,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(0.0, 4), Knot(0.5), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(n.insertKnot(0.5)).isEqualToNurbs(e0)
+        n.insertKnot(0.5).shouldBeNurbs(e0)
 
         val e1 = Nurbs(Array.of(
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0),
@@ -246,7 +249,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(0.0, 4), Knot(0.5, 2), Knot(1.0, 2), Knot(2.0, 4)))
-        nurbsAssertThat(n.insertKnot(0.5, 2)).isEqualToNurbs(e1)
+        n.insertKnot(0.5, 2).shouldBeNurbs(e1)
     }
 
     @Test
@@ -263,7 +266,7 @@ class NurbsTest {
                 KnotVector(3,
                         Knot(0.0, 4), Knot(0.5), Knot(1.0, 2), Knot(2.0, 4)))
         val e0 = n.toCrisp()
-        nurbsAssertThat(n0.removeKnot(1, 1)).isEqualToNurbs(e0)
+        n0.removeKnot(1, 1).shouldBeNurbs(e0)
 
         val n1 = Nurbs(Array.of(
                 WeightedPoint(Point.xy( 200.0, 300.0), 1.0),
@@ -277,13 +280,13 @@ class NurbsTest {
                 KnotVector(3,
                         Knot(0.0, 4), Knot(0.5, 2), Knot(1.0, 2), Knot(2.0, 4)))
         val e1 = n.toCrisp()
-        nurbsAssertThat(n1.removeKnot(1, 2)).isEqualToNurbs(e1)
+        n1.removeKnot(1, 2).shouldBeNurbs(e1)
     }
 
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        assertThat(n.reparametrizeArcLength().arcLength()).isEqualTo(200*Math.PI, withPrecision(0.1))
+        n.reparametrizeArcLength().arcLength().shouldBeCloseTo(200*Math.PI, 0.1)
     }
 
     @Test
@@ -305,7 +308,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(1.0, 0.0, 0.0), 1.0)),
                 KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
 
-        nurbsAssertThat(c).isEqualToNurbs(e)
+        c.shouldBeNurbs(e)
     }
 
     @Test
@@ -327,6 +330,6 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(0.0, 0.0, 0.0), 1.0)),
                 KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
 
-        nurbsAssertThat(c).isEqualToNurbs(e)
+        c.shouldBeNurbs(e)
     }
 }

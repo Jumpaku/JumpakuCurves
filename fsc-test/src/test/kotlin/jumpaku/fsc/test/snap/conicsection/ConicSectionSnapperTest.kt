@@ -1,5 +1,7 @@
 package jumpaku.fsc.test.snap.conicsection
 
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.curve.bspline.BSpline
@@ -11,15 +13,15 @@ import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.fsc.snap.point.PointSnapper
+import org.amshove.kluent.shouldEqual
 import org.junit.Test
-import java.nio.file.Paths
 
 class ConicSectionSnapperTest {
 
-    val path = Paths.get("./src/test/resources/jumpaku/fsc/test/snap/conicsection/")
+    val urlString = "/jumpaku/fsc/test/snap/conicsection/"
+    fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val w = 1280.0
-
     val h = 720.0
 
     val baseGrid = Grid(
@@ -41,14 +43,17 @@ class ConicSectionSnapperTest {
     fun testSnap() {
         println("Snap")
         for (i in 0..4) {
-            val cs = path.resolve("ConicSection$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val curveClass = path.resolve("ClassifyResult$i.json").parseJson().flatMap { ClassifyResult.fromJson(it) }.get().curveClass
-            val fsc = path.resolve("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-            val e = path.resolve("ConicSectionSnapResult$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
+            val cs = resourceText("ConicSection$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
+            val curveClass = resourceText("ClassifyResult$i.json").parseJson().flatMap { ClassifyResult.fromJson(it) }.get().curveClass
+            val fsc = resourceText("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+            val e = resourceText("ConicSectionSnapResult$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
             val a = conicSectionSnapper.snap(cs, curveClass) { candidate ->
                 candidate.snappedConicSection.isPossible(fsc, n = 15)
             }
-            conicSectionSnapResultAssertThat(a).`as`("$i").isEqualToConicSectionSnapResult(e)
+            a.candidate.featurePoints.size().shouldEqual(e.candidate.featurePoints.size())
+            a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->
+                a.snapped.gridPoint.shouldEqual(e.snapped.gridPoint)
+            }
         }
     }
 }

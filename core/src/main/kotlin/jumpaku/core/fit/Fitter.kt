@@ -2,7 +2,7 @@ package jumpaku.core.fit
 
 import io.vavr.collection.Array
 import jumpaku.core.curve.Curve
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 
 
 interface Fitter<out C : Curve> {

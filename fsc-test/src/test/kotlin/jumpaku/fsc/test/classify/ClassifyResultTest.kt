@@ -1,12 +1,12 @@
 package jumpaku.fsc.test.classify
 
-import org.assertj.core.api.Assertions.*
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.parseJson
+import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.fsc.classify.ClassifyResult
 import jumpaku.fsc.classify.CurveClass
+import org.amshove.kluent.shouldBe
 import org.junit.Test
-
 
 class ClassifyResultTest {
 
@@ -25,14 +25,14 @@ class ClassifyResultTest {
     @Test
     fun testProperties() {
         println("Properties")
-        assertThat(r.curveClass).isEqualTo(CurveClass.Ellipse)
-        assertThat(r.grade.value).isEqualTo(0.9, withPrecision(1.0e-10))
+        r.curveClass.shouldBe(CurveClass.Ellipse)
+        r.grade.value.shouldBeCloseTo(0.9)
     }
 
     @Test
     fun testToString() {
         println("ToString")
         val a = r.toString().parseJson().flatMap { ClassifyResult.fromJson(it) }.get()
-        classifyResultAssertThat(a).isEqualToClassifyResult(r)
+        a.shouldBeClassifyResult(r)
     }
 }

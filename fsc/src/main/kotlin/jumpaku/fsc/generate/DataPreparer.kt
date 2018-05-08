@@ -4,7 +4,7 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.fit.BezierFitter
 import jumpaku.core.fit.chordalParametrize
 import jumpaku.core.fit.transformParams

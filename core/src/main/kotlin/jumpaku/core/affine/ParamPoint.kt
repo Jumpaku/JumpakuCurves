@@ -1,4 +1,4 @@
-package jumpaku.core.curve
+package jumpaku.core.affine
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
@@ -7,16 +7,12 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Divisible
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.divide
 import jumpaku.core.json.ToJson
 
 data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {
 
-    override fun divide(t: Double, p: ParamPoint): ParamPoint {
-        return ParamPoint(point.divide(t, p.point), param.divide(t, p.param))
-    }
+    override fun divide(t: Double, p: ParamPoint): ParamPoint =
+            ParamPoint(point.divide(t, p.point), param.divide(t, p.param))
 
     override fun toString(): String = toJsonString()
 
