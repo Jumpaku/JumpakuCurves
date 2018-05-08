@@ -3,37 +3,34 @@ package jumpaku.fsc.test.classify.reference
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.parseJson
-import jumpaku.core.testold.curve.polyline.polylineAssertThat
-import jumpaku.core.testold.curve.rationalbezier.conicSectionAssertThat
 import jumpaku.fsc.classify.reference.Elliptic
 import jumpaku.fsc.classify.reference.EllipticGenerator
+import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.Test
-import java.nio.file.Path
-import java.nio.file.Paths
-
 
 class EllipticTest {
 
-    val path: Path = Paths.get("./src/test/resources/jumpaku/fsc/test/classify/reference")
-    
+    val urlString = "/jumpaku/fsc/test/classify/reference/"
+    fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
+
     val generator = EllipticGenerator(nSamples = 25)
 
     @Test
     fun testEllipticGenerate() {
         println("EllipticGenerate")
-        val s = path.resolve("ellipticFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-        val e = path.resolve("ellipticPolyline.json").parseJson().flatMap { Polyline.fromJson(it) }.get()
+        val s = resourceText("ellipticFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+        val e = resourceText("ellipticPolyline.json").parseJson().flatMap { Polyline.fromJson(it) }.get()
         val a = generator.generate(s, t0 = s.domain.begin, t1 = s.domain.end).polyline
-        polylineAssertThat(a).isEqualToPolyline(e)
+        a.isPossible(e, 15).value.shouldBeGreaterThan(0.9)
     }
 
     @Test
     fun testEllipticConicSection() {
         println("EllipticConicSection")
-        val s = path.resolve("ellipticFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-        val e = path.resolve("ellipticPolyline.json").parseJson().flatMap { Polyline.fromJson(it) }
+        val s = resourceText("ellipticFsc.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+        val e = resourceText("ellipticPolyline.json").parseJson().flatMap { Polyline.fromJson(it) }
                 .map { Elliptic(it, generator.nSamples).conicSection }.get()
         val a = generator.generate(s, t0 = s.domain.begin, t1 = s.domain.end).conicSection
-        conicSectionAssertThat(a).isEqualConicSection(e)
+        a.isPossible(e, 15).value.shouldBeGreaterThan(0.9)
     }
 }

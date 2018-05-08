@@ -1,14 +1,19 @@
 package jumpaku.fsc.test.snap
 
-import jumpaku.core.affine.*
+import jumpaku.core.affine.Point
+import jumpaku.core.affine.Vector
 import jumpaku.core.json.parseJson
-import jumpaku.core.testold.affine.pointAssertThat
-import jumpaku.core.testold.affine.vectorAssertThat
+import jumpaku.core.test.affine.shouldBePoint
+import jumpaku.core.test.affine.shouldBeVector
+import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldEqual
 import org.apache.commons.math3.util.FastMath
-import org.assertj.core.api.Assertions.*
 import org.junit.Test
+
 
 class GridTest {
 
@@ -30,77 +35,68 @@ class GridTest {
     @Test
     fun testProperties() {
         println("Properties")
-        assertThat(baseGrid.resolution).isEqualTo(0)
-        assertThat(baseGrid.isNoGrid).isFalse()
+        baseGrid.resolution.shouldEqual(0)
+        baseGrid.isNoGrid.shouldBeFalse()
 
-        assertThat(higherGrid.spacing).isEqualTo(2.0, withPrecision(1.0e-10))
-        assertThat(higherGrid.magnification).isEqualTo(2)
-        pointAssertThat(higherGrid.origin).isEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
-        vectorAssertThat(higherGrid.axis).isEqualToVector(Vector.K)
-        assertThat(higherGrid.radian).isEqualTo(p2, withPrecision(1.0e-10))
-        assertThat(higherGrid.fuzziness).isEqualTo(1.0, withPrecision(1.0e-10))
-        assertThat(higherGrid.resolution).isEqualTo(1)
-        assertThat(higherGrid.isNoGrid).isFalse()
+        higherGrid.spacing.shouldBeCloseTo(2.0)
+        higherGrid.magnification.shouldEqual(2)
+        higherGrid.origin.shouldBePoint(Point.xyz(4.0, 4.0, 0.0))
+        higherGrid.axis.shouldBeVector(Vector.K)
+        higherGrid.radian.shouldBeCloseTo(p2)
+        higherGrid.fuzziness.shouldBeCloseTo(1.0)
+        higherGrid.resolution.shouldEqual(1)
+        higherGrid.isNoGrid.shouldBeFalse()
 
-        assertThat(lowerGrid.spacing).isEqualTo(8.0, withPrecision(1.0e-10))
-        assertThat(lowerGrid.magnification).isEqualTo(2)
-        pointAssertThat(lowerGrid.origin).isEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
-        vectorAssertThat(lowerGrid.axis).isEqualToVector(Vector.K)
-        assertThat(lowerGrid.radian).isEqualTo(p2, withPrecision(1.0e-10))
-        assertThat(lowerGrid.fuzziness).isEqualTo(4.0, withPrecision(1.0e-10))
-        assertThat(lowerGrid.resolution).isEqualTo(-1)
-        assertThat(lowerGrid.isNoGrid).isFalse()
+        lowerGrid.spacing.shouldBeCloseTo(8.0)
+        lowerGrid.magnification.shouldEqual(2)
+        lowerGrid.origin.shouldBePoint(Point.xyz(4.0, 4.0, 0.0))
+        lowerGrid.axis.shouldBeVector(Vector.K)
+        lowerGrid.radian.shouldBeCloseTo(p2)
+        lowerGrid.fuzziness.shouldBeCloseTo(4.0)
+        lowerGrid.resolution.shouldEqual(-1)
+        lowerGrid.isNoGrid.shouldBeFalse()
 
-        assertThat(Grid.noGrid(baseGrid).isNoGrid).isTrue()
+        Grid.noGrid(baseGrid).isNoGrid.shouldBeTrue()
     }
 
     @Test
     fun testDeriveGrid() {
         println("DeriveGrid")
-        val b = baseGrid.deriveGrid(0)
-        val h = baseGrid.deriveGrid(1)
-        val l = baseGrid.deriveGrid(-1)
-
-        gridAssertThat(b).isEqualToGrid(baseGrid)
-        gridAssertThat(h).isEqualToGrid(higherGrid)
-        gridAssertThat(l).isEqualToGrid(lowerGrid)
+        baseGrid.deriveGrid(0).shouldBeGrid(baseGrid)
+        baseGrid.deriveGrid(1).shouldBeGrid(higherGrid)
+        baseGrid.deriveGrid(-1).shouldBeGrid(lowerGrid)
     }
 
     @Test
     fun testLocalToWorld() {
         println("LocalToWorld")
-        pointAssertThat(baseGrid.localToWorld(Point.xy(0.0, 0.0))).isEqualToPoint(Point.xy(4.0, 4.0))
-        pointAssertThat(baseGrid.localToWorld(Point.xy(1.0, 0.0))).isEqualToPoint(Point.xy(4.0, 8.0))
-        pointAssertThat(baseGrid.localToWorld(Point.xy(0.0, 1.0))).isEqualToPoint(Point.xy(0.0, 4.0))
+        baseGrid.localToWorld(Point.xy(0.0, 0.0)).shouldBePoint(Point.xy(4.0, 4.0))
+        baseGrid.localToWorld(Point.xy(1.0, 0.0)).shouldBePoint(Point.xy(4.0, 8.0))
+        baseGrid.localToWorld(Point.xy(0.0, 1.0)).shouldBePoint(Point.xy(0.0, 4.0))
 
-        pointAssertThat(lowerGrid.localToWorld(Point.xy(0.0, 0.0))).isEqualToPoint(Point.xy(4.0, 4.0))
-        pointAssertThat(lowerGrid.localToWorld(Point.xy(1.0, 0.0))).isEqualToPoint(Point.xy(4.0, 12.0))
-        pointAssertThat(lowerGrid.localToWorld(Point.xy(0.0, 1.0))).isEqualToPoint(Point.xy(-4.0, 4.0))
+        lowerGrid.localToWorld(Point.xy(0.0, 0.0)).shouldBePoint(Point.xy(4.0, 4.0))
+        lowerGrid.localToWorld(Point.xy(1.0, 0.0)).shouldBePoint(Point.xy(4.0, 12.0))
+        lowerGrid.localToWorld(Point.xy(0.0, 1.0)).shouldBePoint(Point.xy(-4.0, 4.0))
 
-        pointAssertThat(higherGrid.localToWorld(Point.xy(0.0, 0.0))).isEqualToPoint(Point.xy(4.0, 4.0))
-        pointAssertThat(higherGrid.localToWorld(Point.xy(1.0, 0.0))).isEqualToPoint(Point.xy(4.0, 6.0))
-        pointAssertThat(higherGrid.localToWorld(Point.xy(0.0, 1.0))).isEqualToPoint(Point.xy(2.0, 4.0))
+        higherGrid.localToWorld(Point.xy(0.0, 0.0)).shouldBePoint(Point.xy(4.0, 4.0))
+        higherGrid.localToWorld(Point.xy(1.0, 0.0)).shouldBePoint(Point.xy(4.0, 6.0))
+        higherGrid.localToWorld(Point.xy(0.0, 1.0)).shouldBePoint(Point.xy(2.0, 4.0))
     }
 
     @Test
     fun testSnapToNearestGrid() {
         println("SnapToNearestGrid")
-        gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(0.0, 0.0)))
-                .isEqualToGridPoint(GridPoint(-1, 1, 0))
-        gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(1.0, 0.0)))
-                .isEqualToGridPoint(GridPoint(-1, 1, 0))
-        gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(2.0, 0.0)))
-                .isEqualToGridPoint(GridPoint( -1, 1, 0))
-        gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(3.0, 0.0)))
-                .isEqualToGridPoint(GridPoint( -1, 0, 0))
-        gridPointAssertThat(baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0)))
-                .isEqualToGridPoint(GridPoint( -1, 0, 0))
+        baseGrid.snapToNearestGrid(Point.xy(0.0, 0.0)).shouldEqual(GridPoint(-1, 1, 0))
+        baseGrid.snapToNearestGrid(Point.xy(1.0, 0.0)).shouldEqual(GridPoint(-1, 1, 0))
+        baseGrid.snapToNearestGrid(Point.xy(2.0, 0.0)).shouldEqual(GridPoint( -1, 1, 0))
+        baseGrid.snapToNearestGrid(Point.xy(3.0, 0.0)).shouldEqual(GridPoint( -1, 0, 0))
+        baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0)).shouldEqual(GridPoint( -1, 0, 0))
     }
 
     @Test
     fun testToString() {
         println("ToString")
-        gridAssertThat(baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get()).isEqualToGrid(baseGrid)
+        baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get().shouldBeGrid(baseGrid)
     }
 }
 
