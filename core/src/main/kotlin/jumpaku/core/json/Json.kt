@@ -7,6 +7,8 @@ import com.google.gson.JsonParser
 import io.vavr.control.Option
 import io.vavr.control.Try
 import java.io.File
+import java.net.URI
+import java.net.URL
 import java.nio.file.Path
 
 val prettyGson = GsonBuilder().setPrettyPrinting().serializeNulls().create()!!
@@ -21,3 +23,5 @@ fun String.parseJson(): Option<JsonElement> = Try.ofSupplier { JsonParser().pars
 fun File.parseJson(): Option<JsonElement> = readText().parseJson()
 
 fun Path.parseJson(): Option<JsonElement> = toFile().parseJson()
+
+fun URL.parseJson(): Option<JsonElement> = readText().parseJson()

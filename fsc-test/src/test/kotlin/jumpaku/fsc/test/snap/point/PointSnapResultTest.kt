@@ -26,8 +26,7 @@ class PointSnapResultTest {
         println("ToString")
         val r = 1/4.0
         val e = snapper.snap(Point.xr( 7/32.0, r))
-        pointSnapResultAssertThat(e.toString().parseJson().flatMap { PointSnapResult.fromJson(it) }.get())
-                .isEqualToPointSnapResult(e)
+        e.toString().parseJson().flatMap { PointSnapResult.fromJson(it) }.get().shouldBePointSnapResult(e)
     }
 
 }

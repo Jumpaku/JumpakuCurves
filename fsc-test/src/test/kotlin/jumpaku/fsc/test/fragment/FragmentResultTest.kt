@@ -2,27 +2,23 @@ package jumpaku.fsc.test.fragment
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
 import jumpaku.fsc.fragment.FragmentResult
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.fragment.TruthValueThreshold
-
 import org.junit.Test
-import java.io.File
 
 class FragmentResultTest {
+
+    val urlString = "/jumpaku/fsc/test/fragment/"
+    fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
+
+    val fragmenter = Fragmenter(TruthValueThreshold(0.4, 0.6), 4, 0.1)
 
     @Test
     fun toStringTest() {
         println("ToString")
-        val fscData = File("./src/test/resources/jumpaku/fsc/test/fragment/FragmenterTestFsc0.json")
-        val fsc = fscData.parseJson().flatMap { BSpline.fromJson(it) }.get()
-        val result = Fragmenter(TruthValueThreshold(0.4, 0.6), 4, 0.1).fragment(fsc)
-        val jsonResult = result.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get()
-
-        jsonResult.fragments.zip(result.fragments).forEach { (a, e) ->
-            fragmentAssertThat(a).isEqualToFragment(e)
-        }
+        val fsc = resourceText("FragmenterTestFsc0.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+        val result = fragmenter.fragment(fsc)
+        result.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get().shouldBeFragmentResult(result)
     }
 }

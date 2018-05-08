@@ -11,7 +11,6 @@ import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.divide
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.clamp
 import org.apache.commons.math3.util.FastMath
 
 
@@ -30,7 +29,7 @@ data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Dou
     fun sample(samplesCount: Int): Array<Double> {
         require(samplesCount >= 2) { "samplesCount($samplesCount) < 2" }
         return Stream.range(0, samplesCount)
-                .map { clamp(begin.divide(it / (samplesCount - 1.0), end), this) }
+                .map { begin.divide(it / (samplesCount - 1.0), end).coerceIn(this) }
                 .toArray()
     }
 
