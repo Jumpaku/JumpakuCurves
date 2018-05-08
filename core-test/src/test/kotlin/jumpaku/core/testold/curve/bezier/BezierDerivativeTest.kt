@@ -121,6 +121,7 @@ class BezierDerivativeTest {
         val e5 = Bezier(Point.xy(-1.0, 0.0), Point.xy(-0.5, 1.0), Point.xy(0.0, 4 / 3.0), Point.xy(0.5, 1.0), Point.xy(1.0, 0.0))
         bezierAssertThat(b5.toBezier()).isEqualToBezier(e5)
     }
+
     @Test
     fun testSubdivide() {
         println("Subdivide")

@@ -287,7 +287,6 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0)))
     }
 
-
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")

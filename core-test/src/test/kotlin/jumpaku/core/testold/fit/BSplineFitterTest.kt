@@ -4,7 +4,7 @@ import io.vavr.API
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.BSplineFitter
 import jumpaku.core.testold.curve.bspline.bSplineAssertThat

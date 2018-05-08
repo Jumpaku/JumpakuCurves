@@ -1,7 +1,7 @@
 package jumpaku.core.testold.curve
 
 import jumpaku.core.affine.Point
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.json.parseJson
 import org.junit.Test
 

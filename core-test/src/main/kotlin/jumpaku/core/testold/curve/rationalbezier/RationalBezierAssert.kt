@@ -8,6 +8,7 @@ import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions
 
 fun rationalBezierAssertThat(actual: RationalBezier): RationalBezierAssert = RationalBezierAssert(actual)
+
 class RationalBezierAssert(actual: RationalBezier) : AbstractAssert<RationalBezierAssert, RationalBezier>(actual, RationalBezierAssert::class.java) {
 
     fun isEqualToRationalBezier(expected: RationalBezier, eps: Double = 1.0e-10): RationalBezierAssert {

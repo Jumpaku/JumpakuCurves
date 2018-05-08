@@ -12,6 +12,7 @@ import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.Affine
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized

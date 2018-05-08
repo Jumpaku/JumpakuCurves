@@ -3,7 +3,6 @@ package jumpaku.fsc.snap.conicsection
 import io.vavr.Tuple3
 import jumpaku.core.affine.*
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.util.clamp
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.FastMath
 
@@ -35,7 +34,7 @@ class ConjugateBox(val transform: Affine) {
         fun ofConicSection(conicSection: ConicSection): ConjugateBox {
             fun transform(deepConicSection: ConicSection): Affine {
                 val w = deepConicSection.weight
-                val t = (1 + w).divOption(1 - w).map { clamp((1 - FastMath.sqrt(it)) / 2, 0.0, 0.5) }
+                val t = (1 + w).divOption(1 - w).map { ((1 - FastMath.sqrt(it)) / 2).coerceIn(0.0, 0.5) }
                 val p0 = deepConicSection.far
                 val p1 = deepConicSection(t.get())
                 val p2 = deepConicSection(1 - t.get())

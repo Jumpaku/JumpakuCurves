@@ -2,7 +2,7 @@ package jumpaku.core.testold.fit
 
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.affine.Point
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.fit.WeightedParamPoint
 import jumpaku.core.fit.weighted
 import jumpaku.core.json.parseJson

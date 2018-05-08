@@ -12,6 +12,7 @@ class PointTest {
     fun testProperties() {
         println("Properties")
 
+
         assertThat(Point.xr(1.0, 2.0).x).isEqualTo( 1.0, withPrecision(1.0e-10))
         assertThat(Point.xr(1.0, 2.0).y).isEqualTo( 0.0, withPrecision(1.0e-10))
         assertThat(Point.xr(1.0, 2.0).z).isEqualTo( 0.0, withPrecision(1.0e-10))

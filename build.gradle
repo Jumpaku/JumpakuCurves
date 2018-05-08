@@ -21,6 +21,7 @@ subprojects {
 
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     compileKotlin {
@@ -32,7 +33,6 @@ subprojects {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-
 
         // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
@@ -54,9 +54,10 @@ project(':core-test') {
         compile 'org.assertj:assertj-core:3.8.0'
 
         testRuntime("org.junit.platform:junit-platform-launcher:1.1.0")
+        testCompile("org.junit.jupiter:junit-jupiter-api:5.1.0")
         testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
         testRuntime("org.junit.vintage:junit-vintage-engine:5.2.0")
-        compile 'com.natpryce:hamkrest:1.4.2.2'
+        compile 'org.amshove.kluent:kluent:1.38'
         compile project(':core')
     }
     test {

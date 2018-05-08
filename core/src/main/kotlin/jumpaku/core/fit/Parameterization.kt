@@ -6,9 +6,8 @@ import io.vavr.control.Option
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.divide
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.util.divOption
-import jumpaku.core.util.divOrElse
 
 
 fun transformParams(paramPoints: Array<ParamPoint>, range: Interval): Option<Array<ParamPoint>> {

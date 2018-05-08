@@ -4,7 +4,7 @@ import io.vavr.API.Array
 import org.assertj.core.api.Assertions.*
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.fit.chordalParametrize
 import jumpaku.core.fit.transformParams
 import jumpaku.core.fit.uniformParametrize

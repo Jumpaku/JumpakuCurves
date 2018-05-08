@@ -8,7 +8,7 @@ import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.Point
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 

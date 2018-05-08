@@ -6,7 +6,7 @@ import io.vavr.collection.HashMap
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.transformParams
 import jumpaku.core.util.*

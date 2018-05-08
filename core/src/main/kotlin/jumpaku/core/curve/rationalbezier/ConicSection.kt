@@ -150,7 +150,7 @@ class ConicSection(
             val hh = line(begin, end).map { far.distSquare(it) }
                     .getOrElse { begin.distSquare(far) }
             val ll = (begin - end).square()/4
-            return ConicSection(begin, far, end, clamp((ll - hh) / (ll + hh), -0.999, 0.999))
+            return ConicSection(begin, far, end, ((ll - hh) / (ll + hh)).coerceIn(-0.999, 0.999))
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)

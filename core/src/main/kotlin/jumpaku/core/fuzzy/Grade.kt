@@ -5,8 +5,6 @@ import com.google.gson.JsonPrimitive
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.parseJson
-import jumpaku.core.util.clamp
 
 
 data class Grade(val value: Double) : Comparable<Grade>, ToJson {
@@ -37,7 +35,7 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
         val FALSE = Grade(0.0)
 
-        fun clamped(value: Double): Grade = Grade(clamp(value, 0.0, 1.0))
+        fun clamped(value: Double): Grade = Grade(value.coerceIn(0.0, 1.0))
 
         fun fromJson(json: JsonPrimitive): Option<Grade> = Try.ofSupplier { Grade(json.double) }.toOption()
     }

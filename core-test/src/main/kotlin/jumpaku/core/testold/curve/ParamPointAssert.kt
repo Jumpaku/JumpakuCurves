@@ -1,6 +1,6 @@
 package jumpaku.core.testold.curve
 
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.testold.affine.pointAssertThat
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions

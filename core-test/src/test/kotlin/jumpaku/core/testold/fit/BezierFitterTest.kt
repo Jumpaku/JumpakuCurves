@@ -1,7 +1,7 @@
 package jumpaku.core.testold.fit
 
 import jumpaku.core.affine.Point
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.fit.BezierFitter
 import jumpaku.core.testold.curve.bezier.bezierAssertThat

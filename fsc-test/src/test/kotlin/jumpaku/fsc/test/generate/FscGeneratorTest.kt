@@ -2,7 +2,7 @@ package jumpaku.fsc.test.generate
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import jumpaku.core.testold.curve.bspline.bSplineAssertThat
