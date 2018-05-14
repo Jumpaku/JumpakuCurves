@@ -29,8 +29,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: BezierDerivative
-        get() {
+    override val derivative: BezierDerivative get() {
         val cp = controlPoints.map(Point::toCrisp)
         val vs = cp.zipWith(cp.tail(), { pre, post -> (post - pre)*degree.toDouble() })
         return BezierDerivative(vs)
@@ -49,12 +48,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        var cps = controlPoints
-        while (cps.size() > 1) {
-            cps = decasteljau(t, cps)
-        }
-
-        return cps.head()
+        return createEvaluatedPoint(t, controlPoints)
     }
 
     override fun differentiate(t: Double): Vector = derivative(t)
@@ -89,13 +83,9 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     fun extend(t: Double): Bezier {
         require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
-        val controlPoints = createSubdividedControlPoints(t, controlPoints)
-        return if(t <= domain.begin) {
-            Bezier(controlPoints._2())
-        }
-        else {
-            Bezier(controlPoints._1())
-        }
+
+        return createSubdividedControlPoints(t, controlPoints)
+                .let { (a, b) -> Bezier(if(t <= domain.begin) a else b) }
     }
 
     override val reparametrized: ArcLengthReparametrized by lazy {
@@ -111,6 +101,9 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     companion object {
 
+        fun fromJson(json: JsonElement): Option<Bezier> =
+                Try.ofSupplier { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it) }) }.toOption()
+
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
             return comb(degree, i) * FastMath.pow(t, i)*FastMath.pow(1 - t, degree - i)
@@ -119,8 +112,8 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
         fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> =
                 cps.zipWith(cps.tail()) { p0, p1 -> p0.divide(t, p1) }
 
-        fun fromJson(json: JsonElement): Option<Bezier> =
-                Try.ofSupplier { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it) }) }.toOption()
+        internal tailrec fun <P : Divisible<P>> createEvaluatedPoint(t: Double, cp: Array<P>): P =
+                if (cp.size() == 1) cp.head() else createEvaluatedPoint(t, decasteljau(t, cp))
 
         internal fun <P : Divisible<P>> createElevatedControlPoints(cp: Array<P>): Array<P> {
             val n = cp.size() - 1
