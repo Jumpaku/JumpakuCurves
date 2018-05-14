@@ -14,6 +14,6 @@ fun isCloseTo(actual: Grid, expected: Grid, error: Double): Boolean =
                 isCloseTo(actual.fuzziness, expected.fuzziness, error) &&
                 actual.resolution == expected.resolution
 
-fun Grid.shouldBeGrid(expected: Grid, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun Grid.shouldEqualToGrid(expected: Grid, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

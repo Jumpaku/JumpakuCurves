@@ -7,7 +7,7 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.createModelMatrix
-import jumpaku.core.test.curve.bspline.shouldBeBSpline
+import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.fsc.generate.nonNegativeLinearLeastSquare
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeTrue
@@ -28,7 +28,7 @@ class NnlsTest {
         val modelMatrix0 = createModelMatrix(data0.map(ParamPoint::param), 3, b0.knotVector)
         val cp0 = Array.of(*nonNegativeLinearLeastSquare(modelMatrix0, targetVector0)
                 .toArray().toTypedArray()).map { Point.x(it) }
-        BSpline(cp0, b0.knotVector).shouldBeBSpline(b0, 1.0e-8)
+        BSpline(cp0, b0.knotVector).shouldEqualToBSpline(b0, 1.0e-8)
     }
 
     @Test

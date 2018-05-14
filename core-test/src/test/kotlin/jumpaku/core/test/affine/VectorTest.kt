@@ -14,59 +14,59 @@ class VectorTest {
     @Test
     fun testIJK() {
         println("IJK")
-        Vector.I.shouldBeVector(Vector(1.0, 0.0, 0.0))
-        Vector.J.shouldBeVector(Vector(0.0, 1.0, 0.0))
-        Vector.K.shouldBeVector(Vector(0.0, 0.0, 1.0))
+        Vector.I.shouldEqualToVector(Vector(1.0, 0.0, 0.0))
+        Vector.J.shouldEqualToVector(Vector(0.0, 1.0, 0.0))
+        Vector.K.shouldEqualToVector(Vector(0.0, 0.0, 1.0))
     }
 
     @Test
     fun testPlus() {
         println("Plus")
-        (v + Vector(-4.0, 5.0, -6.0)).shouldBeVector(Vector(-3.0, 3.0, -3.0))
+        (v + Vector(-4.0, 5.0, -6.0)).shouldEqualToVector(Vector(-3.0, 3.0, -3.0))
     }
 
     @Test
     fun testMinus() {
         println("Minus")
-        (v - Vector(-4.0, 5.0, -6.0)).shouldBeVector(Vector(5.0, -7.0, 9.0))
+        (v - Vector(-4.0, 5.0, -6.0)).shouldEqualToVector(Vector(5.0, -7.0, 9.0))
     }
 
     @Test
     fun testTimes() {
         println("Times")
-        (v * 5.0).shouldBeVector(Vector(5.0, -10.0, 15.0))
-        (5.0 * v).shouldBeVector(Vector(5.0, -10.0, 15.0))
+        (v * 5.0).shouldEqualToVector(Vector(5.0, -10.0, 15.0))
+        (5.0 * v).shouldEqualToVector(Vector(5.0, -10.0, 15.0))
     }
 
     @Test
     fun testDiv() {
         println("Div")
-        (v / 5.0).shouldBeVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
-        v.divOption(5.0).get().shouldBeVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
+        (v / 5.0).shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
+        v.divOption(5.0).get().shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
     }
 
     @Test
     fun testUnaryPlus() {
         println("UnaryPlus")
-        (+v).shouldBeVector(v)
+        (+v).shouldEqualToVector(v)
     }
 
     @Test
     fun testUnaryMinus() {
         println("UnaryMinus")
-        (-v).shouldBeVector(Vector(-1.0, 2.0, -3.0))
+        (-v).shouldEqualToVector(Vector(-1.0, 2.0, -3.0))
     }
 
     @Test
     fun testNormalize() {
         println("Normalize")
-        v.normalize().get().shouldBeVector(Vector(1.0 / FastMath.sqrt(14.0), -2.0 / FastMath.sqrt(14.0), 3.0 / FastMath.sqrt(14.0)))
+        v.normalize().get().shouldEqualToVector(Vector(1.0 / FastMath.sqrt(14.0), -2.0 / FastMath.sqrt(14.0), 3.0 / FastMath.sqrt(14.0)))
     }
 
     @Test
     fun testResize() {
         println("Resize")
-        v.resize(2.0).get().shouldBeVector(Vector(1.0 / FastMath.sqrt(14.0) * 2, -2.0 / FastMath.sqrt(14.0) * 2, 3.0 / FastMath.sqrt(14.0) * 2))
+        v.resize(2.0).get().shouldEqualToVector(Vector(1.0 / FastMath.sqrt(14.0) * 2, -2.0 / FastMath.sqrt(14.0) * 2, 3.0 / FastMath.sqrt(14.0) * 2))
     }
 
     @Test
@@ -90,7 +90,7 @@ class VectorTest {
     @Test
     fun testCross() {
         println("Cross")
-        v.cross(Vector(-4.0, 5.0, -6.0)).shouldBeVector(Vector(-3.0, -6.0, -3.0))
+        v.cross(Vector(-4.0, 5.0, -6.0)).shouldEqualToVector(Vector(-3.0, -6.0, -3.0))
     }
 
     @Test
@@ -107,7 +107,7 @@ class VectorTest {
     @Test
     fun testJson() {
         println("Json")
-        v.toString().parseJson().flatMap { Vector.fromJson(it) }.get().shouldBeVector(v)
+        v.toString().parseJson().flatMap { Vector.fromJson(it) }.get().shouldEqualToVector(v)
     }
 
     @Test

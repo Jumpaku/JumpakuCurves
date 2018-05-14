@@ -14,6 +14,7 @@ import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.fsc.snap.point.PointSnapper
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 
 class ConicSectionSnapperTest {
@@ -50,7 +51,7 @@ class ConicSectionSnapperTest {
             val a = conicSectionSnapper.snap(cs, curveClass) { candidate ->
                 candidate.snappedConicSection.isPossible(fsc, n = 15)
             }
-            a.candidate.featurePoints.size().shouldEqual(e.candidate.featurePoints.size())
+            a.candidate.featurePoints.size().shouldEqualTo(e.candidate.featurePoints.size())
             a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->
                 a.snapped.gridPoint.shouldEqual(e.snapped.gridPoint)
             }

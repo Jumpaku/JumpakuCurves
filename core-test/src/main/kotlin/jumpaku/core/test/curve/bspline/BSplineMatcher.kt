@@ -11,6 +11,6 @@ fun isCloseTo(actual: BSpline, expected: BSpline, error: Double = 1.0e-9): Boole
         isCloseTo(actual.knotVector, expected.knotVector, error) &&
                 actual.controlPoints.zip(expected.controlPoints).all { (a, e) -> isCloseTo(a, e, error) }
 
-fun BSpline.shouldBeBSpline(expected: BSpline, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun BSpline.shouldEqualToBSpline(expected: BSpline, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

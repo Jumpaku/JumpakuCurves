@@ -12,6 +12,6 @@ fun isCloseTo(actual: PointSnapResult, expected: PointSnapResult, error: Double)
                 isCloseTo(actual.worldPoint, expected.worldPoint, error) &&
                 isCloseTo(actual.grid, expected.grid, error)
 
-fun PointSnapResult.shouldBePointSnapResult(expected: PointSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun PointSnapResult.shouldEqualToPointSnapResult(expected: PointSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

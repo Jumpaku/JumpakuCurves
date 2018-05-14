@@ -3,10 +3,7 @@ package jumpaku.core.test.fuzzy
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.shouldBeCloseTo
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeNegative
-import org.amshove.kluent.shouldBePositive
-import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.*
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -37,7 +34,7 @@ class GradeTest {
         println("CompareTo")
         Grade(0.3).compareTo(Grade(0.8)).shouldBeNegative()
         Grade(0.9).compareTo(Grade(0.8)).shouldBePositive()
-        Grade(0.8).compareTo(Grade(0.8)).shouldBe(0)
+        Grade(0.8).compareTo(Grade(0.8)).shouldEqualTo(0)
         (Grade(0.3) < Grade(0.8)).shouldBeTrue()
         (Grade(0.3) <= Grade(0.8)).shouldBeTrue()
         (Grade(0.9) > Grade(0.8)).shouldBeTrue()

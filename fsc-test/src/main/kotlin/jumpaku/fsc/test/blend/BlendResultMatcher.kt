@@ -26,6 +26,6 @@ fun isCloseTo(actual: BlendResult, expected: BlendResult, error: Double = 1.0e-9
                 }.all { it } &&
                 isCloseTo(actual.osm, expected.osm, error)
 
-fun BlendResult.shouldBeBlendResult(expected: BlendResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun BlendResult.shouldEqualToBlendResult(expected: BlendResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

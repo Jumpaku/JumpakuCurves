@@ -13,6 +13,6 @@ fun isCloseTo(actual: ClassifyResult, expected: ClassifyResult, error: Double = 
                     isCloseTo(actual.grades[it].get().value, expected.grades[it].get().value, error)
                 }
 
-fun ClassifyResult.shouldBeClassifyResult(expected: ClassifyResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun ClassifyResult.shouldEqualToClassifyResult(expected: ClassifyResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

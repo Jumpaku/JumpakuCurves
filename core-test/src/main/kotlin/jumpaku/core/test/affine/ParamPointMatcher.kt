@@ -7,6 +7,6 @@ fun isCloseTo(actual: ParamPoint, expected: ParamPoint, error: Double = 1.0e-9):
         isCloseTo(actual.point, expected.point, error) &&
                 jumpaku.core.test.isCloseTo(actual.param, expected.param, error)
 
-fun ParamPoint.shouldBeParamPoint(expected: ParamPoint, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun ParamPoint.shouldEqualToParamPoint(expected: ParamPoint, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }
