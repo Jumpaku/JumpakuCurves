@@ -9,6 +9,6 @@ fun isCloseTo(actual: Interval, expected: Interval, error: Double = 1.0e-9): Boo
         isCloseTo(actual.begin, expected.begin, error) &&
                 jumpaku.core.test.isCloseTo(actual.end, expected.end, error)
 
-fun Interval.shouldBeInterval(expected: Interval, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun Interval.shouldEqualToInterval(expected: Interval, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

@@ -2,7 +2,7 @@ package jumpaku.fsc.test.fragment
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.shouldBeBSpline
+import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.fragment.TruthValueThreshold
 import org.junit.Test
@@ -24,7 +24,7 @@ class FragmenterTest {
             result.fragments.forEachIndexed { index, (interval, _) ->
                 val f = fsc.restrict(interval)
                 val fFsc = resourceText("FragmenterTestData${i}_$index.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-                f.shouldBeBSpline(fFsc)
+                f.shouldEqualToBSpline(fFsc)
             }
         }
     }

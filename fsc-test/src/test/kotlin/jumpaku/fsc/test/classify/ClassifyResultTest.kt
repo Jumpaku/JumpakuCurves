@@ -33,6 +33,6 @@ class ClassifyResultTest {
     fun testToString() {
         println("ToString")
         val a = r.toString().parseJson().flatMap { ClassifyResult.fromJson(it) }.get()
-        a.shouldBeClassifyResult(r)
+        a.shouldEqualToClassifyResult(r)
     }
 }

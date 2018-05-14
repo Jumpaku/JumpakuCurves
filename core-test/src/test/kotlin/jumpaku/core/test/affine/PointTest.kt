@@ -165,43 +165,43 @@ class PointTest {
         val f1 = Point.xr(2.0, 10.0)
         val f2 = Point.xr(2.0, 20.0)
 
-        c0.divide(0.3, c1).shouldBePoint(Point.xr(1.3, 0.0))
-        c0.divide(-1.0, c1).shouldBePoint(Point.xr(0.0, 0.0))
-        c0.divide(2.0, c1).shouldBePoint(Point.xr(3.0, 0.0))
-        c0.divide(0.0, c1).shouldBePoint(Point.xr(1.0, 0.0))
-        c0.divide(1.0, c1).shouldBePoint(Point.xr(2.0, 0.0))
+        c0.divide(0.3, c1).shouldEqualToPoint(Point.xr(1.3, 0.0))
+        c0.divide(-1.0, c1).shouldEqualToPoint(Point.xr(0.0, 0.0))
+        c0.divide(2.0, c1).shouldEqualToPoint(Point.xr(3.0, 0.0))
+        c0.divide(0.0, c1).shouldEqualToPoint(Point.xr(1.0, 0.0))
+        c0.divide(1.0, c1).shouldEqualToPoint(Point.xr(2.0, 0.0))
 
-        f0.divide(0.3, c1).shouldBePoint(Point.xr(1.3, 7.0))
-        f0.divide(-1.0, c1).shouldBePoint(Point.xr(0.0, 20.0))
-        f0.divide(2.0, c1).shouldBePoint(Point.xr(3.0, 10.0))
-        f0.divide(0.0, c1).shouldBePoint(Point.xr(1.0, 10.0))
-        f0.divide(1.0, c1).shouldBePoint(Point.xr(2.0, 0.0))
+        f0.divide(0.3, c1).shouldEqualToPoint(Point.xr(1.3, 7.0))
+        f0.divide(-1.0, c1).shouldEqualToPoint(Point.xr(0.0, 20.0))
+        f0.divide(2.0, c1).shouldEqualToPoint(Point.xr(3.0, 10.0))
+        f0.divide(0.0, c1).shouldEqualToPoint(Point.xr(1.0, 10.0))
+        f0.divide(1.0, c1).shouldEqualToPoint(Point.xr(2.0, 0.0))
 
-        c0.divide(0.3, f1).shouldBePoint(Point.xr(1.3, 3.0))
-        c0.divide(-1.0, f1).shouldBePoint(Point.xr(0.0, 10.0))
-        c0.divide(2.0, f1).shouldBePoint(Point.xr(3.0, 20.0))
-        c0.divide(0.0, f1).shouldBePoint(Point.xr(1.0, 0.0))
-        c0.divide(1.0, f1).shouldBePoint(Point.xr(2.0, 10.0))
+        c0.divide(0.3, f1).shouldEqualToPoint(Point.xr(1.3, 3.0))
+        c0.divide(-1.0, f1).shouldEqualToPoint(Point.xr(0.0, 10.0))
+        c0.divide(2.0, f1).shouldEqualToPoint(Point.xr(3.0, 20.0))
+        c0.divide(0.0, f1).shouldEqualToPoint(Point.xr(1.0, 0.0))
+        c0.divide(1.0, f1).shouldEqualToPoint(Point.xr(2.0, 10.0))
 
-        f0.divide(0.3, f2).shouldBePoint(Point.xr(1.3, 13.0))
-        f0.divide(-1.0, f2).shouldBePoint(Point.xr(0.0, 40.0))
-        f0.divide(2.0, f2).shouldBePoint(Point.xr(3.0, 50.0))
-        f0.divide(0.0, f2).shouldBePoint(Point.xr(1.0, 10.0))
-        f0.divide(1.0, f2).shouldBePoint(Point.xr(2.0, 20.0))
+        f0.divide(0.3, f2).shouldEqualToPoint(Point.xr(1.3, 13.0))
+        f0.divide(-1.0, f2).shouldEqualToPoint(Point.xr(0.0, 40.0))
+        f0.divide(2.0, f2).shouldEqualToPoint(Point.xr(3.0, 50.0))
+        f0.divide(0.0, f2).shouldEqualToPoint(Point.xr(1.0, 10.0))
+        f0.divide(1.0, f2).shouldEqualToPoint(Point.xr(2.0, 20.0))
     }
 
     @Test
     fun testToVector() {
         println("ToVector")
-        f.toVector().shouldBeVector(Vector(1.0, -2.0, 3.0))
-        c.toVector().shouldBeVector(Vector(1.0, -2.0, 3.0))
+        f.toVector().shouldEqualToVector(Vector(1.0, -2.0, 3.0))
+        c.toVector().shouldEqualToVector(Vector(1.0, -2.0, 3.0))
     }
 
     @Test
     fun testToCrisp() {
         println("ToCrisp")
-        f.toCrisp().shouldBePoint(Point.xyz(1.0, -2.0, 3.0))
-        c.toCrisp().shouldBePoint(Point.xyz(1.0, -2.0, 3.0))
+        f.toCrisp().shouldEqualToPoint(Point.xyz(1.0, -2.0, 3.0))
+        c.toCrisp().shouldEqualToPoint(Point.xyz(1.0, -2.0, 3.0))
     }
 
     @Test
@@ -216,24 +216,24 @@ class PointTest {
     @Test
     fun testToString() {
         println("ToString")
-        f.toString().parseJson().flatMap { Point.fromJson(it) }.get().shouldBePoint(f)
-        c.toString().parseJson().flatMap { Point.fromJson(it) }.get().shouldBePoint(c)
+        f.toString().parseJson().flatMap { Point.fromJson(it) }.get().shouldEqualToPoint(f)
+        c.toString().parseJson().flatMap { Point.fromJson(it) }.get().shouldEqualToPoint(c)
     }
 
     @Test
     fun testPlus() {
         println("Plus")
         val p0 = Point.xyz(-1.0, -2.0, 4.0) + Vector(1.0, -2.0, 3.0)
-        p0.shouldBePoint(Point.xyz(0.0, -4.0, 7.0))
+        p0.shouldEqualToPoint(Point.xyz(0.0, -4.0, 7.0))
         val p1 = Point.xyz(-1.0, -2.0, 4.0) - Vector(1.0, -2.0, 3.0)
-        p1.shouldBePoint(Point.xyz(-2.0, 0.0, 1.0))
+        p1.shouldEqualToPoint(Point.xyz(-2.0, 0.0, 1.0))
     }
 
     @Test
     fun testMinus() {
         println("Minus")
         val p = Point.xyz(-1.0, -2.0, 4.0) - Point.xyz(1.0, -2.0, 3.0)
-        p.shouldBeVector(Vector(-2.0, 0.0, 1.0))
+        p.shouldEqualToVector(Vector(-2.0, 0.0, 1.0))
     }
 
     @Test
@@ -262,9 +262,9 @@ class PointTest {
     fun testProjectTo() {
         println("ProjectTo")
         val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)).get())
-        pl.shouldBePoint(Point.xyz(-1.0, 1.0, 0.0))
+        pl.shouldEqualToPoint(Point.xyz(-1.0, 1.0, 0.0))
         val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
-        pp.shouldBePoint(Point.xyz(1.0, -1.0, 0.0))
+        pp.shouldEqualToPoint(Point.xyz(1.0, -1.0, 0.0))
     }
 
     @Test
@@ -285,17 +285,17 @@ class PointTest {
     fun testNormal() {
         println("Normal")
         val n = Point.xyz(1.0, 1.0, 0.0).normal(Point.xyz(-1.0, 1.0, 0.0), Point.xyz(0.0, 1.0, 1.0))
-        n.get().shouldBeVector(Vector(0.0, 1.0, 0.0))
+        n.get().shouldEqualToVector(Vector(0.0, 1.0, 0.0))
     }
 
     @Test
     fun testTransform() {
         println("Affine")
         val t = Point.xyz(3.3, -2.4, -1.0).transform(translation(Vector(2.3, -5.4, -0.5)))
-        t.shouldBePoint(Point.xyz(5.6, -7.8, -1.5))
+        t.shouldEqualToPoint(Point.xyz(5.6, -7.8, -1.5))
         val r = Point.xyz(1.0, 1.0, -1.0).transform(rotation(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
-        r.shouldBePoint(Point.xyz(-1.0, 1.0, 1.0))
+        r.shouldEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
         val s = Point.xyz(3.0, -2.0, -1.0).transform(scaling(0.5, 0.5, 2.0))
-        s.shouldBePoint(Point.xyz(1.5, -1.0, -2.0))
+        s.shouldEqualToPoint(Point.xyz(1.5, -1.0, -2.0))
     }
 }

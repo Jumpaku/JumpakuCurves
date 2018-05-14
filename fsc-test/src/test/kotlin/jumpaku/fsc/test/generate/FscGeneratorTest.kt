@@ -5,7 +5,7 @@ import io.vavr.collection.Array
 import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.shouldBeBSpline
+import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.fsc.generate.FscGenerator
 import org.junit.Test
 
@@ -32,7 +32,7 @@ class FscGeneratorTest {
             val data = Array.ofAll(resourceText("Data$i.json").parseJson().get().array.flatMap { ParamPoint.fromJson(it) })
             val e = resourceText("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = generator.generate(data)
-            a.shouldBeBSpline(e)
+            a.shouldEqualToBSpline(e)
         }
     }
 }

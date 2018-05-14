@@ -4,11 +4,11 @@ import jumpaku.core.affine.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.shouldBePoint
-import jumpaku.core.test.curve.rationalbezier.shouldBeConicSection
-import jumpaku.core.test.curve.shouldBeInterval
+import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.curve.rationalbezier.shouldEqualToConicSection
+import jumpaku.core.test.curve.shouldEqualToInterval
 import jumpaku.core.test.shouldBeCloseTo
-import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
@@ -24,8 +24,8 @@ class ArcLengthReparametrizedTest {
         println("Properties")
         val c = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 1.0), Point.xyr(1.0, 0.0, 1.0), R2 / 2)
         val a = ArcLengthReparametrized(c, 101)
-        a.domain.shouldBeInterval(Interval(0.0, FastMath.PI / 2), 1.0e-4)
-        (a.originalCurve as ConicSection).shouldBeConicSection(c)
+        a.domain.shouldEqualToInterval(Interval(0.0, FastMath.PI / 2), 1.0e-4)
+        (a.originalCurve as ConicSection).shouldEqualToConicSection(c)
     }
 
     @Test
@@ -33,19 +33,19 @@ class ArcLengthReparametrizedTest {
         println("Evaluate")
         val c = ConicSection(Point.xy(0.0, 1.0), Point.xy(R2 / 2, R2 / 2), Point.xy(1.0, 0.0), R2 / 2)
         val a = ArcLengthReparametrized(c, 101)
-        a.evaluate(PI * 0 / 8).shouldBePoint(Point.xy(0.0, 1.0), 1.0e-4)
-        a.evaluate(PI * 1 / 8).shouldBePoint(Point.xy(FastMath.cos(PI*3/8), FastMath.sin(PI*3/8)), 1.0e-4)
-        a.evaluate(PI * 2 / 8).shouldBePoint(Point.xy(R2/2, R2/2), 1.0e-4)
-        a.evaluate(PI * 3 / 8).shouldBePoint(Point.xy(FastMath.cos(PI*1/8), FastMath.sin(PI*1/8)), 1.0e-4)
-        a.evaluate(a.domain.end).shouldBePoint(Point.xy(1.0, 0.0), 1.0e-4)
+        a.evaluate(PI * 0 / 8).shouldEqualToPoint(Point.xy(0.0, 1.0), 1.0e-4)
+        a.evaluate(PI * 1 / 8).shouldEqualToPoint(Point.xy(FastMath.cos(PI*3/8), FastMath.sin(PI*3/8)), 1.0e-4)
+        a.evaluate(PI * 2 / 8).shouldEqualToPoint(Point.xy(R2/2, R2/2), 1.0e-4)
+        a.evaluate(PI * 3 / 8).shouldEqualToPoint(Point.xy(FastMath.cos(PI*1/8), FastMath.sin(PI*1/8)), 1.0e-4)
+        a.evaluate(a.domain.end).shouldEqualToPoint(Point.xy(1.0, 0.0), 1.0e-4)
 
         val ps = a.evaluateAll(5)
-        ps.size().shouldBe(5)
-        ps[0].shouldBePoint(Point.xy(0.0, 1.0), 1.0e-4)
-        ps[1].shouldBePoint(Point.xy(FastMath.cos(PI*3/8), FastMath.sin(PI*3/8)), 1.0e-4)
-        ps[2].shouldBePoint(Point.xy(R2/2, R2/2), 1.0e-4)
-        ps[3].shouldBePoint(Point.xy(FastMath.cos(PI*1/8), FastMath.sin(PI*1/8)), 1.0e-4)
-        ps[4].shouldBePoint(Point.xy(1.0, 0.0), 1.0e-4)
+        ps.size().shouldEqualTo(5)
+        ps[0].shouldEqualToPoint(Point.xy(0.0, 1.0), 1.0e-4)
+        ps[1].shouldEqualToPoint(Point.xy(FastMath.cos(PI*3/8), FastMath.sin(PI*3/8)), 1.0e-4)
+        ps[2].shouldEqualToPoint(Point.xy(R2/2, R2/2), 1.0e-4)
+        ps[3].shouldEqualToPoint(Point.xy(FastMath.cos(PI*1/8), FastMath.sin(PI*1/8)), 1.0e-4)
+        ps[4].shouldEqualToPoint(Point.xy(1.0, 0.0), 1.0e-4)
     }
 
     @Test

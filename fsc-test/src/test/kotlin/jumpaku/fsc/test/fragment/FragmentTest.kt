@@ -19,6 +19,6 @@ class FragmentTest {
         println("ToString")
         val result = Fragmenter(TruthValueThreshold(0.4, 0.6), 4, 0.1).fragment(fsc)
         val fragment = result.fragments.head()
-        fragment.toString().parseJson().flatMap { Fragment.fromJson(it) }.get().shouldBeFragment(fragment)
+        fragment.toString().parseJson().flatMap { Fragment.fromJson(it) }.get().shouldEqualToFragment(fragment)
     }
 }

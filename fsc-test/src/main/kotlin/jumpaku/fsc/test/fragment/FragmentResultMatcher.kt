@@ -10,6 +10,6 @@ fun isCloseTo(actual: FragmentResult, expected: FragmentResult, error: Double = 
         actual.fragments.size() == expected.fragments.size() &&
                 actual.fragments.zip(expected.fragments).all { (a, e) -> isCloseTo(a, e, error) }
 
-fun FragmentResult.shouldBeFragmentResult(expected: FragmentResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun FragmentResult.shouldEqualToFragmentResult(expected: FragmentResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

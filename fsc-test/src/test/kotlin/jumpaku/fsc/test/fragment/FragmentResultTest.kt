@@ -19,6 +19,6 @@ class FragmentResultTest {
         println("ToString")
         val fsc = resourceText("FragmenterTestFsc0.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
         val result = fragmenter.fragment(fsc)
-        result.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get().shouldBeFragmentResult(result)
+        result.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get().shouldEqualToFragmentResult(result)
     }
 }

@@ -4,7 +4,7 @@ import io.vavr.API
 import io.vavr.Tuple2
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.shouldBeBSpline
+import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.blend.BlendResult
@@ -46,7 +46,7 @@ class BlenderTest {
             val e = blender.blend(existing, overlapping)
             a.blended.isDefined.shouldBe(e.blended.isDefined)
             API.For(a.blended, e.blended).`yield` { t, u -> Tuple2(t, u) }.forEach { (t, u) ->
-                t.shouldBeBSpline(u)
+                t.shouldEqualToBSpline(u)
             }
         }
     }
