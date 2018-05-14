@@ -1,6 +1,7 @@
 package jumpaku.core.test.fuzzy
 
 import jumpaku.core.fuzzy.Grade
+import jumpaku.core.fuzzy.toGrade
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.shouldBeCloseTo
 import org.amshove.kluent.*
@@ -14,11 +15,16 @@ class GradeTest {
         println("ConstructorException")
         assertThrows<IllegalArgumentException> { Grade(-0.5) }
         assertThrows<IllegalArgumentException> { Grade(1.5) }
-        assertThrows<IllegalArgumentException> { Grade(2) }
-        assertThrows<IllegalArgumentException> { Grade(-1) }
         assertThrows<IllegalArgumentException> { Grade(Double.NaN) }
         assertThrows<IllegalArgumentException> { Grade(Double.NEGATIVE_INFINITY) }
         assertThrows<IllegalArgumentException> { Grade(Double.POSITIVE_INFINITY) }
+    }
+
+    @Test
+    fun testToGrade() {
+        println("ToGrade")
+        true.toGrade().value.shouldBeCloseTo(1.0)
+        false.toGrade().value.shouldBeCloseTo(0.0)
     }
 
     @Test
@@ -27,6 +33,14 @@ class GradeTest {
         Grade(1.0).toString().parseJson().flatMap { Grade.fromJson(it.asJsonPrimitive) }.get().value.shouldBeCloseTo(Grade(1.0).value)
         Grade(0.0).toString().parseJson().flatMap { Grade.fromJson(it.asJsonPrimitive) }.get().value.shouldBeCloseTo(Grade(0.0).value)
         Grade(0.5).toString().parseJson().flatMap { Grade.fromJson(it.asJsonPrimitive) }.get().value.shouldBeCloseTo(Grade(0.5).value)
+    }
+
+    @Test
+    fun testToBoolean() {
+        println("ToBoolean")
+        Grade(0.0).toBoolean().shouldBeFalse()
+        Grade(0.5).toBoolean().shouldBeTrue()
+        Grade(1.0).toBoolean().shouldBeTrue()
     }
 
     @Test

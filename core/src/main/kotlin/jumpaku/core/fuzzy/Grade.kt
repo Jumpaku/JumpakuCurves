@@ -7,6 +7,8 @@ import io.vavr.control.Try
 import jumpaku.core.json.ToJson
 
 
+fun Boolean.toGrade(): Grade = if (this) Grade.TRUE else Grade.FALSE
+
 data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
     init {
@@ -15,8 +17,6 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
     constructor(booleanValue: Boolean): this(if (booleanValue) 1.0 else 0.0)
 
-    constructor(intValue: Int): this(intValue.toDouble())
-
     override fun compareTo(other: Grade): Int = value.compareTo(other.value)
 
     infix fun and(g: Grade): Grade = minOf(this, g)
@@ -24,6 +24,8 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
     infix fun or(g: Grade): Grade = maxOf(this, g)
 
     operator fun not(): Grade = Grade(1.0 - value)
+
+    fun toBoolean(): Boolean = value >= 0.5
 
     override fun toString(): String = value.toString()
 
