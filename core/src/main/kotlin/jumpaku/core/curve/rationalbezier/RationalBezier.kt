@@ -42,8 +42,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: Derivative
-        get() {
+    override val derivative: Derivative get() {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
@@ -67,11 +66,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        var wcp = weightedControlPoints
-        while (wcp.size() > 1) {
-            wcp = Bezier.decasteljau(t, wcp)
-        }
-        return wcp.head().point
+        return Bezier.createEvaluatedPoint(t, weightedControlPoints).point
     }
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
@@ -93,7 +88,6 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
         return subdivide(end)._1().subdivide(begin / end)._2()
     }
-
 
     fun reverse(): RationalBezier = RationalBezier(weightedControlPoints.reverse())
 
