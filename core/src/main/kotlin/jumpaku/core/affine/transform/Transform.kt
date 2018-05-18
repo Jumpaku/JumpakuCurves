@@ -1,6 +1,12 @@
 package jumpaku.core.affine.transform
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.Point
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
@@ -27,7 +33,13 @@ interface Transform {
             override val matrix: RealMatrix = m
         }
 
+        fun fromMatrixJson(json: JsonElement): Option<Transform> = Try.ofSupplier {
+            json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
+                    .let { ofMatrix(MatrixUtils.createRealMatrix(it)) }
+        }.toOption()
+
         val Identity = ofMatrix(MatrixUtils.createRealIdentityMatrix(4))
     }
 }
 
+fun Transform.toMatrixJson(): JsonElement = jsonArray(matrix.data.map { jsonArray(it.asIterable()) })

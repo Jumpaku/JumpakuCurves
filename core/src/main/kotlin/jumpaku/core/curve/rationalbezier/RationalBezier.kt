@@ -11,6 +11,7 @@ import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Transform
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.approximate
@@ -21,7 +22,7 @@ import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, ToJson {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, ToJson {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -76,7 +77,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override fun toJson(): JsonElement = jsonObject(
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }))
 
-    override fun transform(a: Affine): RationalBezier = RationalBezier(
+    fun transform(a: Transform): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)

@@ -7,6 +7,7 @@ import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Transform
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.approximate
@@ -21,7 +22,7 @@ import org.apache.commons.math3.util.Precision
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, ToJson {
+    : FuzzyCurve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -74,7 +75,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun transform(a: Affine): BSpline = BSpline(controlPoints.map(a), knotVector)
+    fun transform(a: Transform): BSpline = BSpline(controlPoints.map(a::invoke), knotVector)
 
     fun restrict(begin: Double, end: Double): BSpline {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

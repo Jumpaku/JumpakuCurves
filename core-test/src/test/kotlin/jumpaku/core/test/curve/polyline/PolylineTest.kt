@@ -2,7 +2,9 @@ package jumpaku.core.test.curve.polyline
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import jumpaku.core.affine.identity
+import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.affine.transform.Translate
+import jumpaku.core.affine.transform.UniformlyScale
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.parseJson
@@ -60,7 +62,9 @@ class PolylineTest {
     @Test
     fun testTransform() {
         println("Transform")
-        val a = pl.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
+        val a = pl.transform(UniformlyScale(2.0)
+                .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2))
+                .andThen(Translate(Vector(1.0, 1.0))))
         val e = Polyline(Point.xy(-1.0, -1.0), Point.xy(-1.0, 3.0), Point.xy(7.0, 3.0), Point.xyz(7.0, 3.0, 3.0))
         a.shouldEqualToPolyline(e)
     }

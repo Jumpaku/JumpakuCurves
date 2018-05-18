@@ -2,10 +2,8 @@ package jumpaku.core.test.affine.transform
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import jumpaku.core.affine.transform.Rotate
-import jumpaku.core.affine.transform.Transform
-import jumpaku.core.affine.transform.Translate
-import jumpaku.core.affine.transform.UniformlyScale
+import jumpaku.core.affine.transform.*
+import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.shouldEqualToPoint
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
@@ -49,5 +47,13 @@ class TransformTest {
         println("Identity")
         Transform.Identity(p).shouldEqualToPoint(p)
         Transform.Identity.invert().get()(p).shouldEqualToPoint(p)
+    }
+
+    @Test
+    fun testToMatrixJson() {
+        println("ToMatrixJson")
+        val e = r.at(o)(p)
+        r.at(o).toMatrixJson()
+                .toString().parseJson().flatMap { Transform.fromMatrixJson(it) }.get()(p).shouldEqualToPoint(e)
     }
 }

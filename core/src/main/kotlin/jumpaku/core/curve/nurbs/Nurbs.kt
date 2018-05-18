@@ -10,6 +10,7 @@ import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Transform
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.approximate
@@ -24,7 +25,7 @@ import jumpaku.core.util.component2
 import org.apache.commons.math3.util.Precision
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, ToJson {
+    : FuzzyCurve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -87,7 +88,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     override fun evaluate(t: Double): Point = BSpline.evaluate(weightedControlPoints, knotVector, t).point
 
-    override fun transform(a: Affine): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
+    fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a::invoke), weights, knotVector)
 
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

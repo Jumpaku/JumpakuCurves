@@ -5,6 +5,10 @@ import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.affine.transform.Transform
+import jumpaku.core.affine.transform.Translate
+import jumpaku.core.affine.transform.UniformlyScale
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -30,7 +34,9 @@ class Grid(
      *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Affine get() = identity.andRotate(axis, radian).andScale(spacing).andTranslate(origin - Point.origin)
+    val localToWorld: Transform get() = Rotate(axis, radian)
+            .andThen(UniformlyScale(spacing))
+            .andThen(Translate(origin - Point.origin))
 
     fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert().get()(cursor)
             .toArray()

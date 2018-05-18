@@ -1,6 +1,10 @@
 package jumpaku.core.test.affine
 
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.affine.transform.Transform
+import jumpaku.core.affine.transform.Translate
+import jumpaku.core.affine.transform.UniformlyScale
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.shouldBeCloseTo
 import org.apache.commons.math3.util.FastMath
@@ -291,11 +295,11 @@ class PointTest {
     @Test
     fun testTransform() {
         println("Affine")
-        val t = Point.xyz(3.3, -2.4, -1.0).transform(translation(Vector(2.3, -5.4, -0.5)))
+        val t = Point.xyz(3.3, -2.4, -1.0).transform(Translate(Vector(2.3, -5.4, -0.5)))
         t.shouldEqualToPoint(Point.xyz(5.6, -7.8, -1.5))
-        val r = Point.xyz(1.0, 1.0, -1.0).transform(rotation(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
+        val r = Point.xyz(1.0, 1.0, -1.0).transform(Rotate(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
         r.shouldEqualToPoint(Point.xyz(-1.0, 1.0, 1.0))
-        val s = Point.xyz(3.0, -2.0, -1.0).transform(scaling(0.5, 0.5, 2.0))
-        s.shouldEqualToPoint(Point.xyz(1.5, -1.0, -2.0))
+        val s = Point.xyz(3.0, -2.0, -1.0).transform(UniformlyScale(0.5))
+        s.shouldEqualToPoint(Point.xyz(1.5, -1.0, -0.5))
     }
 }

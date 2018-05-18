@@ -12,6 +12,7 @@ import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Transform
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.approximate
@@ -25,7 +26,7 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
 
-class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, ToJson {
+class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -53,9 +54,9 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun transform(a: Affine): Bezier = Bezier(controlPoints.map(a))
-
     override fun toCrisp(): Bezier = Bezier(controlPoints.map { it.toCrisp() })
+
+    fun transform(a: Transform): Bezier = Bezier(controlPoints.map(a::invoke))
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 

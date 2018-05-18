@@ -7,6 +7,7 @@ import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
+import jumpaku.core.affine.transform.Transform
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
 import jumpaku.core.json.ToJson
@@ -145,7 +146,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     /**
      * @return A*p (crisp point)
      */
-    fun transform(a: Affine): Point = a(this)
+    fun transform(a: Transform): Point = a(this)
 
     companion object {
 

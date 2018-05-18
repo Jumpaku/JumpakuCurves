@@ -12,6 +12,7 @@ import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.affine.*
+import jumpaku.core.affine.transform.Transform
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.approximate
@@ -28,7 +29,7 @@ import kotlin.math.absoluteValue
  */
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
-    : FuzzyCurve, Differentiable, Transformable, ToJson {
+    : FuzzyCurve, Differentiable, ToJson {
 
     val representPoints: Array<Point> get() = Array(begin, far, end)
 
@@ -77,7 +78,7 @@ class ConicSection(
         return Point(p, r)
     }
 
-    override fun transform(a: Affine): ConicSection = ConicSection(
+    fun transform(a: Transform): ConicSection = ConicSection(
             a(begin), a(far), a(end), weight)
 
     override fun toString(): String = toJsonString()

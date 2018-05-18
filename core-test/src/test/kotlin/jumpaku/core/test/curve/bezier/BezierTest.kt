@@ -3,7 +3,9 @@ package jumpaku.core.test.curve.bezier
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
-import jumpaku.core.affine.identity
+import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.affine.transform.Translate
+import jumpaku.core.affine.transform.UniformlyScale
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.shouldEqualToPoint
@@ -66,7 +68,9 @@ class BezierTest {
     @Test
     fun testCrispTransform() {
         print("CrispTransform")
-        val a = bc.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0, 0.0)))
+        val a = bc.transform(UniformlyScale(2.0)
+                .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2))
+                .andThen(Translate(Vector(1.0, 1.0, 0.0))))
         val e = Bezier(Point.xy(1.0, -3.0), Point.xy(1.0, -1.0), Point.xy(-3.0, 1.0), Point.xy(1.0, 3.0), Point.xy(1.0, 5.0))
         a.shouldEqualToBezier(e)
     }

@@ -3,7 +3,9 @@ package jumpaku.core.test.curve.rationalbezier
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
 import jumpaku.core.affine.WeightedPoint
-import jumpaku.core.affine.identity
+import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.affine.transform.Translate
+import jumpaku.core.affine.transform.UniformlyScale
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.curve.rationalbezier.RationalBezier
@@ -100,7 +102,9 @@ class ConicSectionTest {
     fun testTransform() {
         println("Transform")
         val i = cs
-        val a = i.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
+        val a = i.transform(UniformlyScale(2.0)
+                .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2))
+                .andThen(Translate(Vector(1.0, 1.0))))
         val e = ConicSection(Point.xy(-1.0, 1.0), Point.xy(1 - R2, 1 + R2), Point.xy(1.0, 3.0), R2 / 2)
         a.shouldEqualToConicSection(e)
     }

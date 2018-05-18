@@ -17,6 +17,8 @@ class Calibrate(
 
     constructor(pair0: Pair<Point, Point>) : this(makePairs(pair0))
 
+    constructor() : this(makePairs(Point.origin to Point.origin))
+
     private constructor(pairs4: List<Pair<Point, Point>>): this(pairs4[0], pairs4[1], pairs4[2], pairs4[3])
 
     override val matrix: RealMatrix by lazy {
@@ -61,6 +63,23 @@ class Calibrate(
             val (from, to) = pair0
             return listOf(Vector.Zero, Vector.I, Vector.J, Vector.K)
                     .map { from + it to to }
+        }
+
+
+        fun similarityWithNormal(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, normal: Pair<Vector, Vector>): Calibrate {
+            val (fromO, toO) = pair0
+            val (fromP, toP) = pair1
+            val (fromN, toN) = normal
+            val e0 = fromP - fromO
+            val e1 = e0.cross(fromN)
+            val e2 = e1.cross(e0)
+
+            val f0 = toP - toO
+            val f1 = f0.cross(toN)
+            val f2 = f1.cross(f0)
+            return Calibrate(listOf(Vector.Zero to Vector.Zero, e0 to f0, e1 to f1, e2 to f2).map {
+                (a, b) -> fromO + a to toO + b
+            })
         }
     }
 }

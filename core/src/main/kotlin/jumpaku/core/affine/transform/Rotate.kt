@@ -20,7 +20,7 @@ class Rotate(val axis: Vector, val angleRadian: Double): Transform, ToJson {
     constructor(from: Vector, to: Vector, angleRadian: Double = from.angle(to)): this(from.cross(to), angleRadian)
 
     override val matrix: RealMatrix get() {
-        val (x, y, z) = axis
+        val (x, y, z) = axis.normalize().get()
         val cos = FastMath.cos(angleRadian)
         val sin = FastMath.sin(angleRadian)
         return MatrixUtils.createRealMatrix(arrayOf(
