@@ -66,6 +66,8 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
         val K: Vector = Vector(z = 1.0)
 
+        val Zero: Vector = Vector()
+
         fun fromJson(json: JsonElement): Option<Vector> {
             return Try.ofSupplier { Vector(json["x"].double, json["y"].double, json["z"].double) }.toOption()
         }

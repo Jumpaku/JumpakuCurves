@@ -85,7 +85,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
         require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
 
         return createSubdividedControlPoints(t, controlPoints)
-                .let { (a, b) -> Bezier(if(t <= domain.begin) a else b) }
+                .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
     }
 
     override val reparametrized: ArcLengthReparametrized by lazy {
