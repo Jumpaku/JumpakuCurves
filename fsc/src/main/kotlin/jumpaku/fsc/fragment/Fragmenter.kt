@@ -22,7 +22,7 @@ class Fragmenter(
         samplingSpan = minStayTime / n
     }
 
-    fun fragment(fsc: BSpline): FragmentResult {
+    fun fragment(fsc: BSpline): Array<Fragment> {
         val chunks = fsc.domain.sample(samplingSpan)
                 .sliding(n)
                 .map { chunk(fsc, Interval(it.head(), it.last()), n) }
@@ -31,7 +31,7 @@ class Fragmenter(
                 .fold(Array.of(Fragmenter.State.STAY)) { l, n -> l.append(l.last().transit(n)) }
                 .tail()
                 .toArray()
-        val fragments = chunks.zip(states)
+        return chunks.zip(states)
                 .fold(Array.of(Tuple(chunks.head().interval.begin, chunks.head().interval.end, states.head()))) { prev, (nChunk, nState) ->
                     val (pBegin, _, pState) = prev.last()
                     when {
@@ -46,7 +46,6 @@ class Fragmenter(
                     }
                 }
                 .toArray()
-        return FragmentResult(fragments)
     }
 
     private enum class State {

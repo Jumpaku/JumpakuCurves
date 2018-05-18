@@ -1,11 +1,13 @@
 package jumpaku.fsc.test.fragment
 
+import com.github.salomonbrys.kotson.array
+import io.vavr.collection.Array
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.curve.shouldEqualToInterval
-import jumpaku.fsc.fragment.FragmentResult
+import jumpaku.fsc.fragment.Fragment
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.fragment.TruthValueThreshold
 import org.amshove.kluent.shouldBe
@@ -26,10 +28,10 @@ class FragmenterTest {
         for (i in 0..1) {
             val fsc = resourceText("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = fragmenter.fragment(fsc)
-            val e = resourceText("FragmentResult$i.json").parseJson().flatMap { FragmentResult.fromJson(it) }.get()
-
-            a.fragments.size().shouldEqualTo(e.fragments.size())
-            a.fragments.zip(e.fragments).forEach { (a, e) ->
+            val e = resourceText("FragmentResult$i.json").parseJson().map { it.array.flatMap { Fragment.fromJson(it) } }.get()
+                    .let { Array.ofAll(it) }
+            a.size().shouldEqualTo(e.size())
+            a.zip(e).forEach { (a, e) ->
                 a.type.shouldBe(e.type)
                 a.interval.shouldEqualToInterval(e.interval)
             }
