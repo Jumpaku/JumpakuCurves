@@ -1,13 +1,13 @@
 package jumpaku.fsc.fragment
 
 import io.vavr.API.*
-import io.vavr.Tuple3
 import io.vavr.collection.Array
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
+import jumpaku.core.util.lastIndex
 
 
 class Fragmenter(
@@ -33,15 +33,16 @@ class Fragmenter(
                 .toArray()
         val fragments = chunks.zip(states)
                 .fold(Array.of(Tuple(chunks.head().interval.begin, chunks.head().interval.end, states.head()))) { prev, (nChunk, nState) ->
+                    val (pBegin, _, pState) = prev.last()
                     when {
-                        (prev.last()._3 != nState) -> prev.append(Tuple(nChunk.interval.begin, nChunk.interval.end, nState))
-                        else -> prev.update(prev.size() - 1, Tuple3(prev.last()._1, nChunk.interval.end, prev.last()._3))
+                        (pState != nState) -> prev.append(Tuple(nChunk.interval.begin, nChunk.interval.end, nState))
+                        else -> prev.update(prev.lastIndex, Tuple(pBegin, nChunk.interval.end, pState))
                     }
                 }
                 .map { (begin, end, state) ->
-                    when (state) {  // 型推論がうまくいかない
-                        State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.IDENTIFICATION)
-                        State.STAY -> Fragment(Interval(begin, end), Fragment.Type.PARTITION)
+                    when (state!!) {  // 型推論がうまくいかない
+                        State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
+                        State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
                     }
                 }
                 .toArray()
@@ -50,21 +51,15 @@ class Fragmenter(
 
     private enum class State {
         STAY {
-            override fun transit(next: Chunk.State): Fragmenter.State {
-                return when (next) {
-                    Chunk.State.STAY -> Fragmenter.State.STAY
-                    Chunk.State.MOVE -> Fragmenter.State.MOVE
-                    Chunk.State.UNKNOWN -> Fragmenter.State.STAY
-                }
+            override fun transit(next: Chunk.State): Fragmenter.State = when (next) {
+                Chunk.State.STAY, Chunk.State.UNKNOWN -> Fragmenter.State.STAY
+                Chunk.State.MOVE -> Fragmenter.State.MOVE
             }
         },
         MOVE {
-            override fun transit(next: Chunk.State): Fragmenter.State {
-                return when (next) {
-                    Chunk.State.STAY -> Fragmenter.State.STAY
-                    Chunk.State.MOVE -> Fragmenter.State.MOVE
-                    Chunk.State.UNKNOWN -> Fragmenter.State.MOVE
-                }
+            override fun transit(next: Chunk.State): Fragmenter.State = when (next) {
+                Chunk.State.STAY -> Fragmenter.State.STAY
+                Chunk.State.MOVE, Chunk.State.UNKNOWN -> Fragmenter.State.MOVE
             }
         };
 

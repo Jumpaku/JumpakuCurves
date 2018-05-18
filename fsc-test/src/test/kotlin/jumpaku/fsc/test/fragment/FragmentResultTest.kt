@@ -1,7 +1,10 @@
 package jumpaku.fsc.test.fragment
 
+import io.vavr.collection.Array
+import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
+import jumpaku.fsc.fragment.Fragment
 import jumpaku.fsc.fragment.FragmentResult
 import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.fragment.TruthValueThreshold
@@ -14,11 +17,12 @@ class FragmentResultTest {
 
     val fragmenter = Fragmenter(TruthValueThreshold(0.4, 0.6), 4, 0.1)
 
+    val r = FragmentResult(Array.of(
+            Fragment(Interval(0.2, 0.3), Fragment.Type.Stay),
+            Fragment(Interval(0.2, 0.3), Fragment.Type.Move)))
     @Test
     fun toStringTest() {
         println("ToString")
-        val fsc = resourceText("FragmenterTestFsc0.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-        val result = fragmenter.fragment(fsc)
-        result.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get().shouldEqualToFragmentResult(result)
+        r.toString().parseJson().flatMap { FragmentResult.fromJson(it) }.get().shouldEqualToFragmentResult(r)
     }
 }
