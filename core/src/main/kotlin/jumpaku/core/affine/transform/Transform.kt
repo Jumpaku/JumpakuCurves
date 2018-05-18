@@ -23,9 +23,7 @@ interface Transform {
 
     fun at(origin: Point): Transform = Translate(-origin.toVector()).andThen(this).andThen(Translate(origin.toVector()))
 
-    fun invert(): Option<Transform> = QRDecomposition(matrix).solver.run {
-        Option.`when`(isNonSingular) { ofMatrix(inverse) }
-    }
+    fun invert(): Option<Transform> = QRDecomposition(matrix).solver.run { Option.`when`(isNonSingular) { ofMatrix(inverse) } }
 
     companion object {
 
