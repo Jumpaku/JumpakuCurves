@@ -1,7 +1,10 @@
 package jumpaku.core.util
 
+import io.vavr.Tuple2
+import io.vavr.collection.HashMap
 import io.vavr.collection.Seq
 import io.vavr.collection.Traversable
+import io.vavr.collection.Map
 
 inline val <T> Traversable<T>.lastIndex: Int get() = size() - 1
 
@@ -15,3 +18,5 @@ operator fun <T> Seq<T>.component5(): T = this[4]
 operator fun <T> Seq<T>.component6(): T = this[5]
 operator fun <T> Seq<T>.component7(): T = this[6]
 operator fun <T> Seq<T>.component8(): T = this[7]
+
+fun <K, V> hashMap(vararg pairs: Pair<K, V>): Map<K, V> = HashMap.ofAll(mutableMapOf(*pairs))

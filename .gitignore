@@ -24,3 +24,11 @@ nbproject/
 *.idea/
 *.iml
 *.ipr
+
+core/out/*
+core-test/out/*
+fsc/out/*
+fsc-test/out/*
+fxcomponents/out/*
+examples/out/*
+

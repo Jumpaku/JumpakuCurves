@@ -2,106 +2,120 @@ package jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import  io.vavr.control.Try
 import jumpaku.core.affine.divide
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.lastIndex
 
 
-class KnotVector(val degree: Int, val knots: Array<Double>) : Iterable<Double>, ToJson {
+data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
 
-    constructor(degree: Int, knots: Iterable<Double>) : this(degree, Array.ofAll(knots))
+    override fun toString(): String = toJsonString()
 
-    constructor(degree: Int, vararg knots: Double) : this(degree, Array(*knots.toTypedArray()))
+    override fun toJson(): JsonElement = jsonObject("value" to value, "multiplicity" to multiplicity)
 
-    val domain: Interval = Interval(knots[degree], knots[knots.size() - degree - 1])
+    companion object {
 
-    operator fun get(i: Int): Double = knots[i]
+        fun fromJson(json: JsonElement): Option<Knot> = Try.ofSupplier {
+            Knot(json["value"].double, json["multiplicity"].int)
+        }.toOption()
+    }
+}
 
-    override fun iterator(): Iterator<Double> = knots.iterator()
+class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
+
+    val domain: Interval by lazy { extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) } }
+
+    val extractedKnots: Array<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
+
+    constructor(degree: Int, knots: Iterable<Knot>) : this(degree, Array.ofAll(knots))
+
+    constructor(degree: Int, vararg knots: Knot) : this(degree, Array.of(*knots))
 
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
 
-    fun size(): Int = knots.size()
+    fun multiplicityOf(knotValue: Double): Int = search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
-    fun lastIndexUnder(t: Double): Int {
-        val inner = knots.slice(degree, size() - degree)
-        return inner.zipWith(inner.tail(), ::Interval).lastIndexWhere { t in it } + degree
-    }
+    fun lastExtractedIndexUnder(value: Double): Int = extractedKnots
+            .run { slice(degree, size() - degree) }.zipWithNext { a, b -> value in a..b }.indexOfLast { it } + degree
 
-    fun reverse(): KnotVector {
-        val (begin, end) = domain
-        return KnotVector(degree, knots.map { end - it + begin }.reverse())
-    }
-
-    fun derivativeKnotVector(): KnotVector = KnotVector(degree - 1, knots.slice(1, size() - 1))
-
-    fun subdivide(t: Double): Tuple2<KnotVector, KnotVector> {
-        require(t in domain) { "t($t) is out of domain($domain" }
-        val k = lastIndexUnder(t)
-        val inserted = insertKnot(t, degree + 1)
-        val front = KnotVector(degree, inserted.take(k + degree + 2))
-        val back = KnotVector(degree, inserted.drop(k + 1))
-
-        return Tuple(front, back)
-    }
-
-    fun insertKnot(t: Double, maxMultiplicity: Int = 1): KnotVector {
-        require(t in domain) { "t($t) is out of domain($domain)" }
-
-        var inserted = this
-        for (i in 1..maxMultiplicity){
-            val k = inserted.lastIndexUnder(t)
-            inserted = KnotVector(degree, inserted.knots.insert(k + 1, t))
+    fun insert(knotValue: Double, times: Int): KnotVector {
+        val i = search(knotValue)
+        return when {
+            times == 0 -> this
+            i >= 0 -> multiply(i, times)
+            else -> KnotVector(degree, knots.insert(-i-1, Knot(knotValue, times)))
         }
-
-        return inserted
     }
+
+    fun multiply(knotIndex: Int, times: Int): KnotVector {
+        val knot = knots[knotIndex]
+        return KnotVector(degree, knots.update(knotIndex, knot.copy(multiplicity = knot.multiplicity + times)))
+    }
+
+    fun remove(knotIndex: Int, times: Int): KnotVector {
+        val (u, s) = knots[knotIndex]
+        return KnotVector(degree,
+                if (s <= times) knots.removeAt(knotIndex) else knots.update(knotIndex, Knot(u, s - times)))
+    }
+
+    fun derivativeKnotVector(): KnotVector = KnotVector(degree - 1, knots
+            .run { if (head().multiplicity == 1) tail() else update(0) { (v, m) -> Knot(v, m - 1) } }
+            .run { if (last().multiplicity == 1) init() else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
+
+    fun subdivide(t: Double): Tuple2<Option<KnotVector>, Option<KnotVector>> {
+        val s = multiplicityOf(t)
+        val p = degree
+        val times = p + 1 - s
+        val inserted = insert(t, times)
+        val i = inserted.search(t)
+        val kv = inserted.knots
+        val (b, e) = domain
+        val front = if (t == b) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
+        val back = if (t == e) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
+        return Tuple2(
+                Option.`when`(t > b) { KnotVector(p, front) },
+                Option.`when`(t < e) { KnotVector(p, back) })
+    }
+
+    fun reverse(): KnotVector =
+            domain.let { (b, e) -> KnotVector(degree, knots.map { it.copy(value = e - it.value + b) }.reverse()) }
+
+    fun clamp(): KnotVector {
+        val (b, e) = domain
+        val bh = degree + 1 - multiplicityOf(b)
+        val eh = degree + 1 - multiplicityOf(e)
+        return KnotVector(degree, insert(b, bh).insert(e, eh).knots.filter { it.value in domain })
+    }
+
+    fun search(knotValue: Double): Int = knots.search(Knot(knotValue)) { (v0), (v1) -> when { v0 < v1 -> -1; v0 > v1 -> 1; else -> 0 } }
 
     companion object {
 
-        fun ofKnots(degree: Int, vararg knots: Knot): KnotVector = ofKnots(degree, Stream(*knots))
+        fun fromJson(json: JsonElement): Option<KnotVector> = Try.ofSupplier {
+            KnotVector(json["degree"].int, Array.ofAll(json["knots"].array.flatMap { Knot.fromJson(it) }))
+        }.toOption()
 
-        fun ofKnots(degree: Int, knots: Iterable<Knot>): KnotVector {
+        fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {
+            val h = degree
+            val l = knotSize - 1 - degree
             return KnotVector(degree,
-                    Stream.ofAll(knots).sortBy { it.value }.flatMap { Stream.fill(it.multiplicity, { it.value }) })
+                    (0 until knotSize).map { Knot(domain.begin.divide((it.toDouble() - h) / (l - h), domain.end)) })
         }
 
-        fun clampedUniform(begin: Double, end: Double, degree: Int, knotSpan: Double): KnotVector {
-            return clampedUniform(Interval(begin, end), degree, knotSpan)
-        }
-
-        fun clampedUniform(domain: Interval, degree: Int, knotSpan: Double): KnotVector {
-            return clampedUniform(domain.begin, domain.end, degree, domain.sample(knotSpan).size() + degree * 2)
-        }
-
-        fun clampedUniform(degree: Int, knotSize: Int): KnotVector {
-            return clampedUniform(0.0, knotSize - 1.0 - 2 * degree, degree, knotSize)
-        }
-
-        fun clampedUniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {
-            return clampedUniform(domain.begin, domain.end, degree, knotSize)
-        }
-
-        fun clampedUniform(begin: Double, end: Double, degree: Int, knotSize: Int): KnotVector {
+        fun clamped(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             val nSpans = knotSize - 2 * degree - 1
+            val (b, e) = domain
             return KnotVector(degree,
-                    Stream.fill(degree + 1, { begin })
-                            .appendAll(Stream.range(1, nSpans).map { begin.divide(it / nSpans.toDouble(), end) })
-                            .appendAll(Stream.fill(degree + 1, { end })))
+                    listOf(Knot(b, degree + 1)) +
+                            (1 until nSpans).map { Knot(b.divide(it / nSpans.toDouble(), e)) } +
+                            listOf(Knot(e, degree + 1)))
         }
     }
 }
-
-data class Knot(val value: Double, val multiplicity: Int = 1) {
-
-    init {
-        require(multiplicity > 0) { "multiplicity($multiplicity) < 0" }
-    }
-}
-
-val JsonElement.knotVector: KnotVector get() = KnotVector(this["degree"].int, this["knots"].array.map { it.double })

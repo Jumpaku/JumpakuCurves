@@ -1,28 +1,28 @@
 
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.2.31'
 
     repositories {
         mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "gradle.plugin.gradle-plugins:jartest:1.0"
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
+
     }
 }
 
 subprojects {
     group 'jumpaku'
-    version '0.3'
+    version '0.7.7'
 
     apply plugin: 'kotlin'
+    apply plugin: 'maven'
 
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     compileKotlin {
@@ -32,50 +32,70 @@ subprojects {
         kotlinOptions.jvmTarget = '1.8'
     }
 
-    apply plugin: 'maven'
-    task sourcesJar(type: Jar, dependsOn:classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-    artifacts {
-        archives sourcesJar
-    }
-
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 
-        testCompile group: 'junit', name: 'junit', version: '4.12'
-        testCompile 'org.assertj:assertj-core:3.8.0'
-
         // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-
         // https://mvnrepository.com/artifact/com.github.salomonbrys.kotson/kotson
         compile group: 'com.github.salomonbrys.kotson', name: 'kotson', version: '2.5.0'
-
         // https://mvnrepository.com/artifact/io.vavr/vavr
         compile group: 'io.vavr', name: 'vavr', version: '0.9.1'
     }
 }
 
 project(':core') {
-    apply plugin: 'com.github.hauner.jarTest'
+}
+
+project(':core-test') {
+    apply plugin: 'org.junit.platform.gradle.plugin'
+
+    dependencies {
+        compile group: 'junit', name: 'junit', version: '4.12'
+        compile 'org.assertj:assertj-core:3.8.0'
+
+        testRuntime "org.junit.platform:junit-platform-launcher:1.1.0"
+        testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
+        testRuntime "org.junit.jupiter:junit-jupiter-engine:5.2.0"
+        testRuntime "org.junit.vintage:junit-vintage-engine:5.2.0"
+        compile 'org.amshove.kluent:kluent:1.38'
+        compile project(':core')
+    }
+    test {
+        useJUnitPlatform()
+    }
 }
 
 project(':fsc') {
     dependencies {
-        testCompile project (path: ':core', configuration: 'testArchives')
-
         compile project(':core')
+    }
+}
+
+project(':fsc-test') {
+    apply plugin: 'org.junit.platform.gradle.plugin'
+
+    dependencies {
+        compile group: 'junit', name: 'junit', version: '4.12'
+        compile 'org.assertj:assertj-core:3.8.0'
+
+        testRuntime "org.junit.platform:junit-platform-launcher:1.1.0"
+        testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
+        testRuntime "org.junit.jupiter:junit-jupiter-engine:5.2.0"
+        testRuntime "org.junit.vintage:junit-vintage-engine:5.2.0"
+        compile 'org.amshove.kluent:kluent:1.38'
+        compile project(':fsc')
+        compile project(':core-test')
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 
 project(':fxcomponents') {
     dependencies {
         compile project(':core')
-
         compile project(':fsc')
-
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.12'
     }
@@ -84,11 +104,8 @@ project(':fxcomponents') {
 project(':examples'){
     dependencies {
         compile project(':core')
-
         compile project(':fsc')
-
         compile project(':fxcomponents')
-
         // https://mvnrepository.com/artifact/no.tornado/tornadofx
         compile group: 'no.tornado', name: 'tornadofx', version: '1.7.12'
     }

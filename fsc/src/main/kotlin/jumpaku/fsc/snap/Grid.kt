@@ -2,93 +2,85 @@ package jumpaku.fsc.snap
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
+import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.FastMath
 
 
-sealed class Grid: ToJson {
+class Grid(
+        val spacing: Double,
+        val magnification: Int = 2,
+        val origin: Point = Point(0.0, 0.0, 0.0, 0.0),
+        val axis: Vector,
+        val radian: Double = 0.0,
+        val fuzziness: Double = 0.0,
+        val resolution: Int = 0): ToJson {
 
-    abstract val baseGridSpacing: Double
-
-    abstract val magnification: Int
-
-    abstract val origin: Point
-
-    abstract val rotation: Affine
-
-    abstract val fuzziness: Double
-
-    abstract val resolution: Int
-
-    val gridSpacing: Double get() = baseGridSpacing * FastMath.pow(magnification.toDouble(), -resolution)
+    val isNoGrid: Boolean = 1.0.divOption(spacing).isEmpty
 
     /**
      * localToWorld transforms coordinates in local(grid) to coordinates in world.
      * Coordinates in world is transformed by the following transformations;
-     *  rotation by specified rotation,
-     *  scaling by gridSpacing,
+     *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Affine get() = rotation.andScale(gridSpacing).andTranslateTo(origin)
+    val localToWorld: Affine get() = identity.andRotate(axis, radian).andScale(spacing).andTranslate(origin - Point.origin)
 
-    /**
-     * worldToLocal is the inverse of localToWorld
-     */
-    val worldToLocal: Affine get() = localToWorld.invert()
+    fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert().get()(cursor)
+            .toArray()
+            .map { FastMath.round(it) }
+            .let { (x, y, z) -> GridPoint(x, y, z) }
 
-    fun snap(cursor: Point): GridPoint {
-        return worldToLocal(cursor).toArray().map { FastMath.round(it) }
-                .let { (x, y, z) -> GridPoint(x, y, z, this) }
-    }
+    fun deriveGrid(resolution: Int): Grid = Grid(spacing = spacing(spacing, magnification, resolution),
+            magnification = magnification,
+            origin = origin,
+            axis = axis,
+            radian = radian,
+            fuzziness = gridFuzziness(fuzziness, magnification, resolution),
+            resolution = resolution)
 
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement = jsonObject(
-            "baseGridSpacing" to baseGridSpacing.toJson(),
+            "spacing" to spacing.toJson(),
             "magnification" to magnification.toJson(),
             "origin" to origin.toJson(),
-            "rotation" to rotation.toJson(),
+            "axis" to axis.toJson(),
+            "radian" to radian.toJson(),
             "fuzziness" to fuzziness.toJson(),
             "resolution" to resolution.toJson())
-}
 
-val JsonElement.grid: Grid get() {
-    val base = BaseGrid(this["baseGridSpacing"].double,
-            this["magnification"].int,
-            this["origin"].point,
-            this["rotation"].affine,
-            this["fuzziness"].double)
-    val resolution = this["resolution"].int
+    companion object {
 
-    return if (resolution == 0) base else base.deriveGrid(resolution)
-}
+        fun noGrid(baseGrid: Grid): Grid = Grid(
+                spacing = 0.0,
+                magnification = baseGrid.magnification,
+                origin = baseGrid.origin,
+                axis = baseGrid.axis,
+                radian = baseGrid.radian,
+                fuzziness = 0.0,
+                resolution = Int.MAX_VALUE)
 
-class BaseGrid(
-        override val baseGridSpacing: Double,
-        override val magnification: Int = 4,
-        override val origin: Point = Point(0.0, 0.0, 0.0, 0.0),
-        override val rotation: Affine = identity,
-        override val fuzziness: Double = 0.0
-): Grid() {
+        fun spacing(baseGridSpacing: Double, magnification: Int, resolution: Int): Double =
+                baseGridSpacing * FastMath.pow(magnification.toDouble(), -resolution)
 
-    override val resolution: Int = 0
+        fun gridFuzziness(baseGridFuzziness: Double, magnification: Int, resolution: Int): Double =
+                baseGridFuzziness * FastMath.pow(magnification.toDouble(), -resolution)
 
-    fun deriveGrid(resolution: Int): Grid = if (resolution == 0) this else DerivedGrid(this, resolution)
-}
-
-class DerivedGrid(baseGrid: BaseGrid, override val resolution: Int): Grid() {
-
-    override val baseGridSpacing = baseGrid.baseGridSpacing
-
-    override val magnification = baseGrid.magnification
-
-    override val origin = baseGrid.origin
-
-    override val rotation = baseGrid.rotation
-
-    override val fuzziness: Double = baseGrid.fuzziness * FastMath.pow(magnification.toDouble(), -resolution)
+        fun fromJson(json: JsonElement): Option<Grid> = Try.ofSupplier { Grid(
+                    spacing = json["spacing"].double,
+                    magnification = json["magnification"].int,
+                    origin = Point.fromJson(json["origin"]).get(),
+                    axis = Vector.fromJson(json["axis"]).get(),
+                    radian = json["radian"].double,
+                    fuzziness = json["fuzziness"].double,
+                    resolution = json["resolution"].int)
+        }.toOption()
+    }
 }

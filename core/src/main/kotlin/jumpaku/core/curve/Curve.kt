@@ -2,6 +2,7 @@ package jumpaku.core.curve
 
 import io.vavr.Function1
 import io.vavr.collection.Array
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.affine.Point
 
 /**

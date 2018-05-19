@@ -6,10 +6,11 @@ import io.vavr.collection.HashMap
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.transformParams
 import jumpaku.core.util.*
+import jumpaku.fsc.blend.OverlappingPath.Companion.initialPath
 import jumpaku.fsc.generate.FscGenerator
 
 
@@ -23,7 +24,7 @@ class Blender(
         val osm = OverlappingMatrix(samplingSpan, existing, overlapping)
         val path = searchPath(osm)
         return BlendResult(osm, path, path.map {
-            fscGenerator.generate(resample(existing, overlapping, it))
+            fscGenerator.generate(resample(existing, overlapping, it, osm))
         })
     }
 
@@ -33,9 +34,9 @@ class Blender(
             val path =  dpTable[Tuple2(i, j)].getOrElse {
                 val uij = osm[i, j]
                 when {
-                    i == 0 || j == 0 -> osm.initialPath(uij, i, j)
+                    i == 0 || j == 0 -> initialPath(uij, i, j)
                     else -> Array.of(subPath(i - 1, j), subPath(i, j - 1), subPath(i - 1, j - 1))
-                            .maxBy { (_, grade, _) -> grade }
+                            .maxBy { (grade, _) -> grade }
                             .map { it.extend(uij, i, j) }
                             .get()
                 }
@@ -49,7 +50,7 @@ class Blender(
         ).maxBy { path -> evaluatePath(path, osm) }
     }
 
-    fun resample(existing: BSpline, overlapping: BSpline, path: OverlappingPath): Array<ParamPoint> {
+    fun resample(existing: BSpline, overlapping: BSpline, path: OverlappingPath, osm: OverlappingMatrix): Array<ParamPoint> {
         require(path.nonEmpty()) { "empty overlapping path" }
 
         val (beginI, beginJ) = path.path.head()
@@ -57,10 +58,10 @@ class Blender(
         val te = existing.sample(samplingSpan)
         val to = overlapping.sample(samplingSpan)
 
-        fun OverlappingPath.blendData(te: Array<ParamPoint>, to: Array<ParamPoint>): Array<ParamPoint> {
-            return this.path.map { (i, j) -> te[i].divide(blendingRate, to[j]) }
-        }
-        return when(path.overlappingCase()){
+        fun OverlappingPath.blendData(te: Array<ParamPoint>, to: Array<ParamPoint>): Array<ParamPoint> =
+                this.path.map { (i, j) -> te[i].divide(blendingRate, to[j]) }
+
+        return when(path.overlappingCase(osm)){
             OverlappingCase.ExistingOverlapping -> rearrangeParam(te.take(beginI), path.blendData(te, to), to.drop(endJ))
             OverlappingCase.OverlappingExisting -> rearrangeParam(to.take(beginJ), path.blendData(te, to), te.drop(endI))
             OverlappingCase.ExistingOverlappingExisting -> rearrangeParam(te.take(beginI), path.blendData(te, to), te.drop(endI))
@@ -74,13 +75,15 @@ class Blender(
         val f = front
         val m = when {
             front.isEmpty -> middle
-            else -> transformParams(middle,
-                    Interval(f.last().param, f.last().param + middle.last().param - middle.head().param))
+            else -> transformParams(
+                    middle, Interval(f.last().param, f.last().param + middle.last().param - middle.head().param))
+                    .getOrElse { middle.map { it.copy(param = f.last().param) } }
         }
         val b = when {
             back.isEmpty -> back
-            else -> transformParams(back,
-                    Interval(m.last().param, m.last().param + back.last().param - back.head().param))
+            else -> transformParams(
+                    back, Interval(m.last().param, m.last().param + back.last().param - back.head().param))
+                    .getOrElse { back.map { it.copy(param = m.last().param) } }
         }
 
         return Stream.concat(f, m, b).toArray()

@@ -7,13 +7,14 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.divide
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.clamp
 import org.apache.commons.math3.util.FastMath
 
 
-data class Interval(val begin: Double, val end: Double): ToJson {
+data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Double> {
 
     val span: Double = end - begin
 
@@ -21,16 +22,20 @@ data class Interval(val begin: Double, val end: Double): ToJson {
         require(begin <= end){ "begin($begin) > end($end)" }
     }
 
+    override val start: Double = begin
+
+    override val endInclusive: Double = end
+
     fun sample(samplesCount: Int): Array<Double> {
         require(samplesCount >= 2) { "samplesCount($samplesCount) < 2" }
         return Stream.range(0, samplesCount)
-                .map { clamp(begin.divide(it / (samplesCount - 1.0), end), this) }
+                .map { begin.divide(it / (samplesCount - 1.0), end).coerceIn(this) }
                 .toArray()
     }
 
-    fun sample(delta: Double): Array<Double> = sample(FastMath.ceil((end - begin) / delta).toInt() + 1)
+    fun sample(delta: Double): Array<Double> = sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
 
-    operator fun contains(t: Double): Boolean = t in begin..end
+    override operator fun contains(value: Double): Boolean = value in begin..end
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 
@@ -39,8 +44,10 @@ data class Interval(val begin: Double, val end: Double): ToJson {
     override fun toJson(): JsonElement = jsonObject("begin" to begin.toJson(), "end" to end.toJson())
 
     companion object {
+
         val ZERO_ONE = Interval(0.0, 1.0)
+
+        fun fromJson(json: JsonElement): Option<Interval> =
+                Try.ofSupplier { Interval(json["begin"].double, json["end"].double) }.toOption()
     }
 }
-
-val JsonElement.interval: Interval get() = Interval(this["begin"].double, this["end"].double)

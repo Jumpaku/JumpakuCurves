@@ -14,6 +14,10 @@ import jumpaku.core.util.component3
 
 class BezierFitter(val degree: Int) : Fitter<Bezier> {
 
+    init {
+        require(degree >= 0) { "degree($degree) is negative" }
+    }
+
     fun basis(i: Int, t: Double): Double = Bezier.basis(degree, i, t)
 
     override fun fit(data: Array<WeightedParamPoint>): Bezier {
@@ -23,7 +27,7 @@ class BezierFitter(val degree: Int) : Fitter<Bezier> {
 
         val distinct = data.distinctBy(WeightedParamPoint::param)
         if(distinct.size() <= degree){
-            return BezierFitter(degree - 1).fit(distinct).elevate()
+            return BezierFitter(degree - 1).fit(data).elevate()
         }
 
         val d = ds.map { doubleArrayOf(it.x, it.y, it.z) }
@@ -33,10 +37,10 @@ class BezierFitter(val degree: Int) : Fitter<Bezier> {
                 .map(List<Double>::toDoubleArray)
                 .toJavaArray(DoubleArray::class.java)
                 .let(MatrixUtils::createRealMatrix)
-        val w = DiagonalMatrix(ws.toJavaArray(Double::class.java).toDoubleArray())
+        val w = DiagonalMatrix(ws.toMutableList().toDoubleArray())
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver
                 .solve(b.transpose().multiply(w).multiply(d))
-                .run { this.data.map { Point.xyz(it[0], it[1], it[2]) } }
+                .let { it.data.map { Point.xyz(it[0], it[1], it[2]) } }
 
         return Bezier(p)
     }

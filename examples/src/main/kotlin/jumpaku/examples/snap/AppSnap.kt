@@ -1,83 +1,111 @@
 package jumpaku.examples.snap
 
-import io.vavr.collection.Stream
 import javafx.application.Application
-import javafx.scene.Parent
+import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
+import jumpaku.core.affine.Point
+import jumpaku.core.affine.Vector
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.CurveClass
-import jumpaku.fsc.classify.reference.Circular
-import jumpaku.fsc.classify.reference.Elliptic
-import jumpaku.fsc.classify.reference.Linear
+import jumpaku.fsc.classify.reference.CircularGenerator
+import jumpaku.fsc.classify.reference.EllipticGenerator
+import jumpaku.fsc.classify.reference.LinearGenerator
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fsc.snap.*
-import jumpaku.fsc.snap.conicsection.CircularCandidateCreator
-import jumpaku.fsc.snap.conicsection.SnapCandidate
-import jumpaku.fsc.snap.conicsection.EllipticCandidateCreator
-import jumpaku.fsc.snap.conicsection.LinearCandidateCreator
+import jumpaku.fsc.snap.Grid
+import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
+import jumpaku.fsc.snap.conicsection.ConjugateBox
+import jumpaku.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.fsc.snap.point.PointSnapper
-import jumpaku.fxcomponents.view.*
+import jumpaku.fxcomponents.nodes.*
 import tornadofx.App
-import tornadofx.Scope
 import tornadofx.View
+import tornadofx.group
+import tornadofx.pane
 
 
-fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
+fun main(vararg args: String) = Application.launch(AppSnap::class.java, *args)
 
-class AppClassify : App(ViewClassify::class)
+class AppSnap : App(ViewSnap::class)
 
-class ViewClassify : View() {
+class ViewSnap : View() {
 
-    override val scope: Scope = Scope()
+    val w = 1280.0
 
-    override val root: Pane
+    val h = 720.0
 
-    private val curveInput: CurveInput
+    val baseGrid = Grid(
+            spacing = 50.0,
+            magnification = 2,
+            origin = Point.xy(w/2, h/2),
+            axis = Vector.K,
+            radian = 0.0,
+            fuzziness = 20.0)
 
-    private val baseGrid = BaseGrid(
-            baseGridSpacing = 100.0,
-            magnification = 4)
+    val conicSectionSnapper = ConicSectionSnapper(
+            PointSnapper(
+                    baseGrid = baseGrid,
+                    minResolution = -5,
+                    maxResolution = 5),
+            ConjugateCombinator())
 
-    private val pointSnapper = PointSnapper(baseGrid, -2, 5)
+    val classifier = ClassifierOpen4(nSamples = 99)
 
-    init {
-        curveInput = CurveInput(scope = scope)
-        root = curveInput.root
-        subscribe<CurveInput.CurveDoneEvent> {
-            if (it.data.size() > 2) {
-                val fsc = FscGenerator(3, 0.1).generate(it.data)
-                with(curveInput.contents) {
+    fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
+        curveClass.isLinear -> LinearGenerator(25).generate(fsc).conicSection
+        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc).conicSection
+        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc).conicSection
+        else -> kotlin.error("")
+    }
+
+    override val root: Pane = pane {
+        val group = group { }
+        curveControl {
+            prefWidth = w
+            prefHeight = h
+            onCurveDone {
+                clear()
+                with(group) {
                     children.clear()
-                    render(fsc)
+                    this.update(FscGenerator { crisp, ts ->
+                        val derivative1 = crisp.derivative
+                        val derivative2 = derivative1.derivative
+                        val velocityCoefficient = 0.008
+                        val accelerationCoefficient = 0.006
+                        ts.map {
+                            val v = derivative1(it).length()
+                            val a = derivative2(it).length()
+                            velocityCoefficient * v + a * accelerationCoefficient + 1.0
+                        }
+                    }.generate(it.data))
                 }
             }
         }
     }
 
-    private fun Parent.render(fsc: BSpline) {
-        cubicFsc(fsc) { stroke = Color.RED }
-        val c4 = ClassifierOpen4()
-        val r4 = c4.classify(fsc)
-        fun snapping(snapResult: Stream<SnapCandidate>) {
-            val (fs, ss, _, curve) = snapResult.maxBy { r -> r.snappedConicSection.isPossible(fsc, 10).value }.get()
-            fs.map { fuzzyPoint(it.point.copy(r = 5.0)) { fill = Color.GREEN } }
-            ss.map { fuzzyPoint(it.snappedPoint.copy(r = 5.0)) { fill = Color.ORANGE } }
-            ss.flatMap { it.grid }.maxBy { g -> g.resolution }.forEach { grid(it, root.width, root.height) { stroke = Color.BLACK } }
-            fuzzyCurve(curve) { stroke = Color.BLUE }
+    fun Group.update(fsc: BSpline) {
+        grid(baseGrid, 0.0, 0.0, w, h) { stroke = Color.BLACK }
+
+        cubicFsc(fsc) { stroke = Color.BLACK }
+
+        val classifyResult = classifier.classify(fsc)
+        println(classifyResult.curveClass)
+        if (classifyResult.curveClass.isFreeCurve) {
+            cubicFsc(fsc.toCrisp()) { stroke = Color.RED }
+            return
         }
-        when(r4.curveClass) {
-            CurveClass.LineSegment -> {
-                snapping(LinearCandidateCreator(pointSnapper).createCandidate(Linear.ofBeginEnd(fsc).conicSection))
-            }
-            CurveClass.CircularArc -> {
-                snapping(CircularCandidateCreator(pointSnapper).createCandidate(Circular.ofBeginEnd(fsc).conicSection))
-            }
-            CurveClass.EllipticArc -> {
-                snapping(EllipticCandidateCreator(pointSnapper).createCandidate(Elliptic.ofBeginEnd(fsc).conicSection))
-            }
-            else -> {}//fsc.toBeziers().map { ConicSection.ofQuadraticBezier(it) }
+        val cs = conicSection(fsc, classifyResult.curveClass)
+        val snapped = conicSectionSnapper.snap(cs, classifyResult.curveClass) { candidate ->
+            candidate.snappedConicSection.isPossible(fsc, n = 15)
         }
+
+        fuzzyCurve(cs.toCrisp()) { stroke = Color.BLUE }
+        fuzzyCurve(snapped.candidate.snappedConicSection) { stroke = Color.RED }
+
+        conjugateBox(ConjugateBox.ofConicSection(snapped.candidate.snappedConicSection)) { stroke = Color.GREEN }
+        snapped.candidate.featurePoints.forEach { snappedPoint(it.snapped) { stroke = Color.GREEN; fill = Color.GREEN } }
     }
 }
+

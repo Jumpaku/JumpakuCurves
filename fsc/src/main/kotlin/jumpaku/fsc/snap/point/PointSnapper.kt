@@ -1,23 +1,15 @@
 package jumpaku.fsc.snap.point
 
-import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
 import jumpaku.core.affine.Point
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.fsc.snap.BaseGrid
 import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.GridPoint
 
-data class PointSnapResult(
-        val grid: Option<Grid>,
-        val snappedGridPoint: Option<GridPoint>,
-        val snappedPoint: Point)
 
 class PointSnapper(
-        val baseGrid: BaseGrid,
+        val baseGrid: Grid,
         val minResolution: Int = 0,
         val maxResolution: Int = 0) {
     init {
@@ -25,22 +17,18 @@ class PointSnapper(
     }
 
     fun snap(cursor: Point): PointSnapResult {
-        val candidates = Stream.rangeClosed(minResolution, maxResolution)
-                .map { baseGrid.deriveGrid(it).snap(cursor) }
-                .toArray()
-        val ns = candidates.map { Array.of(it.toFuzzyPoint().isNecessary(cursor)) }
-                .scan(Array.empty<Grade>(), { acc, n -> acc.appendAll(n) })
-                .tail()
-                .map { ns -> ns.init().map { !it }.fold(Grade.TRUE, Grade::and) and ns.last() }
-        val mus = ns.zip(candidates)
-        val snapped = mus
-                .filter { (mu, _) -> mu >= Grade(0.5) }
-                .toOption()
-                .map { (_, c) -> c }
-
-        return PointSnapResult(
-                snapped.map { it.grid },
-                snapped,
-                snapped.map { it.toCrispPoint() }.getOrElse { cursor.toCrisp() })
+        val candidates = Stream.rangeClosed(minResolution, maxResolution).map {
+            val grid = baseGrid.deriveGrid(it)
+            val gridPoint = grid.snapToNearestGrid(cursor)
+            val worldPoint = gridPoint.toWorldPoint(grid.localToWorld)
+            PointSnapResult(grid, gridPoint, worldPoint, worldPoint.copy(r = grid.fuzziness).isNecessary(cursor))
+        }.toArray()
+        val mus = candidates
+                .scanLeft(Stream.empty<PointSnapResult>()) { acc, n -> acc.append(n) }.tail()
+                .map { ns -> ns.init().map { !it.grade }.fold(ns.last().grade, Grade::and) }
+        return mus.zip(candidates)
+                .find { (mu, _) -> mu >= Grade(0.5) }
+                .map { (mu, result) -> result.copy(grade = mu) }
+                .getOrElse { noPointSnap(baseGrid, cursor.toCrisp()) }
     }
 }

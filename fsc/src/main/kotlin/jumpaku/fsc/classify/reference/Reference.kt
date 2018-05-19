@@ -1,92 +1,81 @@
 package jumpaku.fsc.classify.reference
 
 import io.vavr.API
-import org.apache.commons.math3.analysis.solvers.BrentSolver
-import org.apache.commons.math3.util.FastMath
+import io.vavr.Tuple3
+import io.vavr.collection.Array
 import jumpaku.core.affine.Point
+import jumpaku.core.affine.times
+import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthAdapter
-import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.fuzzy.Grade
+import jumpaku.core.curve.rationalbezier.RationalBezier
+import jumpaku.core.fit.chordalParametrize
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.core.util.divOption
+import jumpaku.core.util.component3
+import org.apache.commons.math3.util.FastMath
+import kotlin.math.absoluteValue
 
 
-interface Reference {
+abstract class Reference(val polyline: Polyline) : FuzzyCurve by polyline {
 
-    fun isValidFor(fsc: BSpline): Grade
+    abstract val conicSection: ConicSection
 }
 
-fun evaluateWithoutDomain(t: Double, conicSection: ConicSection): Point {
-    val rem = t - 2 * FastMath.floor(t / 2)
-    return when {
-        rem <= 1 -> conicSection(rem)
-        else -> conicSection.complement()(2 - rem)
+interface ReferenceGenerator {
+    fun generate(fsc: FuzzyCurve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
+
+    companion object {
+
+        fun referenceSubLength(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): Tuple3<Double, Double, Double> {
+            val reparametrized = fsc.reparametrized
+            val s0 = reparametrized.arcLengthUntil(t0)
+            val s1 = reparametrized.arcLengthUntil(t1)
+            val l1 = base.reparametrized.arcLength()
+            val l0 = l1 * s0 / (s1 - s0)
+            val l2 = l1 * (reparametrized.arcLength() - s1) / (s1 - s0)
+            return Tuple3(l0, l1, l2)
+        }
+
+        fun linearPolyline(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection, nSamples: Int): Polyline {
+            val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
+            fun linearEvaluate(s: Double): Point {
+                val t = (s - l0) / l1
+                val wt = RationalBezier.bezier1D(t, API.Array(1.0, base.weight, 1.0))
+                val (p0, p1, p2) = base.representPoints.map { it.toVector() }
+                val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + base.weight) * p1 + t * (2 * t - 1) * p2) / wt
+                val (r0, r1, r2) = base.representPoints.map { it.r }
+                val r = listOf(
+                        r0 * (1 - t) * (1 - 2 * t) / wt,
+                        r1 * 2 * (base.weight + 1) * t * (1 - t) / wt,
+                        r2 * t * (2 * t - 1) / wt
+                ).map { it.absoluteValue }.sum()
+
+                return Point(p, r)
+            }
+            return Polyline(Interval(0.0, l0 + l1 + l2).sample(nSamples).map { linearEvaluate(it) })
+        }
+
+        fun ellipticPolyline(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): Polyline {
+            val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
+            val reparametrized = base.reparametrized
+            val reparametrizedC = base.complement().reparametrized
+            val round = l1 + reparametrizedC.arcLength()
+            fun ellipticEvaluate(s: Double): Point {
+                val ss = (s - l0).rem(round).let { if (it > 0) it else it + round }
+                return when(ss) {
+                    in reparametrized.domain -> reparametrized(ss)
+                    else -> reparametrizedC((round - ss).coerceIn(reparametrizedC.domain))
+                }
+            }
+            val ps = chordalParametrize(Array.of(reparametrized.polyline, (reparametrizedC.polyline.reverse())).flatMap { it.points })
+            val length = l0 + l1 + l2
+            val n0 = FastMath.floor(l0/round).toInt()
+            val front = listOf(ellipticEvaluate(0.0)) + (ps.filter { it.param > (n0 + 1)*round - l0 } + (0 until n0).flatMap { ps }).map { it.point }
+            val n2 = FastMath.floor((length - l0)/round).toInt()
+            val back = ((0 until n2).flatMap { ps } + ps.filter { it.param < length - n2*round - l0 }).map { it.point } + ellipticEvaluate(length)
+            return Polyline((front + back).asIterable())
+        }
     }
-}
-
-/**
- * absolute arc-length from beginning point of a conicSection.
- */
-fun conicSectionArcLengthWithoutDomain(t: Double, circular: ArcLengthAdapter, complement: ArcLengthAdapter): Double {
-    val n = FastMath.floor(FastMath.abs(t) / 2)
-    val circumference = circular.arcLength() + complement.arcLength()
-    val rem = t - 2 * FastMath.floor(t / 2)
-    return circumference * n + when {
-        t >= 0 && rem <= 1 -> circular.arcLengthUntil(rem)
-        t >= 0 && rem > 1 -> complement.arcLengthUntil(rem - 1) + circular.arcLength()
-        t < 0 && rem <= 1 -> circular.arcLengthUntil(1 - rem) + complement.arcLength()
-        t < 0 && rem > 1 -> complement.arcLengthUntil(2 - rem)
-        else -> error("")
-    }
-}
-
-/**
- *
- */
-fun createDomain(t0: Double, t1: Double, fscArcLength: ArcLengthAdapter, conicSection: ConicSection): Interval {
-    val l0 = fscArcLength.arcLengthUntil(t0)
-    val l1 = fscArcLength.arcLengthUntil(t1)
-    if(1.0.divOption(l1 - l0).isEmpty){
-        return Interval.ZERO_ONE
-    }
-
-    val l = fscArcLength.arcLength()
-
-    val arcLengthConic = conicSection.toArcLengthCurve()
-    val arcLengthComplement = conicSection.complement().toArcLengthCurve()
-
-    val relative = 1.0e-8
-    val absolute = 1.0e-5
-    val targetFrontLength = l0 / (l1 - l0) * arcLengthConic.arcLength()
-    var a = 0.0
-    while (conicSectionArcLengthWithoutDomain(a, arcLengthConic, arcLengthComplement) <= targetFrontLength){
-        a -= 1
-    }
-    val begin = BrentSolver(relative, absolute).solve(50, {
-        val la = conicSectionArcLengthWithoutDomain(it, arcLengthConic, arcLengthComplement)
-        la - targetFrontLength
-    }, a, 0.0, a + 0.5)
-
-    val targetBackLength = (l - l0)/(l1 - l0) * arcLengthConic.arcLength()
-    var b = 1.0
-    while (conicSectionArcLengthWithoutDomain(b, arcLengthConic, arcLengthComplement) <= targetBackLength){
-        b += 1
-    }
-    val end = BrentSolver(relative, absolute).solve(50, {
-        val lb = conicSectionArcLengthWithoutDomain(it, arcLengthConic, arcLengthComplement)
-        lb - targetBackLength
-    }, 1.0, b, b - 0.5)
-
-    return Interval(begin, end)
-}
-
-
-fun mostFarPointOnFsc(p: Double, fsc: BSpline): Double {
-    return fsc.domain.sample(100)
-            .map { API.Tuple(it, fsc(p).distSquare(fsc(it))) }
-            .maxBy { (_, a) -> a }
-            .map { it._1() } .get()
 }

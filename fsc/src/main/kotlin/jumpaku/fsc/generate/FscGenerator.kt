@@ -3,7 +3,7 @@ package jumpaku.fsc.generate
 import io.vavr.collection.Array
 import jumpaku.core.affine.Point
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fit.BSplineFitter
 import jumpaku.core.fit.createModelMatrix
@@ -41,7 +41,8 @@ class FscGenerator(
                 .zip(bSpline.controlPoints, { r, (x, y, z) -> Point.xyzr(x, y, z, r) })
 
         val fsc = BSpline(fuzzyControlPoints, bSpline.knotVector)
-        val domain = fsc.knotVector.knots.slice(degree + 1, fsc.knotVector.size() - degree - 1)
+        val us = fsc.knotVector.extractedKnots
+        val domain = us.slice(degree + 1, us.size() - degree - 1)
                 .let { Interval(it.head(), it.last()) }
 
         return fsc.restrict(domain)

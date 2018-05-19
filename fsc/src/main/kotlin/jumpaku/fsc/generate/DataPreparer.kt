@@ -4,10 +4,11 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
+import jumpaku.core.affine.ParamPoint
 import jumpaku.core.fit.BezierFitter
 import jumpaku.core.fit.chordalParametrize
 import jumpaku.core.fit.transformParams
+import jumpaku.core.fit.uniformParametrize
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 
@@ -52,15 +53,20 @@ class DataPreparer(
         fun extendFront(sortedData: Array<ParamPoint>,
                         innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<ParamPoint> {
             require(sortedData.size() >= 2) { "sortedData size(${sortedData.size()} is too few" }
+            require(innerSpan > 0.0 && outerSpan > 0.0) {
+                "innerSpan($innerSpan) or outerSpan($outerSpan) are negative" }
 
             val end = sortedData.head().param + innerSpan
             val begin = sortedData.head().param - outerSpan
             val innerData = sortedData.filter { it.param <= end }
-                    .let { chordalParametrize(it.map { it.point }) }
-                    .let { transformParams(it, Interval(outerSpan / (outerSpan + innerSpan), 1.0)) }
+                    .let {
+                        val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
+                        transformParams(chordalParametrize(it.map { it.point }), range)
+                                .orElse { transformParams(uniformParametrize(it.map { it.point }), range) }
+                    }.get()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
             val outerData = bezier.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
-            return transformParams(outerData, Interval(begin, begin + outerSpan))
+            return transformParams(outerData, Interval(begin, begin + outerSpan)).get()
                     .init()
                     .appendAll(sortedData)
         }
@@ -68,15 +74,20 @@ class DataPreparer(
         fun extendBack(sortedData: Array<ParamPoint>,
                        innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<ParamPoint> {
             require(sortedData.size() >= 2) { "sortedData size is too few" }
+            require(innerSpan > 0.0 && outerSpan > 0.0) {
+                "innerSpan($innerSpan) or outerSpan($outerSpan) are negative" }
 
             val begin = sortedData.last().param - innerSpan
             val end = sortedData.last().param + outerSpan
             val innerData = sortedData.filter { it.param >= begin }
-                    .let { chordalParametrize(it.map { it.point }) }
-                    .let { transformParams(it, Interval(0.0, innerSpan / (outerSpan + innerSpan))) }
+                    .let {
+                        val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
+                        transformParams(chordalParametrize(it.map { it.point }), range)
+                                .orElse { transformParams(uniformParametrize(it.map { it.point }), range) }
+                    }.get()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
             val outerData = bezier.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
-            return transformParams(outerData, Interval(end - outerSpan, end))
+            return transformParams(outerData, Interval(end - outerSpan, end)).get()
                     .tail()
                     .prependAll(sortedData)
         }

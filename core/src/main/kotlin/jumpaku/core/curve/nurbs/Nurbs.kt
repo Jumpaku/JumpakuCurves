@@ -5,13 +5,14 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.API
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
-import jumpaku.core.curve.arclength.repeatBisection
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
@@ -23,7 +24,7 @@ import jumpaku.core.util.component2
 import org.apache.commons.math3.util.Precision
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, Subdividible<Nurbs>, ToJson {
+    : FuzzyCurve, Differentiable, Transformable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -53,45 +54,17 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     }
 
     init {
-        require(controlPoints.nonEmpty()) { "empty controlPoints" }
-        check(knotVector.size() - degree - 1 == controlPoints.size()) {
-            "knotVector.size()(${knotVector.size()}) - degree($degree) - 1 != controlPoints.size()(${controlPoints.size()})" }
-        check(degree > 0) { "degree($degree) <= 0" }
+        val us = knotVector.extractedKnots
+        val p = knotVector.degree
+        val n = controlPoints.size()
+        val m = us.size()
+        require(n >= p + 1) { "controlPoints.size()($n) < degree($p) + 1" }
+        require(m - p - 1 == n) { "knotVector.size()($m) - degree($p) - 1 != controlPoints.size()($n)" }
+        require(degree > 0) { "degree($degree) <= 0" }
     }
 
     constructor(weightedControlPoints: Iterable<WeightedPoint>, knotVector: KnotVector) : this(
             Array.ofAll(weightedControlPoints.map { it.point }), Array.ofAll(weightedControlPoints.map { it.weight }), knotVector)
-
-    override fun evaluate(t: Double): Point {
-        val l = knotVector.lastIndexUnder(t)
-        if(l == knotVector.size() - 1){
-            return controlPoints.last()
-        }
-
-        val result = weightedControlPoints.toJavaArray(WeightedPoint::class.java)
-        val d = degree
-
-        for (k in 1..d) {
-            for (i in l downTo (l - d + k)) {
-                val aki = BSpline.basisHelper(t, knotVector[i], knotVector[i + d + 1 - k], knotVector[i])
-                result[i] = result[i - 1].divide(aki, result[i])
-            }
-        }
-
-        return result[l].point
-    }
-
-    override fun transform(a: Affine): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
-
-    fun restrict(begin: Double, end: Double): Nurbs {
-        require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
-
-        return subdivide(begin)._2().subdivide(end)._1()
-    }
-
-    fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
-
-    fun reverse(): Nurbs = Nurbs(weightedControlPoints.reverse(), knotVector.reverse())
 
     override fun toString(): String = toJsonString()
 
@@ -99,68 +72,77 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(clamp(),
+                {
+                    val cp = (it as Nurbs).weightedControlPoints
+                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().point.dist(last().point) }
+                    !(Precision.equals(l0, l1, 1.0 / 256) && cp.all { it.weight > 0 })
+                },
+                { b, i: Interval -> (b as Nurbs).restrict(i) })
+    }
+
+    override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
+
+    override fun evaluate(t: Double): Point = BSpline.evaluate(weightedControlPoints, knotVector, t).point
+
+    override fun transform(a: Affine): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
+
+    fun restrict(begin: Double, end: Double): Nurbs {
+        require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
+
+        return subdivide(begin)._2().get().subdivide(end)._1().get()
+    }
+
+    fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
+
+    fun reverse(): Nurbs = Nurbs(weightedControlPoints.reverse(), knotVector.reverse())
+
     /**
      * Multiplies more than degree + 1 knots at begin and end of domain.
      * Head and last of control points are moved to beginning point and end point of BSpline curve.
      */
-    fun clamp(): Nurbs = restrict(domain)
+    fun clamp(): Nurbs = Nurbs(BSpline.clampedControlPoints(weightedControlPoints, knotVector), knotVector.clamp())
 
-    fun close(): Nurbs {
-        val clamped = clamp()
-        val frontCount = clamped.knotVector.filter { it <= domain.begin } .size - degree - 1
-        val backCount = clamped.knotVector.filter { it >= domain.end } .size - degree - 1
-
-        val cp = clamped.weightedControlPoints
-                .drop(frontCount)
-                .dropRight(backCount)
-        val closingPoint = cp.head().middle(cp.last())
-        val newCp = cp
-                .update(0, closingPoint)
-                .update(cp.size() - 1, closingPoint)
-        val us = clamped.knotVector.knots
-                .drop(frontCount)
-                .dropRight(backCount)
-        val newKnots = KnotVector(degree, us)
-        return Nurbs(newCp, newKnots)
-    }
-
-    override fun toArcLengthCurve(): ArcLengthAdapter {
-        val ts = repeatBisection(this, this.domain, { nurbs, subDomain ->
-            val wcp = nurbs.restrict(subDomain).weightedControlPoints
-            val polylineLength = Polyline(wcp.map { it.point }).toArcLengthCurve().arcLength()
-            val beginEndLength = wcp.head().point.dist(wcp.last().point)
-            wcp.all { it.weight > 0 } && !Precision.equals(polylineLength, beginEndLength, 1.0 / 256)
-        }).fold(API.Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
-
-        return ArcLengthAdapter(this, ts.toArray())
-    }
+    fun close(): Nurbs = Nurbs(BSpline.closedControlPoints(weightedControlPoints, knotVector), knotVector.clamp())
 
     fun toRationalBeziers(): Array<RationalBezier> {
-        return knotVector.knots
-                .slice(degree + 1, knotVector.size() - degree - 1)
-                .fold(this, { bSpline, knot -> bSpline.insertKnot(knot, degree) })
-                .weightedControlPoints
-                .grouped(degree + 1)
-                .map(::RationalBezier)
+        val (b, e) = domain
+        val sb = knotVector.multiplicityOf(b)
+        val se = knotVector.multiplicityOf(e)
+        return BSpline.segmentedControlPoints(weightedControlPoints, knotVector)
+                .run { slice(degree + 1 - sb, size() - degree - 1 + se) }
+                .sliding(degree + 1, degree + 1)
+                .map { RationalBezier(it) }
                 .toArray()
     }
 
-    override fun subdivide(t: Double): Tuple2<Nurbs, Nurbs> {
+    fun subdivide(t: Double): Tuple2<Option<Nurbs>, Option<Nurbs>> {
         require(t in domain) { "t($t) is out of domain($domain)" }
-
-        val (front, back) = BSpline.createSubdividedControlPointsAndKnotVectors(t, weightedControlPoints, knotVector)
-        return Tuple2(Nurbs(front._1(), front._2()), Nurbs(back._1(), back._2()))
+        val (cp0, cp1) = BSpline.subdividedControlPoints(t, weightedControlPoints, knotVector)
+        val (kv0, kv1) = knotVector.subdivide(t)
+        return Tuple2(kv0.map { Nurbs(cp0, it) }, kv1.map { Nurbs(cp1, it) })
     }
 
-    fun insertKnot(t: Double, maxMultiplicity: Int = 1): Nurbs {
+    fun insertKnot(t: Double, times: Int = 1): Nurbs {
         require(t in domain) { "t($t) is out of domain($domain)." }
-        require(maxMultiplicity >= 0) { "maxMultiplicity($maxMultiplicity) is negative" }
+        val s = knotVector.multiplicityOf(t)
+        val p = knotVector.degree
+        val h = times.coerceIn(0..(p + 1 - s))
+        return Nurbs(BSpline.insertedControlPoints(weightedControlPoints, knotVector, t, h), knotVector.insert(t, h))
+    }
 
-        val (cp, knot) = BSpline.createKnotInsertedControlPointsAndKnotVectors(t, maxMultiplicity, weightedControlPoints, knotVector)
+    fun removeKnot(knotIndex: Int, times: Int = 1): Nurbs {
+        val s = knotVector.knots[knotIndex].multiplicity
+        val h = times.coerceIn(0..s)
+        return Nurbs(BSpline.removedControlPoints(weightedControlPoints, knotVector, knotIndex, h), knotVector.remove(knotIndex, h))
+    }
 
-        return Nurbs(cp, knot)
+    companion object {
+
+        fun fromJson(json: JsonElement): Option<Nurbs> = Try.ofSupplier {
+            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
+        }.toOption()
     }
 }
-
-val JsonElement.nurbs: Nurbs get() = Nurbs(
-        this["weightedControlPoints"].array.map { it.weightedPoint }, this["knotVector"].knotVector)

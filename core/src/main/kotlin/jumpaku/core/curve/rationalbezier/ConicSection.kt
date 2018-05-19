@@ -9,17 +9,18 @@ import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
+import io.vavr.control.Option
+import io.vavr.control.Try
 import jumpaku.core.affine.*
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthAdapter
-import jumpaku.core.curve.arclength.repeatBisection
-import jumpaku.core.curve.bezier.Bezier
+import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.clamp
-import jumpaku.core.util.divOption
+import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
+import kotlin.math.absoluteValue
 
 
 /**
@@ -27,17 +28,7 @@ import org.apache.commons.math3.util.Precision
  */
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
-    : FuzzyCurve, Differentiable, Transformable, Subdividible<ConicSection>, ToJson {
-
-    fun toCrispRationalBezier(): RationalBezier {
-        check(1.0.divOption(weight).isDefined) { "weight($weight) is close to 0" }
-
-        return RationalBezier(Stream(
-                begin.toCrisp(),
-                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
-                end.toCrisp()
-        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
-    }
+    : FuzzyCurve, Differentiable, Transformable, ToJson {
 
     val representPoints: Array<Point> get() = Array(begin, far, end)
 
@@ -47,8 +38,16 @@ class ConicSection(
 
     override val derivative: Derivative
         get() = object : Derivative {
-        override val domain: Interval = this@ConicSection.domain
-        override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+            override val domain: Interval = this@ConicSection.domain
+            override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+        }
+
+    fun toCrispQuadratic(): Option<RationalBezier> = Option.`when`(1.0.divOption(weight).isDefined) {
+        RationalBezier(Stream(
+                begin.toCrisp(),
+                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
+                end.toCrisp()
+        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
     }
 
     override fun differentiate(t: Double): Vector {
@@ -66,17 +65,14 @@ class ConicSection(
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
-
-        val p0 = begin.toVector()
-        val p1 = far.toVector()
-        val p2 = end.toVector()
-        val p = ((1 - t)*(1 - 2*t)*p0 + 2*t*(1 - t)*(1 + weight)*p1 + t*(2*t - 1)*p2)/wt
-        val r0 = representPoints[0].r
-        val r1 = representPoints[1].r
-        val r2 = representPoints[2].r
-        val r = FastMath.abs(r0 * (1 - t) * (1 - 2 * t) / wt) +
-                FastMath.abs(r1 * 2 * (weight + 1) * t * (1 - t) / wt) +
-                FastMath.abs(r2 * t * (2 * t - 1) / wt)
+        val (p0, p1, p2) = representPoints.map { it.toVector() }
+        val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + weight) * p1 + t * (2 * t - 1) * p2) / wt
+        val (r0, r1, r2) = representPoints.map { it.r }
+        val r = listOf(
+                r0 * (1 - t) * (1 - 2 * t) / wt,
+                r1 * 2 * (weight + 1) * t * (1 - t) / wt,
+                r2 * t * (2 * t - 1) / wt
+        ).map { it.absoluteValue }.sum()
 
         return Point(p, r)
     }
@@ -89,13 +85,15 @@ class ConicSection(
     override fun toJson(): JsonElement = jsonObject(
             "begin" to begin.toJson(), "far" to far.toJson(), "end" to end.toJson(), "weight" to weight.toJson())
 
+    override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
+
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
-    fun complement(): ConicSection = ConicSection(begin, center().divide(-1.0, far), end, -weight)
+    fun complement(): ConicSection = ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
 
-    fun center(): Point = begin.middle(end).divide(weight/(weight - 1), far)
+    fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
-    override fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
+    fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
         val p0 = begin.toVector()
         val p1 = far.toVector()
@@ -130,16 +128,15 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override fun toArcLengthCurve(): ArcLengthAdapter {
-        val ts = repeatBisection(this, this.domain, { rb, subDomain ->
-            val sub = rb.restrict(subDomain)
-            val rp = sub.representPoints
-            val polylineLength = Polyline(rp).toArcLengthCurve().arcLength()
-            val beginEndLength = rp.head().dist(rp.last())
-            !(sub.weight > 0.0 && Precision.equals(polylineLength, beginEndLength, 1.0 / 512))
-        }).fold(Stream(domain.begin), { acc, subDomain -> acc.append(subDomain.end) })
-
-        return ArcLengthAdapter(this, ts.toArray())
+    override val reparametrized: ArcLengthReparametrized by lazy {
+        approximate(this,
+                {
+                    val cp = (it as ConicSection).representPoints
+                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
+                    val l1 = cp.run { head().dist(last()) }
+                    !(Precision.equals(l0, l1, 1.0 / 512) && listOf(1.0, it.weight, 1.0).all { it > 0 })
+                },
+                { b, i: Interval -> (b as ConicSection).restrict(i) })
     }
 
     companion object {
@@ -153,17 +150,13 @@ class ConicSection(
             val hh = line(begin, end).map { far.distSquare(it) }
                     .getOrElse { begin.distSquare(far) }
             val ll = (begin - end).square()/4
-            return ConicSection(begin, far, end, clamp((ll - hh) / (ll + hh), -0.999, 0.999))
+            return ConicSection(begin, far, end, ((ll - hh) / (ll + hh)).coerceIn(-0.999, 0.999))
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
-        fun ofQuadraticBezier(bezier: Bezier): ConicSection {
-            require(bezier.degree == 2) { "degree(${bezier.degree}) != 2" }
-            return ConicSection(bezier(0.0), bezier(0.5), bezier(1.0), 1.0)
-        }
+        fun fromJson(json: JsonElement): Option<ConicSection> = Try.ofSupplier {
+            ConicSection(Point.fromJson(json["begin"]).get(), Point.fromJson(json["far"]).get(), Point.fromJson(json["end"]).get(), json["weight"].double)
+        }.toOption()
     }
 }
-
-val JsonElement.conicSection: ConicSection get() = ConicSection(
-        this["begin"].point, this["far"].point, this["end"].point, this["weight"].double)
