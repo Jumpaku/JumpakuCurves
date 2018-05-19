@@ -2,6 +2,7 @@ package jumpaku.fsc.test.snap
 
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
+import jumpaku.core.affine.transform.Rotate
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.shouldEqualToPoint
 import jumpaku.core.test.affine.shouldEqualToVector
@@ -24,8 +25,7 @@ class GridTest {
             spacing = 4.0,
             magnification = 2,
             origin = Point.xyz(4.0, 4.0, 0.0),
-            axis = Vector.K,
-            radian = p2,
+            rotation = Rotate(Vector.K, p2),
             fuzziness = 2.0,
             resolution = 0)
 
@@ -42,8 +42,8 @@ class GridTest {
         higherGrid.spacing.shouldBeCloseTo(2.0)
         higherGrid.magnification.shouldEqualTo(2)
         higherGrid.origin.shouldEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
-        higherGrid.axis.shouldEqualToVector(Vector.K)
-        higherGrid.radian.shouldBeCloseTo(p2)
+        higherGrid.rotation.axis.shouldEqualToVector(Vector.K)
+        higherGrid.rotation.angleRadian.shouldBeCloseTo(p2)
         higherGrid.fuzziness.shouldBeCloseTo(1.0)
         higherGrid.resolution.shouldEqualTo(1)
         higherGrid.isNoGrid.shouldBeFalse()
@@ -51,8 +51,8 @@ class GridTest {
         lowerGrid.spacing.shouldBeCloseTo(8.0)
         lowerGrid.magnification.shouldEqualTo(2)
         lowerGrid.origin.shouldEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
-        lowerGrid.axis.shouldEqualToVector(Vector.K)
-        lowerGrid.radian.shouldBeCloseTo(p2)
+        lowerGrid.rotation.axis.shouldEqualToVector(Vector.K)
+        lowerGrid.rotation.angleRadian.shouldBeCloseTo(p2)
         lowerGrid.fuzziness.shouldBeCloseTo(4.0)
         lowerGrid.resolution.shouldEqualTo(-1)
         lowerGrid.isNoGrid.shouldBeFalse()

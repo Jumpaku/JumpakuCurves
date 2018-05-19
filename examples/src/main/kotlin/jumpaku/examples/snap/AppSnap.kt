@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
+import jumpaku.core.affine.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.fsc.classify.ClassifierOpen4
@@ -40,8 +41,7 @@ class ViewSnap : View() {
             spacing = 50.0,
             magnification = 2,
             origin = Point.xy(w/2, h/2),
-            axis = Vector.K,
-            radian = 0.0,
+            rotation = Rotate(Vector.K, 0.0),
             fuzziness = 20.0)
 
     val conicSectionSnapper = ConicSectionSnapper(

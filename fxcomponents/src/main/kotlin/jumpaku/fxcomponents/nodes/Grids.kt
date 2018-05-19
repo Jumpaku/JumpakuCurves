@@ -14,10 +14,10 @@ import org.apache.commons.math3.util.FastMath
 import tornadofx.circle
 import tornadofx.line
 
-fun Parent.grid(grid: Grid, x: Double, y: Double, w: Double, h: Double, op: Shape.()->Unit): Unit {
+fun Parent.grid(grid: Grid, x: Double, y: Double, w: Double, h: Double, op: Shape.()->Unit) {
     val o = grid.origin
     val s = grid.spacing
-    val t = Rotate(grid.axis, grid.radian).at(o)
+    val t = grid.rotation.at(o)
     (FastMath.ceil((x - o.x)/s).toInt()..FastMath.floor((x - o.x + w)/s).toInt())
             .map { o.x + s * it }
             .forEach {

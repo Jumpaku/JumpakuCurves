@@ -4,6 +4,7 @@ import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.affine.Point
 import jumpaku.core.affine.Vector
+import jumpaku.core.affine.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson
@@ -29,8 +30,7 @@ class ConicSectionSnapperTest {
             spacing = 50.0,
             magnification = 2,
             origin = Point.xy(w/2, h/2),
-            axis = Vector.K,
-            radian = 0.0,
+            rotation = Rotate(Vector.K, 0.0),
             fuzziness = 20.0)
 
     val conicSectionSnapper = ConicSectionSnapper(

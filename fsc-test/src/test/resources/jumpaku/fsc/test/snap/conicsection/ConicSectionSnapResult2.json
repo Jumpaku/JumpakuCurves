@@ -18,12 +18,14 @@
               "z": 0.0,
               "r": 0.0
             },
-            "axis": {
-              "x": 0.0,
-              "y": 0.0,
-              "z": 1.0
+            "rotation": {
+              "axis": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+              },
+              "angleRadian": 0.0
             },
-            "radian": 0.0,
             "fuzziness": 80.0,
             "resolution": -2
           },
@@ -58,12 +60,14 @@
               "z": 0.0,
               "r": 0.0
             },
-            "axis": {
-              "x": 0.0,
-              "y": 0.0,
-              "z": 1.0
+            "rotation": {
+              "axis": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+              },
+              "angleRadian": 0.0
             },
-            "radian": 0.0,
             "fuzziness": 80.0,
             "resolution": -2
           },
@@ -151,12 +155,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -191,12 +197,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 10.0,
               "resolution": 1
             },
@@ -282,12 +290,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -322,12 +332,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 10.0,
               "resolution": 1
             },
@@ -413,12 +425,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -453,12 +467,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -544,12 +560,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 10.0,
               "resolution": 1
             },
@@ -584,12 +602,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -675,12 +695,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -715,12 +737,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -806,12 +830,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -846,12 +872,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 20.0,
               "resolution": 0
             },
@@ -937,12 +965,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 80.0,
               "resolution": -2
             },
@@ -977,12 +1007,14 @@
                 "z": 0.0,
                 "r": 0.0
               },
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
               },
-              "radian": 0.0,
               "fuzziness": 80.0,
               "resolution": -2
             },
