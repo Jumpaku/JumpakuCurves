@@ -1,7 +1,7 @@
 package jumpaku.core.test.curve.bezier
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative

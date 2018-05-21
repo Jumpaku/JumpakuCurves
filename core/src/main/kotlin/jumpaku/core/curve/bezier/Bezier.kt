@@ -11,9 +11,10 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
@@ -25,7 +26,7 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
 
-class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, ToJson {
+class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -53,9 +54,9 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun transform(a: Affine): Bezier = Bezier(controlPoints.map(a))
-
     override fun toCrisp(): Bezier = Bezier(controlPoints.map { it.toCrisp() })
+
+    fun transform(a: Transform): Bezier = Bezier(controlPoints.map(a::invoke))
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
@@ -85,10 +86,10 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
         require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
 
         return createSubdividedControlPoints(t, controlPoints)
-                .let { (a, b) -> Bezier(if(t <= domain.begin) a else b) }
+                .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(this,
                 {
                     val cp = (it as Bezier).controlPoints

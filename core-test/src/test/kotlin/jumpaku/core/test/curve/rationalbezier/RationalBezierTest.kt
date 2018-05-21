@@ -1,9 +1,11 @@
 package jumpaku.core.test.curve.rationalbezier
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.WeightedPoint
-import jumpaku.core.affine.identity
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.WeightedPoint
+import jumpaku.core.transform.Rotate
+import jumpaku.core.transform.Translate
+import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.core.json.parseJson
@@ -108,7 +110,9 @@ class RationalBezierTest {
     @Test
     fun testTransform() {
         println("Transform")
-        val a = rb.transform(identity.andScale(2.0).andRotate(Vector(0.0, 0.0, 1.0), FastMath.PI/2).andTranslate(Vector(1.0, 1.0)))
+        val a = rb.transform(UniformlyScale(2.0)
+                .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2))
+                .andThen(Translate(Vector(1.0, 1.0))))
         val e = RationalBezier(
                 WeightedPoint(Point.xy(-1.0, 1.0), 1.0),
                 WeightedPoint(Point.xy(-1.0, 5 - 2 * R2), (1 + R2) / 3),

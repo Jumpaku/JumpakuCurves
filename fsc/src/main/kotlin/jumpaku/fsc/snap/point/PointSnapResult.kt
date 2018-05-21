@@ -5,7 +5,7 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.fsc.snap.Grid

@@ -1,7 +1,8 @@
 package jumpaku.fsc.test.snap.point
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.transform.Rotate
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.point.PointSnapResult
@@ -14,8 +15,7 @@ class PointSnapResultTest {
             spacing = 1.0,
             magnification = 4,
             origin = Point.xyz(0.0, 0.0, 0.0),
-            axis = Vector.K,
-            radian = 0.0,
+            rotation = Rotate(Vector.K, 0.0),
             fuzziness = 0.25,
             resolution = 0)
 

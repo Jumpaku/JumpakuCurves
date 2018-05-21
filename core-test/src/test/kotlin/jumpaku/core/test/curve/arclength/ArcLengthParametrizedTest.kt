@@ -1,8 +1,8 @@
 package jumpaku.core.test.curve.arclength
 
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.test.affine.shouldEqualToPoint
 import jumpaku.core.test.curve.rationalbezier.shouldEqualToConicSection
@@ -13,7 +13,7 @@ import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
 
-class ArcLengthReparametrizedTest {
+class ArcLengthReparameterizedTest {
 
     val R2 = FastMath.sqrt(2.0)
 
@@ -23,7 +23,7 @@ class ArcLengthReparametrizedTest {
     fun testProperties() {
         println("Properties")
         val c = ConicSection(Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 1.0), Point.xyr(1.0, 0.0, 1.0), R2 / 2)
-        val a = ArcLengthReparametrized(c, 101)
+        val a = ArcLengthReparameterized(c, 101)
         a.domain.shouldEqualToInterval(Interval(0.0, FastMath.PI / 2), 1.0e-4)
         (a.originalCurve as ConicSection).shouldEqualToConicSection(c)
     }
@@ -32,7 +32,7 @@ class ArcLengthReparametrizedTest {
     fun testEvaluate() {
         println("Evaluate")
         val c = ConicSection(Point.xy(0.0, 1.0), Point.xy(R2 / 2, R2 / 2), Point.xy(1.0, 0.0), R2 / 2)
-        val a = ArcLengthReparametrized(c, 101)
+        val a = ArcLengthReparameterized(c, 101)
         a.evaluate(PI * 0 / 8).shouldEqualToPoint(Point.xy(0.0, 1.0), 1.0e-4)
         a.evaluate(PI * 1 / 8).shouldEqualToPoint(Point.xy(FastMath.cos(PI*3/8), FastMath.sin(PI*3/8)), 1.0e-4)
         a.evaluate(PI * 2 / 8).shouldEqualToPoint(Point.xy(R2/2, R2/2), 1.0e-4)
@@ -52,7 +52,7 @@ class ArcLengthReparametrizedTest {
     fun testArcLength() {
         println("ArcLength")
         val c = ConicSection(Point.xy(0.0, 1.0), Point.xy(R2 / 2, R2 / 2), Point.xy(1.0, 0.0), R2 / 2)
-        val a = ArcLengthReparametrized(c, 101)
+        val a = ArcLengthReparameterized(c, 101)
         a.arcLength().shouldBeCloseTo(PI/2, 1.0e-4)
     }
 
@@ -60,7 +60,7 @@ class ArcLengthReparametrizedTest {
     fun testToOriginalParam() {
         println("ToOriginalParam")
         val c = ConicSection(Point.xy(0.0, 1.0), Point.xy(R2 / 2, R2 / 2), Point.xy(1.0, 0.0), R2 / 2)
-        val a = ArcLengthReparametrized(c, 101)
+        val a = ArcLengthReparameterized(c, 101)
 
         a.toOriginalParam(0.0).shouldBeCloseTo(0.0, 1.0e-3)
         a.toOriginalParam(PI/4).shouldBeCloseTo(0.5, 1.0e-3)
@@ -71,7 +71,7 @@ class ArcLengthReparametrizedTest {
     fun testArcLengthUntil() {
         println("ArcLengthUntil")
         val c = ConicSection(Point.xy(0.0, 1.0), Point.xy(R2 / 2, R2 / 2), Point.xy(1.0, 0.0), R2 / 2)
-        val a = ArcLengthReparametrized(c, 101)
+        val a = ArcLengthReparameterized(c, 101)
 
         a.arcLengthUntil(0.0).shouldBeCloseTo(0.0, 1.0e-4)
         a.arcLengthUntil(0.5).shouldBeCloseTo(PI/4, 1.0e-4)

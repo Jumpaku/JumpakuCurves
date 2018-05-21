@@ -9,13 +9,12 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.prettyGson
 
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {

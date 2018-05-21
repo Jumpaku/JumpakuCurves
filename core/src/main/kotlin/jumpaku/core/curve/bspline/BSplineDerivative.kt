@@ -9,8 +9,8 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.json.ToJson

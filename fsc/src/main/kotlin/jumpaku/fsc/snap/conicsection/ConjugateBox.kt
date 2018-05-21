@@ -1,13 +1,14 @@
 package jumpaku.fsc.snap.conicsection
 
-import io.vavr.Tuple3
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Calibrate
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.FastMath
 
 
-class ConjugateBox(val transform: Affine) {
+class ConjugateBox(val transform: Transform) {
 
     private val r2 = FastMath.sqrt(2.0)
 
@@ -32,25 +33,21 @@ class ConjugateBox(val transform: Affine) {
     companion object {
 
         fun ofConicSection(conicSection: ConicSection): ConjugateBox {
-            fun transform(deepConicSection: ConicSection): Affine {
+            fun transform(deepConicSection: ConicSection): Transform {
                 val w = deepConicSection.weight
                 val t = (1 + w).divOption(1 - w).map { ((1 - FastMath.sqrt(it)) / 2).coerceIn(0.0, 0.5) }
-                val p0 = deepConicSection.far
-                val p1 = deepConicSection(t.get())
-                val p2 = deepConicSection(1 - t.get())
-                return calibrateToPlane(Tuple3(Point.xy(0.0, 1.0), Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0)), Tuple3(p0, p1, p2))
-                        .get()
+                return Calibrate(Point.xy(0.0, 1.0) to deepConicSection.far,
+                        Point.xy(-1.0, 0.0) to deepConicSection(t.get()),
+                        Point.xy(1.0, 0.0) to deepConicSection(1 - t.get()))
             }
             val transform = when{
                 conicSection.center().isDefined -> transform(
                         if (conicSection.weight <= conicSection.complement().weight) conicSection
                         else conicSection.complement())
                 else -> {
-                    val p0 = conicSection.far
-                    val p1 = conicSection.begin
-                    val p2 = conicSection.end
-                    calibrateToPlane(
-                            Tuple3(Point.xy(0.0, 1.0), Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0)), Tuple3(p0, p1, p2)).get()
+                    Calibrate(Point.xy(0.0, 1.0) to conicSection.far,
+                            Point.xy(-1.0, 0.0) to conicSection.begin,
+                            Point.xy(1.0, 0.0) to conicSection.end)
                 }
             }
             return ConjugateBox(transform)

@@ -1,7 +1,7 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.ParamPoint
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.ParamPoint
+import jumpaku.core.geom.Point
 import jumpaku.core.json.parseJson
 import org.junit.Test
 

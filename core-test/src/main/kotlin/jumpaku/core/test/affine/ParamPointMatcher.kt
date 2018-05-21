@@ -1,6 +1,6 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.ParamPoint
+import jumpaku.core.geom.ParamPoint
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: ParamPoint, expected: ParamPoint, error: Double = 1.0e-9): Boolean =

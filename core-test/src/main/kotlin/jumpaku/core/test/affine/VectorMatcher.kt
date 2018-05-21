@@ -1,6 +1,6 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Vector
 import jumpaku.core.test.isCloseTo
 import org.amshove.kluent.should
 

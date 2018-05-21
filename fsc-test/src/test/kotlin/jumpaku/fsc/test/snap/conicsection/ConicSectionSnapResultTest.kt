@@ -13,7 +13,10 @@ class ConicSectionSnapResultTest {
     fun testToString() {
         println("ToString")
         for (i in 0..4) {
-            val e = resourceText("ConicSectionSnapResult$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
+            val e = resourceText("ConicSectionSnapResult$i.json").parseJson()
+                    .flatMap {
+                        ConicSectionSnapResult.fromJson(it)
+                    }.get()
             val a = e.toString().parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
             a.shouldEqualToConicSectionSnapResult(e)
         }

@@ -3,9 +3,7 @@ package jumpaku.fxcomponents.nodes
 import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.rotation
-import jumpaku.core.affine.transformationAt
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
@@ -15,10 +13,10 @@ import org.apache.commons.math3.util.FastMath
 import tornadofx.circle
 import tornadofx.line
 
-fun Parent.grid(grid: Grid, x: Double, y: Double, w: Double, h: Double, op: Shape.()->Unit): Unit {
+fun Parent.grid(grid: Grid, x: Double, y: Double, w: Double, h: Double, op: Shape.()->Unit) {
     val o = grid.origin
     val s = grid.spacing
-    val t = transformationAt(o, rotation(grid.axis, grid.radian))
+    val t = grid.rotation.at(o)
     (FastMath.ceil((x - o.x)/s).toInt()..FastMath.floor((x - o.x + w)/s).toInt())
             .map { o.x + s * it }
             .forEach {

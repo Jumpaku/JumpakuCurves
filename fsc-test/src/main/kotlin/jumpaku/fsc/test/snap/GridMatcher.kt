@@ -9,8 +9,8 @@ fun isCloseTo(actual: Grid, expected: Grid, error: Double): Boolean =
         isCloseTo(actual.spacing, expected.spacing, error) &&
                 actual.magnification == expected.magnification &&
                 isCloseTo(actual.origin, expected.origin, error) &&
-                isCloseTo(actual.axis, expected.axis, error) &&
-                isCloseTo(actual.radian, expected.radian, error) &&
+                isCloseTo(actual.rotation.axis, expected.rotation.axis, error) &&
+                isCloseTo(actual.rotation.angleRadian, expected.rotation.angleRadian, error) &&
                 isCloseTo(actual.fuzziness, expected.fuzziness, error) &&
                 actual.resolution == expected.resolution
 

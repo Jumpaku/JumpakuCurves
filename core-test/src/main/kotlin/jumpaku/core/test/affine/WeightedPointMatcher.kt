@@ -1,6 +1,6 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.WeightedPoint
+import jumpaku.core.geom.WeightedPoint
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: WeightedPoint, expected: WeightedPoint, error: Double = 1.0e-9): Boolean =

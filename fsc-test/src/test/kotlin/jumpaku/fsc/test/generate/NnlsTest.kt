@@ -1,12 +1,12 @@
 package jumpaku.fsc.test.generate
 
 import io.vavr.collection.Array
-import jumpaku.core.affine.ParamPoint
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.ParamPoint
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.fit.createModelMatrix
+import jumpaku.fsc.generate.fit.createModelMatrix
 import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.fsc.generate.nonNegativeLinearLeastSquare
 import org.amshove.kluent.shouldBe

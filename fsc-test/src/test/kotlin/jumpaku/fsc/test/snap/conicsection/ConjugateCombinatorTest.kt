@@ -1,7 +1,7 @@
 package jumpaku.fsc.test.snap.conicsection
 
 import io.vavr.collection.Stream
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.test.affine.shouldEqualToPoint
 import jumpaku.core.util.component1

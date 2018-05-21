@@ -16,8 +16,7 @@ data class Fragment(val interval: Interval, val type: Type) {
     fun toJson(): JsonElement = jsonObject("interval" to interval.toJson(), "type" to type.name.toJson())
 
     enum class Type {
-        IDENTIFICATION,
-        PARTITION
+        Move, Stay
     }
 
     companion object {
