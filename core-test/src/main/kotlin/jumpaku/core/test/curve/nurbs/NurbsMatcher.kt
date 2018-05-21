@@ -12,6 +12,6 @@ fun isCloseTo(actual: Nurbs, expected: Nurbs, error: Double = 1.0e-9): Boolean =
         isCloseTo(actual.knotVector, expected.knotVector, error) &&
                 actual.weightedControlPoints.zip(expected.weightedControlPoints).all { (a, e) -> isCloseTo(a, e, error) }
 
-fun Nurbs.shouldBeNurbs(expected: Nurbs, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun Nurbs.shouldEqualToNurbs(expected: Nurbs, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

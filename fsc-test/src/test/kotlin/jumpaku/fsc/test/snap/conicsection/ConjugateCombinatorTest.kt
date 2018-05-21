@@ -1,16 +1,16 @@
 package jumpaku.fsc.test.snap.conicsection
 
 import io.vavr.collection.Stream
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.shouldBePoint
+import jumpaku.core.test.affine.shouldEqualToPoint
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.snap.conicsection.CircularFeaturePoints
 import jumpaku.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.fsc.snap.conicsection.EllipticFeaturePoints
 import jumpaku.fsc.snap.conicsection.LinearFeaturePoints
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
@@ -39,21 +39,21 @@ class ConjugateCombinatorTest {
         println("LinearCombinations")
         val aopen = conjugateCombinator.linearCombinations(l, true)
         val eopen = Stream.of(LinearFeaturePoints(Point.xy(1.0, 1.0), Point.xy(-1.0, -1.0)))
-        aopen.size().shouldEqual(eopen.size())
+        aopen.size().shouldEqualTo(eopen.size())
         for ((a, e) in aopen.zip(eopen)) {
             val (a0, a1) = a
             val (e0, e1) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
         }
         val aclosed = conjugateCombinator.linearCombinations(l, false)
         val eclosed = Stream.of(LinearFeaturePoints(Point.xy(0.0, 0.0), Point.xy(0.0, 0.0)))
-        aclosed.size().shouldEqual(eclosed.size())
+        aclosed.size().shouldEqualTo(eclosed.size())
         for ((a, e) in aclosed.zip(eclosed)) {
             val (a0, a1) = a
             val (e0, e1) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
         }
     }
 
@@ -69,13 +69,13 @@ class ConjugateCombinatorTest {
                 CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(-r2 / 2, r2 / 2)),
                 CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(r2 / 2, r2 / 2))
         )
-        aopen0.size().shouldEqual(eopen0.size())
+        aopen0.size().shouldEqualTo(eopen0.size())
         for ((a, e) in aopen0.zip(eopen0)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
 
         val aopen1 = conjugateCombinator.circularCombinations(c1, true)
@@ -90,13 +90,13 @@ class ConjugateCombinatorTest {
 
                 CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0))
         )
-        aopen1.size().shouldEqual(eopen1.size())
+        aopen1.size().shouldEqualTo(eopen1.size())
         for ((a, e) in aopen1.zip(eopen1)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
 
         val aopen2 = conjugateCombinator.circularCombinations(c2, true)
@@ -111,13 +111,13 @@ class ConjugateCombinatorTest {
 
                 CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0))
         )
-        aopen2.size().shouldEqual(eopen2.size())
+        aopen2.size().shouldEqualTo(eopen2.size())
         for ((a, e) in aopen2.zip(eopen2)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
 
         val aclosed3 = conjugateCombinator.circularCombinations(c2, false)
@@ -132,13 +132,13 @@ class ConjugateCombinatorTest {
                 CircularFeaturePoints(Point.xy(0.0, r2), Point.xy(0.0, -r2), Point.xy(-1.0, 0.0)),
                 CircularFeaturePoints(Point.xy(0.0, r2), Point.xy(0.0, -r2), Point.xy(1.0, 0.0))
         )
-        aclosed3.size().shouldEqual(eclosed3.size())
+        aclosed3.size().shouldEqualTo(eclosed3.size())
         for ((a, e) in aclosed3.zip(eclosed3)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
     }
 
@@ -151,13 +151,13 @@ class ConjugateCombinatorTest {
                 EllipticFeaturePoints(Point.xy(-r2, r2 / 2), Point.xy(r2, r2 / 2), Point.xy(0.0, 1.0)),
                 EllipticFeaturePoints(Point.xy(-r2, r2 / 2), Point.xy(r2, r2 / 2), Point.xy(0.0, r2))
         )
-        aopen0.size().shouldEqual(eopen0.size())
+        aopen0.size().shouldEqualTo(eopen0.size())
         for ((a, e) in aopen0.zip(eopen0)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
 
         val aopen1 = conjugateCombinator.ellipticCombinations(e1, true)
@@ -170,13 +170,13 @@ class ConjugateCombinatorTest {
 
                 EllipticFeaturePoints(Point.xy(-2 * r2, 0.0), Point.xy(0.0, r2), Point.xy(2 * r2, 0.0))
         )
-        aopen1.size().shouldEqual(eopen1.size())
+        aopen1.size().shouldEqualTo(eopen1.size())
         for ((a, e) in aopen1.zip(eopen1)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
 
         val aopen2 = conjugateCombinator.ellipticCombinations(e2, true)
@@ -189,13 +189,13 @@ class ConjugateCombinatorTest {
 
                 EllipticFeaturePoints(Point.xy(-2 * r2, 0.0), Point.xy(0.0, r2), Point.xy(2 * r2, 0.0))
         )
-        aopen2.size().shouldEqual(eopen2.size())
+        aopen2.size().shouldEqualTo(eopen2.size())
         for ((a, e) in aopen2.zip(eopen2)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
 
         val aclosed3 = conjugateCombinator.ellipticCombinations(e2, false)
@@ -210,13 +210,13 @@ class ConjugateCombinatorTest {
                 EllipticFeaturePoints(Point.xy(2 * r2, 0.0), Point.xy(0.0, -r2), Point.xy(-2 * r2, 0.0)),
                 EllipticFeaturePoints(Point.xy(0.0, -r2), Point.xy(-2 * r2, 0.0), Point.xy(0.0, r2))
         )
-        aclosed3.size().shouldEqual(eclosed3.size())
+        aclosed3.size().shouldEqualTo(eclosed3.size())
         for ((a, e) in aclosed3.zip(eclosed3)) {
             val (a0, a1, a2) = a
             val (e0, e1, e2) = e
-            a0.shouldBePoint(e0)
-            a1.shouldBePoint(e1)
-            a2.shouldBePoint(e2)
+            a0.shouldEqualToPoint(e0)
+            a1.shouldEqualToPoint(e1)
+            a2.shouldEqualToPoint(e2)
         }
     }
 }

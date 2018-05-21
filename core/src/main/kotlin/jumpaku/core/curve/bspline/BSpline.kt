@@ -6,9 +6,10 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
@@ -21,7 +22,7 @@ import org.apache.commons.math3.util.Precision
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, ToJson {
+    : Curve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -57,7 +58,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(clamp(),
                 {
                     val cp = (it as BSpline).controlPoints
@@ -74,7 +75,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
 
-    override fun transform(a: Affine): BSpline = BSpline(controlPoints.map(a), knotVector)
+    fun transform(a: Transform): BSpline = BSpline(controlPoints.map(a::invoke), knotVector)
 
     fun restrict(begin: Double, end: Double): BSpline {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

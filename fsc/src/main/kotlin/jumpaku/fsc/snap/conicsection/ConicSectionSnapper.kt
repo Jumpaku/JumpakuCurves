@@ -1,10 +1,11 @@
 package jumpaku.fsc.snap.conicsection
 
 import io.vavr.Tuple2
-import io.vavr.Tuple3
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import jumpaku.core.affine.*
+import io.vavr.control.Try
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Calibrate
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
@@ -13,10 +14,10 @@ import jumpaku.fsc.classify.CurveClass
 import jumpaku.fsc.snap.point.PointSnapper
 
 
-class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombinator: FeaturePointsCombinator){
+class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombinator: FeaturePointsCombinator) {
 
-    fun snap(conicSection: ConicSection, curveClass: CurveClass, evaluator: (ConicSectionSnapResult.Candidate)-> Grade): ConicSectionSnapResult {
-        require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section"}
+    fun snap(conicSection: ConicSection, curveClass: CurveClass, evaluator: (ConicSectionSnapResult.Candidate) -> Grade): ConicSectionSnapResult {
+        require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
 
         val candidates = enumerate(conicSection, curveClass)
         val (candidate, value) = candidates.map { Tuple2(it, evaluator(it)) }
@@ -38,7 +39,9 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
             featurePointsCombinator.linearCombinations(conicSection, isOpen).flatMap { (f0, f1) ->
                 val s0 = pointSnapper.snap(f0)
                 val s1 = pointSnapper.snap(f1)
-                similarity(Tuple2(f0, f1), Tuple2(s0.worldPoint, s1.worldPoint)).map {
+                Try.ofSupplier {
+                    Calibrate(f0 to s0.worldPoint, f1 to s1.worldPoint)
+                }.map {
                     ConicSectionSnapResult.Candidate(
                             Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
                             it,
@@ -53,12 +56,14 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val sn = pointSnapper.snap(fn)
                 val n = sn.worldPoint.normal(s0.worldPoint, s1.worldPoint).getOrElse(Vector())
                 fn.normal(f0, f1).flatMap {
-                    similarityWithNormal(Tuple3(f0, f1, it), Tuple3(s0.worldPoint, s1.worldPoint, n)).map {
-                        ConicSectionSnapResult.Candidate(
-                                Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
-                                it,
-                                conicSection.transform(it))
-                    }
+                    Try.ofSupplier {
+                        Calibrate.similarityWithNormal(f0 to s0.worldPoint, f1 to s1.worldPoint, it to n)
+                    }.toOption()
+                }.map {
+                    ConicSectionSnapResult.Candidate(
+                            Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
+                            it,
+                            conicSection.transform(it))
                 }
             }
 
@@ -67,7 +72,9 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s0 = pointSnapper.snap(f0)
                 val s1 = pointSnapper.snap(f1)
                 val s2 = pointSnapper.snap(f2)
-                calibrateToPlane(Tuple3(f0, f1, f2), Tuple3(s0.worldPoint, s1.worldPoint, s2.worldPoint)).map {
+                Try.ofSupplier {
+                    Calibrate(f0 to s0.worldPoint, f1 to s1.worldPoint, f2 to s2.worldPoint)
+                }.toOption().map {
                     ConicSectionSnapResult.Candidate(
                             Array.of(
                                     ConicSectionSnapResult.SnapPointPair(f0, s0),

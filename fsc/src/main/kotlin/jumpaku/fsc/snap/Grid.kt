@@ -4,7 +4,11 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Rotate
+import jumpaku.core.transform.Transform
+import jumpaku.core.transform.Translate
+import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -17,8 +21,7 @@ class Grid(
         val spacing: Double,
         val magnification: Int = 2,
         val origin: Point = Point(0.0, 0.0, 0.0, 0.0),
-        val axis: Vector,
-        val radian: Double = 0.0,
+        val rotation: Rotate = Rotate(Vector.K, 0.0),
         val fuzziness: Double = 0.0,
         val resolution: Int = 0): ToJson {
 
@@ -30,7 +33,10 @@ class Grid(
      *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Affine get() = identity.andRotate(axis, radian).andScale(spacing).andTranslate(origin - Point.origin)
+    val localToWorld: Transform
+        get() = rotation
+            .andThen(UniformlyScale(spacing))
+            .andThen(Translate(origin - Point.origin))
 
     fun snapToNearestGrid(cursor: Point): GridPoint = localToWorld.invert().get()(cursor)
             .toArray()
@@ -40,8 +46,7 @@ class Grid(
     fun deriveGrid(resolution: Int): Grid = Grid(spacing = spacing(spacing, magnification, resolution),
             magnification = magnification,
             origin = origin,
-            axis = axis,
-            radian = radian,
+            rotation = rotation,
             fuzziness = gridFuzziness(fuzziness, magnification, resolution),
             resolution = resolution)
 
@@ -51,8 +56,7 @@ class Grid(
             "spacing" to spacing.toJson(),
             "magnification" to magnification.toJson(),
             "origin" to origin.toJson(),
-            "axis" to axis.toJson(),
-            "radian" to radian.toJson(),
+            "rotation" to rotation.toJson(),
             "fuzziness" to fuzziness.toJson(),
             "resolution" to resolution.toJson())
 
@@ -62,8 +66,7 @@ class Grid(
                 spacing = 0.0,
                 magnification = baseGrid.magnification,
                 origin = baseGrid.origin,
-                axis = baseGrid.axis,
-                radian = baseGrid.radian,
+                rotation = baseGrid.rotation,
                 fuzziness = 0.0,
                 resolution = Int.MAX_VALUE)
 
@@ -74,13 +77,12 @@ class Grid(
                 baseGridFuzziness * FastMath.pow(magnification.toDouble(), -resolution)
 
         fun fromJson(json: JsonElement): Option<Grid> = Try.ofSupplier { Grid(
-                    spacing = json["spacing"].double,
-                    magnification = json["magnification"].int,
-                    origin = Point.fromJson(json["origin"]).get(),
-                    axis = Vector.fromJson(json["axis"]).get(),
-                    radian = json["radian"].double,
-                    fuzziness = json["fuzziness"].double,
-                    resolution = json["resolution"].int)
+                spacing = json["spacing"].double,
+                magnification = json["magnification"].int,
+                origin = Point.fromJson(json["origin"]).get(),
+                rotation = Rotate.fromJson(json["rotation"]).get(),
+                fuzziness = json["fuzziness"].double,
+                resolution = json["resolution"].int)
         }.toOption()
     }
 }

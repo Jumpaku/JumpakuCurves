@@ -1,7 +1,7 @@
 package jumpaku.fsc.classify.reference
 
 
-import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.curve.Curve
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
@@ -15,7 +15,7 @@ class Linear(polyline: Polyline) : Reference(polyline) {
 }
 
 class LinearGenerator(val nSamples: Int = 25) : ReferenceGenerator {
-    override fun generate(fsc: FuzzyCurve, t0: Double, t1: Double): Reference {
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
         val base = ConicSection.lineSegment(fsc(t0), fsc(t1))
         return Linear(ReferenceGenerator.linearPolyline(fsc, t0, t1, base, nSamples))
     }

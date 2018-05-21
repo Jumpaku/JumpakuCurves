@@ -1,7 +1,7 @@
 package jumpaku.fsc.snap.point
 
 import io.vavr.collection.Stream
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2

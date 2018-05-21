@@ -11,6 +11,6 @@ fun isCloseTo(actual: ConicSection, expected: ConicSection, error: Double = 1.0e
                 isCloseTo(actual.end, expected.end, error) &&
                 isCloseTo(actual.weight, expected.weight, error)
 
-fun ConicSection.shouldBeConicSection(expected: ConicSection, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun ConicSection.shouldEqualToConicSection(expected: ConicSection, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

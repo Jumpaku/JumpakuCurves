@@ -21,6 +21,6 @@ fun isCloseTo(actual: ConicSectionSnapResult, expected: ConicSectionSnapResult, 
                 isCloseTo(actual.candidate, expected.candidate, error) &&
                 isCloseTo(actual.grade.value, expected.grade.value, error)
 
-fun ConicSectionSnapResult.shouldBeConicSectionSnapResult(expected: ConicSectionSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun ConicSectionSnapResult.shouldEqualToConicSectionSnapResult(expected: ConicSectionSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

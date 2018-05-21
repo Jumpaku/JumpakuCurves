@@ -3,9 +3,9 @@ package jumpaku.fsc.classify.reference
 import io.vavr.API
 import io.vavr.Tuple
 import io.vavr.Tuple3
-import jumpaku.core.affine.line
-import jumpaku.core.affine.plane
-import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.geom.line
+import jumpaku.core.geom.plane
+import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
@@ -25,7 +25,7 @@ class Elliptic(polyline: Polyline, nSamples: Int) : Reference(polyline) {
 }
 
 class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
-    override fun generate(fsc: FuzzyCurve, t0: Double, t1: Double): Reference {
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
         val tf = computeEllipticFar(fsc, t0, t1, nSamples)
         val w = computeEllipticWeight(fsc, t0, t1, tf, nSamples)
         val base = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
@@ -33,7 +33,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         return Elliptic(polyline, nSamples)
     }
 
-    fun generateScattered(fsc: FuzzyCurve): Reference {
+    fun generateScattered(fsc: Curve): Reference {
         val (t0, _, t1) = scatteredEllipticParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }
@@ -42,7 +42,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         /**
          * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
          */
-        fun scatteredEllipticParams(fsc: FuzzyCurve, nSamples: Int): Tuple3<Double, Double, Double> {
+        fun scatteredEllipticParams(fsc: Curve, nSamples: Int): Tuple3<Double, Double, Double> {
             val ts = fsc.domain.sample(nSamples)
             return API.For(ts.take(nSamples / 3), ts.drop(2 * nSamples / 3))
                     .yield({ t0, t1 ->
@@ -58,7 +58,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
          * Far point on the fsc is a point such that line segment(f, m) bisects an area surrounded by an elliptic arc(fsc(t0), fsc(t1)) and a line segment(fsc(t0), fsc(t1)),
          * where f is far point, m is the middle point between fsc(t0) and fsc(t1).
          */
-        fun computeEllipticFar(fsc: FuzzyCurve, t0: Double, t1: Double, nSamples: Int): Double {
+        fun computeEllipticFar(fsc: Curve, t0: Double, t1: Double, nSamples: Int): Double {
             val middle = fsc(t0).middle(fsc(t1))
             val ts = Interval(t0, t1).sample(nSamples)
             val ps = ts.map(fsc)
@@ -75,7 +75,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             }, ts[index], ts[index + 1])
         }
 
-        fun computeEllipticWeight(fsc: FuzzyCurve, t0: Double, t1: Double, tf: Double, nSamples: Int): Double {
+        fun computeEllipticWeight(fsc: Curve, t0: Double, t1: Double, tf: Double, nSamples: Int): Double {
             val begin = fsc(t0)
             val end = fsc(t1)
             val far = fsc(tf)

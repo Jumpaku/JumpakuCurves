@@ -9,11 +9,11 @@ fun isCloseTo(actual: Grid, expected: Grid, error: Double): Boolean =
         isCloseTo(actual.spacing, expected.spacing, error) &&
                 actual.magnification == expected.magnification &&
                 isCloseTo(actual.origin, expected.origin, error) &&
-                isCloseTo(actual.axis, expected.axis, error) &&
-                isCloseTo(actual.radian, expected.radian, error) &&
+                isCloseTo(actual.rotation.axis, expected.rotation.axis, error) &&
+                isCloseTo(actual.rotation.angleRadian, expected.rotation.angleRadian, error) &&
                 isCloseTo(actual.fuzziness, expected.fuzziness, error) &&
                 actual.resolution == expected.resolution
 
-fun Grid.shouldBeGrid(expected: Grid, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun Grid.shouldEqualToGrid(expected: Grid, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }
