@@ -12,7 +12,7 @@ import io.vavr.control.Try
 import jumpaku.core.geom.*
 import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
@@ -24,7 +24,7 @@ import jumpaku.core.util.component2
 import org.apache.commons.math3.util.Precision
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, ToJson {
+    : Curve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -72,7 +72,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(clamp(),
                 {
                     val cp = (it as Nurbs).weightedControlPoints

@@ -14,7 +14,7 @@ import io.vavr.control.Try
 import jumpaku.core.geom.*
 import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
@@ -26,7 +26,7 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
 
-class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, ToJson {
+class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -89,7 +89,7 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, ToJs
                 .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(this,
                 {
                     val cp = (it as Bezier).controlPoints

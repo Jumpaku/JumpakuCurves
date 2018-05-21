@@ -5,7 +5,7 @@ import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import jumpaku.core.geom.Point
-import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.curve.Curve
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import tornadofx.*
@@ -44,9 +44,9 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
     }
 }
 
-fun Parent.fuzzyCurve(fuzzyCurve: FuzzyCurve, delta: Double = 5.0, op: (Shape.() -> Unit)): Unit {
-    val curve = fuzzyCurve.reparametrizeArcLength()
-    val points = curve.evaluateAll(maxOf(Math.floor(curve.domain.span/delta).toInt(), 2))
+fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)): Unit {
+    val c = curve.reparametrizeArcLength()
+    val points = c.evaluateAll(maxOf(Math.floor(c.domain.span/delta).toInt(), 2))
     fuzzyPoints(points, op)
     polyline(Polyline(points), op)
 }

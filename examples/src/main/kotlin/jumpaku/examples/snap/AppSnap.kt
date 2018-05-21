@@ -37,9 +37,7 @@ class ViewSnap : View() {
 
     val generator = FscGenerator(
             degree = 3,
-            knotSpan = 0.1,
-            preparer = DataPreparer(0.1/3, 0.1, 0.1, 2),
-            fuzzifier = LinearFuzzifier(0.004, 0.003))
+            knotSpan = 0.1)
 
     val w = 1280.0
     val h = 720.0

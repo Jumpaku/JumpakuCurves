@@ -5,7 +5,7 @@ import io.vavr.Tuple3
 import io.vavr.collection.Array
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.times
-import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
@@ -18,27 +18,27 @@ import org.apache.commons.math3.util.FastMath
 import kotlin.math.absoluteValue
 
 
-abstract class Reference(val polyline: Polyline) : FuzzyCurve by polyline {
+abstract class Reference(val polyline: Polyline) : Curve by polyline {
 
     abstract val conicSection: ConicSection
 }
 
 interface ReferenceGenerator {
-    fun generate(fsc: FuzzyCurve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
+    fun generate(fsc: Curve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
 
     companion object {
 
-        fun referenceSubLength(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): Tuple3<Double, Double, Double> {
-            val reparametrized = fsc.reparametrized
+        fun referenceSubLength(fsc: Curve, t0: Double, t1: Double, base: ConicSection): Tuple3<Double, Double, Double> {
+            val reparametrized = fsc.reparameterized
             val s0 = reparametrized.arcLengthUntil(t0)
             val s1 = reparametrized.arcLengthUntil(t1)
-            val l1 = base.reparametrized.arcLength()
+            val l1 = base.reparameterized.arcLength()
             val l0 = l1 * s0 / (s1 - s0)
             val l2 = l1 * (reparametrized.arcLength() - s1) / (s1 - s0)
             return Tuple3(l0, l1, l2)
         }
 
-        fun linearPolyline(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection, nSamples: Int): Polyline {
+        fun linearPolyline(fsc: Curve, t0: Double, t1: Double, base: ConicSection, nSamples: Int): Polyline {
             val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
             fun linearEvaluate(s: Double): Point {
                 val t = (s - l0) / l1
@@ -57,10 +57,10 @@ interface ReferenceGenerator {
             return Polyline(Interval(0.0, l0 + l1 + l2).sample(nSamples).map { linearEvaluate(it) })
         }
 
-        fun ellipticPolyline(fsc: FuzzyCurve, t0: Double, t1: Double, base: ConicSection): Polyline {
+        fun ellipticPolyline(fsc: Curve, t0: Double, t1: Double, base: ConicSection): Polyline {
             val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
-            val reparametrized = base.reparametrized
-            val reparametrizedC = base.complement().reparametrized
+            val reparametrized = base.reparameterized
+            val reparametrizedC = base.complement().reparameterized
             val round = l1 + reparametrizedC.arcLength()
             fun ellipticEvaluate(s: Double): Point {
                 val ss = (s - l0).rem(round).let { if (it > 0) it else it + round }

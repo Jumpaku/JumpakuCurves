@@ -9,7 +9,7 @@ import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
@@ -267,7 +267,7 @@ class BSplineTest {
                 Point.xyr(300.0, 0.0, 1.0),
                 Point.xyr(600.0, 0.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
-        val a = ArcLengthReparametrized(b, 1000).arcLength()
+        val a = ArcLengthReparameterized(b, 1000).arcLength()
         b.reparametrizeArcLength().arcLength().shouldBeCloseTo(a, 0.1)
     }
 

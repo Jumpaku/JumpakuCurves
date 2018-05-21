@@ -2,7 +2,7 @@ package jumpaku.fsc.classify.reference
 
 import io.vavr.API
 import io.vavr.Tuple3
-import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.curve.Curve
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
@@ -19,14 +19,14 @@ class Circular(polyline: Polyline) : Reference(polyline) {
 }
 
 class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
-    override fun generate(fsc: FuzzyCurve, t0: Double, t1: Double): Reference {
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
         val tf = computeCircularFar(fsc, t0, t1)
         val base = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
         val polyline = ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
         return Circular(polyline)
     }
 
-    fun generateScattered(fsc: FuzzyCurve): Reference {
+    fun generateScattered(fsc: Curve): Reference {
         val (t0, _, t1) = scatteredCircularParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }
@@ -36,7 +36,7 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         /**
          * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
          */
-        fun scatteredCircularParams(fsc: FuzzyCurve, nSamples: Int): Tuple3<Double, Double, Double> {
+        fun scatteredCircularParams(fsc: Curve, nSamples: Int): Tuple3<Double, Double, Double> {
             val ts = fsc.domain.sample(nSamples)
             return API.For(ts.take(nSamples / 3), ts.drop(2 * nSamples / 3))
                     .yield({ t0, t1 ->
@@ -47,7 +47,7 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                     .map { it._1() }.get()
         }
 
-        fun computeCircularFar(fsc: FuzzyCurve, t0: Double, t1: Double): Double {
+        fun computeCircularFar(fsc: Curve, t0: Double, t1: Double): Double {
             val begin = fsc(t0)
             val end = fsc(t1)
             val relative = 1.0e-9

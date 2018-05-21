@@ -13,7 +13,7 @@ import io.vavr.control.Try
 import jumpaku.core.geom.*
 import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
@@ -22,7 +22,7 @@ import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, ToJson {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : Curve, Differentiable, ToJson {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -107,7 +107,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(this,
                 {
                     val cp = (it as RationalBezier).weightedControlPoints

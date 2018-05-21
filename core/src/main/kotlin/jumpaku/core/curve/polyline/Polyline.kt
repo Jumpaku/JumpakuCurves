@@ -14,9 +14,9 @@ import io.vavr.control.Try
 import jumpaku.core.geom.ParamPoint
 import jumpaku.core.geom.Point
 import jumpaku.core.transform.Transform
-import jumpaku.core.curve.FuzzyCurve
+import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.geom.chordalParametrize
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
@@ -25,7 +25,7 @@ import org.apache.commons.math3.util.Precision
 /**
  * Polyline parametrized by arc-arcLength.
  */
-class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, ToJson {
+class Polyline (private val paramPoints: Array<ParamPoint>) : Curve, ToJson {
 
     val points: Array<Point> = paramPoints.map(ParamPoint::point)
 
@@ -103,8 +103,8 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, ToJson
         }
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy{
-        ArcLengthReparametrized(this, parameters)
+    override val reparameterized: ArcLengthReparameterized by lazy{
+        ArcLengthReparameterized(this, parameters)
     }
 
     companion object {

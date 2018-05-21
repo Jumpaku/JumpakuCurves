@@ -9,7 +9,7 @@ import io.vavr.control.Try
 import jumpaku.core.geom.*
 import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.polyline.Polyline
@@ -22,7 +22,7 @@ import org.apache.commons.math3.util.Precision
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, ToJson {
+    : Curve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -58,7 +58,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(clamp(),
                 {
                     val cp = (it as BSpline).controlPoints
