@@ -7,7 +7,7 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.ParamPoint
 
 
-interface FuzzyCurve : (Double)->Point {
+interface Curve : (Double)->Point {
 
     val domain: Interval
 
@@ -35,21 +35,21 @@ interface FuzzyCurve : (Double)->Point {
 
     fun reparametrizeArcLength(): ArcLengthReparameterized = reparameterized
 
-    fun toCrisp(): FuzzyCurve = object : FuzzyCurve {
+    fun toCrisp(): Curve = object : Curve {
         override val reparameterized: ArcLengthReparameterized by lazy {
             ArcLengthReparameterized(this, 100)
         }
-        override val domain: Interval = this@FuzzyCurve.domain
-        override fun evaluate(t: Double): Point = this@FuzzyCurve.evaluate(t).toCrisp()
+        override val domain: Interval = this@Curve.domain
+        override fun evaluate(t: Double): Point = this@Curve.evaluate(t).toCrisp()
     }
 
-    fun isPossible(other: FuzzyCurve, n: Int): Grade {
+    fun isPossible(other: Curve, n: Int): Grade {
         val selfSamples = reparametrizeArcLength().evaluateAll(n)
         val otherSamples = other.reparametrizeArcLength().evaluateAll(n)
         return selfSamples.zipWith(otherSamples, Point::isPossible).reduce(Grade::and)
     }
 
-    fun isNecessary(other: FuzzyCurve, n: Int): Grade {
+    fun isNecessary(other: Curve, n: Int): Grade {
         val selfSamples = reparametrizeArcLength().evaluateAll(n)
         val otherSamples = other.reparametrizeArcLength().evaluateAll(n)
         return selfSamples.zipWith(otherSamples, Point::isNecessary).reduce(Grade::and)

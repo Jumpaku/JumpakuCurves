@@ -5,7 +5,6 @@ import io.vavr.collection.Stream
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.Curve
-import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.geom.chordalParametrize
@@ -26,19 +25,19 @@ tailrec fun <C: Curve> repeatBisect(
 
 fun approximate(curve: Curve,
                 shouldBisect: (Curve) -> Boolean,
-                restrict: (Curve, Interval) -> Curve): ArcLengthReparametrized {
+                restrict: (Curve, Interval) -> Curve): ArcLengthReparameterized {
     val subDomain = repeatBisect(curve, shouldBisect, restrict).map { it.begin }.append(curve.domain.end)
-    return ArcLengthReparametrized(curve, subDomain.toArray())
+    return ArcLengthReparameterized(curve, subDomain.toArray())
 }
 
 /**
  * Approximates curve with polyline.
  */
-class ArcLengthReparametrized(val originalCurve: Curve, private val originalParams: Array<Double>) : FuzzyCurve {
+class ArcLengthReparameterized(val originalCurve: Curve, private val originalParams: Array<Double>) : Curve {
 
     constructor(curve: Curve, n: Int) : this(curve, curve.domain.sample(n))
 
-    val polyline: Polyline = Polyline(originalParams.map(originalCurve))
+    val polyline: Polyline = Polyline(originalParams.map { originalCurve(it) })
 
     private val arcLengthParams: Array<Double> = chordalParametrize(polyline.points).map { it.param }
 
@@ -54,8 +53,8 @@ class ArcLengthReparametrized(val originalCurve: Curve, private val originalPara
 
     override fun evaluateAll(delta: Double): Array<Point> = polyline.evaluateAll(delta)
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
-        ArcLengthReparametrized(this, arcLengthParams)
+    override val reparameterized: ArcLengthReparameterized by lazy {
+        ArcLengthReparameterized(this, arcLengthParams)
     }
 
     fun arcLength(): Double = domain.end
