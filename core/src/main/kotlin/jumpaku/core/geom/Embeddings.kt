@@ -1,4 +1,4 @@
-package jumpaku.core.affine
+package jumpaku.core.geom
 
 import io.vavr.control.Option
 import io.vavr.control.Try

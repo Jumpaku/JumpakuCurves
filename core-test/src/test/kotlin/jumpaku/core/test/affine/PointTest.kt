@@ -1,10 +1,9 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.*
-import jumpaku.core.affine.transform.Rotate
-import jumpaku.core.affine.transform.Transform
-import jumpaku.core.affine.transform.Translate
-import jumpaku.core.affine.transform.UniformlyScale
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Rotate
+import jumpaku.core.transform.Translate
+import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.shouldBeCloseTo
 import org.apache.commons.math3.util.FastMath

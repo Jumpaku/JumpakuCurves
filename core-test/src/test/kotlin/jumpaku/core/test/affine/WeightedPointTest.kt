@@ -1,8 +1,8 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.WeightedPoint
-import jumpaku.core.affine.weighted
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.WeightedPoint
+import jumpaku.core.geom.weighted
 import jumpaku.core.json.parseJson
 import org.junit.Test
 

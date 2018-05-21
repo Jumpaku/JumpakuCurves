@@ -2,7 +2,7 @@ package jumpaku.fsc.snap.conicsection
 
 import io.vavr.Tuple3
 import io.vavr.collection.Stream
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2

@@ -1,9 +1,8 @@
 package jumpaku.fsc.snap.conicsection
 
-import io.vavr.Tuple3
-import jumpaku.core.affine.*
-import jumpaku.core.affine.transform.Calibrate
-import jumpaku.core.affine.transform.Transform
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Calibrate
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.FastMath

@@ -4,8 +4,8 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.transform.Transform
+import jumpaku.core.geom.Point
+import jumpaku.core.transform.Transform
 import jumpaku.core.json.ToJson
 
 data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {

@@ -1,7 +1,7 @@
-package jumpaku.core.test.fit
+package jumpaku.core.test.affine
 
-import jumpaku.core.affine.Point
-import jumpaku.core.fit.WeightedParamPoint
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.WeightedParamPoint
 import jumpaku.core.json.parseJson
 import org.junit.jupiter.api.Test
 

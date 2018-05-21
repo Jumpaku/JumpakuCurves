@@ -1,8 +1,8 @@
-package jumpaku.core.affine.transform
+package jumpaku.core.transform
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.times
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.times
 import org.apache.commons.math3.linear.*
 
 class Calibrate(
@@ -77,8 +77,8 @@ class Calibrate(
             val f0 = toP - toO
             val f1 = f0.cross(toN)
             val f2 = f1.cross(f0)
-            return Calibrate(listOf(Vector.Zero to Vector.Zero, e0 to f0, e1 to f1, e2 to f2).map {
-                (a, b) -> fromO + a to toO + b
+            return Calibrate(listOf(Vector.Zero to Vector.Zero, e0 to f0, e1 to f1, e2 to f2).map { (a, b) ->
+                fromO + a to toO + b
             })
         }
     }

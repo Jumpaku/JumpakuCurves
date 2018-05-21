@@ -3,8 +3,8 @@ package jumpaku.fsc.classify.reference
 import io.vavr.API
 import io.vavr.Tuple
 import io.vavr.Tuple3
-import jumpaku.core.affine.line
-import jumpaku.core.affine.plane
+import jumpaku.core.geom.line
+import jumpaku.core.geom.plane
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline

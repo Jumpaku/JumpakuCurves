@@ -3,12 +3,12 @@ package jumpaku.core.curve.arclength
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.analysis.solvers.BrentSolver
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.geom.chordalParametrize
 
 
 tailrec fun <C: Curve> repeatBisect(

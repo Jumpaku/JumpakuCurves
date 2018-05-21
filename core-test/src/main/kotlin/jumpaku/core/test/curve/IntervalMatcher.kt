@@ -1,6 +1,5 @@
 package jumpaku.core.test.curve
 
-import jumpaku.core.affine.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.test.isCloseTo
 import org.amshove.kluent.should

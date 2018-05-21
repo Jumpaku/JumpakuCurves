@@ -1,10 +1,10 @@
 package jumpaku.core.test.affine.transform
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.transform.*
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.transform.*
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 

@@ -9,7 +9,7 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.divide
+import jumpaku.core.geom.divide
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.FastMath
 

@@ -6,7 +6,7 @@ import com.github.salomonbrys.kotson.toJson
 import io.vavr.Tuple2
 import io.vavr.collection.HashMap
 import io.vavr.control.Option
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.json.*
 import jumpaku.core.test.affine.shouldEqualToPoint
 import org.amshove.kluent.shouldBeTrue

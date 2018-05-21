@@ -1,8 +1,8 @@
 package jumpaku.fsc.test.snap.point
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.transform.Rotate
 import jumpaku.core.test.affine.shouldEqualToPoint
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.point.PointSnapper

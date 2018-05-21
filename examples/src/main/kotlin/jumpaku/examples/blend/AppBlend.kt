@@ -8,7 +8,9 @@ import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.blend.Blender
+import jumpaku.fsc.generate.DataPreparer
 import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.LinearFuzzifier
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.App
 import tornadofx.View
@@ -23,17 +25,12 @@ class AppBlend : App(ViewBlend::class)
 
 class ViewBlend : View() {
 
-    val generator = FscGenerator(3, 0.1, generateFuzziness = { crisp, ts ->
-        val derivative1 = crisp.derivative
-        val derivative2 = derivative1.derivative
-        val velocityCoefficient = 0.004
-        val accelerationCoefficient = 0.003
-        ts.map {
-            val v = derivative1(it).length()
-            val a = derivative2(it).length()
-            velocityCoefficient * v + a * accelerationCoefficient + 1.0
-        }
-    })
+    val generator = FscGenerator(
+            degree = 3,
+            knotSpan = 0.1,
+            preparer = DataPreparer(0.1/3, 0.1, 0.1, 2),
+            fuzzifier = LinearFuzzifier(0.004, 0.003))
+
 
     val blender = Blender(
             1.0/128,

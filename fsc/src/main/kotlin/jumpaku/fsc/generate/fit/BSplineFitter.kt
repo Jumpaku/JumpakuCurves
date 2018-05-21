@@ -1,10 +1,12 @@
-package jumpaku.core.fit
+package jumpaku.fsc.generate.fit
 
 import io.vavr.API.Tuple
 import io.vavr.collection.Array
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.WeightedParamPoint
+import jumpaku.core.geom.transformParams
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline

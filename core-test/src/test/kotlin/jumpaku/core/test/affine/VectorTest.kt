@@ -1,7 +1,7 @@
 package jumpaku.core.test.affine
 
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.times
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.times
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.shouldBeCloseTo
 import org.apache.commons.math3.util.FastMath

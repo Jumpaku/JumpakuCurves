@@ -2,9 +2,9 @@ package jumpaku.fsc.test.snap.conicsection
 
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson

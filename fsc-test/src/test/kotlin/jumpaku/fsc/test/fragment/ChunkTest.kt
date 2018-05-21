@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.fragment
 
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline

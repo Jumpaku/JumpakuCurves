@@ -1,12 +1,12 @@
 package jumpaku.core.test.curve.nurbs
 
 import io.vavr.collection.Array
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.WeightedPoint
-import jumpaku.core.affine.transform.Rotate
-import jumpaku.core.affine.transform.Translate
-import jumpaku.core.affine.transform.UniformlyScale
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.WeightedPoint
+import jumpaku.core.transform.Rotate
+import jumpaku.core.transform.Translate
+import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector
@@ -113,7 +113,7 @@ class NurbsTest {
     fun testTransform() {
         println("Transform")
         val a = n.transform(UniformlyScale(2.0)
-                .andThen(Rotate(Vector(0.0, 0.0, 1.0), -FastMath.PI/2))
+                .andThen(Rotate(Vector(0.0, 0.0, 1.0), -FastMath.PI / 2))
                 .andThen(Translate(Vector(-200.0, 400.0))))
         val e = Nurbs(Array.of(
                 WeightedPoint(Point.xy( 400.0,    0.0), 1.0),

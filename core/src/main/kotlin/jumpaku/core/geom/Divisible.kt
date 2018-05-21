@@ -1,4 +1,4 @@
-package jumpaku.core.affine
+package jumpaku.core.geom
 
 
 fun Double.divide(t: Double, other: Double): Double = (1 - t)*this + t*other

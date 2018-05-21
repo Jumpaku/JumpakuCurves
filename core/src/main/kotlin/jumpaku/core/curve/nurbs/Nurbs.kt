@@ -9,12 +9,11 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
-import jumpaku.core.affine.transform.Transform
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.arclength.approximate
-import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
 import jumpaku.core.curve.polyline.Polyline

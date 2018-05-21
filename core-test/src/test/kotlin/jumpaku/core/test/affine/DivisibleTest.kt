@@ -2,7 +2,7 @@
 package jumpaku.core.test.affine
 
 
-import jumpaku.core.affine.divide
+import jumpaku.core.geom.divide
 import jumpaku.core.test.shouldBeCloseTo
 import org.junit.Test
 

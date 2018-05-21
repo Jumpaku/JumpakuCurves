@@ -1,12 +1,11 @@
-package jumpaku.core.affine.transform
+package jumpaku.core.transform
 
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Vector
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix

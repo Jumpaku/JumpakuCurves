@@ -1,7 +1,7 @@
 package jumpaku.core.test.curve.bspline
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector

@@ -1,13 +1,11 @@
 package jumpaku.fsc.snap.conicsection
 
 import io.vavr.Tuple2
-import io.vavr.Tuple3
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Try
-import jumpaku.core.affine.*
-import jumpaku.core.affine.transform.Calibrate
-import jumpaku.core.affine.transform.Transform
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Calibrate
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1

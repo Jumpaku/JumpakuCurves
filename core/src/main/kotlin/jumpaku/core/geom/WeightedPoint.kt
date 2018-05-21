@@ -1,4 +1,4 @@
-package jumpaku.core.affine
+package jumpaku.core.geom
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
@@ -8,7 +8,6 @@ import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.parseJson
 
 fun Point.weighted(weight: Double = 1.0): WeightedPoint = WeightedPoint(this, weight)
 

@@ -1,4 +1,4 @@
-package jumpaku.core.affine
+package jumpaku.core.geom
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get

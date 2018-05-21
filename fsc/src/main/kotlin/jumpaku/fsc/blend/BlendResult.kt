@@ -6,7 +6,7 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.ParamPoint
+import jumpaku.core.geom.ParamPoint
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonOption

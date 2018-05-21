@@ -1,9 +1,8 @@
 package jumpaku.core.test.affine.transform
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
-import jumpaku.core.affine.transform.Rotate
-import jumpaku.core.affine.transform.UniformlyScale
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.transform.Rotate
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.shouldEqualToPoint
 import org.junit.jupiter.api.Test

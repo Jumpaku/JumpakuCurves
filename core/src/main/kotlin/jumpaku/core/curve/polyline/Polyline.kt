@@ -11,13 +11,13 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.ParamPoint
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.transform.Transform
+import jumpaku.core.geom.ParamPoint
+import jumpaku.core.geom.Point
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
-import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.geom.chordalParametrize
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 

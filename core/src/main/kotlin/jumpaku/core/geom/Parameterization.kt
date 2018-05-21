@@ -1,12 +1,9 @@
-package jumpaku.core.fit
+package jumpaku.core.geom
 
 import io.vavr.API
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.divide
 import jumpaku.core.curve.Interval
-import jumpaku.core.affine.ParamPoint
 import jumpaku.core.util.divOption
 
 

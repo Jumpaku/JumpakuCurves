@@ -9,9 +9,9 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.transform.Transform
-import jumpaku.core.affine.transform.toMatrixJson
+import jumpaku.core.geom.Point
+import jumpaku.core.transform.Transform
+import jumpaku.core.transform.toMatrixJson
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson

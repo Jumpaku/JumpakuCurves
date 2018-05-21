@@ -1,6 +1,6 @@
 package jumpaku.core.test.curve.arclength
 
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.curve.rationalbezier.ConicSection

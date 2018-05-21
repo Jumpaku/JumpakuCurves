@@ -4,7 +4,7 @@ import io.vavr.collection.Array
 import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline

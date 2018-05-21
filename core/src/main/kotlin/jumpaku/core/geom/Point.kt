@@ -1,4 +1,4 @@
-package jumpaku.core.affine
+package jumpaku.core.geom
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
@@ -7,11 +7,10 @@ import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.transform.Transform
+import jumpaku.core.transform.Transform
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.parseJson
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane

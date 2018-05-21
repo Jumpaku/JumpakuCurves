@@ -3,14 +3,14 @@ package jumpaku.fsc.classify.reference
 import io.vavr.API
 import io.vavr.Tuple3
 import io.vavr.collection.Array
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.times
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.times
 import jumpaku.core.curve.FuzzyCurve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.geom.chordalParametrize
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3

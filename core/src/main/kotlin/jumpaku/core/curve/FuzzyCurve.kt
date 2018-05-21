@@ -1,6 +1,6 @@
 package jumpaku.core.curve
 
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.arclength.ArcLengthReparametrized
 import jumpaku.core.fuzzy.Grade
 

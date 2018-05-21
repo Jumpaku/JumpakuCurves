@@ -4,11 +4,11 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
-import jumpaku.core.affine.transform.Rotate
-import jumpaku.core.affine.transform.Transform
-import jumpaku.core.affine.transform.Translate
-import jumpaku.core.affine.transform.UniformlyScale
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Rotate
+import jumpaku.core.transform.Transform
+import jumpaku.core.transform.Translate
+import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -33,7 +33,8 @@ class Grid(
      *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Transform get() = rotation
+    val localToWorld: Transform
+        get() = rotation
             .andThen(UniformlyScale(spacing))
             .andThen(Translate(origin - Point.origin))
 

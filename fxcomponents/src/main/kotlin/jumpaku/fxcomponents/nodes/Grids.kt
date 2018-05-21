@@ -3,8 +3,7 @@ package jumpaku.fxcomponents.nodes
 import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.transform.Rotate
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint

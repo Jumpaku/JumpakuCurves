@@ -1,7 +1,7 @@
 package jumpaku.core.test.affine.transform
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.transform.Translate
+import jumpaku.core.geom.Point
+import jumpaku.core.transform.Translate
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.affine.shouldEqualToPoint
 import org.junit.jupiter.api.Test
