@@ -21,7 +21,7 @@ class Blender(
         val osm = overlappingMatrix(samplingSpan, existing, overlapping)
         val path = osm.searchPath(evaluatePath)
         return path.map {
-            val data = resample(existing, overlapping, it, osm)
+            val data = resample(existing, overlapping, it)
             BlendResult(osm, path, path.map { data })
         }.getOrElse { BlendResult(osm, Option.none(), Option.none()) }
     }
@@ -36,7 +36,7 @@ class Blender(
         })
     }
 
-    fun resample(existing: BSpline, overlapping: BSpline, path: OverlappingPath, osm: OverlappingMatrix): Array<ParamPoint> {
+    fun resample(existing: BSpline, overlapping: BSpline, path: OverlappingPath): Array<ParamPoint> {
         val (beginI, beginJ) = path.path.head()
         val (endI, endJ) = path.path.last()
         val te = existing.sample(samplingSpan)
