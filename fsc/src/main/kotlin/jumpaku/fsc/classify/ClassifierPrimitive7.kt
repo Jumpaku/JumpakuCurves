@@ -1,6 +1,7 @@
 package jumpaku.fsc.classify
 
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.geom.divide
 import jumpaku.fsc.classify.Classifier.Companion.isClosed
 import jumpaku.fsc.classify.reference.CircularGenerator
 import jumpaku.fsc.classify.reference.EllipticGenerator

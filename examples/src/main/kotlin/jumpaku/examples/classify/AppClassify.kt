@@ -5,6 +5,7 @@ import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.geom.divide
 import jumpaku.fsc.classify.ClassifierPrimitive7
 import jumpaku.fsc.classify.reference.CircularGenerator
 import jumpaku.fsc.classify.reference.EllipticGenerator

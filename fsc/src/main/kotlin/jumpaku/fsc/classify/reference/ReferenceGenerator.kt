@@ -43,7 +43,7 @@ interface ReferenceGenerator {
             val c = base.complement()
             val s = BrentSolver(1.0e-3, 1.0e-4)
             val end = s.solve(50, { (c(it) - c(0.0)).length() - l0 }, 0.0, 0.499, 0.1)
-            val begin = s.solve(50, { (c(it) - c(1.0)).length() - l0 }, 0.501, 1.0, 0.9)
+            val begin = s.solve(50, { (c(it) - c(1.0)).length() - l2 }, 0.501, 1.0, 0.9)
             val f = Interval(0.0, end).sample(FastMath.ceil(nSamples*l1.divOrElse(l0, 2.0)).toInt()).map { c(it) }
             val b = Interval(begin, 1.0).sample(FastMath.ceil(nSamples*l2.divOrElse(l0, 2.0)).toInt()).map { c(it) }
             return Polyline(f + m + b)
