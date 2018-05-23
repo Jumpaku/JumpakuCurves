@@ -28,7 +28,8 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         val tf = computeEllipticFar(fsc, t0, t1, nSamples)
         val w = computeEllipticWeight(fsc, t0, t1, tf, fsc.domain, nSamples)
         val base = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
-        return ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
+        val (l0, l1, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
+        return ReferenceGenerator.ellipticPolyline(l0, l1, l2, base)
     }
 
     fun generateScattered(fsc: Curve): Polyline {

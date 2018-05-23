@@ -17,6 +17,7 @@ fun linearConicSectionFromReference(curve: Curve): ConicSection = curve.run {
 class LinearGenerator(val nSamples: Int = 25) : ReferenceGenerator {
     override fun generate(fsc: Curve, t0: Double, t1: Double): Curve {
         val base = ConicSection.lineSegment(fsc(t0), fsc(t1))
-        return ReferenceGenerator.linearPolyline(fsc, t0, t1, base, nSamples)
+        val (l0, l1, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
+        return ReferenceGenerator.linearPolyline(l0, l1, l2, base, nSamples)
     }
 }

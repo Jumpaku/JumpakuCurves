@@ -14,6 +14,8 @@ import jumpaku.core.geom.chordalParametrize
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
+import jumpaku.core.util.divOrElse
+import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.util.FastMath
 import kotlin.math.absoluteValue
 
@@ -36,44 +38,24 @@ interface ReferenceGenerator {
             return Tuple3(l0, l1, l2)
         }
 
-        fun linearPolyline(fsc: Curve, t0: Double, t1: Double, base: ConicSection, nSamples: Int): Polyline {
-            val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
-            fun linearEvaluate(s: Double): Point {
-                val t = (s - l0) / l1
-                val wt = RationalBezier.bezier1D(t, API.Array(1.0, base.weight, 1.0))
-                val (p0, p1, p2) = base.representPoints.map { it.toVector() }
-                val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + base.weight) * p1 + t * (2 * t - 1) * p2) / wt
-                val (r0, r1, r2) = base.representPoints.map { it.r }
-                val r = listOf(
-                        r0 * (1 - t) * (1 - 2 * t) / wt,
-                        r1 * 2 * (base.weight + 1) * t * (1 - t) / wt,
-                        r2 * t * (2 * t - 1) / wt
-                ).map { it.absoluteValue }.sum()
-
-                return Point(p, r)
-            }
-            return Polyline(Interval(0.0, l0 + l1 + l2).sample(nSamples).map { linearEvaluate(it) })
+        fun linearPolyline(l0: Double, l1: Double, l2: Double, base: ConicSection, nSamples: Int): Polyline {
+            val m = base.evaluateAll(nSamples)
+            val c = base.complement()
+            val s = BrentSolver(1.0e-3, 1.0e-4)
+            val end = s.solve(50, { (c(it) - c(0.0)).length() - l0 }, 0.0, 0.499, 0.1)
+            val begin = s.solve(50, { (c(it) - c(1.0)).length() - l0 }, 0.501, 1.0, 0.9)
+            val f = Interval(0.0, end).sample(FastMath.ceil(nSamples*l1.divOrElse(l0, 2.0)).toInt()).map { c(it) }
+            val b = Interval(begin, 1.0).sample(FastMath.ceil(nSamples*l2.divOrElse(l0, 2.0)).toInt()).map { c(it) }
+            return Polyline(f + m + b)
         }
 
-        fun ellipticPolyline(fsc: Curve, t0: Double, t1: Double, base: ConicSection): Polyline {
-            val (l0, l1, l2) = referenceSubLength(fsc, t0, t1, base)
+        fun ellipticPolyline(l0: Double, l1: Double, l2: Double, base: ConicSection): Polyline {
             val reparametrized = base.reparameterized
             val reparametrizedC = base.complement().reparameterized
-            val round = l1 + reparametrizedC.arcLength()
-            fun ellipticEvaluate(s: Double): Point {
-                val ss = (s - l0).rem(round).let { if (it > 0) it else it + round }
-                return when(ss) {
-                    in reparametrized.domain -> reparametrized(ss)
-                    else -> reparametrizedC((round - ss).coerceIn(reparametrizedC.domain))
-                }
-            }
-            val ps = chordalParametrize(Array.of(reparametrized.polyline, (reparametrizedC.polyline.reverse())).flatMap { it.points })
-            val length = l0 + l1 + l2
-            val n0 = FastMath.floor(l0/round).toInt()
-            val front = listOf(ellipticEvaluate(0.0)) + (ps.filter { it.param > (n0 + 1)*round - l0 } + (0 until n0).flatMap { ps }).map { it.point }
-            val n2 = FastMath.floor((length - l0)/round).toInt()
-            val back = ((0 until n2).flatMap { ps } + ps.filter { it.param < length - n2*round - l0 }).map { it.point } + ellipticEvaluate(length)
-            return Polyline((front + back).asIterable())
+            val m = reparametrized.polyline
+            val f = reparametrizedC.polyline.run { subdivide(l0.coerceIn(domain))._1.reverse() }
+            val b = reparametrizedC.polyline.run { reverse().subdivide(l2.coerceIn(domain))._1 }
+            return Polyline(listOf(f, m, b).flatMap { it.points })
         }
     }
 }
