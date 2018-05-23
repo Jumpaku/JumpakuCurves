@@ -10,23 +10,22 @@ import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
-class Circular(polyline: Polyline) : Reference(polyline) {
-    override val conicSection: ConicSection by lazy {
-        val (b, e) = domain
-        val f = polyline(CircularGenerator.computeCircularFar(this, b, e))
-        ConicSection.shearedCircularArc(polyline(b), f, polyline(e))
-    }
+
+fun circularConicSectionFromReference(curve: Curve): ConicSection = curve.run {
+    val (b, e) = domain
+    val f = CircularGenerator.computeCircularFar(this, b, e)
+    ConicSection.shearedCircularArc(this(b), this(f), this(e))
 }
 
 class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
-    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
+
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Curve {
         val tf = computeCircularFar(fsc, t0, t1)
         val base = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-        val polyline = ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
-        return Circular(polyline)
+        return ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
     }
 
-    fun generateScattered(fsc: Curve): Reference {
+    fun generateScattered(fsc: Curve): Curve {
         val (t0, _, t1) = scatteredCircularParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }

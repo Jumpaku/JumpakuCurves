@@ -18,13 +18,10 @@ import org.apache.commons.math3.util.FastMath
 import kotlin.math.absoluteValue
 
 
-abstract class Reference(val polyline: Polyline) : Curve by polyline {
-
-    abstract val conicSection: ConicSection
-}
 
 interface ReferenceGenerator {
-    fun generate(fsc: Curve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
+
+    fun generate(fsc: Curve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Curve
 
     companion object {
 
@@ -32,9 +29,10 @@ interface ReferenceGenerator {
             val reparametrized = fsc.reparameterized
             val s0 = reparametrized.arcLengthUntil(t0)
             val s1 = reparametrized.arcLengthUntil(t1)
+            val s = reparametrized.arcLength()
             val l1 = base.reparameterized.arcLength()
-            val l0 = l1 * s0 / (s1 - s0)
-            val l2 = l1 * (reparametrized.arcLength() - s1) / (s1 - s0)
+            val l0 = (l1 * s0 / (s1 - s0))
+            val l2 = (l1 * (s - s1) / (s1 - s0))
             return Tuple3(l0, l1, l2)
         }
 

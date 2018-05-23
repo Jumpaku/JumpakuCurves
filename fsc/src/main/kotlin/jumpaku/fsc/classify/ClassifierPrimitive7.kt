@@ -9,10 +9,9 @@ import jumpaku.fsc.classify.reference.LinearGenerator
 class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier {
 
     override fun classify(fsc: BSpline): ClassifyResult {
-        val reparametrized = fsc.reparametrizeArcLength()
-        val pL = reparametrized.isPossible(LinearGenerator(nSamples).generate(reparametrized), nFmps)
-        val pC = reparametrized.isPossible(CircularGenerator(nSamples).generateScattered(reparametrized), nFmps)
-        val pE = reparametrized.isPossible(EllipticGenerator(nSamples).generateScattered(reparametrized), nFmps)
+        val pL = fsc.isPossible(LinearGenerator(nSamples).generate(fsc), nFmps)
+        val pC = fsc.isPossible(CircularGenerator(nSamples).generateScattered(fsc), nFmps)
+        val pE = fsc.isPossible(EllipticGenerator(nSamples).generateScattered(fsc), nFmps)
         val pClosed = isClosed(fsc)
         return ClassifyResult(
                 CurveClass.LineSegment to (pL),

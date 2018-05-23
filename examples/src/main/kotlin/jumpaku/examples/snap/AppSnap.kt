@@ -11,9 +11,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.CurveClass
-import jumpaku.fsc.classify.reference.CircularGenerator
-import jumpaku.fsc.classify.reference.EllipticGenerator
-import jumpaku.fsc.classify.reference.LinearGenerator
+import jumpaku.fsc.classify.reference.*
 import jumpaku.fsc.generate.DataPreparer
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.generate.LinearFuzzifier
@@ -59,10 +57,13 @@ class ViewSnap : View() {
     val classifier = ClassifierOpen4(nSamples = 99)
 
     fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
-        curveClass.isLinear -> LinearGenerator(25).generate(fsc).conicSection
-        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc).conicSection
-        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc).conicSection
-        else -> kotlin.error("")
+        curveClass.isLinear -> LinearGenerator(25).generate(fsc)
+                .let { linearConicSectionFromReference(it) }
+        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc)
+                .let { circularConicSectionFromReference(it) }
+        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc)
+                .let { ellipticConicSectionFromReference(it) }
+        else -> error("")
     }
 
     override val root: Pane = pane {

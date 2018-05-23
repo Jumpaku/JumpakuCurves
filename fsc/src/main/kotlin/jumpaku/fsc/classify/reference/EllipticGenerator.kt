@@ -15,25 +15,23 @@ import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
 
 
-class Elliptic(polyline: Polyline, nSamples: Int) : Reference(polyline) {
-    override val conicSection: ConicSection by lazy {
-        val (b, e) = domain
-        val f = EllipticGenerator.computeEllipticFar(this, b, e, nSamples)
-        val w = EllipticGenerator.computeEllipticWeight(this, b, e, f, nSamples)
-        ConicSection(polyline(b), polyline(f), polyline(e), w)
-    }
+fun ellipticConicSectionFromReference(curve: Curve): ConicSection = curve.run {
+    val (b, e) = domain
+    val f = EllipticGenerator.computeEllipticFar(this, b, e, 25)
+    val w = EllipticGenerator.computeEllipticWeight(this, b, e, f, domain, 25)
+    ConicSection(this(b), this(f), this(e), w)
 }
 
 class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
-    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
+
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Polyline {
         val tf = computeEllipticFar(fsc, t0, t1, nSamples)
-        val w = computeEllipticWeight(fsc, t0, t1, tf, nSamples)
+        val w = computeEllipticWeight(fsc, t0, t1, tf, fsc.domain, nSamples)
         val base = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
-        val polyline = ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
-        return Elliptic(polyline, nSamples)
+        return ReferenceGenerator.ellipticPolyline(fsc, t0, t1, base)
     }
 
-    fun generateScattered(fsc: Curve): Reference {
+    fun generateScattered(fsc: Curve): Polyline {
         val (t0, _, t1) = scatteredEllipticParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }
@@ -75,12 +73,12 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             }, ts[index], ts[index + 1])
         }
 
-        fun computeEllipticWeight(fsc: Curve, t0: Double, t1: Double, tf: Double, nSamples: Int): Double {
+        fun computeEllipticWeight(fsc: Curve, t0: Double, t1: Double, tf: Double, rangeSamples: Interval, nSamples: Int): Double {
             val begin = fsc(t0)
             val end = fsc(t1)
             val far = fsc(tf)
 
-            val xy_xx = API.For(plane(begin, far, end), line(begin, end), fsc.domain.sample(nSamples))
+            val xy_xx = API.For(plane(begin, far, end), line(begin, end), rangeSamples.sample(nSamples))
                     .yield(function3 { plane: Plane, line: Line, tp: Double ->
                         val p = fsc(tp).projectTo(plane)
                         val a = far.projectTo(line(p, end - begin).get())
