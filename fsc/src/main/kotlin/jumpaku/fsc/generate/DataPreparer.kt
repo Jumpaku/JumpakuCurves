@@ -4,11 +4,11 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.curve.Interval
-import jumpaku.core.geom.ParamPoint
+import jumpaku.core.curve.ParamPoint
 import jumpaku.fsc.generate.fit.BezierFitter
-import jumpaku.core.geom.chordalParametrize
-import jumpaku.core.geom.transformParams
-import jumpaku.core.geom.uniformParametrize
+import jumpaku.core.curve.chordalParametrize
+import jumpaku.core.curve.transformParams
+import jumpaku.core.curve.uniformParametrize
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 

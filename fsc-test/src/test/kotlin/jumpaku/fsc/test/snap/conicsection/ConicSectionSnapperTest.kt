@@ -1,5 +1,7 @@
 package jumpaku.fsc.test.snap.conicsection
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.string
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.geom.Point
@@ -9,6 +11,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.classify.ClassifyResult
+import jumpaku.fsc.classify.CurveClass
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
@@ -43,9 +46,10 @@ class ConicSectionSnapperTest {
     @Test
     fun testSnap() {
         println("Snap")
+        val curveClasses = resourceText("CurveClasses.json").parseJson().map { it.array.map { CurveClass.valueOf(it.string) } }.get()
         for (i in 0..4) {
             val cs = resourceText("ConicSection$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val curveClass = resourceText("ClassifyResult$i.json").parseJson().flatMap { ClassifyResult.fromJson(it) }.get().curveClass
+            val curveClass = curveClasses[i]
             val fsc = resourceText("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val e = resourceText("ConicSectionSnapResult$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
             val a = conicSectionSnapper.snap(cs, curveClass) { candidate ->

@@ -2,8 +2,8 @@
 package jumpaku.core.test.curve.nurbs
 
 import jumpaku.core.curve.nurbs.Nurbs
-import jumpaku.core.test.affine.isCloseTo
 import jumpaku.core.test.curve.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import org.amshove.kluent.should

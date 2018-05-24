@@ -4,7 +4,6 @@ import io.vavr.collection.Array
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.geom.ParamPoint
 
 
 interface Curve : (Double)->Point {

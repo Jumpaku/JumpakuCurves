@@ -8,7 +8,7 @@ import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.core.test.shouldBeCloseTo
 import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath

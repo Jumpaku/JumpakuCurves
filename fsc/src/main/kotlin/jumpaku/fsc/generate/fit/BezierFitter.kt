@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.DiagonalMatrix
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import jumpaku.core.geom.Point
-import jumpaku.core.geom.WeightedParamPoint
+import jumpaku.core.curve.WeightedParamPoint
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2

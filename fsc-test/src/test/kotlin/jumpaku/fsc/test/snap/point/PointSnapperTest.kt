@@ -3,7 +3,7 @@ package jumpaku.fsc.test.snap.point
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.point.PointSnapper
 import org.junit.Test

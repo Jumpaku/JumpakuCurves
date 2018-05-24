@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.snap.point
 
-import jumpaku.core.test.affine.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import jumpaku.core.test.isCloseTo
 import jumpaku.fsc.snap.point.PointSnapResult
 import jumpaku.fsc.test.snap.isCloseTo

@@ -3,8 +3,8 @@ package jumpaku.core.test.curve.bspline
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.core.test.affine.isCloseTo
 import jumpaku.core.test.curve.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: BSpline, expected: BSpline, error: Double = 1.0e-9): Boolean =

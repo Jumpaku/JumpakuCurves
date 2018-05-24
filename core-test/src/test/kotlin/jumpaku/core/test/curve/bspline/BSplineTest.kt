@@ -13,7 +13,7 @@ import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.core.test.curve.bezier.shouldEqualToBezier
 import jumpaku.core.test.curve.shouldEqualToInterval
 import jumpaku.core.test.curve.shouldEqualToKnotVector

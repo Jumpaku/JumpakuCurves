@@ -4,7 +4,7 @@ import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.core.test.curve.rationalbezier.shouldEqualToConicSection
 import jumpaku.core.test.curve.shouldEqualToInterval
 import jumpaku.core.test.shouldBeCloseTo

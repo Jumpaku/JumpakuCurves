@@ -12,7 +12,7 @@ import jumpaku.core.json.parseJson
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import io.vavr.collection.Array
-import jumpaku.core.test.affine.shouldEqualToVector
+import jumpaku.core.test.geom.shouldEqualToVector
 import jumpaku.core.test.curve.bezier.shouldEqualToBezier
 import jumpaku.core.test.curve.shouldEqualToInterval
 import jumpaku.core.test.curve.shouldEqualToKnotVector

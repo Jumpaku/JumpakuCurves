@@ -1,13 +1,13 @@
 package jumpaku.fsc.test.generate
 
 import io.vavr.collection.Array
-import jumpaku.core.geom.ParamPoint
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.fsc.generate.fit.BSplineFitter
-import jumpaku.core.test.affine.shouldEqualToParamPoint
+import jumpaku.core.test.curve.shouldEqualToParamPoint
 import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.fsc.generate.DataPreparer
 import org.amshove.kluent.shouldBe

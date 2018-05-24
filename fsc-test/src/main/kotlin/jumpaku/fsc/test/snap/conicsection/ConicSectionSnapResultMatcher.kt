@@ -1,7 +1,7 @@
 package jumpaku.fsc.test.snap.conicsection
 
-import jumpaku.core.test.affine.isCloseTo
 import jumpaku.core.test.curve.rationalbezier.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import jumpaku.core.test.isCloseTo
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
