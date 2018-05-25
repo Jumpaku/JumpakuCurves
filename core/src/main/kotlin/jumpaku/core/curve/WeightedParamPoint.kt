@@ -1,4 +1,4 @@
-package jumpaku.core.geom
+package jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
@@ -7,6 +7,7 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
+import jumpaku.core.geom.Point
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 

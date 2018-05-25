@@ -1,9 +1,10 @@
-package jumpaku.core.geom
+package jumpaku.core.curve
 
 import io.vavr.API
 import io.vavr.collection.Array
 import io.vavr.control.Option
-import jumpaku.core.curve.Interval
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.divide
 import jumpaku.core.util.divOption
 
 

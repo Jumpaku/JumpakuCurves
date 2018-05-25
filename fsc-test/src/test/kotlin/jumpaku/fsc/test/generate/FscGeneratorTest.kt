@@ -2,10 +2,9 @@ package jumpaku.fsc.test.generate
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
-import jumpaku.core.geom.ParamPoint
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.fsc.generate.DataPreparer
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.generate.LinearFuzzifier

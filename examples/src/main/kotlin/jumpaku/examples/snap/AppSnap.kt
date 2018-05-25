@@ -57,12 +57,9 @@ class ViewSnap : View() {
     val classifier = ClassifierOpen4(nSamples = 99)
 
     fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
-        curveClass.isLinear -> LinearGenerator(25).generate(fsc)
-                .let { linearConicSectionFromReference(it) }
-        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc)
-                .let { circularConicSectionFromReference(it) }
-        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc)
-                .let { ellipticConicSectionFromReference(it) }
+        curveClass.isLinear -> LinearGenerator(25).generate(fsc).base
+        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc).base
+        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc).base
         else -> error("")
     }
 

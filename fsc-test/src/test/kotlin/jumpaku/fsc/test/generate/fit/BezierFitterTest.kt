@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.generate.fit
 
-import jumpaku.core.geom.ParamPoint
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.test.curve.bezier.shouldEqualToBezier

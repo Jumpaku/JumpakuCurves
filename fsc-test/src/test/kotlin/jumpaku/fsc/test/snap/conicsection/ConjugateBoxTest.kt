@@ -2,7 +2,7 @@ package jumpaku.fsc.test.snap.conicsection
 
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.fsc.snap.conicsection.ConjugateBox
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test

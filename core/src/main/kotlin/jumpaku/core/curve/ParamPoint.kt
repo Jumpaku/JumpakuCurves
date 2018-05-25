@@ -1,4 +1,4 @@
-package jumpaku.core.geom
+package jumpaku.core.curve
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
@@ -7,6 +7,9 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.control.Option
 import io.vavr.control.Try
+import jumpaku.core.geom.Divisible
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.divide
 import jumpaku.core.json.ToJson
 
 data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {

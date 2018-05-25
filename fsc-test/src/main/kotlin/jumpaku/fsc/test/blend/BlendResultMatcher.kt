@@ -1,14 +1,12 @@
 package jumpaku.fsc.test.blend
 
 import io.vavr.API
-import jumpaku.core.test.affine.isCloseTo
-import jumpaku.core.test.curve.bspline.isCloseTo
+import jumpaku.core.test.curve.isCloseTo
 import jumpaku.core.test.isCloseTo
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.OverlappingMatrix
-import jumpaku.fsc.test.snap.point.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: OverlappingMatrix, expected: OverlappingMatrix, error: Double = 1.0e-9): Boolean {

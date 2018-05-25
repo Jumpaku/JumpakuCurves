@@ -4,8 +4,8 @@ import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.shouldEqualToPoint
-import jumpaku.core.test.affine.shouldEqualToVector
+import jumpaku.core.test.geom.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToVector
 import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint

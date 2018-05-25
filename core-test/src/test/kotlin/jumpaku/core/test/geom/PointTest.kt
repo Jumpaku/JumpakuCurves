@@ -1,4 +1,4 @@
-package jumpaku.core.test.affine
+package jumpaku.core.test.geom
 
 import jumpaku.core.geom.*
 import jumpaku.core.transform.Rotate

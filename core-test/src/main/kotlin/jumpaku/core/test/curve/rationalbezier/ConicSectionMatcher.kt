@@ -1,7 +1,8 @@
 package jumpaku.core.test.curve.rationalbezier
 
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.affine.isCloseTo
+import jumpaku.core.test.curve.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import jumpaku.core.test.isCloseTo
 import org.amshove.kluent.should
 

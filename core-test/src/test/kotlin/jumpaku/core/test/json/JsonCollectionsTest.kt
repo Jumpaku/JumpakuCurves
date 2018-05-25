@@ -8,7 +8,7 @@ import io.vavr.collection.HashMap
 import io.vavr.control.Option
 import jumpaku.core.geom.Point
 import jumpaku.core.json.*
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test

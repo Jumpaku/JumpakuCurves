@@ -1,6 +1,7 @@
 package jumpaku.fsc.test.snap
 
-import jumpaku.core.test.affine.isCloseTo
+import jumpaku.core.test.curve.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import jumpaku.core.test.isCloseTo
 import jumpaku.fsc.snap.Grid
 import org.amshove.kluent.should

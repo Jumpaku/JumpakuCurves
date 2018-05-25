@@ -10,8 +10,8 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.curve.rationalbezier.RationalBezier
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.shouldEqualToPoint
-import jumpaku.core.test.affine.shouldEqualToVector
+import jumpaku.core.test.geom.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToVector
 import jumpaku.core.test.shouldBeCloseTo
 import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
