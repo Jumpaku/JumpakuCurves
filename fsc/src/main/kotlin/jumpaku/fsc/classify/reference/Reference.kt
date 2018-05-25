@@ -17,7 +17,11 @@ import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
-class Reference(val base: ConicSection, override val domain: Interval): Curve, ToJson {
+class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE): Curve, ToJson {
+
+    init {
+        require(domain in Interval(-1.0, 2.0)) { "domain($domain) must be in [-1.0, 2.0]" }
+    }
 
     override fun toString(): String = toJsonString()
 
