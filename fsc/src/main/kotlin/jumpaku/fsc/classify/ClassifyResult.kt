@@ -10,7 +10,6 @@ import io.vavr.collection.Map
 import io.vavr.collection.Set
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.hashMap
@@ -47,6 +46,13 @@ class ClassifyResult(val grades: Map<CurveClass, Grade>,
     val curveClass: CurveClass = grades.maxBy { (_, m) -> m } .map { it._1() }.get()
 
     val grade: Grade = grades.values().max().get()
+
+    val reference: Reference get() = when(curveClass) {
+        CurveClass.Point, CurveClass.LineSegment -> linear
+        CurveClass.Circle, CurveClass.CircularArc -> circular
+        CurveClass.Ellipse, CurveClass.EllipticArc -> elliptic
+        CurveClass.ClosedFreeCurve, CurveClass.OpenFreeCurve -> error("reference of FreeCurve")
+    }
 
     val curveClasses: Set<CurveClass> = grades.keySet()
 
