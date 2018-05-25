@@ -1,6 +1,6 @@
-package jumpaku.core.test.affine
+package jumpaku.core.test.curve
 
-import jumpaku.core.geom.WeightedParamPoint
+import jumpaku.core.curve.WeightedParamPoint
 import jumpaku.core.test.isCloseTo
 import org.amshove.kluent.should
 

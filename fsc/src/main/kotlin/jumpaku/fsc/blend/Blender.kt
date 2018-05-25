@@ -3,10 +3,10 @@ package jumpaku.fsc.blend
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
-import jumpaku.core.geom.ParamPoint
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.geom.transformParams
+import jumpaku.core.curve.transformParams
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2

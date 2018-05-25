@@ -1,12 +1,12 @@
-package jumpaku.core.test.affine
+package jumpaku.core.test.curve
 
 import io.vavr.API
-import jumpaku.core.geom.ParamPoint
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
-import jumpaku.core.geom.chordalParametrize
-import jumpaku.core.geom.transformParams
-import jumpaku.core.geom.uniformParametrize
+import jumpaku.core.curve.chordalParametrize
+import jumpaku.core.curve.transformParams
+import jumpaku.core.curve.uniformParametrize
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 

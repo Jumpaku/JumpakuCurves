@@ -3,7 +3,6 @@ package jumpaku.fsc.classify.reference
 import io.vavr.API
 import io.vavr.Tuple3
 import jumpaku.core.curve.Curve
-import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -11,22 +10,18 @@ import jumpaku.core.util.component3
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 
-fun circularConicSectionFromReference(curve: Curve): ConicSection = curve.run {
-    val (b, e) = domain
-    val f = CircularGenerator.computeCircularFar(this, b, e)
-    ConicSection.shearedCircularArc(this(b), this(f), this(e))
-}
 
 class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
-    override fun generate(fsc: Curve, t0: Double, t1: Double): Curve {
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
         val tf = computeCircularFar(fsc, t0, t1)
         val base = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
-        val (l0, l1, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
-        return ReferenceGenerator.ellipticPolyline(l0, l1, l2, base)
+        val (l0, _, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
+        val domain = ReferenceGenerator.ellipticDomain(l0, l2, base)
+        return Reference(base, domain)
     }
 
-    fun generateScattered(fsc: Curve): Curve {
+    fun generateScattered(fsc: Curve): Reference {
         val (t0, _, t1) = scatteredCircularParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }

@@ -7,7 +7,7 @@ import jumpaku.core.geom.Point
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.geom.chordalParametrize
+import jumpaku.core.curve.chordalParametrize
 
 
 tailrec fun <C: Curve> repeatBisect(

@@ -1,8 +1,8 @@
-package jumpaku.core.test.affine.transform
+package jumpaku.core.test.transform
 
 import jumpaku.core.geom.Point
 import jumpaku.core.transform.Calibrate
-import jumpaku.core.test.affine.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToPoint
 import org.junit.jupiter.api.Test
 
 class CalibrateTest {

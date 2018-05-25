@@ -5,8 +5,8 @@ import io.vavr.collection.Array
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 import jumpaku.core.geom.Point
-import jumpaku.core.geom.WeightedParamPoint
-import jumpaku.core.geom.transformParams
+import jumpaku.core.curve.WeightedParamPoint
+import jumpaku.core.curve.transformParams
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline

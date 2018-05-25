@@ -6,7 +6,7 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.shouldEqualToVector
+import jumpaku.core.test.geom.shouldEqualToVector
 import jumpaku.core.test.shouldBeCloseTo
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
