@@ -7,32 +7,24 @@ import jumpaku.core.geom.line
 import jumpaku.core.geom.plane
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.*
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
 
-
-fun ellipticConicSectionFromReference(curve: Curve): ConicSection = curve.run {
-    val (b, e) = domain
-    val f = EllipticGenerator.computeEllipticFar(this, b, e, 25)
-    val w = EllipticGenerator.computeEllipticWeight(this, b, e, f, domain, 25)
-    ConicSection(this(b), this(f), this(e), w)
-}
-
 class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
-    override fun generate(fsc: Curve, t0: Double, t1: Double): Polyline {
+    override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
         val tf = computeEllipticFar(fsc, t0, t1, nSamples)
         val w = computeEllipticWeight(fsc, t0, t1, tf, fsc.domain, nSamples)
         val base = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
-        val (l0, l1, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
-        return ReferenceGenerator.ellipticPolyline(l0, l1, l2, base)
+        val (l0, _, l2) = ReferenceGenerator.referenceSubLength(fsc, t0, t1, base)
+        val domain = ReferenceGenerator.ellipticDomain(l0, l2, base)
+        return Reference(base, domain)
     }
 
-    fun generateScattered(fsc: Curve): Polyline {
+    fun generateScattered(fsc: Curve): Reference {
         val (t0, _, t1) = scatteredEllipticParams(fsc, nSamples)
         return generate(fsc, t0, t1)
     }

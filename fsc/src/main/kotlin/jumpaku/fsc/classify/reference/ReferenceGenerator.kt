@@ -12,7 +12,7 @@ import org.apache.commons.math3.util.FastMath
 
 interface ReferenceGenerator {
 
-    fun generate(fsc: Curve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Curve
+    fun generate(fsc: Curve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
 
     companion object {
 
@@ -27,24 +27,24 @@ interface ReferenceGenerator {
             return Tuple3(l0, l1, l2)
         }
 
-        fun linearPolyline(l0: Double, l1: Double, l2: Double, base: ConicSection, nSamples: Int): Polyline {
-            val m = base.evaluateAll(nSamples)
-            val c = base.complement()
+        fun linearDomain(l0: Double, l2: Double, base: ConicSection): Interval {
+            val c = base.complement().reverse()
             val s = BrentSolver(1.0e-3, 1.0e-4)
-            val end = s.solve(50, { (c(it) - c(0.0)).length() - l0 }, 0.0, 0.499, 0.1)
-            val begin = s.solve(50, { (c(it) - c(1.0)).length() - l2 }, 0.501, 1.0, 0.9)
-            val f = Interval(0.0, end).sample(FastMath.ceil(nSamples*l1.divOrElse(l0, 2.0)).toInt()).map { c(it) }
-            val b = Interval(begin, 1.0).sample(FastMath.ceil(nSamples*l2.divOrElse(l0, 2.0)).toInt()).map { c(it) }
-            return Polyline(f + m + b)
+            val b = s.solve(50, { (c(it) - c(1.0)).length() - l0 }, 0.501, 1.0, 0.9)
+                    .coerceIn(Interval.ZERO_ONE)
+            val e = s.solve(50, { (c(it) - c(0.0)).length() - l2 }, 0.0, 0.499, 0.1)
+                    .coerceIn(Interval.ZERO_ONE)
+            return Interval(b - 1, e + 1)
         }
 
-        fun ellipticPolyline(l0: Double, l1: Double, l2: Double, base: ConicSection): Polyline {
-            val reparametrized = base.reparameterized
-            val reparametrizedC = base.complement().reparameterized
-            val m = reparametrized.polyline
-            val f = reparametrizedC.polyline.run { subdivide(l0.coerceIn(domain))._1.reverse() }
-            val b = reparametrizedC.polyline.run { reverse().subdivide(l2.coerceIn(domain))._1 }
-            return Polyline(listOf(f, m, b).flatMap { it.points })
+        fun ellipticDomain(l0: Double, l2: Double, base: ConicSection): Interval {
+            val rC = base.complement().reverse().reparameterized
+            val lc = rC.arcLength()
+            val b = rC.run { toOriginalParam((lc - l0).coerceIn(domain)) }
+                    .coerceIn(Interval.ZERO_ONE)
+            val e = rC.run { toOriginalParam(l2.coerceIn(domain)) }
+                    .coerceIn(Interval.ZERO_ONE)
+            return Interval(b - 1, e + 1)
         }
     }
 }

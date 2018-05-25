@@ -23,10 +23,6 @@ class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classi
                 CurveClass.EllipticArc to (!pClosed and !pL and !pC and pE),
                 CurveClass.ClosedFreeCurve to (pClosed and !pL and !pC and !pE),
                 CurveClass.OpenFreeCurve to (!pClosed and !pL and !pC and !pE))
-        val refs = References(
-                linearConicSectionFromReference(refL).toCrisp(),
-                circularConicSectionFromReference(refC).toCrisp(),
-                ellipticConicSectionFromReference(refE).toCrisp())
-        return ClassifyResult(grades, refs)
+        return ClassifyResult(grades, refL, refC, refE)
     }
 }

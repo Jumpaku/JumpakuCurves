@@ -30,6 +30,7 @@ interface Curve : (Double)->Point {
     fun sample(n: Int): Array<ParamPoint> = domain.sample(n).map { ParamPoint(this(it), it) }
 
     fun sample(delta: Double): Array<ParamPoint> = domain.sample(delta).map { ParamPoint(this(it), it) }
+
     val reparameterized: ArcLengthReparameterized
 
     fun reparametrizeArcLength(): ArcLengthReparameterized = reparameterized

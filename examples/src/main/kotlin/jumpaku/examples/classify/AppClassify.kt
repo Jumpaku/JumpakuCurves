@@ -44,7 +44,7 @@ class ViewClassify : View() {
         cubicFsc(fsc) { stroke = Color.BLACK; strokeWidth = 1.0 }
         val r7 = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(fsc)
         println(r7.grades)
-        listOf(r7.references.linear, r7.references.circular, r7.references.elliptic).forEachIndexed { i, r ->
+        listOf(r7.linear, r7.circular, r7.elliptic).forEachIndexed { i, r ->
             fuzzyCurve(r) { stroke = Color.hsb(i * 120.0, 1.0, 1.0); strokeWidth = 1.0 }
         }
     }

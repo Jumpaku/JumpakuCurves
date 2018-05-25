@@ -19,10 +19,6 @@ class ClassifierOpen4(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier 
                 CurveClass.CircularArc to (!pL and pC),
                 CurveClass.EllipticArc to (!pL and !pC and pE),
                 CurveClass.OpenFreeCurve to (!pL and !pC and !pE))
-        val refs = References(
-                linearConicSectionFromReference(refL).toCrisp(),
-                circularConicSectionFromReference(refC).toCrisp(),
-                ellipticConicSectionFromReference(refE).toCrisp())
-        return ClassifyResult(grades, refs)
+        return ClassifyResult(grades, refL, refC, refE)
     }
 }

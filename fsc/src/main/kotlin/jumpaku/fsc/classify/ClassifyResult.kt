@@ -18,16 +18,19 @@ import jumpaku.core.json.jsonMap
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.hashMap
+import jumpaku.fsc.classify.reference.Reference
 
 
-class References(
-        val linear: ConicSection,
-        val circular: ConicSection,
-        val elliptic: ConicSection)
 
-class ClassifyResult(val grades: Map<CurveClass, Grade>, val references: References): ToJson {
+class ClassifyResult(val grades: Map<CurveClass, Grade>,
+                     val linear: Reference,
+                     val circular: Reference,
+                     val elliptic: Reference): ToJson {
 
-    constructor(vararg pairs: Pair<CurveClass, Grade>, references: References) : this(hashMap(*pairs), references)
+    constructor(vararg pairs: Pair<CurveClass, Grade>,
+                linear: Reference,
+                circular: Reference,
+                elliptic: Reference) : this(hashMap(*pairs), linear, circular, elliptic)
 
     init {
         require(grades.nonEmpty()) { "empty grades" }
@@ -37,10 +40,9 @@ class ClassifyResult(val grades: Map<CurveClass, Grade>, val references: Referen
 
     override fun toJson(): JsonElement = jsonObject(
             "grades" to jsonMap(grades.map { k, v -> Tuple2(k.name.toJson(), v.toJson()) }),
-            "references" to jsonObject(
-                    "linear" to references.linear.toJson(),
-                    "circular" to references.circular.toJson(),
-                    "elliptic" to references.elliptic.toJson()))
+            "linear" to linear.toJson(),
+            "circular" to circular.toJson(),
+            "elliptic" to elliptic.toJson())
 
     val curveClass: CurveClass = grades.maxBy { (_, m) -> m } .map { it._1() }.get()
 
@@ -55,10 +57,9 @@ class ClassifyResult(val grades: Map<CurveClass, Grade>, val references: Referen
                     json["grades"].hashMap.map { c, g ->
                         Tuple2(CurveClass.valueOf(c.string), Grade.fromJson(g.asJsonPrimitive).get())
                     },
-                    References(
-                            ConicSection.fromJson(json["references"]["linear"]).get(),
-                            ConicSection.fromJson(json["references"]["circular"]).get(),
-                            ConicSection.fromJson(json["references"]["elliptic"]).get()))
+                    Reference.fromJson(json["linear"]).get(),
+                    Reference.fromJson(json["circular"]).get(),
+                    Reference.fromJson(json["elliptic"]).get())
         }.toOption()
     }
 }
