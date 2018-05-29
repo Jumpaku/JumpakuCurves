@@ -29,6 +29,14 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         return generate(fsc, t0, t1)
     }
 
+    fun generateBeginEnd(fsc: Curve): Reference {
+        val (t0, t1) = fsc.domain
+        val tf = computeEllipticFar(fsc, t0, t1, nSamples)
+        val w = computeEllipticWeight(fsc, t0, t1, tf, fsc.domain, nSamples)
+        val base = ConicSection(fsc(t0), fsc(tf), fsc(t1), w)
+        return Reference(base, Interval.ZERO_ONE)
+    }
+
     companion object {
         /**
          * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).

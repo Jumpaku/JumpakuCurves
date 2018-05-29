@@ -88,9 +88,15 @@ class ConicSection(
 
     override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
 
-    fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
+    private val reversed: ConicSection by lazy { ConicSection(end, far, begin, weight) }
 
-    fun complement(): ConicSection = ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
+    fun reverse(): ConicSection = reversed
+
+    private val complement: ConicSection by lazy {
+        ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
+    }
+
+    fun complement(): ConicSection = complement
 
     fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
