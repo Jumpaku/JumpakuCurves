@@ -29,7 +29,7 @@ interface ReferenceGenerator {
 
         fun linearDomain(l0: Double, l2: Double, base: ConicSection): Interval {
             val c = base.complement().reverse()
-            val s = BrentSolver(1.0e-3, 1.0e-4)
+            val s = BrentSolver(1.0e-2, 1.0e-3)
             val b = s.solve(50, { (c(it) - c(1.0)).length() - l0 }, 0.501, 1.0, 0.9)
                     .coerceIn(Interval.ZERO_ONE)
             val e = s.solve(50, { (c(it) - c(0.0)).length() - l2 }, 0.0, 0.499, 0.1)
