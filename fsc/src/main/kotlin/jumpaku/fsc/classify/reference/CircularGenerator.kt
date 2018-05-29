@@ -3,6 +3,7 @@ package jumpaku.fsc.classify.reference
 import io.vavr.API
 import io.vavr.Tuple3
 import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Interval
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -24,6 +25,13 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
     fun generateScattered(fsc: Curve): Reference {
         val (t0, _, t1) = scatteredCircularParams(fsc, nSamples)
         return generate(fsc, t0, t1)
+    }
+
+    fun generateBeginEnd(fsc: Curve): Reference {
+        val (t0, t1) = fsc.domain
+        val tf = computeCircularFar(fsc, t0, t1)
+        val base = ConicSection.shearedCircularArc(fsc(t0), fsc(tf), fsc(t1))
+        return Reference(base, Interval.ZERO_ONE)
     }
 
     companion object {

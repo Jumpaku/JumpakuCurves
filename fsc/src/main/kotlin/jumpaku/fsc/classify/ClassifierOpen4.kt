@@ -8,12 +8,13 @@ import jumpaku.fsc.classify.reference.*
 class ClassifierOpen4(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier {
 
     override fun classify(fsc: BSpline): ClassifyResult {
-        val refL = LinearGenerator(nSamples).generate(fsc)
-        val refC = CircularGenerator(nSamples).generate(fsc)
-        val refE = EllipticGenerator(nSamples).generate(fsc)
-        val pL = fsc.isPossible(refL, nFmps)
-        val pC = fsc.isPossible(refC, nFmps)
-        val pE = fsc.isPossible(refE, nFmps)
+        val s = fsc.reparameterized
+        val refL = LinearGenerator(nSamples).generateBeginEnd(s)
+        val refC = CircularGenerator(nSamples).generateBeginEnd(s)
+        val refE = EllipticGenerator(nSamples).generateBeginEnd(s)
+        val pL = fsc.isPossible(refL.base, nFmps)
+        val pC = fsc.isPossible(refC.base, nFmps)
+        val pE = fsc.isPossible(refE.base, nFmps)
         val grades = hashMap(
                 CurveClass.LineSegment to (pL),
                 CurveClass.CircularArc to (!pL and pC),
