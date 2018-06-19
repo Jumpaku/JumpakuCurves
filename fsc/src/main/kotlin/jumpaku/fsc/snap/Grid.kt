@@ -25,16 +25,13 @@ class Grid(
         val fuzziness: Double = 0.0,
         val resolution: Int = 0): ToJson {
 
-    val isNoGrid: Boolean = 1.0.divOption(spacing).isEmpty
-
     /**
      * localToWorld transforms coordinates in local(grid) to coordinates in world.
      * Coordinates in world is transformed by the following transformations;
      *  scaling by spacing,
      *  translation to specified origin.
      */
-    val localToWorld: Transform
-        get() = rotation
+    val localToWorld: Transform get() = rotation
             .andThen(UniformlyScale(spacing))
             .andThen(Translate(origin - Point.origin))
 
@@ -61,14 +58,6 @@ class Grid(
             "resolution" to resolution.toJson())
 
     companion object {
-
-        fun noGrid(baseGrid: Grid): Grid = Grid(
-                spacing = 0.0,
-                magnification = baseGrid.magnification,
-                origin = baseGrid.origin,
-                rotation = baseGrid.rotation,
-                fuzziness = 0.0,
-                resolution = Int.MAX_VALUE)
 
         fun spacing(baseGridSpacing: Double, magnification: Int, resolution: Int): Double =
                 baseGridSpacing * FastMath.pow(magnification.toDouble(), -resolution)

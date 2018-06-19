@@ -37,7 +37,6 @@ class GridTest {
     fun testProperties() {
         println("Properties")
         baseGrid.resolution.shouldEqualTo(0)
-        baseGrid.isNoGrid.shouldBeFalse()
 
         higherGrid.spacing.shouldBeCloseTo(2.0)
         higherGrid.magnification.shouldEqualTo(2)
@@ -46,7 +45,6 @@ class GridTest {
         higherGrid.rotation.angleRadian.shouldBeCloseTo(p2)
         higherGrid.fuzziness.shouldBeCloseTo(1.0)
         higherGrid.resolution.shouldEqualTo(1)
-        higherGrid.isNoGrid.shouldBeFalse()
 
         lowerGrid.spacing.shouldBeCloseTo(8.0)
         lowerGrid.magnification.shouldEqualTo(2)
@@ -55,9 +53,6 @@ class GridTest {
         lowerGrid.rotation.angleRadian.shouldBeCloseTo(p2)
         lowerGrid.fuzziness.shouldBeCloseTo(4.0)
         lowerGrid.resolution.shouldEqualTo(-1)
-        lowerGrid.isNoGrid.shouldBeFalse()
-
-        Grid.noGrid(baseGrid).isNoGrid.shouldBeTrue()
     }
 
     @Test
