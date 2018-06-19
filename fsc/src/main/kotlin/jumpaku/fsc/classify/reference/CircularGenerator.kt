@@ -42,10 +42,10 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         fun scatteredCircularParams(fsc: Curve, nSamples: Int): Tuple3<Double, Double, Double> {
             val ts = fsc.domain.sample(nSamples)
             return API.For(ts.take(nSamples / 3), ts.drop(2 * nSamples / 3))
-                    .yield({ t0, t1 ->
+                    .`yield` { t0, t1 ->
                         val tf = computeCircularFar(fsc, t0, t1)
                         API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
-                    })
+                    }
                     .maxBy { (_, area) -> area }
                     .map { it._1() }.get()
         }

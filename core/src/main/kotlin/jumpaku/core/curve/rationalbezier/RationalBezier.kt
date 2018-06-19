@@ -10,16 +10,17 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.geom.*
-import jumpaku.core.transform.Transform
-import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
-import jumpaku.core.curve.arclength.approximate
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Derivative
+import jumpaku.core.curve.Differentiable
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
-import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
-import org.apache.commons.math3.util.Precision
+import jumpaku.core.transform.Transform
 
 
 class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : Curve, Differentiable, ToJson {
@@ -107,16 +108,15 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        approximate(this,
-                {
-                    val cp = (it as RationalBezier).weightedControlPoints
-                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
-                    val l1 = cp.run { head().point.dist(last().point) }
-                    !(Precision.equals(l0, l1, 1.0 / 128) && cp.all { it.weight > 0 })
-                },
-                { b, i: Interval -> (b as RationalBezier).restrict(i) })
-    }
+    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
+
+    override fun approximateParams(tolerance: Double): Array<Double> = repeatBisect(this) { sub: Interval ->
+        val wcp = restrict(sub).weightedControlPoints
+        val l = line(wcp.head().point, wcp.last().point)
+        wcp.any { (p, w) ->
+            w <= 0.0 || l.map { p.dist(it) }.getOrElse { p.dist(wcp.last().point) } > tolerance
+        }
+    }.map { it.begin }.append(1.0).toArray()
 
     companion object {
 

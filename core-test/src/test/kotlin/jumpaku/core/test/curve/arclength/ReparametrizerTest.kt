@@ -1,37 +1,33 @@
 package jumpaku.core.test.curve.arclength
 
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.Reparametrizer
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.geom.Point
-import jumpaku.core.test.curve.rationalbezier.shouldEqualToConicSection
 import jumpaku.core.test.curve.shouldEqualToInterval
-import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.core.test.shouldBeCloseTo
-import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
 
-class QuadraticTest {
+class LinearTest {
 
-    val q = Reparametrizer.MonotonicQuadratic(2.0, 7.0, -1.0, Interval.ZERO_ONE)
+    val l = Reparametrizer.MonotonicLinear(2.0, 7.0, Interval.ZERO_ONE)
 
     @Test
     fun testInvoke() {
         println("Invoke")
-        q(0.0).shouldBeCloseTo(-1.0)
-        q(0.5).shouldBeCloseTo(3.0)
-        q(1.0).shouldBeCloseTo(8.0)
+        l(0.0).shouldBeCloseTo(7.0)
+        l(0.5).shouldBeCloseTo(8.0)
+        l(1.0).shouldBeCloseTo(9.0)
     }
 
     @Test
     fun testInvert() {
         println("Invert")
-        q.invert(-1.0).shouldBeCloseTo(0.0)
-        q.invert(3.0).shouldBeCloseTo(0.5)
-        q.invert(8.0).shouldBeCloseTo(1.0)
+        l.invert(7.0).shouldBeCloseTo(0.0)
+        l.invert(8.0).shouldBeCloseTo(0.5)
+        l.invert(9.0).shouldBeCloseTo(1.0)
     }
 }
 
@@ -41,7 +37,7 @@ class ReparametrizerTest {
 
     val cs = ConicSection(Point.xy(0.0, 100.0), Point.xy(-R2*50, -R2*50), Point.xy(100.0, 0.0), -R2 / 2)
 
-    val r = Reparametrizer(cs, cs.domain.sample(50))
+    val r = Reparametrizer.of(cs, cs.domain.sample(50))
 
     val PI = FastMath.PI
 

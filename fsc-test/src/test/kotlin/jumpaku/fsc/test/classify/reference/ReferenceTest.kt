@@ -41,8 +41,8 @@ class ReferenceTest {
     @Test
     fun testReparameterized() {
         println("Reparameterized")
-        circular.reparameterized.arcLength().shouldBeCloseTo(2*PI, 0.1)
-        linear.reparameterized.arcLength().shouldBeCloseTo(4.0)
+        circular.reparametrize(1.0).domain.end.shouldBeCloseTo(2*PI, 1.0)
+        linear.reparametrize(1.0).domain.end.shouldBeCloseTo(4.0)
     }
 
     @Test

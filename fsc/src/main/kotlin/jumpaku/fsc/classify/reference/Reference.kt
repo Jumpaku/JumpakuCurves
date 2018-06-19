@@ -8,7 +8,7 @@ import io.vavr.control.Option
 import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
+import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.ConicSection
@@ -39,22 +39,14 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
         }
     }
 
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        val middle = repeatBisect(base,
-                {
-                    val rs = it.representPoints
-                    val l0 = Polyline(rs).reparametrizeArcLength().arcLength()
-                    val l1 = rs.run { head().dist(last()) }
-                    !(Precision.equals(l0, l1, 1.0 / 512) && listOf(1.0, it.weight, 1.0).all { it > 0 })
-                },
-                { b, i: Interval -> b.restrict(i) })
-                .map { it.begin }.append(base.domain.end)
-                .let { if (it.size() < 25) Interval.ZERO_ONE.sample(25) else it }
-
+    override fun approximateParams(tolerance: Double): Array<Double> {
+        val middle = base.approximateParams(1.0)
         val front = domain.copy(end = 0.0).sample(middle.size())
         val back = domain.copy(begin = 1.0).sample(middle.size())
-        ArcLengthReparameterized(this, Array.ofAll(front + middle + back))
+        return Array.ofAll(front + middle + back)
     }
+
+    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
 
     companion object {
 

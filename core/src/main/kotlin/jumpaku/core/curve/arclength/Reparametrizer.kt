@@ -2,9 +2,14 @@ package jumpaku.core.curve.arclength
 
 import io.vavr.collection.Array
 import io.vavr.collection.List
+import io.vavr.collection.Stream
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
+import jumpaku.core.geom.line
 import jumpaku.core.geom.middle
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.component3
 import jumpaku.core.util.divOption
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
@@ -12,54 +17,51 @@ import org.apache.commons.math3.util.FastMath
 import kotlin.math.max
 import kotlin.math.min
 
-class Reparametrizer(curve: Curve, val originalParams: Array<Double>) {
 
-    data class MonotonicQuadratic(val a: Double, val b: Double, val c: Double, val domain: Interval): (Double)->Double {
+fun repeatBisect(curve: Curve, tolerance: Double, domain: Interval = curve.domain): Stream<Interval> =
+        repeatBisect(curve, domain) { subDomain ->
+            val (p0, p1, p2) = subDomain.sample(3).map { curve(it) }
+            line(p0, p2).map { p1.dist(it) }.getOrElse { p1.dist(p0) } > tolerance
+        }
+
+fun repeatBisect(curve: Curve, domain: Interval = curve.domain, shouldBisect: (Interval)->Boolean): Stream<Interval> =
+        domain.sample(3)
+                .let { (t0, t1, t2) -> Stream.of(Interval(t0, t1), Interval(t1, t2)) }
+                .flatMap { subDomain ->
+                    if (shouldBisect(subDomain)) repeatBisect(curve, subDomain, shouldBisect)
+                    else  Stream.of(subDomain)
+                }
+
+class Reparametrizer private constructor(
+        val originalParams: Array<Double>,
+        val arcLengthParams: Array<Double>,
+        val quadratics: Array<MonotonicLinear>) {
+
+    data class MonotonicLinear(val a: Double, val b: Double, val domain: Interval): (Double)->Double {
 
         val range: Interval
 
         init {
-            require((-b).divOption(2*a).filter { it !in domain }.isDefined) { "not monotonic" }
-            range = domain.let { (t0, t2) -> Interval(a*t0*t0 + b*t0 + c, a*t2*t2 + b*t2 + c) }
+            require(a >= 0.0) { "not monotonic (a, b, c) = ($a, $b), domain($domain)" }
+            range = domain.let { (t0, t2) -> Interval(a*t0 + b, a*t2 + b) }
         }
 
         override fun invoke(t: Double): Double {
             require(t in domain) { "t($t) is out of domain($domain)" }
-            return (a*t*t + b*t + c).coerceIn(range)
+            return (a*t + b).coerceIn(range)
         }
 
         fun invert(s: Double): Double {
             require(s in range) { "s($s) is out of range($range)" }
-
             val (t0, t2) = domain
-            val t1 = t0.middle(t2)
-            val r = FastMath.sqrt(b*b - 4*a*(c - s))
-            val alpha = (-b+r).divOption(2*a)
-            val beta = (-b-r).divOption(2*a)
-            val axis = (-b).divOption(2*a)
-            return axis.map { if (it < t1) max(alpha.get(), beta.get()) else min(alpha.get(), beta.get()) }
-                    .orElse { (s - c).divOption(b) }
-                    .getOrElse { t0.middle(t2) }
-                    .coerceIn(domain)
+            return (s-b).divOption(a).getOrElse { t0.middle(t2) }.coerceIn(domain)
         }
     }
 
-    private val arcLengthParams: Array<Double>
-
-    private val quadratics: Array<MonotonicQuadratic>
-
     init {
         require(originalParams.size() > 1) { "originalToArcLength.size() is too small"}
-
-        val qs = originalParams.zipWithNext { t0, t2 -> interpolate(curve, t0, t2) }.let { Array.ofAll(it) }
-
-        arcLengthParams = originalParams.foldIndexed(List.empty<Double>()) { i, ss, t ->
-            if (i == 0) List.of(0.0)
-            else ss.prepend(ss.head() + qs[i - 1](t))
-        }.reverse().toArray()
-
-        quadratics = qs.mapIndexed { i, q -> q.copy(c = q.c + arcLengthParams[i]) }.let { Array.ofAll(it) }
-
+        require(arcLengthParams.size() == originalParams.size()) { "arcLengthParams.size() != originalParams.size()" }
+        require(quadratics.size() == originalParams.size() - 1) { "quadratics.size() != originalParams.size() - 1" }
     }
 
     val domain: Interval = Interval(originalParams.head(), originalParams.last())
@@ -82,24 +84,23 @@ class Reparametrizer(curve: Curve, val originalParams: Array<Double>) {
 
     companion object {
 
-        private fun interpolate(curve: Curve, t0: Double, t2: Double): MonotonicQuadratic {
-            val t1 = t0.middle(t2)
+        fun interpolateLinear(curve: Curve, t0: Double, t1: Double): MonotonicLinear {
             val p0 = curve(t0)
             val p1 = curve(t1)
-            val p2 = curve(t2)
             val s0 = 0.0
             val s1 = p0.dist(p1)
-            val s2 = s1 + p1.dist(p2)
-            val t = MatrixUtils.createRealMatrix(arrayOf(
-                    doubleArrayOf(t0*t0, t0, 1.0),
-                    doubleArrayOf(t1*t1, t1, 1.0),
-                    doubleArrayOf(t2*t2, t2, 1.0)
-            ))
-            val t1Min = (t1 - t0)*(t1 - t0)*(s2 - s0)/((t2 - t0)*(t2 - t0)) + s0
-            val t1Max = (t1 - t2)*(t1 - t2)*(s0 - s2)/((t0 - t2)*(t0 - t2)) + s2
-            val s = MatrixUtils.createRealVector(doubleArrayOf(s0, s1.coerceIn(t1Min, t1Max), s2))
-            val abc = QRDecomposition(t).solver.solve(s)
-            return MonotonicQuadratic(abc.getEntry(0), abc.getEntry(1), abc.getEntry(2), Interval(t0, t2))
+            val a = (s0 - s1).divOption(t0 - t1).getOrElse { 0.0 }.coerceAtLeast(0.0)
+            val b = (-t1*s0 + t0*s1).divOption(t0 - t1).getOrElse { s0.middle(s1) }
+            return MonotonicLinear(a, b, Interval(t0, t1))
+        }
+
+        fun of(curve: Curve, originalParams: Array<Double>): Reparametrizer {
+            val ls = originalParams.zipWithNext { t0, t2 -> Reparametrizer.interpolateLinear(curve, t0, t2) }
+            val arcLengthParams = originalParams.foldIndexed(List.empty<Double>()) { i, ss, t ->
+                if (i == 0) List.of(0.0) else ss.prepend(ss.head() + ls[i - 1](t))
+            }.reverse().toArray()
+            val quadratics = ls.mapIndexed { i, q -> q.copy(b = q.b + arcLengthParams[i]) }
+            return Reparametrizer(originalParams, arcLengthParams, Array.ofAll(quadratics))
         }
     }
 }

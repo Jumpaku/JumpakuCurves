@@ -11,14 +11,14 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.curve.ParamPoint
-import jumpaku.core.geom.Point
-import jumpaku.core.transform.Transform
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
+import jumpaku.core.curve.ParamPoint
+import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.chordalParametrize
+import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
+import jumpaku.core.transform.Transform
 import org.apache.commons.math3.util.Precision
 
 
@@ -103,9 +103,9 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : Curve, ToJson {
         }
     }
 
-    override val reparameterized: ArcLengthReparameterized by lazy{
-        ArcLengthReparameterized(this, parameters)
-    }
+    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
+
+    override fun approximateParams(tolerance: Double): Array<Double> = parameters
 
     companion object {
 

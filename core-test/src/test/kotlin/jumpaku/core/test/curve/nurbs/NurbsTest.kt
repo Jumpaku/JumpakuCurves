@@ -290,7 +290,7 @@ class NurbsTest {
     @Test
     fun testToArcLengthCurve() {
         println("ToArcLengthCurve")
-        n.reparametrizeArcLength().arcLength().shouldBeCloseTo(200*Math.PI, 0.1)
+        n.reparametrize(1.0).domain.end.shouldBeCloseTo(200*Math.PI, 1.0)
     }
 
     @Test

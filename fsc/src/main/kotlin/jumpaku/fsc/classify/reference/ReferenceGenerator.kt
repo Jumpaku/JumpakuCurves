@@ -18,10 +18,10 @@ interface ReferenceGenerator {
 
         fun referenceSubLength(fsc: Curve, t0: Double, t1: Double, base: ConicSection): Tuple3<Double, Double, Double> {
             val reparametrized = fsc.reparameterized
-            val s0 = reparametrized.arcLengthUntil(t0)
-            val s1 = reparametrized.arcLengthUntil(t1)
-            val s = reparametrized.arcLength()
-            val l1 = base.reparameterized.arcLength()
+            val s0 = reparametrized.reparametrizer.toArcLength(t0)
+            val s1 = reparametrized.reparametrizer.toArcLength(t1)
+            val s = reparametrized.domain.end
+            val l1 = base.reparameterized.domain.end
             val l0 = (l1 * s0 / (s1 - s0))
             val l2 = (l1 * (s - s1) / (s1 - s0))
             return Tuple3(l0, l1, l2)
@@ -39,10 +39,10 @@ interface ReferenceGenerator {
 
         fun ellipticDomain(l0: Double, l2: Double, base: ConicSection): Interval {
             val rC = base.complement().reverse().reparameterized
-            val lc = rC.arcLength()
-            val b = rC.run { toOriginalParam((lc - l0).coerceIn(domain)) }
+            val lc = rC.domain.end
+            val b = rC.run { reparametrizer.toOriginal((lc - l0).coerceIn(domain)) }
                     .coerceIn(Interval.ZERO_ONE)
-            val e = rC.run { toOriginalParam(l2.coerceIn(domain)) }
+            val e = rC.run { reparametrizer.toOriginal(l2.coerceIn(domain)) }
                     .coerceIn(Interval.ZERO_ONE)
             return Interval(b - 1, e + 1)
         }

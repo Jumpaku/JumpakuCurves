@@ -3,7 +3,10 @@ package jumpaku.fsc.test.generate
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
 import jumpaku.core.curve.ParamPoint
+import jumpaku.core.curve.arclength.Reparametrizer
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.fuzzy.Grade
+import jumpaku.core.geom.Point
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.generate.DataPreparer
 import jumpaku.fsc.generate.FscGenerator

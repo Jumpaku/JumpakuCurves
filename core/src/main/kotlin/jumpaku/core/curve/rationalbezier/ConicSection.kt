@@ -11,16 +11,20 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Derivative
+import jumpaku.core.curve.Differentiable
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.geom.*
-import jumpaku.core.transform.Transform
-import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
-import jumpaku.core.curve.arclength.approximate
-import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.*
+import jumpaku.core.transform.Transform
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
+import jumpaku.core.util.component3
+import jumpaku.core.util.divOption
 import org.apache.commons.math3.util.FastMath
-import org.apache.commons.math3.util.Precision
 import kotlin.math.absoluteValue
 
 
@@ -135,16 +139,13 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        approximate(this,
-                {
-                    val cp = (it as ConicSection).representPoints
-                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
-                    val l1 = cp.run { head().dist(last()) }
-                    !(Precision.equals(l0, l1, 1.0 / 512) && listOf(1.0, it.weight, 1.0).all { it > 0 })
-                },
-                { b, i: Interval -> (b as ConicSection).restrict(i) })
-    }
+    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
+
+    override fun approximateParams(tolerance: Double): Array<Double> = repeatBisect(this) { sub: Interval ->
+        val r = restrict(sub)
+        val (r0, r1, r2) = r.representPoints
+            r.weight <= 0.0 || line(r0, r2).map { r1.dist(it) }.getOrElse { r1.dist(r2) } > tolerance
+    }.map { it.begin }.append(domain.end).toArray()
 
     companion object {
 

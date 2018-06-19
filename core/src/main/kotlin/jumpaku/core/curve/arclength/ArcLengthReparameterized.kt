@@ -9,7 +9,7 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.chordalParametrize
 
-
+/*
 tailrec fun <C: Curve> repeatBisect(
         curve: C,
         shouldBisect: (C) -> Boolean,
@@ -84,3 +84,4 @@ class ArcLengthReparameterized(val originalCurve: Curve, private val originalPar
         }
     }
 }
+*/

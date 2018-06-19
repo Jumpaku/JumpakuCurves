@@ -107,7 +107,7 @@ class PolylineTest {
                 Point.xyr(100.0, 100.0, 1.0),
                 Point.xyr(100.0, -300.0, 3.0),
                 Point.xyzr(100.0, -300.0, 150.0, 2.0))
-                .reparametrizeArcLength().arcLength()
+                .reparametrize(0.0).domain.end
         l.shouldBeCloseTo(750.0, 0.1)
     }
 }
