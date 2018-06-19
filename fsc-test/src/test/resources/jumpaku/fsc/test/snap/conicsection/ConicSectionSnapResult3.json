@@ -9,38 +9,40 @@
           "r": 43.14820552867318
         },
         "snapped": {
-          "grid": {
-            "spacing": 25.0,
-            "magnification": 2,
-            "origin": {
-              "x": 640.0,
-              "y": 360.0,
+          "value": {
+            "grid": {
+              "spacing": 25.0,
+              "magnification": 2,
+              "origin": {
+                "x": 640.0,
+                "y": 360.0,
+                "z": 0.0,
+                "r": 0.0
+              },
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
+              },
+              "fuzziness": 10.0,
+              "resolution": 1
+            },
+            "gridPoint": {
+              "x": -11,
+              "y": 2,
+              "z": 0
+            },
+            "worldPoint": {
+              "x": 365.0,
+              "y": 410.0,
               "z": 0.0,
               "r": 0.0
             },
-            "rotation": {
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-              },
-              "angleRadian": 0.0
-            },
-            "fuzziness": 10.0,
-            "resolution": 1
-          },
-          "gridPoint": {
-            "x": -11,
-            "y": 2,
-            "z": 0
-          },
-          "worldPoint": {
-            "x": 365.0,
-            "y": 410.0,
-            "z": 0.0,
-            "r": 0.0
-          },
-          "grade": 0.5773376289391827
+            "grade": 0.5773376289391827
+          }
         }
       },
       {
@@ -51,38 +53,40 @@
           "r": 31.14824663194626
         },
         "snapped": {
-          "grid": {
-            "spacing": 25.0,
-            "magnification": 2,
-            "origin": {
-              "x": 640.0,
-              "y": 360.0,
+          "value": {
+            "grid": {
+              "spacing": 25.0,
+              "magnification": 2,
+              "origin": {
+                "x": 640.0,
+                "y": 360.0,
+                "z": 0.0,
+                "r": 0.0
+              },
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
+              },
+              "fuzziness": 10.0,
+              "resolution": 1
+            },
+            "gridPoint": {
+              "x": 8,
+              "y": 2,
+              "z": 0
+            },
+            "worldPoint": {
+              "x": 840.0,
+              "y": 410.0,
               "z": 0.0,
               "r": 0.0
             },
-            "rotation": {
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-              },
-              "angleRadian": 0.0
-            },
-            "fuzziness": 10.0,
-            "resolution": 1
-          },
-          "gridPoint": {
-            "x": 8,
-            "y": 2,
-            "z": 0
-          },
-          "worldPoint": {
-            "x": 840.0,
-            "y": 410.0,
-            "z": 0.0,
-            "r": 0.0
-          },
-          "grade": 0.5480488855828094
+            "grade": 0.5480488855828094
+          }
         }
       },
       {
@@ -93,38 +97,40 @@
           "r": 71.76415891256593
         },
         "snapped": {
-          "grid": {
-            "spacing": 50.0,
-            "magnification": 2,
-            "origin": {
-              "x": 640.0,
-              "y": 360.0,
+          "value": {
+            "grid": {
+              "spacing": 50.0,
+              "magnification": 2,
+              "origin": {
+                "x": 640.0,
+                "y": 360.0,
+                "z": 0.0,
+                "r": 0.0
+              },
+              "rotation": {
+                "axis": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "z": 1.0
+                },
+                "angleRadian": 0.0
+              },
+              "fuzziness": 20.0,
+              "resolution": 0
+            },
+            "gridPoint": {
+              "x": -3,
+              "y": -2,
+              "z": 0
+            },
+            "worldPoint": {
+              "x": 490.0,
+              "y": 260.0,
               "z": 0.0,
               "r": 0.0
             },
-            "rotation": {
-              "axis": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-              },
-              "angleRadian": 0.0
-            },
-            "fuzziness": 20.0,
-            "resolution": 0
-          },
-          "gridPoint": {
-            "x": -3,
-            "y": -2,
-            "z": 0
-          },
-          "worldPoint": {
-            "x": 490.0,
-            "y": 260.0,
-            "z": 0.0,
-            "r": 0.0
-          },
-          "grade": 0.7423467395944845
+            "grade": 0.7423467395944845
+          }
         }
       }
     ],
@@ -188,38 +194,40 @@
             "r": 43.14820552867318
           },
           "snapped": {
-            "grid": {
-              "spacing": 25.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 25.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 10.0,
+                "resolution": 1
+              },
+              "gridPoint": {
+                "x": -11,
+                "y": 2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 365.0,
+                "y": 410.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 10.0,
-              "resolution": 1
-            },
-            "gridPoint": {
-              "x": -11,
-              "y": 2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 365.0,
-              "y": 410.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.5773376289391827
+              "grade": 0.5773376289391827
+            }
           }
         },
         {
@@ -230,38 +238,40 @@
             "r": 31.14824663194626
           },
           "snapped": {
-            "grid": {
-              "spacing": 25.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 25.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 10.0,
+                "resolution": 1
+              },
+              "gridPoint": {
+                "x": 8,
+                "y": 2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 840.0,
+                "y": 410.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 10.0,
-              "resolution": 1
-            },
-            "gridPoint": {
-              "x": 8,
-              "y": 2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 840.0,
-              "y": 410.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.5480488855828094
+              "grade": 0.5480488855828094
+            }
           }
         },
         {
@@ -272,38 +282,40 @@
             "r": 108840.62083396298
           },
           "snapped": {
-            "grid": {
-              "spacing": 1600.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 1600.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 640.0,
+                "resolution": -5
+              },
+              "gridPoint": {
+                "x": 76,
+                "y": 94,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 122240.0,
+                "y": 150760.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 640.0,
-              "resolution": -5
-            },
-            "gridPoint": {
-              "x": 76,
-              "y": 94,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 122240.0,
-              "y": 150760.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.992330274194258
+              "grade": 0.992330274194258
+            }
           }
         }
       ],
@@ -365,38 +377,40 @@
             "r": 43.14820552867318
           },
           "snapped": {
-            "grid": {
-              "spacing": 25.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 25.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 10.0,
+                "resolution": 1
+              },
+              "gridPoint": {
+                "x": -11,
+                "y": 2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 365.0,
+                "y": 410.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 10.0,
-              "resolution": 1
-            },
-            "gridPoint": {
-              "x": -11,
-              "y": 2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 365.0,
-              "y": 410.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.5773376289391827
+              "grade": 0.5773376289391827
+            }
           }
         },
         {
@@ -407,38 +421,40 @@
             "r": 31.14824663194626
           },
           "snapped": {
-            "grid": {
-              "spacing": 25.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 25.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 10.0,
+                "resolution": 1
+              },
+              "gridPoint": {
+                "x": 8,
+                "y": 2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 840.0,
+                "y": 410.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 10.0,
-              "resolution": 1
-            },
-            "gridPoint": {
-              "x": 8,
-              "y": 2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 840.0,
-              "y": 410.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.5480488855828094
+              "grade": 0.5480488855828094
+            }
           }
         },
         {
@@ -449,38 +465,40 @@
             "r": 71.76415891256593
           },
           "snapped": {
-            "grid": {
-              "spacing": 50.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 50.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 20.0,
+                "resolution": 0
+              },
+              "gridPoint": {
+                "x": -3,
+                "y": -2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 490.0,
+                "y": 260.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 20.0,
-              "resolution": 0
-            },
-            "gridPoint": {
-              "x": -3,
-              "y": -2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 490.0,
-              "y": 260.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.7423467395944845
+              "grade": 0.7423467395944845
+            }
           }
         }
       ],
@@ -542,38 +560,40 @@
             "r": 43.14820552867318
           },
           "snapped": {
-            "grid": {
-              "spacing": 25.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 25.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 10.0,
+                "resolution": 1
+              },
+              "gridPoint": {
+                "x": -11,
+                "y": 2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 365.0,
+                "y": 410.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 10.0,
-              "resolution": 1
-            },
-            "gridPoint": {
-              "x": -11,
-              "y": 2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 365.0,
-              "y": 410.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.5773376289391827
+              "grade": 0.5773376289391827
+            }
           }
         },
         {
@@ -584,38 +604,40 @@
             "r": 31.14824663194626
           },
           "snapped": {
-            "grid": {
-              "spacing": 25.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 25.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 10.0,
+                "resolution": 1
+              },
+              "gridPoint": {
+                "x": 8,
+                "y": 2,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": 840.0,
+                "y": 410.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 10.0,
-              "resolution": 1
-            },
-            "gridPoint": {
-              "x": 8,
-              "y": 2,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": 840.0,
-              "y": 410.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.5480488855828094
+              "grade": 0.5480488855828094
+            }
           }
         },
         {
@@ -626,38 +648,40 @@
             "r": 45184.75113336158
           },
           "snapped": {
-            "grid": {
-              "spacing": 1600.0,
-              "magnification": 2,
-              "origin": {
-                "x": 640.0,
-                "y": 360.0,
+            "value": {
+              "grid": {
+                "spacing": 1600.0,
+                "magnification": 2,
+                "origin": {
+                  "x": 640.0,
+                  "y": 360.0,
+                  "z": 0.0,
+                  "r": 0.0
+                },
+                "rotation": {
+                  "axis": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 1.0
+                  },
+                  "angleRadian": 0.0
+                },
+                "fuzziness": 640.0,
+                "resolution": -5
+              },
+              "gridPoint": {
+                "x": -32,
+                "y": -39,
+                "z": 0
+              },
+              "worldPoint": {
+                "x": -50560.0,
+                "y": -62040.0,
                 "z": 0.0,
                 "r": 0.0
               },
-              "rotation": {
-                "axis": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "z": 1.0
-                },
-                "angleRadian": 0.0
-              },
-              "fuzziness": 640.0,
-              "resolution": -5
-            },
-            "gridPoint": {
-              "x": -32,
-              "y": -39,
-              "z": 0
-            },
-            "worldPoint": {
-              "x": -50560.0,
-              "y": -62040.0,
-              "z": 0.0,
-              "r": 0.0
-            },
-            "grade": 0.9726823877997648
+              "grade": 0.9726823877997648
+            }
           }
         }
       ],
