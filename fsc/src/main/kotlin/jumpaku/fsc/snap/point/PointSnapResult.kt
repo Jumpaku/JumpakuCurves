@@ -36,6 +36,3 @@ data class PointSnapResult(
         }.toOption()
     }
 }
-
-fun noPointSnap(baseGrid: Grid, cursor: Point): PointSnapResult
-        = PointSnapResult(Grid.noGrid(baseGrid), GridPoint(0, 0, 0), cursor.toCrisp(), Grade.TRUE)

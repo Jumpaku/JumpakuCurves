@@ -13,7 +13,10 @@ import org.amshove.kluent.should
 fun isCloseTo(actual: ConicSectionSnapResult.Candidate, expected: ConicSectionSnapResult.Candidate, error: Double): Boolean =
         isCloseTo(actual.snappedConicSection, expected.snappedConicSection, error) &&
         actual.featurePoints.zip(expected.featurePoints).all { (a, e) ->
-            isCloseTo(a.cursor, e.cursor, error) && isCloseTo(a.snapped, e.snapped, error)
+            isCloseTo(a.cursor, e.cursor, error) &&
+                    if (a.snapped.isDefined && e.snapped.isDefined) isCloseTo(a.snapped.get(), e.snapped.get(), error)
+                    else a.snapped.isDefined == e.snapped.isDefined
+
         }
 
 fun isCloseTo(actual: ConicSectionSnapResult, expected: ConicSectionSnapResult, error: Double): Boolean =

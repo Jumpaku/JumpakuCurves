@@ -57,7 +57,7 @@ class ConicSectionSnapperTest {
             }
             a.candidate.featurePoints.size().shouldEqualTo(e.candidate.featurePoints.size())
             a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->
-                a.snapped.gridPoint.shouldEqual(e.snapped.gridPoint)
+                a.snapped.get().gridPoint.shouldEqual(e.snapped.get().gridPoint)
             }
         }
     }
