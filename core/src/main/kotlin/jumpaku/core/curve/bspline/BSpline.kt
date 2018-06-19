@@ -78,6 +78,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
     fun transform(a: Transform): BSpline = BSpline(controlPoints.map(a::invoke), knotVector)
 
     fun restrict(begin: Double, end: Double): BSpline {
+        require(begin < end) { "must be begin($begin) < end($end)" }
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
         return subdivide(begin)._2().get().subdivide(end)._1().get()
