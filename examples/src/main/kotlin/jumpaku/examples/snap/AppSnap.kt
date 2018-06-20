@@ -98,7 +98,7 @@ class ViewSnap : View() {
         fuzzyCurve(snapped.candidate.snappedConicSection) { stroke = Color.RED }
 
         conjugateBox(ConjugateBox.ofConicSection(snapped.candidate.snappedConicSection)) { stroke = Color.GREEN }
-        snapped.candidate.featurePoints.forEach { snappedPoint(it.snapped) { stroke = Color.GREEN; fill = Color.GREEN } }
+        snapped.candidate.featurePoints.forEach { snappedPoint(it.snapped.get()) { stroke = Color.GREEN; fill = Color.GREEN } }
     }
 }
 

@@ -10,24 +10,47 @@ import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
 
-class LinearTest {
+class QuadraticTest {
 
-    val l = Reparametrizer.MonotonicLinear(2.0, 7.0, Interval.ZERO_ONE)
+    val q0 = Reparametrizer.MonotonicQuadratic(2.0, 10.0, 14.0, Interval(2.0, 4.0))
+
+    val q1 = Reparametrizer.MonotonicQuadratic(2.0, 6.0, 14.0, Interval(2.0, 4.0))
+
+    val q2 = Reparametrizer.MonotonicQuadratic(2.0, 8.0, 14.0, Interval(2.0, 4.0))
 
     @Test
     fun testInvoke() {
         println("Invoke")
-        l(0.0).shouldBeCloseTo(7.0)
-        l(0.5).shouldBeCloseTo(8.0)
-        l(1.0).shouldBeCloseTo(9.0)
+        q0(2.0).shouldBeCloseTo(2.0)
+        q0(3.0).shouldBeCloseTo(9.0)
+        q0(4.0).shouldBeCloseTo(14.0)
+
+        q1(2.0).shouldBeCloseTo(2.0)
+        q1(3.0).shouldBeCloseTo(7.0)
+        q1(4.0).shouldBeCloseTo(14.0)
+
+        q2(2.0).shouldBeCloseTo(2.0)
+        q2(3.0).shouldBeCloseTo(8.0)
+        q2(4.0).shouldBeCloseTo(14.0)
     }
 
     @Test
     fun testInvert() {
         println("Invert")
-        l.invert(7.0).shouldBeCloseTo(0.0)
-        l.invert(8.0).shouldBeCloseTo(0.5)
-        l.invert(9.0).shouldBeCloseTo(1.0)
+        q0.invert(2.0).shouldBeCloseTo(2.0)
+        q0.invert(9.0).shouldBeCloseTo(3.0)
+        q0.invert(14.0).shouldBeCloseTo(4.0)
+
+        q1.invert(2.0).shouldBeCloseTo(2.0)
+        q1.invert(7.0).shouldBeCloseTo(3.0)
+        q1.invert(14.0).shouldBeCloseTo(4.0)
+
+        q2.invert(2.0).shouldBeCloseTo(2.0)
+
+        q2.invert(5.0).shouldBeCloseTo(2.5)
+        q2.invert(8.0).shouldBeCloseTo(3.0)
+        q2.invert(11.0).shouldBeCloseTo(3.5)
+        q2.invert(14.0).shouldBeCloseTo(4.0)
     }
 }
 
@@ -37,7 +60,7 @@ class ReparametrizerTest {
 
     val cs = ConicSection(Point.xy(0.0, 100.0), Point.xy(-R2*50, -R2*50), Point.xy(100.0, 0.0), -R2 / 2)
 
-    val r = Reparametrizer.of(cs, cs.domain.sample(50))
+    val r = Reparametrizer.of(cs, cs.domain.sample(100))
 
     val PI = FastMath.PI
 

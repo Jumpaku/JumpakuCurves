@@ -5,18 +5,38 @@ import io.vavr.collection.List
 import io.vavr.collection.Stream
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
+import jumpaku.core.curve.rationalbezier.ConicSection
+import jumpaku.core.geom.divide
 import jumpaku.core.geom.line
 import jumpaku.core.geom.middle
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 import jumpaku.core.util.divOption
-import org.apache.commons.math3.linear.MatrixUtils
-import org.apache.commons.math3.linear.QRDecomposition
 import org.apache.commons.math3.util.FastMath
-import kotlin.math.max
-import kotlin.math.min
+import java.util.*
 
+
+
+fun Curve.approximateParams(n: Int): Array<Double> = repeatBisect(domain, n) { it ->
+    val (p0, p1, p2) = it.sample(3).map { evaluate(it) }
+    line(p0, p2).map { p1.dist(it) }.getOrElse { p1.dist(p2) }
+}.map { it.begin }.append(domain.end).toArray()
+
+fun repeatBisect(domain: Interval, times: Int = 2, evaluateError: (Interval)->Double): Stream<Interval> {
+    val cache = TreeMap<Double, List<Interval>>(naturalOrder())
+    cache[evaluateError(domain)] = List.of(domain)
+    repeat(times) {
+        cache.pollLastEntry().value.forEach { i ->
+            val (t0, t1, t2) = i.sample(3)
+            val i0 = Interval(t0, t1)
+            cache.compute(evaluateError(i0)) { _, v -> if (v != null) v.prepend(i0) else List.of(i0) }
+            val i1 = Interval(t1, t2)
+            cache.compute(evaluateError(i1)) { _, v -> if (v != null) v.prepend(i1) else List.of(i1) }
+        }
+    }
+    return Stream.ofAll(cache.values.flatten().sortedBy { it.begin })
+}
 
 fun repeatBisect(curve: Curve, tolerance: Double, domain: Interval = curve.domain): Stream<Interval> =
         repeatBisect(curve, domain) { subDomain ->
@@ -35,26 +55,39 @@ fun repeatBisect(curve: Curve, domain: Interval = curve.domain, shouldBisect: (I
 class Reparametrizer private constructor(
         val originalParams: Array<Double>,
         val arcLengthParams: Array<Double>,
-        val quadratics: Array<MonotonicLinear>) {
+        val quadratics: Array<MonotonicQuadratic>) {
 
-    data class MonotonicLinear(val a: Double, val b: Double, val domain: Interval): (Double)->Double {
+    data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, val domain: Interval): (Double)->Double {
 
-        val range: Interval
+        val range: Interval = Interval(b0, b2)
 
         init {
-            require(a >= 0.0) { "not monotonic (a, b, c) = ($a, $b), domain($domain)" }
-            range = domain.let { (t0, t2) -> Interval(a*t0 + b, a*t2 + b) }
+            require(b1 in b0..b2) { "not monotonic (b0, b1, c2) = ($b0, $b1, $b2), domain($domain)" }
         }
 
         override fun invoke(t: Double): Double {
             require(t in domain) { "t($t) is out of domain($domain)" }
-            return (a*t + b).coerceIn(range)
+            val (t0, t2) = domain
+            val u = ((t - t0)/(t2 - t0)).coerceIn(0.0, 1.0)
+            return b0.divide(u, b1).divide(u, b1.divide(u, b2)).coerceIn(range)
         }
 
         fun invert(s: Double): Double {
             require(s in range) { "s($s) is out of range($range)" }
-            val (t0, t2) = domain
-            return (s-b).divOption(a).getOrElse { t0.middle(t2) }.coerceIn(domain)
+
+            fun f(t: Double): Double = b0.divide(t, b1).divide(t, b1.divide(t, b2))
+            fun dfdt(t: Double): Double = (b1 - b0).divide(t, b2 - b1)*2
+
+            tailrec fun newton(u0: Double = 0.5, times: Int = 20, tolerance: Double = 1.0e-5): Double {
+                val u1 = (f(u0) - s).divOption(dfdt(u0)).map { u0 - it }
+                return when {
+                    u1.isEmpty -> if (u0 < 0.5) 0.0 else 1.0
+                    FastMath.abs(u1.get() - u0) <= tolerance || times == 1 -> u1.get()
+                    else -> newton(u1.get(), times - 1, tolerance)
+                }
+            }
+
+            return domain.let { (t0, t2) -> t0.divide(newton(), t2) }.coerceIn(domain)
         }
     }
 
@@ -84,22 +117,25 @@ class Reparametrizer private constructor(
 
     companion object {
 
-        fun interpolateLinear(curve: Curve, t0: Double, t1: Double): MonotonicLinear {
-            val p0 = curve(t0)
-            val p1 = curve(t1)
+        fun interpolateQuadratic(curve: Curve, t0: Double, t2: Double): MonotonicQuadratic {
+            val domain = Interval(t0, t2)
+            val (p0, p1, p2) = domain.sample(3).map { curve(it) }
             val s0 = 0.0
             val s1 = p0.dist(p1)
-            val a = (s0 - s1).divOption(t0 - t1).getOrElse { 0.0 }.coerceAtLeast(0.0)
-            val b = (-t1*s0 + t0*s1).divOption(t0 - t1).getOrElse { s0.middle(s1) }
-            return MonotonicLinear(a, b, Interval(t0, t1))
+            val s2 = s1 + p1.dist(p2)
+            val b1 = (2*s1 - s0.middle(s2)).coerceIn(s0, s2)
+            return MonotonicQuadratic(s0, b1, s2, domain)
+
         }
 
         fun of(curve: Curve, originalParams: Array<Double>): Reparametrizer {
-            val ls = originalParams.zipWithNext { t0, t2 -> Reparametrizer.interpolateLinear(curve, t0, t2) }
+            val qs = originalParams.zipWithNext { t0, t2 -> Reparametrizer.interpolateQuadratic(curve, t0, t2) }
             val arcLengthParams = originalParams.foldIndexed(List.empty<Double>()) { i, ss, t ->
-                if (i == 0) List.of(0.0) else ss.prepend(ss.head() + ls[i - 1](t))
+                if (i == 0) List.of(0.0) else ss.prepend(ss.head() + qs[i - 1](t))
             }.reverse().toArray()
-            val quadratics = ls.mapIndexed { i, q -> q.copy(b = q.b + arcLengthParams[i]) }
+            val quadratics = qs.mapIndexed { i, q ->
+                val l = arcLengthParams[i]
+                q.copy(b0 = q.b0 + l, b1 = q.b1 + l, b2 = q.b2 + l) }
             return Reparametrizer(originalParams, arcLengthParams, Array.ofAll(quadratics))
         }
     }
