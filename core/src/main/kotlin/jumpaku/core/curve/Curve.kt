@@ -40,7 +40,7 @@ interface Curve : (Double)->Point {
             repeatBisect(this, tolerance).map { it.begin }.append(domain.end).toArray()
 
     fun reparametrize(tolerance: Double): ReparametrizedCurve =
-            ReparametrizedCurve(this, Reparametrizer.of(this, approximateParams(tolerance)))
+            ReparametrizedCurve(this, approximateParams(tolerance))
 
     val reparameterized: ReparametrizedCurve
 

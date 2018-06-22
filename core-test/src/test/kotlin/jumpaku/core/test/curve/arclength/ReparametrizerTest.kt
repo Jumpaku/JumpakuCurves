@@ -6,6 +6,8 @@ import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.geom.Point
 import jumpaku.core.test.curve.shouldEqualToInterval
 import jumpaku.core.test.shouldBeCloseTo
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
@@ -63,6 +65,15 @@ class ReparametrizerTest {
     val r = Reparametrizer.of(cs, cs.domain.sample(100))
 
     val PI = FastMath.PI
+
+    @Test
+    fun testQuadraticArcLength() {
+        println("QuadraticArcLength")
+        val (l0, l1) = Reparametrizer.quadraticArcLength(
+                Point.xy(100.0, 100.0), Point.xy(150.0, 112.5), Point.xy(200.0, 150.0))
+        l0.shouldBeCloseTo(52.0114409717275)
+        l1.shouldBeCloseTo(62.7679164979044)
+    }
 
     @Test
     fun testRange() {
