@@ -92,14 +92,6 @@ class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
                 .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
     }
 
-    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
-
-    override fun approximateParams(tolerance: Double): Array<Double> = repeatBisect(this) { sub: Interval ->
-        val cp = restrict(sub).controlPoints
-        val l = line(cp.head(), cp.last())
-        cp.any { p -> l.map { p.dist(it) }.getOrElse { p.dist(cp.last()) } > tolerance }
-    }.map { it.begin }.append(1.0).toArray()
-
     companion object {
 
         fun fromJson(json: JsonElement): Option<Bezier> =

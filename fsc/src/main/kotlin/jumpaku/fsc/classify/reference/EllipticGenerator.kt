@@ -12,7 +12,7 @@ import jumpaku.core.util.*
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
-
+/*
 class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
     override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
@@ -101,4 +101,4 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             }
         }
     }
-}
+}*/

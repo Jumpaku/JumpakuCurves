@@ -10,8 +10,7 @@ import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson
-import jumpaku.fsc.classify.ClassifyResult
-import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper

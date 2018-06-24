@@ -103,10 +103,6 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : Curve, ToJson {
         }
     }
 
-    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
-
-    override fun approximateParams(tolerance: Double): Array<Double> = parameters
-
     companion object {
 
         fun fromJson(json: JsonElement): Option<Polyline> =

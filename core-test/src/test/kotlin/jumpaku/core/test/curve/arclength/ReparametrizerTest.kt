@@ -78,22 +78,22 @@ class ReparametrizerTest {
     @Test
     fun testRange() {
         println("Range")
-        r.range.shouldEqualToInterval(Interval(0.0, 150*PI), 1.0)
+        r.range.shouldEqualToInterval(Interval.ZERO_ONE)
     }
 
     @Test
     fun testToArcLength() {
         println("ToArcLength")
-        r.toArcLength(0.0).shouldBeCloseTo(0.0, 1.0)
-        r.toArcLength(0.5).shouldBeCloseTo(75*PI, 1.0)
-        r.toArcLength(1.0).shouldBeCloseTo(150*PI, 1.0)
+        r.toArcLengthRatio(0.0).shouldBeCloseTo(0.0, 1.0)
+        r.toArcLengthRatio(0.5).shouldBeCloseTo(0.5, 1.0)
+        r.toArcLengthRatio(1.0).shouldBeCloseTo(1.0, 1.0)
     }
 
     @Test
     fun testToOriginal() {
         println("ToOriginal")
         r.toOriginal((0.0).coerceIn(r.range)).shouldBeCloseTo(0.0, 1.0e-3)
-        r.toOriginal((75*PI).coerceIn(r.range)).shouldBeCloseTo(0.5, 1.0e-3)
-        r.toOriginal((150*PI).coerceIn(r.range)).shouldBeCloseTo(1.0, 1.0e-3)
+        r.toOriginal((0.5).coerceIn(r.range)).shouldBeCloseTo(0.5, 1.0e-3)
+        r.toOriginal((1.0).coerceIn(r.range)).shouldBeCloseTo(1.0, 1.0e-3)
     }
 }

@@ -10,7 +10,7 @@ import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.snap.point.PointSnapper
 
 

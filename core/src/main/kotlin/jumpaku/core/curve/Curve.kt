@@ -36,25 +36,8 @@ interface Curve : (Double)->Point {
 
     fun sample(delta: Double): Array<ParamPoint> = domain.sample(delta).map { ParamPoint(this(it), it) }
 
-    fun approximateParams(tolerance: Double): Array<Double> =
-            repeatBisect(this, tolerance).map { it.begin }.append(domain.end).toArray()
-
-    fun reparametrize(tolerance: Double): ReparametrizedCurve =
-            ReparametrizedCurve(this, approximateParams(tolerance))
-
-    val reparameterized: ReparametrizedCurve
-
-    fun isPossible(other: Curve, n: Int): Grade =
-            reparameterized.evaluateAll(n)
-                    .zipWith(other.reparameterized.evaluateAll(n), Point::isPossible)
-                    .reduce(Grade::and)
-
-    fun isNecessary(other: Curve, n: Int): Grade =
-            reparameterized.evaluateAll(n).zipWith(other.reparameterized.evaluateAll(n), Point::isNecessary)
-                    .reduce(Grade::and)
 
     fun toCrisp(): Curve = object : Curve {
-        override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
         override val domain: Interval = this@Curve.domain
         override fun evaluate(t: Double): Point = this@Curve.evaluate(t).toCrisp()
     }

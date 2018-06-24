@@ -162,14 +162,6 @@ class BezierTest {
     }
 
     @Test
-    fun testToArcLengthCurve() {
-        println("ToArcLengthCurve")
-        val l = Bezier(Point.xy(0.0, 0.0), Point.xy(50.0, 0.0), Point.xy(100.0, 100.0))
-                .reparametrize(1.0).domain.end
-        l.shouldBeCloseTo(7394.71429/50, 1.0)
-    }
-
-    @Test
     fun testDecasteljau(){
         println("Decasteljau")
         val result = Bezier.decasteljau(0.25,

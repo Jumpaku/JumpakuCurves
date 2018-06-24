@@ -17,10 +17,9 @@ import jumpaku.core.json.jsonMap
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.hashMap
-import jumpaku.fsc.classify.reference.Reference
+import jumpaku.fsc.identify.CurveClass
 
-
-
+/*
 class ClassifyResult(val grades: Map<CurveClass, Grade>,
                      val linear: Reference,
                      val circular: Reference,
@@ -69,3 +68,4 @@ class ClassifyResult(val grades: Map<CurveClass, Grade>,
         }.toOption()
     }
 }
+*/

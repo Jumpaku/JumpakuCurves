@@ -288,12 +288,6 @@ class NurbsTest {
     }
 
     @Test
-    fun testToArcLengthCurve() {
-        println("ToArcLengthCurve")
-        n.reparametrize(1.0).domain.end.shouldBeCloseTo(200*Math.PI, 1.0)
-    }
-
-    @Test
     fun testClamp() {
         println("Clamp")
         val c = Nurbs(Array.of(

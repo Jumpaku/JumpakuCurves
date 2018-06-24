@@ -8,7 +8,7 @@ import jumpaku.core.json.parseJson
 import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.core.util.hashMap
 import jumpaku.fsc.classify.ClassifyResult
-import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.classify.reference.Reference
 import org.amshove.kluent.shouldBe
 import org.junit.Test

@@ -108,24 +108,14 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
-
-    override fun approximateParams(tolerance: Double): Array<Double> = repeatBisect(this) { sub: Interval ->
-        val wcp = restrict(sub).weightedControlPoints
-        val l = line(wcp.head().point, wcp.last().point)
-        wcp.any { (p, w) ->
-            w <= 0.0 || l.map { p.dist(it) }.getOrElse { p.dist(wcp.last().point) } > tolerance
-        }
-    }.map { it.begin }.append(1.0).toArray()
-
     companion object {
 
         fun bezier1D(t: Double, weights: Array<Double>): Double {
-            var ws = weights
-            while (ws.size() > 1) {
-                ws = ws.zipWith(ws.tail(), { w0, w1 -> w0.divide(t, w1) })
+            var ws = weights.toJavaList()
+            while (ws.size > 1) {
+                ws = ws.zipWithNext { w0, w1 -> w0.divide(t, w1) }
             }
-            return ws.head()
+            return ws.first()
         }
 
         fun fromJson(json: JsonElement): Option<RationalBezier> = Try.ofSupplier {

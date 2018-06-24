@@ -20,11 +20,6 @@ import java.util.*
 
 
 
-fun Curve.approximateParams(n: Int): Array<Double> = repeatBisect(domain, n) { it ->
-    val (p0, p1, p2) = it.sample(3).map { evaluate(it) }
-    line(p0, p2).map { p1.dist(it) }.getOrElse { p1.dist(p2) }
-}.map { it.begin }.append(domain.end).toArray()
-
 fun repeatBisect(domain: Interval, times: Int = 2, evaluateError: (Interval)->Double): Stream<Interval> {
     val cache = TreeMap<Double, List<Interval>>(naturalOrder())
     cache[evaluateError(domain)] = List.of(domain)
@@ -56,15 +51,15 @@ fun repeatBisect(curve: Curve, domain: Interval = curve.domain, shouldBisect: (I
 
 class Reparametrizer private constructor(
         val originalParams: Array<Double>,
-        val arcLengthParams: Array<Double>,
-        val quadratics: Array<MonotonicQuadratic>) {
+        private val arcLengthParams: Array<Double>,
+        private val quadratics: Array<MonotonicQuadratic>) {
 
     data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, val domain: Interval): (Double)->Double {
 
         val range: Interval = Interval(b0, b2)
 
         init {
-            require(b1 in b0..b2) { "not monotonic (b0, b1, c2) = ($b0, $b1, $b2), domain($domain)" }
+            require(b1 in b0..b2) { "not monotonic (b0, b1, b2) = ($b0, $b1, $b2), domain($domain)" }
         }
 
         override fun invoke(t: Double): Double {
@@ -80,6 +75,9 @@ class Reparametrizer private constructor(
             fun f(t: Double): Double = b0.divide(t, b1).divide(t, b1.divide(t, b2))
             fun dfdt(t: Double): Double = (b1 - b0).divide(t, b2 - b1)*2
 
+            /**
+             * range -> [0, 1]
+             */
             tailrec fun newton(u0: Double = 0.5, times: Int = 20, tolerance: Double = 1.0e-5): Double {
                 val u1 = (f(u0) - s).divOption(dfdt(u0)).map { u0 - it }
                 return when {
@@ -101,20 +99,24 @@ class Reparametrizer private constructor(
 
     val domain: Interval = Interval(originalParams.head(), originalParams.last())
 
-    val range: Interval = Interval(arcLengthParams.head(), arcLengthParams.last())
+    val range: Interval = Interval.ZERO_ONE//(arcLengthParams.head(), arcLengthParams.last())
 
-    fun toOriginal(arcLengthParam: Double): Double {
-        require(arcLengthParam in range) { "arcLengthParam($arcLengthParam) is out of range($range)"}
-        val i = arcLengthParams.search(arcLengthParam).let { if (it < 0) -it-1 else it }
+    val arcLength: Double = arcLengthParams.last()
+
+    fun toOriginal(arcLengthRatio: Double): Double {
+        require(arcLengthRatio in range) { "arcLengthRatio($arcLengthRatio) is out of range($range)"}
+        val s = (arcLengthRatio*arcLength).coerceIn(0.0..arcLength)
+        val i = arcLengthParams.search(s).let { if (it < 0) -it-1 else it }
         return if (i == 0) originalParams[0]
-        else quadratics[i-1].let { it.invert(arcLengthParam.coerceIn(it.range)).coerceIn(domain) }
+        else quadratics[i-1].invert(s).coerceIn(domain)
     }
 
-    fun toArcLength(originalParam: Double): Double {
+    fun toArcLengthRatio(originalParam: Double): Double {
         require(originalParam in domain) { "originalParam($originalParam) is out of domain($domain)"}
         val i = originalParams.search(originalParam).let { if (it < 0) -it-1 else it }
         return if (i == 0) 0.0
-        else quadratics[i-1].let { it(originalParam.coerceIn(it.domain)).coerceIn(range) }
+        else quadratics[i-1].let { it(originalParam).divOption(arcLength)
+                .getOrElse { 0.0 }.coerceIn(range) }
     }
 
     companion object {

@@ -1,6 +1,6 @@
 package jumpaku.fsc.test.classify
 
-import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.identify.CurveClass
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.Test

@@ -6,21 +6,25 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
 
-class ReparametrizedCurve(val originalCurve: Curve, originalParams: Array<Double>): Curve {
+/**
+ * maps arc-length ratio parameter to point on original curve.
+ */
+class ReparametrizedCurve<C : Curve>(val originalCurve: C, originalParams: Array<Double>): Curve {
+
+    val reparametrizer: Reparametrizer = Reparametrizer.of(originalCurve, originalParams)
+
+    val arcLength: Double = reparametrizer.arcLength
+
+    override val domain: Interval = Interval.ZERO_ONE
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)"}
-        return originalCurve(reparametrizer.toOriginal(t))
+        return originalCurve(reparametrizer.toOriginal(t.coerceIn(reparametrizer.range)))
     }
 
-    val reparametrizer: Reparametrizer = Reparametrizer.of(originalCurve, originalParams)
-    override val domain: Interval = reparametrizer.range
-
-    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
-
-    fun isPossible(other: ReparametrizedCurve, n: Int): Grade =
+    fun <O: Curve> isPossible(other: ReparametrizedCurve<O>, n: Int): Grade =
             evaluateAll(n).zipWith(other.evaluateAll(n), Point::isPossible).reduce(Grade::and)
 
-    fun isNecessary(other: ReparametrizedCurve, n: Int): Grade =
+    fun <O: Curve> isNecessary(other: ReparametrizedCurve<O>, n: Int): Grade =
             evaluateAll(n).zipWith(other.evaluateAll(n), Point::isNecessary).reduce(Grade::and)
 }

@@ -2,9 +2,11 @@ package jumpaku.fsc.classify
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.util.hashMap
-import jumpaku.fsc.classify.Classifier.Companion.isClosed
+//import jumpaku.fsc.classify.Classifier.Companion.isClosed
 import jumpaku.fsc.classify.reference.*
+import jumpaku.fsc.identify.CurveClass
 
+/*
 class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classifier {
 
     override fun classify(fsc: BSpline): ClassifyResult {
@@ -26,3 +28,4 @@ class ClassifierPrimitive7(val nSamples: Int = 25, val nFmps: Int = 15) : Classi
         return ClassifyResult(grades, refL, refC, refE)
     }
 }
+*/

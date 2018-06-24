@@ -19,8 +19,8 @@ class ReparametrizedCurveTest {
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        rcs.evaluate((0.0).coerceIn(rcs.domain)).shouldEqualToPoint(Point.xy(0.0, 100.0), 1.0)
-        rcs.evaluate((75*PI).coerceIn(rcs.domain)).shouldEqualToPoint(Point.xy(-R2*50, -R2*50), 1.0)
-        rcs.evaluate((150*PI).coerceIn(rcs.domain)).shouldEqualToPoint(Point.xy(100.0, 0.0), 1.0)
+        rcs.evaluate(0.0).shouldEqualToPoint(Point.xy(0.0, 100.0), 1.0)
+        rcs.evaluate(0.5).shouldEqualToPoint(Point.xy(-R2*50, -R2*50), 1.0)
+        rcs.evaluate(1.0).shouldEqualToPoint(Point.xy(100.0, 0.0), 1.0)
     }
 }

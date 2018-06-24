@@ -11,7 +11,7 @@ import jumpaku.core.util.component3
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 
-
+/*
 class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
     override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
@@ -62,3 +62,4 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         }
     }
 }
+*/

@@ -9,7 +9,7 @@ import jumpaku.core.util.divOrElse
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import org.apache.commons.math3.util.FastMath
 
-
+/*
 interface ReferenceGenerator {
 
     fun generate(fsc: Curve, t0: Double = fsc.domain.begin, t1: Double = fsc.domain.end): Reference
@@ -47,4 +47,4 @@ interface ReferenceGenerator {
             return Interval(b - 1, e + 1)
         }
     }
-}
+}*/

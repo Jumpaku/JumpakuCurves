@@ -9,7 +9,7 @@ import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
 
-
+/*
 class LinearGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
     override fun generate(fsc: Curve, t0: Double, t1: Double): Reference {
@@ -25,4 +25,4 @@ class LinearGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         val base = ConicSection.lineSegment(fsc(t0), fsc(t1))
         return Reference(base, Interval.ZERO_ONE)
     }
-}
+}*/

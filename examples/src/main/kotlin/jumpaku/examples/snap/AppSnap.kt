@@ -4,17 +4,20 @@ import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
+import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.fsc.classify.ClassifierOpen4
-import jumpaku.fsc.classify.CurveClass
-import jumpaku.fsc.classify.reference.*
-import jumpaku.fsc.generate.DataPreparer
+import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fsc.generate.LinearFuzzifier
+import jumpaku.fsc.identify.Open4Identifier
+import jumpaku.fsc.identify.reference.CircularGenerator
+import jumpaku.fsc.identify.reference.EllipticGenerator
+import jumpaku.fsc.identify.reference.LinearGenerator
+import jumpaku.fsc.identify.reference.ReferenceGenerator
+import jumpaku.fsc.identify.reparametrize
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateBox
@@ -54,10 +57,11 @@ class ViewSnap : View() {
                     maxResolution = 5),
             ConjugateCombinator())
 
-    val classifier = ClassifierOpen4(nSamples = 99)
+    val classifier = Open4Identifier(nSamples = 99)
 
-    fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
-        curveClass.isLinear -> LinearGenerator(25).generate(fsc).base
+    fun conicSection(fsc: ReparametrizedCurve<BSpline>, curveClass: CurveClass): ConicSection = when {
+
+        curveClass.isLinear -> LinearGenerator().generate(fsc).base
         curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc).base
         curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc).base
         else -> error("")
@@ -83,15 +87,16 @@ class ViewSnap : View() {
 
         cubicFsc(fsc) { stroke = Color.BLACK }
 
-        val classifyResult = classifier.classify(fsc)
+        val reparametrized = reparametrize(fsc)
+        val classifyResult = classifier.identify(reparametrized)
         println(classifyResult.curveClass)
         if (classifyResult.curveClass.isFreeCurve) {
             cubicFsc(fsc.toCrisp()) { stroke = Color.RED }
             return
         }
-        val cs = conicSection(fsc, classifyResult.curveClass)
+        val cs = conicSection(reparametrized, classifyResult.curveClass)
         val snapped = conicSectionSnapper.snap(cs, classifyResult.curveClass) { candidate ->
-            candidate.snappedConicSection.isPossible(fsc, n = 15)
+            reparametrized.isPossible(ReferenceGenerator.reparametrize(candidate.snappedConicSection), 15)
         }
 
         fuzzyCurve(cs.toCrisp()) { stroke = Color.BLUE }

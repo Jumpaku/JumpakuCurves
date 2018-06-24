@@ -139,14 +139,6 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
-
-    override fun approximateParams(tolerance: Double): Array<Double> = repeatBisect(this) { sub: Interval ->
-        val r = restrict(sub)
-        val (r0, r1, r2) = r.representPoints
-            r.weight <= 0.0 || line(r0, r2).map { r1.dist(it) }.getOrElse { r1.dist(r2) } > tolerance
-    }.map { it.begin }.append(domain.end).toArray()
-
     companion object {
 
         /**

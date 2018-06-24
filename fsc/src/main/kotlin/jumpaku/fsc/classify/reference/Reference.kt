@@ -16,7 +16,7 @@ import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
-
+/*
 class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE): Curve, ToJson {
 
     init {
@@ -55,3 +55,4 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
         }.toOption()
     }
 }
+*/

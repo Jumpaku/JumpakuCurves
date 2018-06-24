@@ -70,17 +70,6 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override val reparameterized: ReparametrizedCurve by lazy { reparametrize(1.0) }
-
-    override fun approximateParams(tolerance: Double): Array<Double> = repeatBisect(this) { sub: Interval ->
-        val wcp = restrict(sub).weightedControlPoints
-        val l = line(wcp.head().point, wcp.last().point)
-        wcp.any { (p, w) ->
-            w <= 0.0 || l.map { p.dist(it) }.getOrElse { p.dist(wcp.last().point) } > tolerance
-        }
-    }.map { it.begin }.append(domain.end).toArray()
-
-
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 
     override fun evaluate(t: Double): Point = BSpline.evaluate(weightedControlPoints, knotVector, t).point

@@ -279,16 +279,4 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, R2 - 1, 4 - R2), (2 + R2) / 4),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0)))
     }
-
-
-    @Test
-    fun testToArcLengthCurve() {
-        println("ToArcLengthCurve")
-        val l = RationalBezier(
-                WeightedPoint(Point.xyr(0.0, 100.0, 1.0), 1.0),
-                WeightedPoint(Point.xyr(100.0, 100.0, 2.0), -1 / R2),
-                WeightedPoint(Point.xyr(100.0, 0.0, 3.0), 1.0))
-                .reparametrize(1.0).domain.end
-        l.shouldBeCloseTo(Math.PI*200*0.75, 1.0)
-    }
 }
