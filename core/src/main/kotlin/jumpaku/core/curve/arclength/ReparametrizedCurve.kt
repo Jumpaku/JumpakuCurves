@@ -13,7 +13,7 @@ class ReparametrizedCurve<C : Curve>(val originalCurve: C, originalParams: Array
 
     val reparametrizer: Reparametrizer = Reparametrizer.of(originalCurve, originalParams)
 
-    val arcLength: Double = reparametrizer.arcLength
+    val chordLength: Double = reparametrizer.chordLength
 
     override val domain: Interval = Interval.ZERO_ONE
 

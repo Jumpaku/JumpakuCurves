@@ -26,8 +26,8 @@ interface ReferenceGenerator {
                 s1: Double,
                 base: ReparametrizedCurve<ConicSection>,
                 complement: ReparametrizedCurve<ConicSection>): Interval {
-            val lc = complement.arcLength
-            val l = base.arcLength
+            val lc = complement.chordLength
+            val l = base.chordLength
             val L = l/(s1 - s0)
             val b = complement.reparametrizer.run { - toOriginal((L*s0/lc).coerceIn(range)) }
             val e = complement.reparametrizer.run { 2 - toOriginal((1 - (1 - s1)*L/lc).coerceIn(range)) }

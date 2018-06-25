@@ -1,13 +1,12 @@
 package jumpaku.examples.classify
 
-import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.geom.Point
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.identify.IdentifyResult
 import jumpaku.fsc.identify.Open4Identifier
@@ -18,6 +17,7 @@ import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
+import java.nio.file.Paths
 import kotlin.math.log
 import kotlin.math.roundToInt
 import kotlin.system.measureNanoTime
@@ -29,8 +29,9 @@ class AppClassify : App(ViewClassify::class)
 
 class ViewClassify : View() {
 
+    val path = Paths.get("./fsc-test/src/test/resources/jumpaku/fsc/test/identify")
     override val root: Pane = pane {
-        val group = group {  }
+        val group = group {}
         curveControl {
             prefWidth = 1280.0
             prefHeight = 720.0
@@ -44,26 +45,20 @@ class ViewClassify : View() {
     fun Group.update(fsc: BSpline){
         children.clear()
         cubicSpline(fsc) { stroke = Color.BLACK; strokeWidth = 1.0 }
-        val s = reparametrize(fsc)
-        val r7 = Open4Identifier(nSamples = 25, nFmps = 15).identify(s)
-        println(r7.grades)
+        val s = reparametrize(fsc, 65)
         fuzzyPoints(s.evaluateAll(15)) { stroke = Color.BLACK; strokeWidth = 1.0 }
+        val r = Primitive7Identifier(25, 15).identify(s)
+        ReparametrizedCurve(r.elliptic,r.elliptic.domain.sample(10000)).reparametrizer.run {
+            fuzzyPoints(range.sample(2000).map { Point.xy((toOriginal(it) - domain.begin)/domain.span*1000+50, 720 - it*chordLength*0.7 - 50) }) { stroke = Color.BLACK }
+        }
+        r.elliptic.reparametrized.reparametrizer.run {
+            fuzzyPoints(range.sample(2000).map { Point.xy((toOriginal(it) - domain.begin)/domain.span*1000+50, 720 - it*chordLength*0.7 - 50) }) { stroke = Color.RED }
+        }
+        fuzzyCurve(r.elliptic.toCrisp()) { stroke = Color.RED }
+        fuzzyPoints(r.elliptic.reparametrized.evaluateAll(15)) { stroke = Color.RED }
+        println(r.curveClass)
+        //path.resolve("LinearFsc.json").toFile().writeText(fsc.toString())
 
-        listOf(r7.circular).forEachIndexed { i, r ->
-            fuzzyPoints(r.reparametrized.evaluateAll(15)) { stroke = Color.hsb(i * 120.0, 1.0, 1.0); strokeWidth = 1.0 }
-        }
-        listOf(r7.circular).forEachIndexed { i, r ->
-            fuzzyCurve(r.toCrisp(), 20.0) { stroke = Color.hsb(i * 120.0, 1.0, 1.0); strokeWidth = 4.0 }
-        }
-        r7.circular.base.run {
-            center().forEach {
-                println(it.dist(begin))
-                println(it.dist(far))
-                println(it.dist(end))
-                println(far.dist(begin) - far.dist(end))
-                println()
-            }
-        }
         val l = mutableListOf<IdentifyResult>()
         val time = measureNanoTime {
             val s = reparametrize(fsc)

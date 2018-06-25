@@ -49,7 +49,7 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
 fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
     val c = ReparametrizedCurve(curve,
             repeatBisect(curve, 1.0).map { it.begin }.append(curve.domain.end).toArray())
-    val points = c.evaluateAll(delta/c.arcLength)
+    val points = c.evaluateAll(delta/c.chordLength)
     fuzzyPoints(points, op)
     polyline(Polyline(points), op)
 }

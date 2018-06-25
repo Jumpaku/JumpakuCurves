@@ -23,7 +23,7 @@ import org.apache.commons.math3.util.Precision
 
 
 /**
- * Polyline parametrized by arc-arcLength.
+ * Polyline parametrized by arc-chordLength.
  */
 class Polyline (private val paramPoints: Array<ParamPoint>) : Curve, ToJson {
 
