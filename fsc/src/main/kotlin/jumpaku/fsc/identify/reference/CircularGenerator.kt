@@ -19,8 +19,8 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
     override fun <C: Curve> generate(fsc: ReparametrizedCurve<C>, t0: Double, t1: Double): Reference {
         val s = fsc.originalCurve
         val tf = computeCircularFar(s, t0, t1)
-        val base = ReferenceGenerator.reparametrize(ConicSection.shearedCircularArc(s(t0), s(tf), s(t1)))
-        val complement = ReferenceGenerator.reparametrize(base.originalCurve.complement())
+        val base = reparametrize(ConicSection.shearedCircularArc(s(t0), s(tf), s(t1)))
+        val complement = reparametrize(base.originalCurve.complement())
         val domain = fsc.reparametrizer.run {
             ReferenceGenerator.ellipticDomain(toArcLengthRatio(t0), toArcLengthRatio(t1), base, complement)
         }

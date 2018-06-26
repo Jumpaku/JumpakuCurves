@@ -7,6 +7,11 @@ import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
 
 
+fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> = conicSection.let {
+    val ts = Array.of(0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0)
+    ReparametrizedCurve(it, ts)
+}
+
 interface ReferenceGenerator {
 
     fun <C: Curve> generate(
@@ -15,11 +20,6 @@ interface ReferenceGenerator {
             t1: Double = fsc.originalCurve.domain.end): Reference
 
     companion object {
-
-        fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> = conicSection.let {
-            val ts = Array.of(0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0)
-            ReparametrizedCurve(it, ts)
-        }
 
         fun ellipticDomain(
                 s0: Double,

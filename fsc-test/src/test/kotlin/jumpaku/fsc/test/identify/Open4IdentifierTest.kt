@@ -3,14 +3,12 @@ package jumpaku.fsc.test.identify
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.IdentifyResult
 import jumpaku.fsc.identify.Open4Identifier
-import jumpaku.fsc.identify.reference.Reference
 import jumpaku.fsc.identify.reparametrize
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import java.time.Duration
 
 class Open4IdentifierTest {
 
@@ -64,6 +62,16 @@ class Open4IdentifierTest {
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
             a.curveClass.shouldEqual(e)
+        }
+    }
+
+    @Test
+    fun testIdentify_Time() {
+        println("IdentifierOpen4.Identify_Time")
+        val fsc = resourceText("FscFO0.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
+        val s = reparametrize(fsc, 65)
+        Assertions.assertTimeoutPreemptively(Duration.ofMillis(1500)) {
+            repeat(1000) { identifier.identify(s) }
         }
     }
 }

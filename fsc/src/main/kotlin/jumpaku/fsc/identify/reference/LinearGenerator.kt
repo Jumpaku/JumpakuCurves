@@ -5,7 +5,6 @@ import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.fsc.identify.reference.ReferenceGenerator.Companion.reparametrize
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 class LinearGenerator : ReferenceGenerator {
