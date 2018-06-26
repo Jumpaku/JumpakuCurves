@@ -10,9 +10,10 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
@@ -21,7 +22,7 @@ import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : FuzzyCurve, Differentiable, Transformable, ToJson {
+class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : Curve, Differentiable, ToJson {
 
     init {
         require(controlPoints.nonEmpty()) { "empty controlPoints" }
@@ -42,8 +43,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: Derivative
-        get() {
+    override val derivative: Derivative get() {
         val ws = weights
         val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
@@ -67,11 +67,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        var wcp = weightedControlPoints
-        while (wcp.size() > 1) {
-            wcp = Bezier.decasteljau(t, wcp)
-        }
-        return wcp.head().point
+        return Bezier.createEvaluatedPoint(t, weightedControlPoints).point
     }
 
     override fun differentiate(t: Double): Vector = derivative.evaluate(t)
@@ -81,7 +77,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
     override fun toJson(): JsonElement = jsonObject(
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }))
 
-    override fun transform(a: Affine): RationalBezier = RationalBezier(
+    fun transform(a: Transform): RationalBezier = RationalBezier(
             weightedControlPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)
@@ -93,7 +89,6 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
         return subdivide(end)._1().subdivide(begin / end)._2()
     }
-
 
     fun reverse(): RationalBezier = RationalBezier(weightedControlPoints.reverse())
 
@@ -112,7 +107,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(this,
                 {
                     val cp = (it as RationalBezier).weightedControlPoints

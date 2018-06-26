@@ -9,11 +9,11 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
-import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
 import jumpaku.core.curve.polyline.Polyline
@@ -24,7 +24,7 @@ import jumpaku.core.util.component2
 import org.apache.commons.math3.util.Precision
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
-    : FuzzyCurve, Differentiable, Transformable, ToJson {
+    : Curve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -72,7 +72,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(clamp(),
                 {
                     val cp = (it as Nurbs).weightedControlPoints
@@ -87,7 +87,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     override fun evaluate(t: Double): Point = BSpline.evaluate(weightedControlPoints, knotVector, t).point
 
-    override fun transform(a: Affine): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
+    fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a::invoke), weights, knotVector)
 
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

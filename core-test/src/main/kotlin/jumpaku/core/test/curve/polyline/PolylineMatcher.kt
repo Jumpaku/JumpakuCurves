@@ -1,7 +1,8 @@
 package jumpaku.core.test.curve.polyline
 
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.test.affine.isCloseTo
+import jumpaku.core.test.curve.isCloseTo
+import jumpaku.core.test.geom.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: Polyline, expected: Polyline, error: Double = 1.0e-9): Boolean =
@@ -9,6 +10,6 @@ fun isCloseTo(actual: Polyline, expected: Polyline, error: Double = 1.0e-9): Boo
                 actual.points.zipWith(expected.points) { a, e -> isCloseTo(a, e, error) }.all { it }
 
 
-fun Polyline.shouldBePolyline(expected: Polyline, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun Polyline.shouldEqualToPolyline(expected: Polyline, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

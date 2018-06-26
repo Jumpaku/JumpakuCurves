@@ -6,6 +6,8 @@ import jumpaku.fsc.classify.ClassifierPrimitive7
 import jumpaku.fsc.classify.ClassifyResult
 import org.amshove.kluent.shouldBe
 import org.junit.Test
+import java.io.File
+import java.nio.file.Paths
 
 class ClassifierPrimitive7Test {
 
@@ -23,7 +25,5 @@ class ClassifierPrimitive7Test {
             val a = classifier.classify(s)
             a.curveClass.shouldBe(e.curveClass)
         }
-
-
     }
 }

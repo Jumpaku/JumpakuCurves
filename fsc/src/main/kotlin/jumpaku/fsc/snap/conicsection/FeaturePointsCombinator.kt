@@ -1,7 +1,7 @@
 package jumpaku.fsc.snap.conicsection
 
 import io.vavr.collection.Stream
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
 
 data class LinearFeaturePoints(val featurePoint0: Point, val featurePoint1: Point)

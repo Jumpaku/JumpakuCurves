@@ -1,16 +1,18 @@
 package jumpaku.fsc.test.snap
 
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.transform.Rotate
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.affine.shouldBePoint
-import jumpaku.core.test.affine.shouldBeVector
+import jumpaku.core.test.geom.shouldEqualToPoint
+import jumpaku.core.test.geom.shouldEqualToVector
 import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 
@@ -23,8 +25,7 @@ class GridTest {
             spacing = 4.0,
             magnification = 2,
             origin = Point.xyz(4.0, 4.0, 0.0),
-            axis = Vector.K,
-            radian = p2,
+            rotation = Rotate(Vector.K, p2),
             fuzziness = 2.0,
             resolution = 0)
 
@@ -35,52 +36,47 @@ class GridTest {
     @Test
     fun testProperties() {
         println("Properties")
-        baseGrid.resolution.shouldEqual(0)
-        baseGrid.isNoGrid.shouldBeFalse()
+        baseGrid.resolution.shouldEqualTo(0)
 
         higherGrid.spacing.shouldBeCloseTo(2.0)
-        higherGrid.magnification.shouldEqual(2)
-        higherGrid.origin.shouldBePoint(Point.xyz(4.0, 4.0, 0.0))
-        higherGrid.axis.shouldBeVector(Vector.K)
-        higherGrid.radian.shouldBeCloseTo(p2)
+        higherGrid.magnification.shouldEqualTo(2)
+        higherGrid.origin.shouldEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
+        higherGrid.rotation.axis.shouldEqualToVector(Vector.K)
+        higherGrid.rotation.angleRadian.shouldBeCloseTo(p2)
         higherGrid.fuzziness.shouldBeCloseTo(1.0)
-        higherGrid.resolution.shouldEqual(1)
-        higherGrid.isNoGrid.shouldBeFalse()
+        higherGrid.resolution.shouldEqualTo(1)
 
         lowerGrid.spacing.shouldBeCloseTo(8.0)
-        lowerGrid.magnification.shouldEqual(2)
-        lowerGrid.origin.shouldBePoint(Point.xyz(4.0, 4.0, 0.0))
-        lowerGrid.axis.shouldBeVector(Vector.K)
-        lowerGrid.radian.shouldBeCloseTo(p2)
+        lowerGrid.magnification.shouldEqualTo(2)
+        lowerGrid.origin.shouldEqualToPoint(Point.xyz(4.0, 4.0, 0.0))
+        lowerGrid.rotation.axis.shouldEqualToVector(Vector.K)
+        lowerGrid.rotation.angleRadian.shouldBeCloseTo(p2)
         lowerGrid.fuzziness.shouldBeCloseTo(4.0)
-        lowerGrid.resolution.shouldEqual(-1)
-        lowerGrid.isNoGrid.shouldBeFalse()
-
-        Grid.noGrid(baseGrid).isNoGrid.shouldBeTrue()
+        lowerGrid.resolution.shouldEqualTo(-1)
     }
 
     @Test
     fun testDeriveGrid() {
         println("DeriveGrid")
-        baseGrid.deriveGrid(0).shouldBeGrid(baseGrid)
-        baseGrid.deriveGrid(1).shouldBeGrid(higherGrid)
-        baseGrid.deriveGrid(-1).shouldBeGrid(lowerGrid)
+        baseGrid.deriveGrid(0).shouldEqualToGrid(baseGrid)
+        baseGrid.deriveGrid(1).shouldEqualToGrid(higherGrid)
+        baseGrid.deriveGrid(-1).shouldEqualToGrid(lowerGrid)
     }
 
     @Test
     fun testLocalToWorld() {
         println("LocalToWorld")
-        baseGrid.localToWorld(Point.xy(0.0, 0.0)).shouldBePoint(Point.xy(4.0, 4.0))
-        baseGrid.localToWorld(Point.xy(1.0, 0.0)).shouldBePoint(Point.xy(4.0, 8.0))
-        baseGrid.localToWorld(Point.xy(0.0, 1.0)).shouldBePoint(Point.xy(0.0, 4.0))
+        baseGrid.localToWorld(Point.xy(0.0, 0.0)).shouldEqualToPoint(Point.xy(4.0, 4.0))
+        baseGrid.localToWorld(Point.xy(1.0, 0.0)).shouldEqualToPoint(Point.xy(4.0, 8.0))
+        baseGrid.localToWorld(Point.xy(0.0, 1.0)).shouldEqualToPoint(Point.xy(0.0, 4.0))
 
-        lowerGrid.localToWorld(Point.xy(0.0, 0.0)).shouldBePoint(Point.xy(4.0, 4.0))
-        lowerGrid.localToWorld(Point.xy(1.0, 0.0)).shouldBePoint(Point.xy(4.0, 12.0))
-        lowerGrid.localToWorld(Point.xy(0.0, 1.0)).shouldBePoint(Point.xy(-4.0, 4.0))
+        lowerGrid.localToWorld(Point.xy(0.0, 0.0)).shouldEqualToPoint(Point.xy(4.0, 4.0))
+        lowerGrid.localToWorld(Point.xy(1.0, 0.0)).shouldEqualToPoint(Point.xy(4.0, 12.0))
+        lowerGrid.localToWorld(Point.xy(0.0, 1.0)).shouldEqualToPoint(Point.xy(-4.0, 4.0))
 
-        higherGrid.localToWorld(Point.xy(0.0, 0.0)).shouldBePoint(Point.xy(4.0, 4.0))
-        higherGrid.localToWorld(Point.xy(1.0, 0.0)).shouldBePoint(Point.xy(4.0, 6.0))
-        higherGrid.localToWorld(Point.xy(0.0, 1.0)).shouldBePoint(Point.xy(2.0, 4.0))
+        higherGrid.localToWorld(Point.xy(0.0, 0.0)).shouldEqualToPoint(Point.xy(4.0, 4.0))
+        higherGrid.localToWorld(Point.xy(1.0, 0.0)).shouldEqualToPoint(Point.xy(4.0, 6.0))
+        higherGrid.localToWorld(Point.xy(0.0, 1.0)).shouldEqualToPoint(Point.xy(2.0, 4.0))
     }
 
     @Test
@@ -96,7 +92,7 @@ class GridTest {
     @Test
     fun testToString() {
         println("ToString")
-        baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get().shouldBeGrid(baseGrid)
+        baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get().shouldEqualToGrid(baseGrid)
     }
 }
 

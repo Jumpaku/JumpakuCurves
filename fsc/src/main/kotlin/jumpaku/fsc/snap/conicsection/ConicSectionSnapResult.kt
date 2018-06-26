@@ -9,11 +9,14 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Affine
-import jumpaku.core.affine.Point
+import jumpaku.core.geom.Point
+import jumpaku.core.transform.Transform
+import jumpaku.core.transform.toMatrixJson
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
+import jumpaku.core.json.jsonOption
+import jumpaku.core.json.option
 import jumpaku.fsc.snap.point.PointSnapResult
 
 data class ConicSectionSnapResult(
@@ -30,34 +33,34 @@ data class ConicSectionSnapResult(
 
     data class SnapPointPair(
             val cursor: Point,
-            val snapped: PointSnapResult) : ToJson {
+            val snapped: Option<PointSnapResult>) : ToJson {
 
         override fun toString(): String = toJsonString()
 
         override fun toJson(): JsonElement = jsonObject(
                 "cursor" to cursor.toJson(),
-                "snapped" to snapped.toJson())
+                "snapped" to jsonOption(snapped.map { it.toJson() }))
 
         companion object {
 
             fun fromJson(json: JsonElement): Option<SnapPointPair> = Try.ofSupplier {
                 SnapPointPair(
                         Point.fromJson(json["cursor"]).get(),
-                        PointSnapResult.fromJson(json["snapped"]).get())
+                        json["snapped"].option.flatMap { PointSnapResult.fromJson(it) })
             }.toOption()
         }
     }
 
     data class Candidate(
             val featurePoints: Array<SnapPointPair>,
-            val snapTransform: Affine,
+            val snapTransform: Transform,
             val snappedConicSection: ConicSection) : ToJson {
 
         override fun toString(): String = toJsonString()
 
         override fun toJson(): JsonElement = jsonObject(
                 "featurePoints" to jsonArray(featurePoints.map { it.toJson() }),
-                "snapTransform" to snapTransform.toJson(),
+                "snapTransform" to snapTransform.toMatrixJson(),
                 "snappedConicSection" to snappedConicSection.toJson())
 
         companion object {
@@ -65,7 +68,7 @@ data class ConicSectionSnapResult(
             fun fromJson(json: JsonElement): Option<Candidate> = Try.ofSupplier {
                 Candidate(
                         Array.ofAll(json["featurePoints"].array.flatMap { SnapPointPair.fromJson(it) }),
-                        Affine.fromJson(json["snapTransform"]).get(),
+                        Transform.fromMatrixJson(json["snapTransform"]).get(),
                         ConicSection.fromJson(json["snappedConicSection"]).get())
             }.toOption()
         }

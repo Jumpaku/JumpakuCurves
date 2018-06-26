@@ -6,6 +6,7 @@ import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.ClassifyResult
 import org.amshove.kluent.shouldBe
 import org.junit.Test
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -15,6 +16,7 @@ class ClassifierOpen4Test {
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val classifier = ClassifierOpen4(nSamples = 25, nFmps = 15)
+
     @Test
     fun testClassify() {
         println("ClassifierOpen4.classify")

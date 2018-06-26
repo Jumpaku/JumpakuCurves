@@ -1,6 +1,6 @@
 package jumpaku.core.curve
 
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Vector
 
 
 

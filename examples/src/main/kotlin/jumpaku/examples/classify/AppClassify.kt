@@ -5,6 +5,7 @@ import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.geom.divide
 import jumpaku.fsc.classify.ClassifierPrimitive7
 import jumpaku.fsc.classify.reference.CircularGenerator
 import jumpaku.fsc.classify.reference.EllipticGenerator
@@ -41,16 +42,11 @@ class ViewClassify : View() {
     fun Group.update(fsc: BSpline){
         children.clear()
         cubicFsc(fsc) { stroke = Color.BLACK; strokeWidth = 1.0 }
-        listOf(
-                LinearGenerator(25).generate(fsc),
-                CircularGenerator(25).generateScattered(fsc),
-                EllipticGenerator(25).generateScattered(fsc)
-        ).forEachIndexed { i, r ->
-            fuzzyCurve(r) { stroke = Color.hsb(i * 120.0, 1.0, 1.0); strokeWidth = 1.0 }
-        }
-
         val r7 = ClassifierPrimitive7(nSamples = 25, nFmps = 15).classify(fsc)
         println(r7.grades)
+        listOf(r7.linear, r7.circular, r7.elliptic).forEachIndexed { i, r ->
+            fuzzyCurve(r) { stroke = Color.hsb(i * 120.0, 1.0, 1.0); strokeWidth = 1.0 }
+        }
     }
 }
 

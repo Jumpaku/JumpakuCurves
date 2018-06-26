@@ -11,12 +11,13 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.Affine
-import jumpaku.core.affine.ParamPoint
-import jumpaku.core.affine.Point
-import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
-import jumpaku.core.fit.chordalParametrize
+import jumpaku.core.curve.ParamPoint
+import jumpaku.core.geom.Point
+import jumpaku.core.transform.Transform
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
+import jumpaku.core.curve.chordalParametrize
 import jumpaku.core.json.ToJson
 import org.apache.commons.math3.util.Precision
 
@@ -24,7 +25,7 @@ import org.apache.commons.math3.util.Precision
 /**
  * Polyline parametrized by arc-arcLength.
  */
-class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transformable, ToJson {
+class Polyline (private val paramPoints: Array<ParamPoint>) : Curve, ToJson {
 
     val points: Array<Point> = paramPoints.map(ParamPoint::point)
 
@@ -70,7 +71,7 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
     private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
                 (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
 
-    override fun transform(a: Affine): Polyline = Polyline(points.map(a))
+    fun transform(a: Transform): Polyline = Polyline(points.map(a::invoke))
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 
@@ -102,8 +103,8 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : FuzzyCurve, Transf
         }
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy{
-        ArcLengthReparametrized(this, parameters)
+    override val reparameterized: ArcLengthReparameterized by lazy{
+        ArcLengthReparameterized(this, parameters)
     }
 
     companion object {

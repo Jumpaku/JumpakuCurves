@@ -4,16 +4,17 @@ import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.core.affine.Point
-import jumpaku.core.affine.Vector
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.fsc.classify.ClassifierOpen4
 import jumpaku.fsc.classify.CurveClass
-import jumpaku.fsc.classify.reference.CircularGenerator
-import jumpaku.fsc.classify.reference.EllipticGenerator
-import jumpaku.fsc.classify.reference.LinearGenerator
+import jumpaku.fsc.classify.reference.*
+import jumpaku.fsc.generate.DataPreparer
 import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.LinearFuzzifier
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateBox
@@ -32,16 +33,18 @@ class AppSnap : App(ViewSnap::class)
 
 class ViewSnap : View() {
 
-    val w = 1280.0
+    val generator = FscGenerator(
+            degree = 3,
+            knotSpan = 0.1)
 
+    val w = 1280.0
     val h = 720.0
 
     val baseGrid = Grid(
             spacing = 50.0,
             magnification = 2,
             origin = Point.xy(w/2, h/2),
-            axis = Vector.K,
-            radian = 0.0,
+            rotation = Rotate(Vector.K, 0.0),
             fuzziness = 20.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
@@ -54,10 +57,10 @@ class ViewSnap : View() {
     val classifier = ClassifierOpen4(nSamples = 99)
 
     fun conicSection(fsc: BSpline, curveClass: CurveClass): ConicSection = when {
-        curveClass.isLinear -> LinearGenerator(25).generate(fsc).conicSection
-        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc).conicSection
-        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc).conicSection
-        else -> kotlin.error("")
+        curveClass.isLinear -> LinearGenerator(25).generate(fsc).base
+        curveClass.isCircular -> CircularGenerator(25).generateScattered(fsc).base
+        curveClass.isElliptic -> EllipticGenerator(25).generateScattered(fsc).base
+        else -> error("")
     }
 
     override val root: Pane = pane {
@@ -69,17 +72,7 @@ class ViewSnap : View() {
                 clear()
                 with(group) {
                     children.clear()
-                    this.update(FscGenerator { crisp, ts ->
-                        val derivative1 = crisp.derivative
-                        val derivative2 = derivative1.derivative
-                        val velocityCoefficient = 0.008
-                        val accelerationCoefficient = 0.006
-                        ts.map {
-                            val v = derivative1(it).length()
-                            val a = derivative2(it).length()
-                            velocityCoefficient * v + a * accelerationCoefficient + 1.0
-                        }
-                    }.generate(it.data))
+                    this.update(generator.generate(it.data))
                 }
             }
         }

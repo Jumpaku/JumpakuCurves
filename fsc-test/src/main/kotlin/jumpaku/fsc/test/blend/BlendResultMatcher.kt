@@ -1,7 +1,7 @@
 package jumpaku.fsc.test.blend
 
 import io.vavr.API
-import jumpaku.core.test.curve.bspline.isCloseTo
+import jumpaku.core.test.curve.isCloseTo
 import jumpaku.core.test.isCloseTo
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -17,15 +17,19 @@ fun isCloseTo(actual: OverlappingMatrix, expected: OverlappingMatrix, error: Dou
 }
 
 fun isCloseTo(actual: BlendResult, expected: BlendResult, error: Double = 1.0e-9): Boolean =
-        actual.blended.isDefined == expected.blended.isDefined &&
-                API.For(actual.blended, expected.blended).`yield` { a, e -> isCloseTo(a, e, error) }.all { it } &&
+        actual.data.isDefined == expected.data.isDefined &&
+                API.For(actual.data, expected.data).`yield` { aData, eData ->
+                    aData.size() == eData.size() &&
+                            aData.zip(eData).all { (a, e) -> isCloseTo(a, e, error) }
+                }.all { it } &&
                 actual.path.isDefined == expected.path.isDefined &&
-                API.For(actual.path, expected.path).`yield` { a, e ->
-                    isCloseTo(a.grade.value, e.grade.value, error) &&
-                            a.path.zip(e.path).all { (a, e) -> a._1 == e._1 && a._2 == e._2 }
+                API.For(actual.path, expected.path).`yield` { aPath, ePath ->
+                    aPath.type == ePath.type &&
+                            aPath.path.size() == ePath.path.size() &&
+                            aPath.path.zip(ePath.path).all { (a, e) -> a._1 == e._1 && a._2 == e._2 }
                 }.all { it } &&
                 isCloseTo(actual.osm, expected.osm, error)
 
-fun BlendResult.shouldBeBlendResult(expected: BlendResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
+fun BlendResult.shouldEqualToBlendResult(expected: BlendResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)
 }

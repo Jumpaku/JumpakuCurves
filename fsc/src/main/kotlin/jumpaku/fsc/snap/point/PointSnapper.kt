@@ -1,7 +1,8 @@
 package jumpaku.fsc.snap.point
 
 import io.vavr.collection.Stream
-import jumpaku.core.affine.Point
+import io.vavr.control.Option
+import jumpaku.core.geom.Point
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
@@ -16,7 +17,7 @@ class PointSnapper(
         require(minResolution <= maxResolution) { "minResolution($minResolution) > maxResolution($maxResolution)" }
     }
 
-    fun snap(cursor: Point): PointSnapResult {
+    fun snap(cursor: Point): Option<PointSnapResult> {
         val candidates = Stream.rangeClosed(minResolution, maxResolution).map {
             val grid = baseGrid.deriveGrid(it)
             val gridPoint = grid.snapToNearestGrid(cursor)
@@ -29,6 +30,5 @@ class PointSnapper(
         return mus.zip(candidates)
                 .find { (mu, _) -> mu >= Grade(0.5) }
                 .map { (mu, result) -> result.copy(grade = mu) }
-                .getOrElse { noPointSnap(baseGrid, cursor.toCrisp()) }
     }
 }

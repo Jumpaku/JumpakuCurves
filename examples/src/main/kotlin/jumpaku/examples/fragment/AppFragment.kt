@@ -33,9 +33,9 @@ class ViewFragment : View() {
                     children.clear()
                     val fsc = generator.generate(it.data)
                     val r = fragmenter.fragment(fsc)
-                    r.fragments.forEach {
+                    r.forEach {
                         fuzzyCurve(fsc.restrict(it.interval)) {
-                            stroke = if (it.type == Fragment.Type.IDENTIFICATION) Color.LIGHTGREEN else Color.ORANGERED
+                            stroke = if (it.type == Fragment.Type.Move) Color.LIGHTGREEN else Color.ORANGERED
                         }
                     }
                 }

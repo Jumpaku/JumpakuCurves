@@ -11,9 +11,10 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
@@ -25,12 +26,11 @@ import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
 
 
-class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Transformable, ToJson {
+class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: BezierDerivative
-        get() {
+    override val derivative: BezierDerivative get() {
         val cp = controlPoints.map(Point::toCrisp)
         val vs = cp.zipWith(cp.tail(), { pre, post -> (post - pre)*degree.toDouble() })
         return BezierDerivative(vs)
@@ -49,19 +49,14 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        var cps = controlPoints
-        while (cps.size() > 1) {
-            cps = decasteljau(t, cps)
-        }
-
-        return cps.head()
+        return createEvaluatedPoint(t, controlPoints)
     }
 
     override fun differentiate(t: Double): Vector = derivative(t)
 
-    override fun transform(a: Affine): Bezier = Bezier(controlPoints.map(a))
-
     override fun toCrisp(): Bezier = Bezier(controlPoints.map { it.toCrisp() })
+
+    fun transform(a: Transform): Bezier = Bezier(controlPoints.map(a::invoke))
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
@@ -89,16 +84,12 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     fun extend(t: Double): Bezier {
         require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
-        val controlPoints = createSubdividedControlPoints(t, controlPoints)
-        return if(t <= domain.begin) {
-            Bezier(controlPoints._2())
-        }
-        else {
-            Bezier(controlPoints._1())
-        }
+
+        return createSubdividedControlPoints(t, controlPoints)
+                .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(this,
                 {
                     val cp = (it as Bezier).controlPoints
@@ -111,6 +102,9 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
 
     companion object {
 
+        fun fromJson(json: JsonElement): Option<Bezier> =
+                Try.ofSupplier { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it) }) }.toOption()
+
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
             return comb(degree, i) * FastMath.pow(t, i)*FastMath.pow(1 - t, degree - i)
@@ -119,8 +113,8 @@ class Bezier(val controlPoints: Array<Point>) : FuzzyCurve, Differentiable, Tran
         fun <P : Divisible<P>> decasteljau(t: Double, cps: Array<P>): Array<P> =
                 cps.zipWith(cps.tail()) { p0, p1 -> p0.divide(t, p1) }
 
-        fun fromJson(json: JsonElement): Option<Bezier> =
-                Try.ofSupplier { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it) }) }.toOption()
+        internal tailrec fun <P : Divisible<P>> createEvaluatedPoint(t: Double, cp: Array<P>): P =
+                if (cp.size() == 1) cp.head() else createEvaluatedPoint(t, decasteljau(t, cp))
 
         internal fun <P : Divisible<P>> createElevatedControlPoints(cp: Array<P>): Array<P> {
             val n = cp.size() - 1

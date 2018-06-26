@@ -11,9 +11,10 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.affine.*
+import jumpaku.core.geom.*
+import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparametrized
+import jumpaku.core.curve.arclength.ArcLengthReparameterized
 import jumpaku.core.curve.arclength.approximate
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.json.ToJson
@@ -28,7 +29,7 @@ import kotlin.math.absoluteValue
  */
 class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
-    : FuzzyCurve, Differentiable, Transformable, ToJson {
+    : Curve, Differentiable, ToJson {
 
     val representPoints: Array<Point> get() = Array(begin, far, end)
 
@@ -77,7 +78,7 @@ class ConicSection(
         return Point(p, r)
     }
 
-    override fun transform(a: Affine): ConicSection = ConicSection(
+    fun transform(a: Transform): ConicSection = ConicSection(
             a(begin), a(far), a(end), weight)
 
     override fun toString(): String = toJsonString()
@@ -87,9 +88,15 @@ class ConicSection(
 
     override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
 
-    fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
+    private val reversed: ConicSection by lazy { ConicSection(end, far, begin, weight) }
 
-    fun complement(): ConicSection = ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
+    fun reverse(): ConicSection = reversed
+
+    private val complement: ConicSection by lazy {
+        ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
+    }
+
+    fun complement(): ConicSection = complement
 
     fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
@@ -128,7 +135,7 @@ class ConicSection(
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
-    override val reparametrized: ArcLengthReparametrized by lazy {
+    override val reparameterized: ArcLengthReparameterized by lazy {
         approximate(this,
                 {
                     val cp = (it as ConicSection).representPoints

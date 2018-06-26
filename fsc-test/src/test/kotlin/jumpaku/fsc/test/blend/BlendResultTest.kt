@@ -15,7 +15,7 @@ class BlendResultTest {
         for (i in 0..4) {
             val e = resourceText("BlendResult$i.json").parseJson().flatMap { BlendResult.fromJson(it) }.get()
             val a = e.toJson().let { BlendResult.fromJson(it) }.get()
-            a.shouldBeBlendResult(e)
+            a.shouldEqualToBlendResult(e)
         }
     }
 
