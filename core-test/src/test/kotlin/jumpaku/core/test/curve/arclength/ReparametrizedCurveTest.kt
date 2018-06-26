@@ -23,4 +23,13 @@ class ReparametrizedCurveTest {
         rcs.evaluate(0.5).shouldEqualToPoint(Point.xy(-R2*50, -R2*50), 1.0)
         rcs.evaluate(1.0).shouldEqualToPoint(Point.xy(100.0, 0.0), 1.0)
     }
+
+    @Test
+    fun testRestrict() {
+        println("Restrict")
+        val r = rcs.restrict(1/3.0, 2/3.0)
+        r(0.0).shouldEqualToPoint(Point.xy(-100.0, 0.0), 1.0)
+        r(0.5).shouldEqualToPoint(Point.xy(-R2*50, -R2*50), 1.0)
+        r(1.0).shouldEqualToPoint(Point.xy(0.0, -100.0), 1.0)
+    }
 }
