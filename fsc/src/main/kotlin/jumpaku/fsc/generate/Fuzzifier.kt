@@ -13,14 +13,12 @@ class LinearFuzzifier(
         val velocityCoefficient: Double,
         val accelerationCoefficient: Double): Fuzzifier {
 
-    val nSamples: Int = 10
-
     override fun fuzzify(crisp: BSpline): BSpline {
         val derivative1 = crisp.derivative
         val derivative2 = derivative1.derivative
         val degree = crisp.degree
         val knot = crisp.knotVector
-        val n = knot.extractedKnots.size() * degree * nSamples
+        val n = knot.extractedKnots.size() * degree
         val ts = crisp.domain.sample(n)
         val fs = ts.map {
             val v = derivative1(it).length()
