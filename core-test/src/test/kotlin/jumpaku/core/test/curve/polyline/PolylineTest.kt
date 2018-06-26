@@ -98,16 +98,4 @@ class PolylineTest {
         ps._1().shouldEqualToPolyline(Polyline(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -1.5, 2.25)))
         ps._2().shouldEqualToPolyline(Polyline(Point.xyr(1.0, -1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))
     }
-
-    @Test
-    fun testToArcLengthCurve() {
-        println("ToArcLengthCurve")
-        val l = Polyline(
-                Point.xyr(-100.0, 100.0, 2.0),
-                Point.xyr(100.0, 100.0, 1.0),
-                Point.xyr(100.0, -300.0, 3.0),
-                Point.xyzr(100.0, -300.0, 150.0, 2.0))
-                .reparametrizeArcLength().arcLength()
-        l.shouldBeCloseTo(750.0, 0.1)
-    }
 }

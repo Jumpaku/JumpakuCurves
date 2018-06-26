@@ -9,16 +9,14 @@ class ConicSectionSnapResultTest {
     val urlString = "/jumpaku/fsc/test/snap/conicsection/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
+    val r = resourceText("snapResultL0.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
+
     @Test
     fun testToString() {
         println("ToString")
         for (i in 0..4) {
-            val e = resourceText("ConicSectionSnapResult$i.json").parseJson()
-                    .flatMap {
-                        ConicSectionSnapResult.fromJson(it)
-                    }.get()
-            val a = e.toString().parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
-            a.shouldEqualToConicSectionSnapResult(e)
+            r.toString().parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
+                    .shouldEqualToConicSectionSnapResult(r)
         }
     }
 
