@@ -20,7 +20,7 @@ import org.apache.commons.math3.util.Pair
 fun nonNegativeLinearLeastSquare(
         modelMatrix: RealMatrix,
         targetVector: RealVector,
-        weightMatrix: DiagonalMatrix = DiagonalMatrix(Stream.fill(targetVector.dimension, { 1.0 }).toJavaArray(Double::class.java).toDoubleArray())
+        weightMatrix: DiagonalMatrix = DiagonalMatrix(Stream.fill(targetVector.dimension) { 1.0 }.toJavaArray(Double::class.java).toDoubleArray())
 ): RealVector {
     class NonNegativeLinearModel(val a: RealMatrix) : MultivariateJacobianFunction {
 

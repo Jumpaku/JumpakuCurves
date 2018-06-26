@@ -18,15 +18,14 @@ fun createModelMatrix(sataParams: Array<Double>, degree: Int, knotVector: KnotVe
     val n = knotVector.extractedKnots.size() - degree - 1
     val sparse = OpenMapRealMatrix(sataParams.size(), n)
     sataParams.map { t ->
-                (0..(n - 1)).map { BSpline.basis(t, it, knotVector) }
+        (0..(n - 1)).map { BSpline.basis(t, it, knotVector) }
+    }.forEachIndexed { i, row ->
+        row.forEachIndexed { j, value ->
+            if (!Precision.equals(value, 0.0, 1.0e-10)) {
+                sparse.setEntry(i, j, value)
             }
-            .forEachIndexed { i, row ->
-                row.forEachIndexed { j, value ->
-                    if (!Precision.equals(value, 0.0, 1.0e-10)) {
-                        sparse.setEntry(i, j, value)
-                    }
-                }
-            }
+        }
+    }
     return sparse
 }
 
