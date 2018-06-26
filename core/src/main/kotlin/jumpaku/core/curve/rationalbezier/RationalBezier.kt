@@ -10,16 +10,17 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.geom.*
-import jumpaku.core.transform.Transform
-import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
-import jumpaku.core.curve.arclength.approximate
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Derivative
+import jumpaku.core.curve.Differentiable
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
-import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
-import org.apache.commons.math3.util.Precision
+import jumpaku.core.transform.Transform
 
 
 class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : Curve, Differentiable, ToJson {
@@ -107,25 +108,14 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 .map(::RationalBezier, ::RationalBezier)
     }
 
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        approximate(this,
-                {
-                    val cp = (it as RationalBezier).weightedControlPoints
-                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
-                    val l1 = cp.run { head().point.dist(last().point) }
-                    !(Precision.equals(l0, l1, 1.0 / 128) && cp.all { it.weight > 0 })
-                },
-                { b, i: Interval -> (b as RationalBezier).restrict(i) })
-    }
-
     companion object {
 
         fun bezier1D(t: Double, weights: Array<Double>): Double {
-            var ws = weights
-            while (ws.size() > 1) {
-                ws = ws.zipWith(ws.tail(), { w0, w1 -> w0.divide(t, w1) })
+            var ws = weights.toJavaList()
+            while (ws.size > 1) {
+                ws = ws.zipWithNext { w0, w1 -> w0.divide(t, w1) }
             }
-            return ws.head()
+            return ws.first()
         }
 
         fun fromJson(json: JsonElement): Option<RationalBezier> = Try.ofSupplier {

@@ -1,24 +1,31 @@
 package jumpaku.core.curve.bspline
 
-import com.github.salomonbrys.kotson.*
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.geom.*
-import jumpaku.core.transform.Transform
-import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
-import jumpaku.core.curve.arclength.approximate
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Differentiable
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.KnotVector
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.geom.Divisible
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.line
 import jumpaku.core.json.ToJson
+import jumpaku.core.transform.Transform
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.divOption
 import jumpaku.core.util.lastIndex
-import org.apache.commons.math3.util.Precision
 
 
 class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
@@ -32,9 +39,9 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         val us = knotVector.extractedKnots
         val cvs = controlPoints
                 .zipWith(controlPoints.tail()) { a, b -> b.toCrisp() - a.toCrisp() }
-                .zipWithIndex({ v, i ->
-                    v* basisHelper(degree.toDouble(), 0.0, us[degree + i + 1], us[i + 1])
-                })
+                .zipWithIndex { v, i ->
+                    v*basisHelper(degree.toDouble(), 0.0, us[degree + i + 1], us[i + 1])
+                }
 
         return BSplineDerivative(cvs, knotVector.derivativeKnotVector())
     }
@@ -58,17 +65,6 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
 
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        approximate(clamp(),
-                {
-                    val cp = (it as BSpline).controlPoints
-                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
-                    val l1 = cp.run { head().dist(last()) }
-                    !Precision.equals(l0, l1, 1.0 / 256)
-                },
-                { b, i: Interval -> (b as BSpline).restrict(i) })
-    }
-
     override fun toCrisp(): BSpline = BSpline(controlPoints.map { it.toCrisp() }, knotVector)
 
     override fun evaluate(t: Double): Point = evaluate(controlPoints, knotVector, t)
@@ -78,6 +74,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
     fun transform(a: Transform): BSpline = BSpline(controlPoints.map(a::invoke), knotVector)
 
     fun restrict(begin: Double, end: Double): BSpline {
+        require(begin < end) { "must be begin($begin) < end($end)" }
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
         return subdivide(begin)._2().get().subdivide(end)._1().get()

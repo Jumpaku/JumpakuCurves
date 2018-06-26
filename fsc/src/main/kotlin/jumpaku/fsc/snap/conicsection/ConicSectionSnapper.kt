@@ -10,7 +10,7 @@ import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import jumpaku.fsc.classify.CurveClass
+import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.snap.point.PointSnapper
 
 
@@ -40,7 +40,7 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s0 = pointSnapper.snap(f0)
                 val s1 = pointSnapper.snap(f1)
                 Try.ofSupplier {
-                    Calibrate(f0 to s0.worldPoint, f1 to s1.worldPoint)
+                    Calibrate(f0 to s0.map { it.worldPoint }.getOrElse { f0 }, f1 to s1.map { it.worldPoint }.getOrElse { f1 })
                 }.map {
                     ConicSectionSnapResult.Candidate(
                             Array.of(ConicSectionSnapResult.SnapPointPair(f0, s0), ConicSectionSnapResult.SnapPointPair(f1, s1)),
@@ -54,10 +54,11 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s0 = pointSnapper.snap(f0)
                 val s1 = pointSnapper.snap(f1)
                 val sn = pointSnapper.snap(fn)
-                val n = sn.worldPoint.normal(s0.worldPoint, s1.worldPoint).getOrElse(Vector())
+                val n = sn.map { it.worldPoint }.getOrElse { fn }
+                        .normal(s0.map { it.worldPoint }.getOrElse { f0 }, s1.map { it.worldPoint }.getOrElse { f1 }).getOrElse(Vector())
                 fn.normal(f0, f1).flatMap {
                     Try.ofSupplier {
-                        Calibrate.similarityWithNormal(f0 to s0.worldPoint, f1 to s1.worldPoint, it to n)
+                        Calibrate.similarityWithNormal(f0 to s0.map { it.worldPoint }.getOrElse { f0 }, f1 to s1.map { it.worldPoint }.getOrElse { f1 }, it to n)
                     }.toOption()
                 }.map {
                     ConicSectionSnapResult.Candidate(
@@ -73,7 +74,9 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 val s1 = pointSnapper.snap(f1)
                 val s2 = pointSnapper.snap(f2)
                 Try.ofSupplier {
-                    Calibrate(f0 to s0.worldPoint, f1 to s1.worldPoint, f2 to s2.worldPoint)
+                    Calibrate(f0 to s0.map { it.worldPoint }.getOrElse { f0 },
+                            f1 to s1.map { it.worldPoint }.getOrElse { f1 },
+                            f2 to s2.map { it.worldPoint }.getOrElse { f2 })
                 }.toOption().map {
                     ConicSectionSnapResult.Candidate(
                             Array.of(
