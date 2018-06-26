@@ -9,8 +9,10 @@ import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
+import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.identify.CurveClass
+import jumpaku.fsc.identify.reparametrize
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
@@ -49,10 +51,11 @@ class ConicSectionSnapperTest {
         for (i in 0..4) {
             val cs = resourceText("ConicSection$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
             val curveClass = curveClasses[i]
-            val fsc = resourceText("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val e = resourceText("ConicSectionSnapResult$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
             val a = conicSectionSnapper.snap(cs, curveClass) { candidate ->
-                candidate.snappedConicSection.isPossible(fsc, n = 15)
+                cs.evaluateAll(10).zip(candidate.snappedConicSection.evaluateAll(10)).map { (o, s) ->
+                    o.isPossible(s)
+                }.reduce(Grade::and)
             }
             a.candidate.featurePoints.size().shouldEqualTo(e.candidate.featurePoints.size())
             a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->

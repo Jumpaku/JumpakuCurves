@@ -4,13 +4,14 @@ import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.geom.Point
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fsc.identify.IdentifyResult
+import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.Open4Identifier
 import jumpaku.fsc.identify.Primitive7Identifier
+import jumpaku.fsc.identify.reference.CircularGenerator
+import jumpaku.fsc.identify.reference.EllipticGenerator
+import jumpaku.fsc.identify.reference.LinearGenerator
 import jumpaku.fsc.identify.reparametrize
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.App
@@ -18,9 +19,6 @@ import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
 import java.nio.file.Paths
-import kotlin.math.log
-import kotlin.math.roundToInt
-import kotlin.system.measureNanoTime
 
 
 fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
@@ -29,7 +27,7 @@ class AppClassify : App(ViewClassify::class)
 
 class ViewClassify : View() {
 
-    val path = Paths.get("./fsc-test/src/test/resources/jumpaku/fsc/test/identify")
+    val path = Paths.get("./fsc-test/src/test/resources/jumpaku/fsc/test/identify/reference")
     override val root: Pane = pane {
         val group = group {}
         curveControl {
@@ -42,43 +40,24 @@ class ViewClassify : View() {
         }
     }
 
+    init {
+        println(path.toFile().exists())
+    }
     fun Group.update(fsc: BSpline){
         children.clear()
-        cubicSpline(fsc) { stroke = Color.BLACK; strokeWidth = 1.0 }
         val s = reparametrize(fsc, 65)
-        fuzzyPoints(s.evaluateAll(15)) { stroke = Color.BLACK; strokeWidth = 1.0 }
-        val r = Primitive7Identifier(25, 15).identify(s)
-        ReparametrizedCurve(r.elliptic,r.elliptic.domain.sample(10000)).reparametrizer.run {
-            fuzzyPoints(range.sample(2000).map { Point.xy((toOriginal(it) - domain.begin)/domain.span*1000+50, 720 - it*chordLength*0.7 - 50) }) { stroke = Color.BLACK }
-        }
-        r.elliptic.reparametrized.reparametrizer.run {
-            fuzzyPoints(range.sample(2000).map { Point.xy((toOriginal(it) - domain.begin)/domain.span*1000+50, 720 - it*chordLength*0.7 - 50) }) { stroke = Color.RED }
-        }
-        fuzzyCurve(r.elliptic.toCrisp()) { stroke = Color.RED }
-        fuzzyPoints(r.elliptic.reparametrized.evaluateAll(15)) { stroke = Color.RED }
-        println(r.curveClass)
-        //path.resolve("LinearFsc.json").toFile().writeText(fsc.toString())
-
-        val l = mutableListOf<IdentifyResult>()
-        val time = measureNanoTime {
-            val s = reparametrize(fsc)
-            repeat((200* log(200.0, 2.0).roundToInt())) {
-                l += Open4Identifier(25, 15).identify(s)
-            }
-        }
-        val ll = mutableListOf<Int>()
-        val time2 = measureNanoTime {
-            repeat((200* log(200.0, 2.0).roundToInt())) {
-                val s = reparametrize(fsc)
-                ll += s.reparametrizer.originalParams.size()
-                l += Open4Identifier(25, 15).identify(s)
-            }
-        }
-        println(time*1.0e-9)
-        println(time2*1.0e-9)
-        println(l.size)
-        println(ll.last())
-        println(fsc.domain.span)
+        //val a = EllipticGenerator().generate(s, t0 = s.originalCurve.domain.begin, t1 = s.originalCurve.domain.end)
+        path.resolve("FscFC.json").toFile().apply { createNewFile() }.writeText(fsc.toString())
+        //path.resolve("ReferenceElliptic.json").toFile().apply { createNewFile() }.writeText(a.toString())
+        //val o = Open4Identifier(25, 15).identify(s)
+        val p = Primitive7Identifier(25, 15).identify(s)
+        println(p.curveClass == CurveClass.ClosedFreeCurve)
+        cubicSpline(fsc) { stroke = Color.BLACK }
+        fuzzyPoints(s.evaluateAll(15)) { stroke = Color.BLACK }
+        //fuzzyCurve(a.reparametrized.toCrisp()) { stroke = Color.RED }
+        //fuzzyPoints(a.reparametrized.evaluateAll(15)) { stroke = Color.RED }
+        //fuzzyCurve(p.elliptic.reparametrized.toCrisp()) { stroke = Color.BLUE }
+        //fuzzyPoints(p.elliptic.reparametrized.evaluateAll(15)) { stroke = Color.BLUE }
     }
 }
 
