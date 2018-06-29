@@ -6,7 +6,7 @@ import jumpaku.core.transform.Rotate
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.point.PointSnapResult
-import jumpaku.fsc.snap.point.PointSnapper
+import jumpaku.fsc.snap.point.MFGS
 import org.amshove.kluent.shouldBeTrue
 import org.junit.Test
 
@@ -20,7 +20,7 @@ class PointSnapResultTest {
             fuzziness = 0.25,
             resolution = 0)
 
-    val snapper = PointSnapper(baseGrid, -1, 1)
+    val snapper = MFGS(baseGrid, -1, 1)
 
     @Test
     fun testToString() {
