@@ -9,19 +9,17 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.geom.*
-import jumpaku.core.transform.Transform
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
-import jumpaku.core.curve.arclength.approximate
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
-import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.curve.rationalbezier.RationalBezier
+import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
+import jumpaku.core.transform.Transform
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
-import org.apache.commons.math3.util.Precision
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
     : Curve, Differentiable, ToJson {
@@ -71,17 +69,6 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     override fun toJson(): JsonElement = jsonObject(
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
             "knotVector" to knotVector.toJson())
-
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        approximate(clamp(),
-                {
-                    val cp = (it as Nurbs).weightedControlPoints
-                    val l0 = Polyline(cp.map { it.point }).reparametrizeArcLength().arcLength()
-                    val l1 = cp.run { head().point.dist(last().point) }
-                    !(Precision.equals(l0, l1, 1.0 / 256) && cp.all { it.weight > 0 })
-                },
-                { b, i: Interval -> (b as Nurbs).restrict(i) })
-    }
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 

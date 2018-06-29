@@ -11,19 +11,22 @@ import io.vavr.collection.Array
 import io.vavr.collection.Stream
 import io.vavr.control.Option
 import io.vavr.control.Try
-import jumpaku.core.geom.*
-import jumpaku.core.transform.Transform
-import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ArcLengthReparameterized
-import jumpaku.core.curve.arclength.approximate
-import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.curve.Curve
+import jumpaku.core.curve.Differentiable
+import jumpaku.core.curve.Interval
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
+import jumpaku.core.geom.Divisible
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.line
 import jumpaku.core.json.ToJson
+import jumpaku.core.transform.Transform
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.isOdd
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
-import org.apache.commons.math3.util.Precision
 
 
 class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
@@ -87,17 +90,6 @@ class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
 
         return createSubdividedControlPoints(t, controlPoints)
                 .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
-    }
-
-    override val reparameterized: ArcLengthReparameterized by lazy {
-        approximate(this,
-                {
-                    val cp = (it as Bezier).controlPoints
-                    val l0 = Polyline(cp).reparametrizeArcLength().arcLength()
-                    val l1 = cp.run { head().dist(last()) }
-                    !Precision.equals(l0, l1, 1.0 / 16)
-                },
-                { b, i: Interval -> (b as Bezier).restrict(i) })
     }
 
     companion object {

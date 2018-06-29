@@ -5,6 +5,8 @@ import io.vavr.collection.Array
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
 import jumpaku.fsc.generate.DataPreparer
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.generate.LinearFuzzifier
@@ -29,7 +31,9 @@ class FscGeneratorTest {
             val data = Array.ofAll(resourceText("Data$i.json").parseJson().get().array.flatMap { ParamPoint.fromJson(it) })
             val e = resourceText("Fsc$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
             val a = generator.generate(data)
-            a.isPossible(e, 100).value.shouldBeGreaterThan(0.9)
+            a.evaluateAll(100).zip(e.evaluateAll(100)).forEach { (actual, expected) ->
+                actual.isPossible(expected).value.shouldBeGreaterThan(0.9)
+            }
         }
     }
 }

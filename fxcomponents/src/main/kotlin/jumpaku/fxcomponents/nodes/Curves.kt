@@ -6,6 +6,8 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.Curve
+import jumpaku.core.curve.arclength.ReparametrizedCurve
+import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import tornadofx.*
@@ -44,9 +46,10 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
     }
 }
 
-fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)): Unit {
-    val c = curve.reparametrizeArcLength()
-    val points = c.evaluateAll(maxOf(Math.floor(c.domain.span/delta).toInt(), 2))
+fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
+    val c = ReparametrizedCurve(curve,
+            repeatBisect(curve, 1.0).map { it.begin }.append(curve.domain.end).toArray())
+    val points = c.evaluateAll(delta/c.chordLength)
     fuzzyPoints(points, op)
     polyline(Polyline(points), op)
 }
