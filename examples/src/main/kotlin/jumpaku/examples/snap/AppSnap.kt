@@ -18,10 +18,9 @@ import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateBox
 import jumpaku.fsc.snap.conicsection.ConjugateCombinator
-import jumpaku.fsc.snap.point.PointSnapper
+import jumpaku.fsc.snap.point.MFGS
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.*
-import java.nio.file.Paths
 
 
 fun main(vararg args: String) = Application.launch(AppSnap::class.java, *args)
@@ -45,7 +44,7 @@ class ViewSnap : View() {
             fuzziness = 16.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
-            PointSnapper(
+            MFGS(
                     baseGrid = baseGrid,
                     minResolution = -5,
                     maxResolution = 5),
