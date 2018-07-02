@@ -11,10 +11,10 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.snap.point.MFGS
+import jumpaku.fsc.snap.point.PointSnapper
 
 
-class ConicSectionSnapper(val pointSnapper: MFGS, val featurePointsCombinator: FeaturePointsCombinator) {
+class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombinator: FeaturePointsCombinator) {
 
     fun snap(conicSection: ConicSection, curveClass: CurveClass, evaluator: (ConicSectionSnapResult.Candidate) -> Grade): ConicSectionSnapResult {
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
