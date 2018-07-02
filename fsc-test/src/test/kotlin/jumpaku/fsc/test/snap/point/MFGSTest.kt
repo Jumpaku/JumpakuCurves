@@ -5,11 +5,11 @@ import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
 import jumpaku.core.test.geom.shouldEqualToPoint
 import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.point.PointSnapper
+import jumpaku.fsc.snap.point.MFGS
 import org.junit.Test
 
 
-class PointSnapperTest {
+class MFGSTest {
 
     val baseGrid = Grid(
             spacing = 1.0,
@@ -19,7 +19,7 @@ class PointSnapperTest {
             fuzziness = 0.25,
             resolution = 0)
 
-    val snapper = PointSnapper(baseGrid, -1, 1)
+    val snapper = MFGS(baseGrid, -1, 1)
 
     @Test
     fun testSnap0() {

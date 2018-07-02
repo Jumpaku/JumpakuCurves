@@ -1,24 +1,19 @@
 package jumpaku.fsc.test.snap.conicsection
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.string
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
-import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.reference.reparametrize
-import jumpaku.fsc.identify.reparametrize
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateCombinator
-import jumpaku.fsc.snap.point.PointSnapper
+import jumpaku.fsc.snap.point.MFGS
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
@@ -39,7 +34,7 @@ class ConicSectionSnapperTest {
             fuzziness = 16.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
-            PointSnapper(
+            MFGS(
                     baseGrid = baseGrid,
                     minResolution = -5,
                     maxResolution = 5),
