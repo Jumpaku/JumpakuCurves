@@ -37,11 +37,11 @@ class ViewSnap : View() {
             knotSpan = 0.1)
 
     val baseGrid = Grid(
-            spacing = 64.0,
+            baseSpacing = 64.0,
             magnification = 2,
             origin = Point.xy(w/2, h/2),
             rotation = Rotate(Vector.K, 0.0),
-            fuzziness = 16.0)
+            baseFuzziness = 16.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
             MFGS(

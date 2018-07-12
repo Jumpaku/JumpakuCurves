@@ -15,7 +15,7 @@ import tornadofx.line
 
 fun Parent.grid(grid: Grid, x: Double, y: Double, w: Double, h: Double, op: Shape.()->Unit) {
     val o = grid.origin
-    val s = grid.spacing
+    val s = grid.baseSpacing
     val t = grid.rotation.at(o)
     (FastMath.ceil((x - o.x)/s).toInt()..FastMath.floor((x - o.x + w)/s).toInt())
             .map { o.x + s * it }
