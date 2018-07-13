@@ -24,8 +24,10 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
 
         val candidates = enumerate(grid, conicSection, curveClass)
-                .sortBy { candidate -> evaluator(candidate) }.toArray()
-        val snapped = candidates.headOption().map { conicSection.transform(it.transform) }.getOrElse { conicSection }
+                .sortBy { candidate -> -evaluator(candidate) }.toArray()
+        val snapped = candidates.headOption()
+                .map { conicSection.transform(it.transform) }
+                .getOrElse { conicSection.toCrisp() }
         return ConicSectionSnapResult(snapped, candidates)
     }
 

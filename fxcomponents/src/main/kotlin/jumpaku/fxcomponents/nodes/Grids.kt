@@ -9,6 +9,7 @@ import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
 import jumpaku.fsc.snap.conicsection.ConjugateBox
 import jumpaku.fsc.snap.point.PointSnapResult
+import jumpaku.fsc.snap.toWorldPoint
 import org.apache.commons.math3.util.FastMath
 import tornadofx.circle
 import tornadofx.line
@@ -33,17 +34,18 @@ fun Parent.grid(grid: Grid, x: Double, y: Double, w: Double, h: Double, op: Shap
             }
 }
 
-fun Parent.snappedPoint(pointSnapResult: PointSnapResult, op: Shape.()->Unit): Unit {
-    val a = pointSnapResult.grid.localToWorld
-    val g00 = GridPoint(pointSnapResult.gridPoint.x - 1, pointSnapResult.gridPoint.y - 1, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g01 = GridPoint(pointSnapResult.gridPoint.x + 0, pointSnapResult.gridPoint.y - 1, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g02 = GridPoint(pointSnapResult.gridPoint.x + 1, pointSnapResult.gridPoint.y - 1, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g10 = GridPoint(pointSnapResult.gridPoint.x - 1, pointSnapResult.gridPoint.y + 0, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g11 = GridPoint(pointSnapResult.gridPoint.x + 0, pointSnapResult.gridPoint.y + 0, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g12 = GridPoint(pointSnapResult.gridPoint.x + 1, pointSnapResult.gridPoint.y + 0, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g20 = GridPoint(pointSnapResult.gridPoint.x - 1, pointSnapResult.gridPoint.y + 1, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g21 = GridPoint(pointSnapResult.gridPoint.x + 0, pointSnapResult.gridPoint.y + 1, pointSnapResult.gridPoint.z).toWorldPoint(a)
-    val g22 = GridPoint(pointSnapResult.gridPoint.x + 1, pointSnapResult.gridPoint.y + 1, pointSnapResult.gridPoint.z).toWorldPoint(a)
+fun Parent.snappedPoint(grid: Grid, pointSnapResult: PointSnapResult, op: Shape.()->Unit) {
+    val gp = pointSnapResult.gridPoint
+    val r = pointSnapResult.resolution
+    val g00 = grid.toWorldPoint(GridPoint(gp.x - 1, gp.y - 1, gp.z), r)
+    val g01 = grid.toWorldPoint(GridPoint(gp.x + 0, gp.y - 1, gp.z), r)
+    val g02 = grid.toWorldPoint(GridPoint(gp.x + 1, gp.y - 1, gp.z), r)
+    val g10 = grid.toWorldPoint(GridPoint(gp.x - 1, gp.y + 0, gp.z), r)
+    val g11 = grid.toWorldPoint(GridPoint(gp.x + 0, gp.y + 0, gp.z), r)
+    val g12 = grid.toWorldPoint(GridPoint(gp.x + 1, gp.y + 0, gp.z), r)
+    val g20 = grid.toWorldPoint(GridPoint(gp.x - 1, gp.y + 1, gp.z), r)
+    val g21 = grid.toWorldPoint(GridPoint(gp.x + 0, gp.y + 1, gp.z), r)
+    val g22 = grid.toWorldPoint(GridPoint(gp.x + 1, gp.y + 1, gp.z), r)
     line(g00.x, g00.y, g02.x, g02.y, op)
     line(g10.x, g10.y, g12.x, g12.y, op)
     line(g20.x, g20.y, g22.x, g22.y, op)

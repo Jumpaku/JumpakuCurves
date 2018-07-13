@@ -1,5 +1,6 @@
 package jumpaku.fsc.test.snap.conicsection
 
+import com.github.salomonbrys.kotson.get
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.geom.Point
@@ -7,6 +8,7 @@ import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson
+import jumpaku.core.test.curve.rationalbezier.shouldEqualToConicSection
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.reference.reparametrize
 import jumpaku.fsc.snap.Grid
@@ -26,18 +28,15 @@ class ConicSectionSnapperTest {
     val w = 1280.0
     val h = 720.0
 
-    val baseGrid = Grid(
-            spacing = 64.0,
+    val grid = Grid(
+            baseSpacing = 64.0,
             magnification = 2,
             origin = Point.xy(w/2, h/2),
             rotation = Rotate(Vector.K, 0.0),
-            fuzziness = 16.0)
+            baseFuzziness = 16.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
-            MFGS(
-                    baseGrid = baseGrid,
-                    minResolution = -5,
-                    maxResolution = 5),
+            MFGS(minResolution = -5, maxResolution = 5),
             ConjugateCombinator())
 
     @Test
@@ -45,14 +44,9 @@ class ConicSectionSnapperTest {
         println("Snap_L")
         for (i in 0..0) {
             val cs = resourceText("ConicSectionL$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val e = resourceText("SnapResultL$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
-            val a = conicSectionSnapper.snap(cs, CurveClass.LineSegment) { candidate ->
-                reparametrize(cs).isPossible(jumpaku.fsc.identify.reference.reparametrize(candidate.snappedConicSection), 15)
-            }
-            a.candidate.featurePoints.size().shouldEqualTo(e.candidate.featurePoints.size())
-            a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->
-                a.snapped.get().gridPoint.shouldEqual(e.snapped.get().gridPoint)
-            }
+            val e = resourceText("SnapResultL$i.json").parseJson().flatMap { ConicSection.fromJson(it["snappedConicSection"]) }.get()
+            val a = conicSectionSnapper.snap(grid, cs, CurveClass.LineSegment, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
+            a.snappedConicSection.shouldEqualToConicSection(e)
         }
     }
 
@@ -61,14 +55,9 @@ class ConicSectionSnapperTest {
         println("Snap_CA")
         for (i in 0..2) {
             val cs = resourceText("ConicSectionCA$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val e = resourceText("SnapResultCA$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
-            val a = conicSectionSnapper.snap(cs, CurveClass.CircularArc) { candidate ->
-                reparametrize(cs).isPossible(jumpaku.fsc.identify.reference.reparametrize(candidate.snappedConicSection), 15)
-            }
-            a.candidate.featurePoints.size().shouldEqualTo(e.candidate.featurePoints.size())
-            a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->
-                a.snapped.get().gridPoint.shouldEqual(e.snapped.get().gridPoint)
-            }
+            val e = resourceText("SnapResultCA$i.json").parseJson().flatMap { ConicSection.fromJson(it["snappedConicSection"]) }.get()
+            val a = conicSectionSnapper.snap(grid, cs, CurveClass.CircularArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
+            a.snappedConicSection.shouldEqualToConicSection(e)
         }
     }
 
@@ -77,14 +66,9 @@ class ConicSectionSnapperTest {
         println("Snap_EA")
         for (i in 0..2) {
             val cs = resourceText("ConicSectionEA$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val e = resourceText("SnapResultEA$i.json").parseJson().flatMap { ConicSectionSnapResult.fromJson(it) }.get()
-            val a = conicSectionSnapper.snap(cs, CurveClass.EllipticArc) { candidate ->
-                reparametrize(cs).isPossible(jumpaku.fsc.identify.reference.reparametrize(candidate.snappedConicSection), 15)
-            }
-            a.candidate.featurePoints.size().shouldEqualTo(e.candidate.featurePoints.size())
-            a.candidate.featurePoints.zip(e.candidate.featurePoints).forEach { (a, e) ->
-                a.snapped.get().gridPoint.shouldEqual(e.snapped.get().gridPoint)
-            }
+            val e = resourceText("SnapResultEA$i.json").parseJson().flatMap { ConicSection.fromJson(it["snappedConicSection"]) }.get()
+            val a = conicSectionSnapper.snap(grid, cs, CurveClass.EllipticArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
+            a.snappedConicSection.shouldEqualToConicSection(e)
         }
     }
 }
