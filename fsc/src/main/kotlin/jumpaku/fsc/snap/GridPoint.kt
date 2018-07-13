@@ -8,6 +8,10 @@ import jumpaku.core.geom.Point
 import jumpaku.core.transform.Transform
 import jumpaku.core.json.ToJson
 
+fun Grid.toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
+    localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
+}
+
 data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {
 
     override fun toString(): String = toJsonString()
@@ -16,8 +20,6 @@ data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {
             "x" to x.toJson(),
             "y" to y.toJson(),
             "z" to z.toJson())
-
-    fun toWorldPoint(localToWorld: Transform): Point = localToWorld(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
 
     companion object {
 

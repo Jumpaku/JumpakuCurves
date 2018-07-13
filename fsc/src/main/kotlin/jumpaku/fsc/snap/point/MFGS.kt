@@ -7,22 +7,21 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.fsc.snap.Grid
+import jumpaku.fsc.snap.toWorldPoint
 
 
 class MFGS(
-        val baseGrid: Grid,
         val minResolution: Int = 0,
         val maxResolution: Int = 0): PointSnapper {
     init {
         require(minResolution <= maxResolution) { "minResolution($minResolution) > maxResolution($maxResolution)" }
     }
 
-    override fun snap(cursor: Point): Option<PointSnapResult> {
+    override fun snap(grid: Grid, cursor: Point): Option<PointSnapResult> {
         val candidates = Stream.rangeClosed(minResolution, maxResolution).map {
-            val grid = baseGrid.deriveGrid(it)
-            val gridPoint = grid.snapToNearestGrid(cursor)
-            val worldPoint = gridPoint.toWorldPoint(grid.localToWorld)
-            PointSnapResult(grid, gridPoint, worldPoint, worldPoint.copy(r = grid.fuzziness).isNecessary(cursor))
+            val gridPoint = grid.snapToNearestGrid(cursor, it)
+            val grade = grid.toWorldPoint(gridPoint, it).copy(r = grid.fuzziness(it)).isNecessary(cursor)
+            PointSnapResult(it, gridPoint, grade)
         }.toArray()
         val mus = candidates
                 .scanLeft(Stream.empty<PointSnapResult>()) { acc, n -> acc.append(n) }.tail()
