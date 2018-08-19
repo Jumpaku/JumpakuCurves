@@ -69,7 +69,8 @@ class Calibrate(
         fun similarityWithNormal(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, normal: Pair<Vector, Vector>): Calibrate {
             val (fromO, toO) = pair0
             val (fromP, toP) = pair1
-            val (fromN, toN) = normal
+            val (fromN, toN) = normal.let { (f, t) -> f.normalize().get() to t.normalize().get() }
+
             val e0 = fromP - fromO
             val e1 = e0.cross(fromN)
             val e2 = e1.cross(e0)
