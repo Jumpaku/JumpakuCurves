@@ -1,23 +1,30 @@
 
-
 buildscript {
     ext.kotlin_version = '1.2.50'
+    ext.jvm_version = '1.8'
+    ext.dependencyVersions = [
+            'junit4': '4.12',
+            'junit5': '5.1.0',
+            'kluent': '1.38',
+            'commons_math3': '3.6.1',
+            'kotson': '2.5.0',
+            'vavr': '0.9.1',
+            'tornadofx': '1.7.12'
+    ]
+}
 
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
-    }
+plugins {
+    id 'java'
+    id 'maven'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.50'
 }
 
 subprojects {
+
     group 'jumpaku'
-    version '0.9'
+    version '0.9.1'
 
     apply plugin: 'kotlin'
-    apply plugin: 'maven'
 
     repositories {
         mavenCentral()
@@ -25,51 +32,47 @@ subprojects {
     }
 
     compileKotlin {
-        kotlinOptions.jvmTarget = '1.8'
+        kotlinOptions.jvmTarget = jvm_version
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = '1.8'
+        kotlinOptions.jvmTarget = jvm_version
     }
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-        // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
-        compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-        // https://mvnrepository.com/artifact/com.github.salomonbrys.kotson/kotson
-        compile group: 'com.github.salomonbrys.kotson', name: 'kotson', version: '2.5.0'
-        // https://mvnrepository.com/artifact/io.vavr/vavr
-        compile group: 'io.vavr', name: 'vavr', version: '0.9.1'
+        compile "org.apache.commons:commons-math3:${dependencyVersions.commons_math3}"
+        compile "com.github.salomonbrys.kotson:kotson:${dependencyVersions.kotson}"
+        compile "io.vavr:vavr:${dependencyVersions.vavr}"
     }
 
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
-
     task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
         from javadoc.destinationDir
     }
-
     artifacts {
         archives sourcesJar
         archives javadocJar
     }
 }
 
+// settings of sub projects
+
 project(':core') {
 }
 
 project(':core-test') {
-    apply plugin: 'org.junit.platform.gradle.plugin'
-
     dependencies {
-        testRuntime "org.junit.platform:junit-platform-launcher:1.1.0"
-        testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
-        testRuntime "org.junit.jupiter:junit-jupiter-engine:5.2.0"
-        testRuntime "org.junit.vintage:junit-vintage-engine:5.2.0"
-        compile 'org.amshove.kluent:kluent:1.38'
+        testCompileOnly "junit:junit:${dependencyVersions.junit4}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
+
+        compile "org.amshove.kluent:kluent:${dependencyVersions.kluent}"
         compile project(':core')
     }
     test {
@@ -84,14 +87,13 @@ project(':fsc') {
 }
 
 project(':fsc-test') {
-    apply plugin: 'org.junit.platform.gradle.plugin'
-
     dependencies {
-        testRuntime "org.junit.platform:junit-platform-launcher:1.1.0"
-        testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
-        testRuntime "org.junit.jupiter:junit-jupiter-engine:5.2.0"
-        testRuntime "org.junit.vintage:junit-vintage-engine:5.2.0"
-        compile 'org.amshove.kluent:kluent:1.38'
+        testCompileOnly "junit:junit:${dependencyVersions.junit4}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
+
+        compile "org.amshove.kluent:kluent:${dependencyVersions.kluent}"
         compile project(':fsc')
         compile project(':core-test')
     }
@@ -104,8 +106,7 @@ project(':fxcomponents') {
     dependencies {
         compile project(':core')
         compile project(':fsc')
-        // https://mvnrepository.com/artifact/no.tornado/tornadofx
-        compile group: 'no.tornado', name: 'tornadofx', version: '1.7.12'
+        compile "no.tornado:tornadofx:${dependencyVersions.tornadofx}"
     }
 }
 
@@ -114,7 +115,6 @@ project(':examples'){
         compile project(':core')
         compile project(':fsc')
         compile project(':fxcomponents')
-        // https://mvnrepository.com/artifact/no.tornado/tornadofx
-        compile group: 'no.tornado', name: 'tornadofx', version: '1.7.12'
+        compile "no.tornado:tornadofx:${dependencyVersions.tornadofx}"
     }
 }
