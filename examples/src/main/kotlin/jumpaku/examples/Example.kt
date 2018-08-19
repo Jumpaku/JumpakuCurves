@@ -11,9 +11,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.geom.Point
 import jumpaku.fsc.generate.FscGenerator
-import jumpaku.fxcomponents.nodes.curveControl
-import jumpaku.fxcomponents.nodes.fuzzyPoints
-import jumpaku.fxcomponents.nodes.onCurveDone
+import jumpaku.fxcomponents.nodes.*
 import org.apache.commons.math3.util.FastMath
 import tornadofx.*
 
@@ -25,11 +23,16 @@ class AppExample : App(ViewExample::class)
 class ViewExample : View() {
     override val root: Pane = pane {
         val group = group {}
-        curveControl {
+        fscUpdateControl {
             prefWidth = 1280.0
             prefHeight = 720.0
-            onCurveDone {
-                clear()
+            onFscUpdated { e ->
+                with(group) {
+                    children.clear()
+                    val s = e.fsc
+                    curve(s) { stroke = CudPalette.RED }
+                    fuzzyCurve(s) { stroke = CudPalette.BLUE }
+                }
             }
         }
     }
