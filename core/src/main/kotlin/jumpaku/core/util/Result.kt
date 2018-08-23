@@ -6,7 +6,7 @@ sealed class Result<V> {
 
     fun error(): Option<Exception> = if (this is Failure) some(error) else none()
 
-    fun <U> map(transform: (V) -> U): Result<U> = flatMap { resultOf { transform(it) } }
+    fun <U> map(transform: (V) -> U): Result<U> = flatMap { result { transform(it) } }
 
     fun mapFailure(transform: (Exception) -> Exception): Result<V> = flatMapFailure {
         Failure(try { transform(it) } catch (e: Exception) { e })
@@ -24,7 +24,7 @@ sealed class Result<V> {
 
     fun recover(recover: (Throwable) -> V): Result<V> = when (this) {
         is Success -> this
-        is Failure -> resultOf { recover(error) }
+        is Failure -> result { recover(error) }
     }
 
     fun orThrow(): V = when(this) {
@@ -43,7 +43,7 @@ class Failure<V>(val error: Exception) : Result<V>() {
     override fun toString(): String = "Failure($error)"
 }
 
-fun <T> resultOf(tryCompute: () -> T): Result<T> = try { Success(tryCompute()) } catch (e: Exception) { Failure(e) }
+fun <T> result(tryCompute: () -> T): Result<T> = try { Success(tryCompute()) } catch (e: Exception) { Failure(e) }
 
 fun <V> success(value: V): Result<V> = Success(value)
 
