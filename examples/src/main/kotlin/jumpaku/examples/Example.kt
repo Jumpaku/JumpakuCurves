@@ -2,7 +2,12 @@ package jumpaku.examples
 
 import javafx.application.Application
 import javafx.scene.layout.Pane
-import jumpaku.fxcomponents.nodes.*
+import jumpaku.fxcomponents.colors.CudPalette
+import jumpaku.fxcomponents.colors.fx
+import jumpaku.fxcomponents.nodes.curve
+import jumpaku.fxcomponents.nodes.fscUpdateControl
+import jumpaku.fxcomponents.nodes.fuzzyCurve
+import jumpaku.fxcomponents.nodes.onFscUpdated
 import tornadofx.App
 import tornadofx.View
 import tornadofx.group
@@ -23,8 +28,8 @@ class ViewExample : View() {
                 with(group) {
                     children.clear()
                     val s = e.fsc
-                    curve(s) { stroke = CudPalette.RED }
-                    fuzzyCurve(s) { stroke = CudPalette.BLUE }
+                    curve(s) { stroke = CudPalette.RED.fx() }
+                    fuzzyCurve(s) { stroke = CudPalette.BLUE.fx() }
                 }
             }
         }
