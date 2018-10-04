@@ -1,19 +1,12 @@
 package jumpaku.examples
 
-import io.vavr.collection.Array
 import javafx.application.Application
 import javafx.scene.layout.Pane
-import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
-import jumpaku.core.curve.arclength.Reparametrizer
-import jumpaku.core.curve.arclength.repeatBisect
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.geom.Point
-import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fxcomponents.nodes.*
-import org.apache.commons.math3.util.FastMath
-import tornadofx.*
+import tornadofx.App
+import tornadofx.View
+import tornadofx.group
+import tornadofx.pane
 
 
 fun main(vararg args: String) = Application.launch(AppExample::class.java, *args)

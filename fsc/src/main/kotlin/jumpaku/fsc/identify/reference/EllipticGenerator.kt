@@ -1,6 +1,7 @@
 package jumpaku.fsc.identify.reference
 
 import io.vavr.API
+import io.vavr.Function3
 import io.vavr.Tuple
 import io.vavr.Tuple3
 import io.vavr.collection.Stream
@@ -87,7 +88,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val far = fsc(tf)
 
             val xy_xx = API.For(plane(begin, far, end), line(begin, end), rangeSamples.sample(nSamples))
-                    .yield(function3 { plane: Plane, line: Line, tp: Double ->
+                    .`yield` { plane: Plane, line: Line, tp: Double ->
                         val p = fsc(tp).projectTo(plane)
                         val a = far.projectTo(line(p, end - begin).get())
                         val b = far.projectTo(line)
@@ -100,7 +101,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                         val wi = 1.0//FastMath.exp(-fsc(tp).r)
 
                         Tuple.of(wi * yi * xi, wi * xi * xi)
-                    }).toArray()
+                    }.toArray()
             if (xy_xx.isEmpty) return 0.999
 
             return xy_xx.unzip { it }.apply { xy, xx ->
