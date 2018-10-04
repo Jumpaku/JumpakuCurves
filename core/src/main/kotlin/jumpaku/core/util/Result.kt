@@ -6,30 +6,25 @@ sealed class Result<V> {
 
     fun error(): Option<Exception> = if (this is Failure) some(error) else none()
 
-    fun <U> map(transform: (V) -> U): Result<U> = flatMap { result { transform(it) } }
+    val isSuccess: Boolean get() = this is Success
 
-    fun mapFailure(transform: (Exception) -> Exception): Result<V> = flatMapFailure {
-        Failure(try { transform(it) } catch (e: Exception) { e })
-    }
+    val isFailure: Boolean get() = this is Failure
 
-    fun <U> flatMap(transform: (V) -> Result<U>): Result<U> = when (this) {
+    fun <U> tryMap(transform: (V) -> U): Result<U> = tryFlatMap { result { transform(it) } }
+
+    fun <U> tryFlatMap(transform: (V) -> Result<U>): Result<U> = when (this) {
         is Success -> try { transform(value) } catch (e: Exception) { Failure<U>(e) }
         is Failure -> Failure(error)
     }
 
-    fun flatMapFailure(transform: (Exception) -> Result<V>): Result<V> = when (this) {
-        is Failure -> try { transform(error) } catch (e: Exception) { Failure<V>(e) }
+    fun tryRecover(recovery: (Exception) -> V): Result<V> = when (this) {
         is Success -> this
+        is Failure -> result { recovery(error) }
     }
 
-    fun recover(recover: (Throwable) -> V): Result<V> = when (this) {
+    fun tryMapFailure(transform: (Exception) -> Exception): Result<V> = when (this) {
         is Success -> this
-        is Failure -> result { recover(error) }
-    }
-
-    fun orThrow(): V = when(this) {
-        is Success -> value
-        is Failure -> throw error
+        is Failure -> Failure(try { transform(error) } catch (e: Exception) { e })
     }
 }
 
@@ -42,6 +37,8 @@ class Failure<V>(val error: Exception) : Result<V>() {
 
     override fun toString(): String = "Failure($error)"
 }
+
+fun <T> Result<Result<T>>.flatten(): Result<T> = tryFlatMap { it }
 
 fun <T> result(tryCompute: () -> T): Result<T> = try { Success(tryCompute()) } catch (e: Exception) { Failure(e) }
 

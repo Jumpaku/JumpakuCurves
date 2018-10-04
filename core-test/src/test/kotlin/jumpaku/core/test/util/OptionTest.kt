@@ -1,4 +1,4 @@
-package jumpaku.core.test
+package jumpaku.core.test.util
 
 import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.toJson
@@ -7,25 +7,27 @@ import org.amshove.kluent.*
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows
 
-class IntegersKtTest {
+class OptionTest {
 
     val some = some(4)
     val none = none<Int>()
 
     @Test
-    fun testOptionOf() {
-        println("OptionOf")
-        optionOf(5).isDefined.shouldBeTrue()
-        optionOf(null).isEmpty.shouldBeTrue()
+    fun testOption() {
+        println("Option")
+        option(5 as Int?).isDefined.shouldBeTrue()
+        option { 5 as Int? }.isDefined.shouldBeTrue()
+        option(null as Int?).isEmpty.shouldBeTrue()
+        option { null as Int? }.isEmpty.shouldBeTrue()
     }
 
     @Test
-    fun testOption() {
-        println("Option")
+    fun testToOption() {
+        println("ToOption")
         val s: Int? = 5
         val n: Int? = null
-        s.option().isDefined.shouldBeTrue()
-        n.option().isEmpty.shouldBeTrue()
+        s.toOption().isDefined.shouldBeTrue()
+        n.toOption().isEmpty.shouldBeTrue()
     }
 
     @Test
@@ -84,8 +86,8 @@ class IntegersKtTest {
     @Test
     fun testFlatMap() {
         println("FlatMap")
-        some.flatMap { optionOf(it.toString()) }.orNull()!!.shouldBeEqualTo("4")
-        none.flatMap { optionOf(it.toString()) }.orNull().shouldBeNull()
+        some.flatMap { option(it.toString()) }.orNull()!!.shouldBeEqualTo("4")
+        none.flatMap { option(it.toString()) }.orNull().shouldBeNull()
     }
 
     @Test
