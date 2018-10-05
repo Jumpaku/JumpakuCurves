@@ -23,6 +23,6 @@ class ParamPointTest {
     fun testToString() {
         println("ToString")
         val t = ParamPoint(Point.xr(1.0, 10.0), 1.0)
-        t.toString().parseJson().flatMap { ParamPoint.fromJson(it) }.get().shouldEqualToParamPoint(t)
+        t.toString().parseJson().tryFlatMap { ParamPoint.fromJson(it) }.orThrow().shouldEqualToParamPoint(t)
     }
 }

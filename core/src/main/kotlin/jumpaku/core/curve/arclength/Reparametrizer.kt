@@ -32,7 +32,7 @@ fun repeatBisect(domain: Interval, times: Int = 2, evaluateError: (Interval)->Do
 fun repeatBisect(curve: Curve, tolerance: Double, domain: Interval = curve.domain): Stream<Interval> =
         repeatBisect(curve, domain) { subDomain ->
             val (p0, p1, p2) = subDomain.sample(3).map { curve(it) }
-            line(p0, p2).map { p1.dist(it) }.getOrElse { p1.dist(p0) } > tolerance
+            line(p0, p2).map { p1.dist(it) }.orDefault { p1.dist(p0) } > tolerance
         }
 
 fun repeatBisect(curve: Curve, domain: Interval = curve.domain, shouldBisect: (Interval)->Boolean): Stream<Interval> =
@@ -76,8 +76,8 @@ class Reparametrizer private constructor(
                 val u1 = (f(u0) - s).divOption(dfdt(u0)).map { u0 - it }
                 return when {
                     u1.isEmpty -> if (u0 < 0.5) 0.0 else 1.0
-                    FastMath.abs(u1.get() - u0) <= tolerance || times == 1 -> u1.get()
-                    else -> newton(u1.get(), times - 1, tolerance)
+                    FastMath.abs(u1.orThrow() - u0) <= tolerance || times == 1 -> u1.orThrow()
+                    else -> newton(u1.orThrow(), times - 1, tolerance)
                 }
             }
 
@@ -110,7 +110,7 @@ class Reparametrizer private constructor(
         val i = originalParams.search(originalParam).let { if (it < 0) -it-1 else it }
         return if (i == 0) 0.0
         else quadratics[i-1].let { it(originalParam).divOption(chordLength)
-                .getOrElse { 0.0 }.coerceIn(range) }
+                .orDefault { 0.0 }.coerceIn(range) }
     }
 
     companion object {

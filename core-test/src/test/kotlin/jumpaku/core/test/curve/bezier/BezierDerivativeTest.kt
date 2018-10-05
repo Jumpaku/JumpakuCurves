@@ -32,7 +32,7 @@ class BezierDerivativeTest {
     fun testToString() {
         println("ToString")
         val p = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-        p.toString().parseJson().flatMap { BezierDerivative.fromJson(it) }.get().toBezier().shouldEqualToBezier(p.toBezier())
+        p.toString().parseJson().tryFlatMap { BezierDerivative.fromJson(it) }.orThrow().toBezier().shouldEqualToBezier(p.toBezier())
     }
 
     @Test

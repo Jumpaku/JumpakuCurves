@@ -36,7 +36,7 @@ class BezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        bc.toString().parseJson().flatMap { Bezier.fromJson(it) }.get().shouldEqualToBezier(bc)
+        bc.toString().parseJson().tryFlatMap { Bezier.fromJson(it) }.orThrow().shouldEqualToBezier(bc)
     }
 
     @Test

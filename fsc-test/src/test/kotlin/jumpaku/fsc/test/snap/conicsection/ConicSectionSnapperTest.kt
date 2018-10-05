@@ -43,8 +43,8 @@ class ConicSectionSnapperTest {
     fun testSnap_L() {
         println("Snap_L")
         for (i in 0..0) {
-            val cs = resourceText("ConicSectionL$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val e = resourceText("SnapResultL$i.json").parseJson().flatMap { ConicSection.fromJson(it["snappedConicSection"]) }.get()
+            val cs = resourceText("ConicSectionL$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow()
+            val e = resourceText("SnapResultL$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it["snappedConicSection"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.LineSegment, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             a.snappedConicSection.shouldEqualToConicSection(e)
         }
@@ -54,8 +54,8 @@ class ConicSectionSnapperTest {
     fun testSnap_CA() {
         println("Snap_CA")
         for (i in 0..2) {
-            val cs = resourceText("ConicSectionCA$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val e = resourceText("SnapResultCA$i.json").parseJson().flatMap { ConicSection.fromJson(it["snappedConicSection"]) }.get()
+            val cs = resourceText("ConicSectionCA$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow()
+            val e = resourceText("SnapResultCA$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it["snappedConicSection"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.CircularArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             a.snappedConicSection.shouldEqualToConicSection(e)
         }
@@ -65,8 +65,8 @@ class ConicSectionSnapperTest {
     fun testSnap_EA() {
         println("Snap_EA")
         for (i in 0..2) {
-            val cs = resourceText("ConicSectionEA$i.json").parseJson().flatMap { ConicSection.fromJson(it) }.get()
-            val e = resourceText("SnapResultEA$i.json").parseJson().flatMap { ConicSection.fromJson(it["snappedConicSection"]) }.get()
+            val cs = resourceText("ConicSectionEA$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow()
+            val e = resourceText("SnapResultEA$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it["snappedConicSection"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.EllipticArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             a.snappedConicSection.shouldEqualToConicSection(e)
         }

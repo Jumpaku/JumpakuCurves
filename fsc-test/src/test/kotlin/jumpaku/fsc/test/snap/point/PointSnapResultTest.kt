@@ -27,7 +27,7 @@ class PointSnapResultTest {
         val r = 1/4.0
         val e = snapper.snap(baseGrid, Point.xr( 7/32.0, r))
         e.isDefined.shouldBeTrue()
-        e.get().toString().parseJson().flatMap { PointSnapResult.fromJson(it) }.get().shouldEqualToPointSnapResult(e.get())
+        e.orThrow().toString().parseJson().tryFlatMap { PointSnapResult.fromJson(it) }.orThrow().shouldEqualToPointSnapResult(e.orThrow())
     }
 
 }

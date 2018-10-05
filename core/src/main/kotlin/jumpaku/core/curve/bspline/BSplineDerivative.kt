@@ -7,13 +7,14 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Option
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 
 class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable, ToJson {
@@ -63,8 +64,8 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<BSplineDerivative> = Try.ofSupplier {
-            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<BSplineDerivative> = result {
+            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it).value() }, KnotVector.fromJson(json["knotVector"]).orThrow())
+        }
     }
 }

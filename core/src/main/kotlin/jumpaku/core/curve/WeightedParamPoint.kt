@@ -5,9 +5,9 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.Point
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 
@@ -25,8 +25,8 @@ data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<WeightedParamPoint> = Try.ofSupplier {
-            WeightedParamPoint(ParamPoint.fromJson(json["paramPoint"]).get(), json["weight"].double)
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<WeightedParamPoint> = result {
+            WeightedParamPoint(ParamPoint.fromJson(json["paramPoint"]).orThrow(), json["weight"].double)
+        }
     }
 }

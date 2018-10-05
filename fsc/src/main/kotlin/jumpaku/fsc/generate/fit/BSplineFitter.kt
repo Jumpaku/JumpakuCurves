@@ -13,6 +13,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
+import jumpaku.core.util.orDefault
 
 fun createModelMatrix(sataParams: Array<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
     val n = knotVector.extractedKnots.size() - degree - 1
@@ -43,7 +44,7 @@ class BSplineFitter(
         val distinct = data.distinctBy(WeightedParamPoint::param)
         if(distinct.size() <= degree){
             val d = transformParams(data.map { it.paramPoint }, Interval.ZERO_ONE)
-                    .getOrElse { data.map { (pp, _) -> pp.copy(param = 0.5) } }
+                    .orDefault { data.map { (pp, _) -> pp.copy(param = 0.5) } }
             val b = BezierFitter(degree)
                     .fit(d, distinct.map { it.weight })
             return BSpline(b.controlPoints,

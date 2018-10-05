@@ -90,9 +90,9 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val xy_xx = API.For(plane(begin, far, end), line(begin, end), rangeSamples.sample(nSamples))
                     .`yield` { plane: Plane, line: Line, tp: Double ->
                         val p = fsc(tp).projectTo(plane)
-                        val a = far.projectTo(line(p, end - begin).get())
+                        val a = far.projectTo(line(p, end - begin).orThrow())
                         val b = far.projectTo(line)
-                        val t = (a - far).dot(b - far).divOption(b.distSquare(far)).getOrElse(0.0)
+                        val t = (a - far).dot(b - far).divOption(b.distSquare(far)).orDefault(0.0)
                         val x = far.divide(t, begin.middle(end))
                         val dd = x.distSquare(p)
                         val ll = begin.distSquare(end) / 4

@@ -20,7 +20,7 @@ class TranslateTest {
     @Test
     fun testToString() {
         println("ToString")
-        val a = t.toString().parseJson().flatMap { Translate.fromJson(it) }.get()(p)
+        val a = t.toString().parseJson().tryFlatMap { Translate.fromJson(it) }.orThrow()(p)
         a.shouldEqualToPoint(Point(4.0, 6.0, -8.0))
     }
 }

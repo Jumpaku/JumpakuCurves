@@ -12,7 +12,7 @@ class WeightedPointTest {
     fun testToString() {
         println("ToString")
         val wp = WeightedPoint(Point.xyzr(1.0, 2.0, 3.0, 4.0), -0.4)
-        wp.toString().parseJson().flatMap { WeightedPoint.fromJson(it) }.get().shouldEqualToWeightedPoint(wp)
+        wp.toString().parseJson().tryFlatMap { WeightedPoint.fromJson(it) }.orThrow().shouldEqualToWeightedPoint(wp)
     }
 
     @Test

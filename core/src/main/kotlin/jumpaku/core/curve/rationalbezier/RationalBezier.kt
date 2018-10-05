@@ -8,19 +8,17 @@ import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 
 class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : Curve, Differentiable, ToJson {
@@ -118,8 +116,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
             return ws.first()
         }
 
-        fun fromJson(json: JsonElement): Option<RationalBezier> = Try.ofSupplier {
-            RationalBezier(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) })
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<RationalBezier> = result {
+            RationalBezier(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() })
+        }
     }
 }

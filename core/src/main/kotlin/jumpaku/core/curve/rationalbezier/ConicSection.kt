@@ -9,21 +9,14 @@ import com.google.gson.JsonElement
 import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.component3
-import jumpaku.core.util.divOption
+import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
 import kotlin.math.absoluteValue
 
@@ -47,7 +40,7 @@ class ConicSection(
             override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
         }
 
-    fun toCrispQuadratic(): Option<RationalBezier> = Option.`when`(1.0.divOption(weight).isDefined) {
+    fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.divOption(weight).isDefined) {
         RationalBezier(Stream(
                 begin.toCrisp(),
                 far.divide(-1 / weight, begin.middle(end)).toCrisp(),
@@ -97,7 +90,7 @@ class ConicSection(
     fun reverse(): ConicSection = reversed
 
     private val complement: ConicSection by lazy {
-        ConicSection(begin, center().map { it.divide(-1.0, far) }.getOrElse { far }, end, -weight)
+        ConicSection(begin, center().map { it.divide(-1.0, far) }.orDefault { far }, end, -weight)
     }
 
     fun complement(): ConicSection = complement
@@ -148,15 +141,15 @@ class ConicSection(
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
             val hh = line(begin, end).map { far.distSquare(it) }
-                    .getOrElse { begin.distSquare(far) }
+                    .orDefault { begin.distSquare(far) }
             val ll = (begin - end).square()/4
             return ConicSection(begin, far, end, ((ll - hh) / (ll + hh)).coerceIn(-0.999, 0.999))
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
-        fun fromJson(json: JsonElement): Option<ConicSection> = Try.ofSupplier {
-            ConicSection(Point.fromJson(json["begin"]).get(), Point.fromJson(json["far"]).get(), Point.fromJson(json["end"]).get(), json["weight"].double)
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<ConicSection> = result {
+            ConicSection(Point.fromJson(json["begin"]).orThrow(), Point.fromJson(json["far"]).orThrow(), Point.fromJson(json["end"]).orThrow(), json["weight"].double)
+        }
     }
 }

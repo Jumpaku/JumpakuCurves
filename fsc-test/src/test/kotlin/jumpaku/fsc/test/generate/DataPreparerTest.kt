@@ -70,8 +70,8 @@ class DataPreparerTest {
         val b = BSpline(Array.of(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.5, 3.0).sample(100).map { ParamPoint(b(it), it) }
         val subdivided = BSplineFitter(2, knots).fit(DataPreparer.extendFront(data, 0.5)).subdivide(2.0)
-        subdivided._1().get().shouldEqualToBSpline(b.subdivide(2.0)._1().get(), 0.2)
-        subdivided._2().get().shouldEqualToBSpline(b.subdivide(2.0)._2().get(), 0.01)
+        subdivided._1().orThrow().shouldEqualToBSpline(b.subdivide(2.0)._1().orThrow(), 0.2)
+        subdivided._2().orThrow().shouldEqualToBSpline(b.subdivide(2.0)._2().orThrow(), 0.01)
     }
 
     @Test
@@ -81,7 +81,7 @@ class DataPreparerTest {
         val b = BSpline(Array.of(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val subdivided = BSplineFitter(2, knots).fit(DataPreparer.extendBack(data, 0.5)).subdivide(1.0)
-        subdivided._1().get().shouldEqualToBSpline(b.subdivide(1.0)._1().get(), 0.01)
-        subdivided._2().get().shouldEqualToBSpline(b.subdivide(1.0)._2().get(), 0.2)
+        subdivided._1().orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow(), 0.01)
+        subdivided._2().orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow(), 0.2)
     }
 }

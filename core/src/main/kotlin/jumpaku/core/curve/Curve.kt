@@ -1,16 +1,7 @@
 package jumpaku.core.curve
 
 import io.vavr.collection.Array
-import io.vavr.collection.Stream
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.Reparametrizer
-import jumpaku.core.curve.arclength.repeatBisect
-import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
-import jumpaku.core.geom.line
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.component3
 
 interface Curve : (Double)->Point {
 

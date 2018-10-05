@@ -7,14 +7,14 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Map
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.hashMap
 import jumpaku.core.json.jsonMap
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import jumpaku.fsc.identify.reference.Reference
 
 data class IdentifyResult(
@@ -41,14 +41,14 @@ data class IdentifyResult(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<IdentifyResult> = Try.ofSupplier {
+        fun fromJson(json: JsonElement): Result<IdentifyResult> = result {
             IdentifyResult(
                     json["grades"].hashMap.map { c, g ->
-                        Tuple2(CurveClass.valueOf(c.string), Grade.fromJson(g.asJsonPrimitive).get())
+                        Tuple2(CurveClass.valueOf(c.string), Grade.fromJson(g.asJsonPrimitive).orThrow())
                     },
-                    Reference.fromJson(json["linear"]).get(),
-                    Reference.fromJson(json["circular"]).get(),
-                    Reference.fromJson(json["elliptic"]).get())
-        }.toOption()
+                    Reference.fromJson(json["linear"]).orThrow(),
+                    Reference.fromJson(json["circular"]).orThrow(),
+                    Reference.fromJson(json["elliptic"]).orThrow())
+        }
     }
 }

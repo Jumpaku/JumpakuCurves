@@ -2,11 +2,10 @@ package jumpaku.fsc.snap
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.Point
-import jumpaku.core.transform.Transform
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 fun Grid.toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
     localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
@@ -23,7 +22,7 @@ data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<GridPoint> =
-                Try.ofSupplier { GridPoint(json["x"].long, json["y"].long, json["z"].long) }.toOption()
+        fun fromJson(json: JsonElement): Result<GridPoint> =
+                result { GridPoint(json["x"].long, json["y"].long, json["z"].long) }
     }
 }

@@ -5,11 +5,11 @@ import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.GridPoint
 import jumpaku.fsc.snap.toWorldPoint
@@ -31,11 +31,11 @@ data class PointSnapResult(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<PointSnapResult> = Try.ofSupplier {
+        fun fromJson(json: JsonElement): Result<PointSnapResult> = result {
             PointSnapResult(
                     json["resolution"].int,
-                    GridPoint.fromJson(json["gridPoint"]).get(),
-                    Grade.fromJson(json["grade"].asJsonPrimitive).get())
-        }.toOption()
+                    GridPoint.fromJson(json["gridPoint"]).orThrow(),
+                    Grade.fromJson(json["grade"].asJsonPrimitive).orThrow())
+        }
     }
 }

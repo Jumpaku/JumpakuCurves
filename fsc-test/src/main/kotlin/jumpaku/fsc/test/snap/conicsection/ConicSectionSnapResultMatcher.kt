@@ -13,7 +13,7 @@ fun isCloseTo(actual: ConicSectionSnapResult.Candidate, expected: ConicSectionSn
         actual.featurePoints.size() == expected.featurePoints.size() &&
         actual.featurePoints.zip(expected.featurePoints).all { (a, e) ->
             isCloseTo(a.source, e.source, error) &&
-                    if (a.target.isDefined && e.target.isDefined) isCloseTo(a.target.get(), e.target.get(), error)
+                    if (a.target.isDefined && e.target.isDefined) isCloseTo(a.target.orThrow(), e.target.orThrow(), error)
                     else a.target.isDefined == e.target.isDefined
 
         }

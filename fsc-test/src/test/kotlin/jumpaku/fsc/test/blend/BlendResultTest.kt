@@ -12,9 +12,10 @@ class BlendResultTest {
     @Test
     fun testToString() {
         println("ToString")
-        for (i in 0..4) {
-            val e = resourceText("BlendResult$i.json").parseJson().flatMap { BlendResult.fromJson(it) }.get()
-            val a = e.toJson().let { BlendResult.fromJson(it) }.get()
+        for (i in 4..4) {
+            println(i)
+            val e = resourceText("BlendResult$i.json").parseJson().tryFlatMap { BlendResult.fromJson(it) }.orThrow()
+            val a = e.toJson().let { BlendResult.fromJson(it) }.orThrow()
             a.shouldEqualToBlendResult(e)
         }
     }

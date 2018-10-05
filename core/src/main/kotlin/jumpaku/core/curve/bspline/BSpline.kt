@@ -7,29 +7,20 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.geom.Divisible
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
-import jumpaku.core.geom.line
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.divOption
-import jumpaku.core.util.lastIndex
+import jumpaku.core.util.*
 
 
-class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
-    : Curve, Differentiable, ToJson {
+class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector) : Curve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
@@ -77,7 +68,7 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
         require(begin < end) { "must be begin($begin) < end($end)" }
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin)._2().get().subdivide(end)._1().get()
+        return subdivide(begin)._2().orThrow().subdivide(end)._1().orThrow()
     }
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
@@ -133,9 +124,9 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<BSpline> = Try.ofSupplier {
-            BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<BSpline> = result {
+            BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it).value() }, KnotVector.fromJson(json["knotVector"]).orThrow())
+        }
 
         tailrec fun <D : Divisible<D>> evaluate(controlPoints: Array<D>, knotVector: KnotVector, t: Double): D {
             val us = knotVector.extractedKnots
@@ -287,6 +278,6 @@ class BSpline(val controlPoints: Array<Point>, val knotVector: KnotVector)
             return ns[0]
         }
 
-        fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double = (a - b).divOption (c - d).getOrElse(0.0)
+        fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double = (a - b).divOption (c - d).orDefault(0.0)
     }
 }

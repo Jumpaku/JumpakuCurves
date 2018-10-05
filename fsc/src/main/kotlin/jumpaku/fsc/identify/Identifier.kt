@@ -11,6 +11,7 @@ import jumpaku.core.geom.line
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
+import jumpaku.core.util.orDefault
 import java.util.*
 
 
@@ -22,7 +23,7 @@ fun reparametrize(fsc: BSpline, maxSamples: Int = 65): ReparametrizedCurve<BSpli
 private fun BSpline.approximateParams(n: Int): Array<Double> {
     fun Curve.evaluateError(domain: Interval): Double =
             domain.sample(3).map { evaluate(it) }.let { (p0, p1, p2) ->
-                line(p0, p2).map { p1.dist(it) }.getOrElse { p1.dist(p2) }
+                line(p0, p2).map { p1.dist(it) }.orDefault { p1.dist(p2) }
             }
     val cache = TreeMap<Double, List<Interval>>(naturalOrder())
     cache[evaluateError(domain)] = List.of(domain)

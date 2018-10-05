@@ -5,8 +5,6 @@ import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
 
 /**
  * maps arc-length ratio parameter to point on original curve.

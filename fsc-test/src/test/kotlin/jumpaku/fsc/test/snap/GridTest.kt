@@ -52,7 +52,7 @@ class GridTest {
     @Test
     fun testToString() {
         println("ToString")
-        baseGrid.toString().parseJson().flatMap { Grid.fromJson(it) }.get().shouldEqualToGrid(baseGrid)
+        baseGrid.toString().parseJson().tryFlatMap { Grid.fromJson(it) }.orThrow().shouldEqualToGrid(baseGrid)
     }
 }
 

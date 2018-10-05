@@ -2,7 +2,6 @@ package jumpaku.fsc.blend
 
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
@@ -10,6 +9,8 @@ import jumpaku.core.curve.transformParams
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import jumpaku.core.util.none
+import jumpaku.core.util.orDefault
 
 
 class Blender(
@@ -23,7 +24,7 @@ class Blender(
         return path.map {
             val data = resample(existing, overlapping, it)
             BlendResult(osm, path, path.map { data })
-        }.getOrElse { BlendResult(osm, Option.none(), Option.none()) }
+        }.orDefault { BlendResult(osm, none(), none()) }
     }
 
     fun overlappingMatrix(samplingSpan: Double, existing: BSpline, overlapping: BSpline): OverlappingMatrix {
@@ -58,11 +59,11 @@ class Blender(
         val m = if (front.isEmpty) middle
         else transformParams(
                 middle, Interval(f.last().param, f.last().param + middle.last().param - middle.head().param))
-                .getOrElse { middle.map { it.copy(param = f.last().param) } }
+                .orDefault { middle.map { it.copy(param = f.last().param) } }
         val b = if (back.isEmpty) back
         else transformParams(
                 back, Interval(m.last().param, m.last().param + back.last().param - back.head().param))
-                .getOrElse { back.map { it.copy(param = m.last().param) } }
+                .orDefault { back.map { it.copy(param = m.last().param) } }
 
         return Stream.concat(f, m, b).toArray()
     }

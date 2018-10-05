@@ -37,8 +37,8 @@ class ConjugateBox(val transform: Transform) {
                 val w = deepConicSection.weight
                 val t = (1 + w).divOption(1 - w).map { ((1 - FastMath.sqrt(it)) / 2).coerceIn(0.0, 0.5) }
                 return Calibrate(Point.xy(0.0, 1.0) to deepConicSection.far,
-                        Point.xy(-1.0, 0.0) to deepConicSection(t.get()),
-                        Point.xy(1.0, 0.0) to deepConicSection(1 - t.get()))
+                        Point.xy(-1.0, 0.0) to deepConicSection(t.orThrow()),
+                        Point.xy(1.0, 0.0) to deepConicSection(1 - t.orThrow()))
             }
             val transform = when{
                 conicSection.center().isDefined -> transform(

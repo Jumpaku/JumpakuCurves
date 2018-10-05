@@ -4,10 +4,11 @@ import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.HashMap
 import io.vavr.collection.Stream
-import io.vavr.control.Option
 import jumpaku.core.fuzzy.Grade
+import jumpaku.core.util.Option
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import jumpaku.core.util.optionWhen
 
 data class OverlappingPath(
         val type: OverlappingType,
@@ -24,7 +25,7 @@ data class OverlappingPath(
             return if (mu > Grade.FALSE) Builder(osm, mu, path.append(Tuple2(i, j))) else Builder(osm)
         }
 
-        fun build(): Option<OverlappingPath> = Option.`when`(path.nonEmpty()) {
+        fun build(): Option<OverlappingPath> = optionWhen(path.nonEmpty()) {
              OverlappingPath(overlappingType(osm, path), grade, path)
         }
     }
@@ -84,7 +85,7 @@ data class OverlappingMatrix(val matrix: Array<Array<Grade>>) {
         }
         return Stream.concat((0..rowLastIndex).map { i ->  subPath(i, columnLastIndex) }, (0..columnLastIndex).map { j -> subPath(rowLastIndex, j) })
                 .flatMap { it.build() }
-                .maxBy { b -> evaluatePath(b) }
+                .maxBy { b -> evaluatePath(b) }.let { optionWhen(it.isDefined) { it.get() }  }
     }
 }
 

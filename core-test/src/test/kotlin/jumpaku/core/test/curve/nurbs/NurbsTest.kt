@@ -74,7 +74,7 @@ class NurbsTest {
     @Test
     fun testToString() {
         println("ToString")
-        n.toString().parseJson().flatMap { Nurbs.fromJson(it) }.get().shouldEqualToNurbs(n)
+        n.toString().parseJson().tryFlatMap { Nurbs.fromJson(it) }.orThrow().shouldEqualToNurbs(n)
     }
 
     @Test
@@ -202,8 +202,8 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(1.0, 4), Knot(2.0, 4)))
-        a00.get().shouldEqualToNurbs(e00)
-        a01.get().shouldEqualToNurbs(e01)
+        a00.orThrow().shouldEqualToNurbs(e00)
+        a01.orThrow().shouldEqualToNurbs(e01)
 
         val (a10, a11) = n.subdivide(0.5)
         val e10 = Nurbs(Array.of(
@@ -220,13 +220,13 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
                 KnotVector(3, Knot(0.5, 4), Knot(1.0, 2), Knot(2.0, 4)))
-        a10.get().shouldEqualToNurbs(e10)
-        a11.get().shouldEqualToNurbs(e11)
+        a10.orThrow().shouldEqualToNurbs(e10)
+        a11.orThrow().shouldEqualToNurbs(e11)
 
         val (a20, a21) = n.subdivide(0.0)
         val e21 = n
         a20.isDefined.shouldBeFalse()
-        a21.get().shouldEqualToNurbs(e21)
+        a21.orThrow().shouldEqualToNurbs(e21)
     }
 
     @Test

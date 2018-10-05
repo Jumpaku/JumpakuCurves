@@ -27,9 +27,9 @@ class BlenderTest {
     fun testBlend() {
         println("Blend")
         for (i in 0..4) {
-            val existing = resourceText("BlendExisting$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-            val overlapping = resourceText("BlendOverlapping$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-            val a = resourceText("BlendResult$i.json").parseJson().flatMap { BlendResult.fromJson(it) }.get()
+            val existing = resourceText("BlendExisting$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val overlapping = resourceText("BlendOverlapping$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val a = resourceText("BlendResult$i.json").parseJson().tryFlatMap { BlendResult.fromJson(it) }.orThrow()
             val e = blender.blend(existing, overlapping)
             a.shouldEqualToBlendResult(e)
         }

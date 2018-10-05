@@ -3,10 +3,10 @@ package jumpaku.core.transform
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.Vector
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 
@@ -28,8 +28,8 @@ class Translate(val move: Vector = Vector()): Transform, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Translate> = Try.ofSupplier {
-            Translate(Vector.fromJson(json["move"]).get())
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<Translate> = result {
+            Translate(Vector.fromJson(json["move"]).orThrow())
+        }
     }
 }

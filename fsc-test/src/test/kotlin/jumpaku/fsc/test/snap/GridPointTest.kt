@@ -12,6 +12,6 @@ class GridPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        gp.toString().parseJson().flatMap { GridPoint.fromJson(it) }.get().shouldEqual(gp)
+        gp.toString().parseJson().tryFlatMap { GridPoint.fromJson(it) }.orThrow().shouldEqual(gp)
     }
 }

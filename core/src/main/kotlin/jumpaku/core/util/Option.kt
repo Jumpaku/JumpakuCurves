@@ -1,13 +1,14 @@
 package jumpaku.core.util
 
 import com.github.salomonbrys.kotson.contains
+import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonNull
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 
-sealed class Option<out T>: Iterable<T> {
+sealed class Option<out T: Any>: Iterable<T> {
 
     val isEmpty: Boolean get() = this === None
 
@@ -17,26 +18,27 @@ sealed class Option<out T>: Iterable<T> {
 
     fun orThrow(except: ()->Exception = { NoSuchElementException("None.orThrow()") }): T = orNull() ?: throw except()
 
-    fun <U> map(transform: (T) -> U): Option<U> = flatMap { Some(transform(it)) }
+    fun <U: Any> map(transform: (T) -> U): Option<U> = flatMap { Some(transform(it)) }
 
-    fun <U> flatMap(transform: (T) -> Option<U>): Option<U> = (this as? Some)?.let { transform(value) } ?: None
+    fun <U: Any> flatMap(transform: (T) -> Option<U>): Option<U> = (this as? Some)?.let { transform(value) } ?: None
 
     fun filter(test: (T)->Boolean): Option<T> = if (this is Some && test(value)) this else None
 
     companion object {
 
         fun fromJson(json: JsonElement): Result<Option<JsonElement>> = result {
-            optionWhen("value" in (json as JsonObject)) { json["value"] }
+            if ("value" in (json as JsonObject) && !json["value"].isJsonNull) some(json["value"])
+            else none()
         }
 
-        fun <T> fromJson(json: JsonElement, transform: (JsonElement) -> T): Result<Option<T>> =
+        fun <T: Any> fromJson(json: JsonElement, transform: (JsonElement) -> T): Result<Option<T>> =
                 fromJson(json).tryMap { it.map(transform) }
     }
 }
 
-fun Option<JsonElement>.toJson(): JsonElement = map {
+fun <J : JsonElement> Option<J>.toJson(): JsonElement = map {
     jsonObject("value" to it)
-}.orDefault(jsonNull)
+}.orDefault(jsonObject("value" to jsonNull))
 
 object None : Option<Nothing>() {
 
@@ -52,7 +54,7 @@ object None : Option<Nothing>() {
     override fun toString(): String = "None"
 }
 
-class Some<out T>(val value: T) : Option<T>() {
+class Some<out T: Any>(val value: T) : Option<T>() {
 
     override fun iterator(): Iterator<T> = object : Iterator<T> {
 
@@ -69,20 +71,22 @@ class Some<out T>(val value: T) : Option<T>() {
     override fun toString(): String = "Some($value)"
 }
 
-fun <T> Option<Option<T>>.flatten(): Option<T> = flatMap { it }
+fun <T: Any> Option<Option<T>>.flatten(): Option<T> = flatMap { it }
 
-fun <T> Option<T>.orDefault(default: () -> T): T = orNull() ?: default()
-fun <T> Option<T>.orDefault(default: T): T = orNull() ?: default
+fun <T: Any> Option<T>.orDefault(default: () -> T): T = orNull() ?: default()
+fun <T: Any> Option<T>.orDefault(default: T): T = orNull() ?: default
 
-fun <T> Option<T>.toResult(): Result<T> = result { orThrow() }
+fun <T: Any> Option<T>.orOption(option: ()->Option<T>): Option<T> = if(isDefined) this else option()
 
-fun <T> none(): Option<T> = None
+fun <T: Any> Option<T>.toResult(): Result<T> = result { orThrow() }
 
-fun <T> some(value: T): Option<T> = Some(value)
+fun <T: Any> none(): Option<T> = None
 
-fun <T> option(nullable: T?): Option<T> = option { nullable }
-fun <T> option(nullable: ()->T?): Option<T> = nullable()?.let(::some) ?: none()
+fun <T: Any> some(value: T): Option<T> = Some(value)
 
-fun <T> T?.toOption(): Option<T> = option { this }
+fun <T: Any> option(nullable: T?): Option<T> = option { nullable }
+fun <T: Any> option(nullable: ()->T?): Option<T> = nullable()?.let(::some) ?: none()
 
-fun <T> optionWhen(condition: Boolean, supply: () -> T): Option<T> = if (condition) some(supply()) else none()
+fun <T: Any> T?.toOption(): Option<T> = option { this }
+
+fun <T: Any> optionWhen(condition: Boolean, supply: () -> T): Option<T> = if (condition) some(supply()) else none()

@@ -1,13 +1,11 @@
 package jumpaku.core.json
 
-import com.github.salomonbrys.kotson.toJson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
-import io.vavr.control.Option
-import io.vavr.control.Try
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import java.io.File
-import java.net.URI
 import java.net.URL
 import java.nio.file.Path
 
@@ -18,10 +16,10 @@ interface ToJson {
     fun toJsonString(): String = prettyGson.toJson(toJson())
 }
 
-fun String.parseJson(): Option<JsonElement> = Try.ofSupplier { JsonParser().parse(this) }.toOption()
+fun String.parseJson(): Result<JsonElement> = result { JsonParser().parse(this) }
 
-fun File.parseJson(): Option<JsonElement> = readText().parseJson()
+fun File.parseJson(): Result<JsonElement> = readText().parseJson()
 
-fun Path.parseJson(): Option<JsonElement> = toFile().parseJson()
+fun Path.parseJson(): Result<JsonElement> = toFile().parseJson()
 
-fun URL.parseJson(): Option<JsonElement> = readText().parseJson()
+fun URL.parseJson(): Result<JsonElement> = readText().parseJson()

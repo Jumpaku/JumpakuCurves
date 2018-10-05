@@ -7,19 +7,17 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.*
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
 import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.geom.*
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
+import jumpaku.core.geom.WeightedPoint
+import jumpaku.core.geom.times
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
+import jumpaku.core.util.*
 
 class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
     : Curve, Differentiable, ToJson {
@@ -79,7 +77,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin)._2().get().subdivide(end)._1().get()
+        return subdivide(begin)._2().orThrow().subdivide(end)._1().orThrow()
     }
 
     fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
@@ -128,8 +126,8 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Nurbs> = Try.ofSupplier {
-            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<Nurbs> = result {
+            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() }, KnotVector.fromJson(json["knotVector"]).orThrow())
+        }
     }
 }

@@ -11,6 +11,8 @@ import jumpaku.core.curve.transformParams
 import jumpaku.core.curve.uniformParametrize
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import jumpaku.core.util.orDefault
+import jumpaku.core.util.orOption
 
 
 /**
@@ -62,11 +64,11 @@ class DataPreparer(
                     .let {
                         val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
                         transformParams(chordalParametrize(it.map { it.point }), range)
-                                .orElse { transformParams(uniformParametrize(it.map { it.point }), range) }
-                    }.get()
+                                .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+                    }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
             val outerData = bezier.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
-            return transformParams(outerData, Interval(begin, begin + outerSpan)).get()
+            return transformParams(outerData, Interval(begin, begin + outerSpan)).orThrow()
                     .init()
                     .appendAll(sortedData)
         }
@@ -83,11 +85,11 @@ class DataPreparer(
                     .let {
                         val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
                         transformParams(chordalParametrize(it.map { it.point }), range)
-                                .orElse { transformParams(uniformParametrize(it.map { it.point }), range) }
-                    }.get()
+                                .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+                    }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
             val outerData = bezier.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
-            return transformParams(outerData, Interval(end - outerSpan, end)).get()
+            return transformParams(outerData, Interval(end - outerSpan, end)).orThrow()
                     .tail()
                     .prependAll(sortedData)
         }

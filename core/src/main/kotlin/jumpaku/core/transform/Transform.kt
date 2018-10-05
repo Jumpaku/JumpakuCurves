@@ -4,9 +4,11 @@ import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.jsonArray
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.Point
+import jumpaku.core.util.Option
+import jumpaku.core.util.Result
+import jumpaku.core.util.optionWhen
+import jumpaku.core.util.result
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.apache.commons.math3.linear.RealMatrix
@@ -22,7 +24,7 @@ interface Transform {
 
     fun at(origin: Point): Transform = Translate(-origin.toVector()).andThen(this).andThen(Translate(origin.toVector()))
 
-    fun invert(): Option<Transform> = QRDecomposition(matrix).solver.run { Option.`when`(isNonSingular) { ofMatrix(inverse) } }
+    fun invert(): Option<Transform> = QRDecomposition(matrix).solver.run { optionWhen(isNonSingular) { ofMatrix(inverse) } }
 
     companion object {
 
@@ -30,10 +32,10 @@ interface Transform {
             override val matrix: RealMatrix = m
         }
 
-        fun fromMatrixJson(json: JsonElement): Option<Transform> = Try.ofSupplier {
+        fun fromMatrixJson(json: JsonElement): Result<Transform> = result {
             json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
                     .let { ofMatrix(MatrixUtils.createRealMatrix(it)) }
-        }.toOption()
+        }
 
         val Identity = ofMatrix(MatrixUtils.createRealIdentityMatrix(4))
     }

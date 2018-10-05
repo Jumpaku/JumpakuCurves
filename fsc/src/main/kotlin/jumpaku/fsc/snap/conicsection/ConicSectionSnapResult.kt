@@ -6,16 +6,15 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.jsonOption
-import jumpaku.core.json.option
 import jumpaku.core.transform.Transform
 import jumpaku.core.transform.toMatrixJson
+import jumpaku.core.util.Option
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
+import jumpaku.core.util.toJson
 import jumpaku.fsc.snap.point.PointSnapResult
 
 data class ConicSectionSnapResult(val snappedConicSection: ConicSection, val candidates: Array<Candidate>) : ToJson {
@@ -26,15 +25,15 @@ data class ConicSectionSnapResult(val snappedConicSection: ConicSection, val can
 
         override fun toJson(): JsonElement = jsonObject(
                 "source" to source.toJson(),
-                "target" to jsonOption(target.map { it.toJson() }))
+                "target" to target.map { it.toJson() }.toJson())
 
         companion object {
 
-            fun fromJson(json: JsonElement): Option<SnappedPoint> = Try.ofSupplier {
+            fun fromJson(json: JsonElement): Result<SnappedPoint> = result {
                 SnappedPoint(
-                        Point.fromJson(json["source"]).get(),
-                        json["target"].option.flatMap { PointSnapResult.fromJson(it) })
-            }.toOption()
+                        Point.fromJson(json["source"]).orThrow(),
+                        Option.fromJson(json["target"]).tryMap { it.map { PointSnapResult.fromJson(it).orThrow() } }.orThrow())
+            }
         }
     }
 
@@ -50,11 +49,11 @@ data class ConicSectionSnapResult(val snappedConicSection: ConicSection, val can
 
         companion object {
 
-            fun fromJson(json: JsonElement): Option<Candidate> = Try.ofSupplier {
+            fun fromJson(json: JsonElement): Result<Candidate> = result {
                 Candidate(
-                        Array.ofAll(json["featurePoints"].array.flatMap { SnappedPoint.fromJson(it) }),
-                        Transform.fromMatrixJson(json["transform"]).get())
-            }.toOption()
+                        Array.ofAll(json["featurePoints"].array.flatMap { SnappedPoint.fromJson(it).value() }),
+                        Transform.fromMatrixJson(json["transform"]).orThrow())
+            }
         }
     }
 
@@ -66,10 +65,10 @@ data class ConicSectionSnapResult(val snappedConicSection: ConicSection, val can
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<ConicSectionSnapResult> = Try.ofSupplier {
+        fun fromJson(json: JsonElement): Result<ConicSectionSnapResult> = result {
             ConicSectionSnapResult(
-                    ConicSection.fromJson(json["snappedConicSection"]).get(),
-                    json["candidates"].array.flatMap { Candidate.fromJson(it) }.let { Array.ofAll(it) })
-        }.toOption()
+                    ConicSection.fromJson(json["snappedConicSection"]).orThrow(),
+                    json["candidates"].array.flatMap { Candidate.fromJson(it).value() }.let { Array.ofAll(it) })
+        }
     }
 }

@@ -4,14 +4,14 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 
 class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE): Curve, ToJson {
@@ -44,10 +44,8 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Reference> = Try.ofSupplier {
-            Reference(ConicSection.fromJson(json["base"]).get(), Interval.fromJson(json["domain"]).get())
-        }.toOption()
-
-
+        fun fromJson(json: JsonElement): Result<Reference> = result {
+            Reference(ConicSection.fromJson(json["base"]).orThrow(), Interval.fromJson(json["domain"]).orThrow())
+        }
     }
 }

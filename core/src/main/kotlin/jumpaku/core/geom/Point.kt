@@ -4,14 +4,11 @@ import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.transform.Transform
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.fuzzy.Membership
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.divOption
+import jumpaku.core.util.*
 import org.apache.commons.math3.geometry.euclidean.threed.Line
 import org.apache.commons.math3.geometry.euclidean.threed.Plane
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
@@ -34,23 +31,19 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     fun toArray(): Array<Double> = toVector().toArray()
 
-    override fun membership(p: Point): Grade {
-        return dist(p).divOption(r)
-                .map { Grade.clamped(1 - it) }
-                .getOrElse(Grade(equalsPosition(this, p)))
-    }
+    override fun membership(p: Point): Grade = dist(p).divOption(r)
+            .map { Grade.clamped(1 - it) }
+            .orDefault(Grade(equalsPosition(this, p)))
 
-    override fun isPossible(u: Point): Grade {
-        return dist(u).divOption(r + u.r)
-                .map { Grade.clamped(1 - it) }
-                .getOrElse(Grade(equalsPosition(this, u)))
-    }
+    override fun isPossible(u: Point): Grade = dist(u).divOption(r + u.r)
+            .map { Grade.clamped(1 - it) }
+            .orDefault(Grade(equalsPosition(this, u)))
 
     override fun isNecessary(u: Point): Grade {
         val d = this.dist(u)
         return d.divOption(r + u.r)
                 .map { if (d < u.r) Grade.clamped(1 - (r + d) / (r + u.r)) else Grade.FALSE }
-                .getOrElse(Grade(equalsPosition(this, u)))
+                .orDefault(Grade(equalsPosition(this, u)))
         /*val ra = r
         val rb = u.r
         val dd = this.dist(u)
@@ -66,18 +59,16 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @param p
      * @return ((1-t)*this.vector + t*p.vector, |1-t|*this.r + |t|*p.r)
      */
-    override fun divide(t: Double, p: Point): Point {
-        return Point(toVector() * (1 - t) + t * p.toVector(),
-                FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
-    }
+    override fun divide(t: Double, p: Point): Point = Point(
+            toVector() * (1 - t) + t * p.toVector(),
+            FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
 
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z, "r" to r)
 
-    private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean {
-        return Precision.equals(p1.distSquare(p2), 0.0, eps*eps)
-    }
+    private fun equalsPosition(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean =
+            Precision.equals(p1.distSquare(p2), 0.0, eps*eps)
 
     /**
      * @param v
@@ -163,7 +154,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
 
-        fun fromJson(json: JsonElement): Option<Point> =
-                Try.ofSupplier { Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double) }.toOption()
+        fun fromJson(json: JsonElement): Result<Point> =
+                result{ Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double) }
     }
 }

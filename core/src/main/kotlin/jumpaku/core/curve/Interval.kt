@@ -7,10 +7,10 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.divide
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import org.apache.commons.math3.util.FastMath
 
 
@@ -47,7 +47,7 @@ data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Dou
 
         val ZERO_ONE = Interval(0.0, 1.0)
 
-        fun fromJson(json: JsonElement): Option<Interval> =
-                Try.ofSupplier { Interval(json["begin"].double, json["end"].double) }.toOption()
+        fun fromJson(json: JsonElement): Result<Interval> =
+                result { Interval(json["begin"].double, json["end"].double) }
     }
 }

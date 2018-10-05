@@ -37,16 +37,16 @@ class TransformTest {
     @Test
     fun testInvert() {
         println("Invert")
-        r.invert().get()(p).shouldEqualToPoint(Point(2*r2, 0.0, 2.0))
-        t.invert().get()(p).shouldEqualToPoint(Point(1.0, 0.0, 5.0))
-        s.invert().get()(p).shouldEqualToPoint(Point(1.0, 1.0, 1.0))
+        r.invert().orThrow()(p).shouldEqualToPoint(Point(2*r2, 0.0, 2.0))
+        t.invert().orThrow()(p).shouldEqualToPoint(Point(1.0, 0.0, 5.0))
+        s.invert().orThrow()(p).shouldEqualToPoint(Point(1.0, 1.0, 1.0))
     }
 
     @Test
     fun testIdentity() {
         println("Identity")
         Transform.Identity(p).shouldEqualToPoint(p)
-        Transform.Identity.invert().get()(p).shouldEqualToPoint(p)
+        Transform.Identity.invert().orThrow()(p).shouldEqualToPoint(p)
     }
 
     @Test
@@ -54,6 +54,6 @@ class TransformTest {
         println("ToMatrixJson")
         val e = r.at(o)(p)
         r.at(o).toMatrixJson()
-                .toString().parseJson().flatMap { Transform.fromMatrixJson(it) }.get()(p).shouldEqualToPoint(e)
+                .toString().parseJson().tryFlatMap { Transform.fromMatrixJson(it) }.orThrow()(p).shouldEqualToPoint(e)
     }
 }

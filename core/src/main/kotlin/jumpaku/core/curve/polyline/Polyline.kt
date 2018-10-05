@@ -9,16 +9,15 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
-import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.chordalParametrize
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import org.apache.commons.math3.util.Precision
 
 
@@ -105,7 +104,7 @@ class Polyline (private val paramPoints: Array<ParamPoint>) : Curve, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Polyline> =
-                Try.ofSupplier { Polyline(json["points"].array.flatMap { Point.fromJson(it) }) } .toOption()
+        fun fromJson(json: JsonElement): Result<Polyline> =
+                result { Polyline(json["points"].array.flatMap { Point.fromJson(it).value() }) }
     }
 }

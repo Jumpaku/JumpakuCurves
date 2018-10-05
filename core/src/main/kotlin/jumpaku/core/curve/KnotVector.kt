@@ -5,11 +5,9 @@ import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
-import  io.vavr.control.Try
 import jumpaku.core.geom.divide
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.lastIndex
+import jumpaku.core.util.*
 
 
 data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
@@ -20,9 +18,9 @@ data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Knot> = Try.ofSupplier {
+        fun fromJson(json: JsonElement): Result<Knot> = result {
             Knot(json["value"].double, json["multiplicity"].int)
-        }.toOption()
+        }
     }
 }
 
@@ -80,8 +78,8 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
         val front = if (t == b) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
         val back = if (t == e) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
         return Tuple2(
-                Option.`when`(t > b) { KnotVector(p, front) },
-                Option.`when`(t < e) { KnotVector(p, back) })
+                optionWhen(t > b) { KnotVector(p, front) },
+                optionWhen(t < e) { KnotVector(p, back) })
     }
 
     fun reverse(): KnotVector =
@@ -98,9 +96,9 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<KnotVector> = Try.ofSupplier {
-            KnotVector(json["degree"].int, Array.ofAll(json["knots"].array.flatMap { Knot.fromJson(it) }))
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<KnotVector> = result {
+            KnotVector(json["degree"].int, Array.ofAll(json["knots"].array.flatMap { Knot.fromJson(it).value() }))
+        }
 
         fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             val h = degree

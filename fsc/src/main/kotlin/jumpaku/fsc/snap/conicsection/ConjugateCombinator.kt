@@ -21,7 +21,7 @@ class ConjugateCombinator : FeaturePointsCombinator {
         return when (featurePosition) {
             FeaturePosition.B0 -> begin
             FeaturePosition.B2 -> end
-            FeaturePosition.O -> center().get()
+            FeaturePosition.O -> center().orThrow()
             FeaturePosition.D0 -> evaluate(t)
             FeaturePosition.D1 -> far
             FeaturePosition.D2 -> evaluate(1 - t)

@@ -5,10 +5,9 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 
@@ -23,8 +22,8 @@ class UniformlyScale(val scale: Double = 1.0) : Transform, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<UniformlyScale> = Try.ofSupplier {
+        fun fromJson(json: JsonElement): Result<UniformlyScale> = result {
             UniformlyScale(json["scale"].double)
-        }.toOption()
+        }
     }
 }

@@ -2,15 +2,16 @@ package jumpaku.core.curve
 
 import io.vavr.API
 import io.vavr.collection.Array
-import io.vavr.control.Option
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.divide
+import jumpaku.core.util.Option
 import jumpaku.core.util.divOption
+import jumpaku.core.util.none
 
 
 fun transformParams(paramPoints: Array<ParamPoint>, range: Interval): Option<Array<ParamPoint>> {
     if (paramPoints.size() < 2){
-        return Option.none()
+        return none()
     }
     val a0 = paramPoints.head().param
     val a1 = paramPoints.last().param

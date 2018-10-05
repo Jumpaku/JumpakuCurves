@@ -48,7 +48,7 @@ class BSplineDerivativeTest {
     @Test
     fun testToString() {
         println("ToString")
-        b.toString().parseJson().flatMap { BSplineDerivative.fromJson(it) }.get().toBSpline().shouldEqualToBSpline(b.toBSpline())
+        b.toString().parseJson().tryFlatMap { BSplineDerivative.fromJson(it) }.orThrow().toBSpline().shouldEqualToBSpline(b.toBSpline())
     }
 
     @Test
@@ -115,20 +115,20 @@ class BSplineDerivativeTest {
         println("Subdivide")
         val (s00, s01) = b.subdivide(3.0)
         s00.isDefined.shouldBeFalse()
-        s01.get().toBSpline().shouldEqualToBSpline(BSpline(
+        s01.orThrow().toBSpline().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 3, 9)))
 
         val (s10, s11) = b.subdivide(3.5)
-        s10.get().toBSpline().shouldEqualToBSpline(BSpline(
+        s10.orThrow().toBSpline().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75)),
                 KnotVector(3, Knot(3.0, 4), Knot(3.5, 4))))
-        s11.get().toBSpline().shouldEqualToBSpline(BSpline(
+        s11.orThrow().toBSpline().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(3.5, 4.0), 3, 8)))
 
         val (s20, s21) = b.subdivide(4.0)
-        s20.get().toBSpline().shouldEqualToBSpline(BSpline(
+        s20.orThrow().toBSpline().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 3, 9)))
         s21.isDefined.shouldBeFalse()

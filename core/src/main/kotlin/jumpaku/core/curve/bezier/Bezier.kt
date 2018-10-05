@@ -9,22 +9,15 @@ import io.vavr.API.*
 import io.vavr.Tuple2
 import io.vavr.collection.Array
 import io.vavr.collection.Stream
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.geom.Divisible
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
-import jumpaku.core.geom.line
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.isOdd
+import jumpaku.core.util.*
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 
@@ -94,8 +87,8 @@ class Bezier(val controlPoints: Array<Point>) : Curve, Differentiable, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Bezier> =
-                Try.ofSupplier { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it) }) }.toOption()
+        fun fromJson(json: JsonElement): Result<Bezier> =
+                result { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it).value() }) }
 
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
