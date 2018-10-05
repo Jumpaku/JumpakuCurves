@@ -113,10 +113,10 @@ class OptionTest {
     @Test
     fun testToJson() {
         println("ToJson")
-        Option.fromJson(some.map { it.toJson() }.toJson()) { it.int }
+        Option.fromJson(some.map { it.toJson() }.toJson()).tryMap { it.map { it.int } }
                 .value().flatten().orNull()!!
                 .shouldEqualTo(4)
-        Option.fromJson(none.map { it.toJson() }.toJson()) { it.int }
+        Option.fromJson(none.map { it.toJson() }.toJson()).tryMap { it.map { it.int } }
                 .value().flatten().orNull().shouldBeNull()
     }
 

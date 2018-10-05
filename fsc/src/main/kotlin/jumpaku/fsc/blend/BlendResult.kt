@@ -33,16 +33,15 @@ data class BlendResult(
             val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map {
                 Array.ofAll(it.array.flatMap { Grade.fromJson(it.asJsonPrimitive).value() })
             }))
-            val path = Option.fromJson(json["path"]).orThrow()
-                    .map {
+            val path = Option.fromJson(json["path"]).orThrow().map {
                 OverlappingPath(
                         OverlappingType.valueOf(it["type"].string),
                         Grade.fromJson(it["grade"].asJsonPrimitive).orThrow(),
                         Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
             }
-            val data = Option.fromJson(json["data"]) {
+            val data = Option.fromJson(json["data"]).orThrow().map {
                 Array.ofAll(it.array.flatMap { ParamPoint.fromJson(it).value() })
-            }.orThrow()
+            }
             BlendResult(osm, path, data)
         }
     }
