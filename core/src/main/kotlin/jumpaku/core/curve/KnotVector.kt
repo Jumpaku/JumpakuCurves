@@ -24,13 +24,13 @@ data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
     }
 }
 
-class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
+class KnotVector private constructor(val degree: Int, val knots: List<Knot>): ToJson {
 
     val domain: Interval by lazy { extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) } }
 
-    val extractedKnots: Array<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
+    val extractedKnots: List<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
 
-    constructor(degree: Int, knots: Iterable<Knot>) : this(degree, Array.ofAll(knots))
+    constructor(degree: Int, knots: Iterable<Knot>) : this(degree, knots.toList())
 
     constructor(degree: Int, vararg knots: Knot) : this(degree, Array.of(*knots))
 
@@ -41,6 +41,7 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
     fun multiplicityOf(knotValue: Double): Int = search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
     fun lastExtractedIndexUnder(value: Double): Int = extractedKnots
+            .asVavr()
             .run { slice(degree, size() - degree) }.zipWithNext { a, b -> value in a..b }.indexOfLast { it } + degree
 
     fun insert(knotValue: Double, times: Int): KnotVector {
@@ -48,22 +49,24 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
         return when {
             times == 0 -> this
             i >= 0 -> multiply(i, times)
-            else -> KnotVector(degree, knots.insert(-i-1, Knot(knotValue, times)))
+            else -> KnotVector(degree, knots.asVavr().insert(-i-1, Knot(knotValue, times)))
         }
     }
 
     fun multiply(knotIndex: Int, times: Int): KnotVector {
         val knot = knots[knotIndex]
-        return KnotVector(degree, knots.update(knotIndex, knot.copy(multiplicity = knot.multiplicity + times)))
+        return KnotVector(degree, knots.asVavr().update(knotIndex, knot.copy(multiplicity = knot.multiplicity + times)))
     }
 
     fun remove(knotIndex: Int, times: Int): KnotVector {
-        val (u, s) = knots[knotIndex]
+        val ks = knots.asVavr()
+        val (u, s) = ks[knotIndex]
         return KnotVector(degree,
-                if (s <= times) knots.removeAt(knotIndex) else knots.update(knotIndex, Knot(u, s - times)))
+                if (s <= times) ks.removeAt(knotIndex) else ks.update(knotIndex, Knot(u, s - times)))
     }
 
     fun derivativeKnotVector(): KnotVector = KnotVector(degree - 1, knots
+            .asVavr()
             .run { if (head().multiplicity == 1) tail() else update(0) { (v, m) -> Knot(v, m - 1) } }
             .run { if (last().multiplicity == 1) init() else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
 
@@ -73,8 +76,8 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
         val times = p + 1 - s
         val inserted = insert(t, times)
         val i = inserted.search(t)
-        val kv = inserted.knots
         val (b, e) = domain
+        val kv = inserted.knots.asVavr()
         val front = if (t == b) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
         val back = if (t == e) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
         return Tuple2(
@@ -83,7 +86,7 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
     }
 
     fun reverse(): KnotVector =
-            domain.let { (b, e) -> KnotVector(degree, knots.map { it.copy(value = e - it.value + b) }.reverse()) }
+            domain.let { (b, e) -> KnotVector(degree, knots.map { it.copy(value = e - it.value + b) }.reversed()) }
 
     fun clamp(): KnotVector {
         val (b, e) = domain
@@ -92,7 +95,12 @@ class KnotVector(val degree: Int, val knots: Array<Knot>): ToJson {
         return KnotVector(degree, insert(b, bh).insert(e, eh).knots.filter { it.value in domain })
     }
 
-    fun search(knotValue: Double): Int = knots.search(Knot(knotValue)) { (v0), (v1) -> when { v0 < v1 -> -1; v0 > v1 -> 1; else -> 0 } }
+    fun search(knotValue: Double): Int = knots.asVavr().search(Knot(knotValue)) { (v0), (v1) ->
+        when {
+            v0 < v1 -> -1; v0 > v1 -> 1
+            else -> 0
+        }
+    }
 
     companion object {
 

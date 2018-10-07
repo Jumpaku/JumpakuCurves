@@ -6,7 +6,6 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.curve.*
@@ -28,7 +27,7 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     override val derivative: BSplineDerivative get() = toBSpline().derivative
 
-    val controlVectors: Array<Vector> get() = toBSpline().controlPoints.map(Point::toVector)
+    val controlVectors: List<Vector> get() = toBSpline().controlPoints.map(Point::toVector)
 
     val knotVector: KnotVector get() = toBSpline().knotVector
 
@@ -57,7 +56,7 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun removeKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().removeKnot(t, m))
 
-    fun toBeziers(): Array<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
+    fun toBeziers(): List<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
 
     fun subdivide(t: Double): Tuple2<Option<BSplineDerivative>, Option<BSplineDerivative>> =
             toBSpline().subdivide(t).map({ it.map { BSplineDerivative(it) } }, { it.map { BSplineDerivative(it) } })

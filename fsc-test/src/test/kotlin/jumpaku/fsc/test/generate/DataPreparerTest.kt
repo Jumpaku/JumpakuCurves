@@ -45,13 +45,13 @@ class DataPreparerTest {
     @Test
     fun testFill() {
         println("Fill")
-        val data = Array.of(
+        val data = listOf(
                 ParamPoint(Point.xy(1.0, -2.0), 10.0),
                 ParamPoint(Point.xy(1.5, -3.0), 15.0),
                 ParamPoint(Point.xy(2.5, -5.0), 25.0))
         val a = DataPreparer.fill(data, 2.0)
 
-        a.size().shouldBe(9)
+        a.size.shouldBe(9)
         a[0].shouldEqualToParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
         a[1].shouldEqualToParamPoint(ParamPoint(Point.xy(1 + 0.5 / 3.0, -2 - 1 / 3.0), 10 + 5 / 3.0))
         a[2].shouldEqualToParamPoint(ParamPoint(Point.xy(1 + 1 / 3.0, -2 - 2 / 3.0), 10 + 10 / 3.0))

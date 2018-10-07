@@ -3,7 +3,6 @@ package jumpaku.fsc.blend
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
@@ -12,7 +11,7 @@ import jumpaku.core.util.*
 data class BlendResult(
         val osm: OverlappingMatrix,
         val path: Option<OverlappingPath>,
-        val data: Option<Array<ParamPoint>>): ToJson {
+        val data: Option<List<ParamPoint>>): ToJson {
 
     override fun toString(): String = toJsonString()
 
@@ -30,17 +29,17 @@ data class BlendResult(
     companion object {
 
         fun fromJson(json: JsonElement): Result<BlendResult> = result {
-            val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map {
-                Array.ofAll(it.array.flatMap { Grade.fromJson(it.asJsonPrimitive).value() })
-            }))
+            val osm = OverlappingMatrix(json["osm"].array.map {
+                it.array.flatMap { Grade.fromJson(it.asJsonPrimitive).value() }.toList()
+            }.toList())
             val path = Option.fromJson(json["path"]).orThrow().map {
                 OverlappingPath(
                         OverlappingType.valueOf(it["type"].string),
                         Grade.fromJson(it["grade"].asJsonPrimitive).orThrow(),
-                        Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
+                        it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }.toList())
             }
             val data = Option.fromJson(json["data"]).orThrow().map {
-                Array.ofAll(it.array.flatMap { ParamPoint.fromJson(it).value() })
+                it.array.flatMap { ParamPoint.fromJson(it).value() }.toList()
             }
             BlendResult(osm, path, data)
         }

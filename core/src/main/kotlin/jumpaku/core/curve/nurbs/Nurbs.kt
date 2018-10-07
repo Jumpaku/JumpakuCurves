@@ -6,7 +6,6 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.bspline.BSplineDerivative
@@ -19,18 +18,18 @@ import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
 import jumpaku.core.util.*
 
-class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val knotVector: KnotVector)
+class Nurbs private constructor(val controlPoints: List<Point>, val weights: List<Double>, val knotVector: KnotVector)
     : Curve, Differentiable, ToJson {
 
     val degree: Int = knotVector.degree
 
-    val weightedControlPoints: Array<WeightedPoint> get() = controlPoints.zipWith(weights, ::WeightedPoint)
+    val weightedControlPoints: List<WeightedPoint> get() = controlPoints.zip(weights, ::WeightedPoint)
 
     override val domain: Interval = knotVector.domain
 
     override val derivative: Derivative get() {
-        val ws = weights
-        val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
+        val ws = weights.asVavr()
+        val dws = ws.zip(ws.tail()) { a, b -> degree * (b - a) }
         val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).derivative
 
         return object : Derivative {
@@ -52,15 +51,15 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
     init {
         val us = knotVector.extractedKnots
         val p = knotVector.degree
-        val n = controlPoints.size()
-        val m = us.size()
+        val n = controlPoints.size
+        val m = us.size
         require(n >= p + 1) { "controlPoints.size()($n) < degree($p) + 1" }
         require(m - p - 1 == n) { "knotVector.size()($m) - degree($p) - 1 != controlPoints.size()($n)" }
         require(degree > 0) { "degree($degree) <= 0" }
     }
 
     constructor(weightedControlPoints: Iterable<WeightedPoint>, knotVector: KnotVector) : this(
-            Array.ofAll(weightedControlPoints.map { it.point }), Array.ofAll(weightedControlPoints.map { it.weight }), knotVector)
+            weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight }, knotVector)
 
     override fun toString(): String = toJsonString()
 
@@ -82,7 +81,7 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
 
-    fun reverse(): Nurbs = Nurbs(weightedControlPoints.reverse(), knotVector.reverse())
+    fun reverse(): Nurbs = Nurbs(weightedControlPoints.reversed(), knotVector.reverse())
 
     /**
      * Multiplies more than degree + 1 knots at begin and end of domain.
@@ -92,15 +91,16 @@ class Nurbs(val controlPoints: Array<Point>, val weights: Array<Double>, val kno
 
     fun close(): Nurbs = Nurbs(BSpline.closedControlPoints(weightedControlPoints, knotVector), knotVector.clamp())
 
-    fun toRationalBeziers(): Array<RationalBezier> {
+    fun toRationalBeziers(): List<RationalBezier> {
         val (b, e) = domain
         val sb = knotVector.multiplicityOf(b)
         val se = knotVector.multiplicityOf(e)
         return BSpline.segmentedControlPoints(weightedControlPoints, knotVector)
+                .asVavr()
                 .run { slice(degree + 1 - sb, size() - degree - 1 + se) }
                 .sliding(degree + 1, degree + 1)
                 .map { RationalBezier(it) }
-                .toArray()
+                .toArray().asKt()
     }
 
     fun subdivide(t: Double): Tuple2<Option<Nurbs>, Option<Nurbs>> {

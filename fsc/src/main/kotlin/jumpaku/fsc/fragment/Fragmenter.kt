@@ -1,13 +1,10 @@
 package jumpaku.fsc.fragment
 
-import io.vavr.API.*
+import io.vavr.Tuple3
 import io.vavr.collection.Array
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.component3
-import jumpaku.core.util.lastIndex
+import jumpaku.core.util.*
 
 
 class Fragmenter(
@@ -22,21 +19,20 @@ class Fragmenter(
         samplingSpan = minStayTime / n
     }
 
-    fun fragment(fsc: BSpline): Array<Fragment> {
+    fun fragment(fsc: BSpline): List<Fragment> {
         val chunks = fsc.domain.sample(samplingSpan)
-                .sliding(n)
-                .map { chunk(fsc, Interval(it.head(), it.last()), n) }
-                .toArray()
-        val states = chunks.map { it.state(threshold) }
+                .windowed(n)
+                .map { chunk(fsc, Interval(it.first(), it.last()), n) }
+        val states = chunks.asVavr()
+                .map { it.state(threshold) }
                 .fold(Array.of(Fragmenter.State.STAY)) { l, n -> l.append(l.last().transit(n)) }
                 .tail()
-                .toArray()
         return chunks.zip(states)
-                .fold(Array.of(Tuple(chunks.head().interval.begin, chunks.head().interval.end, states.head()))) { prev, (nChunk, nState) ->
+                .fold(Array.of(Tuple3(chunks.first().interval.begin, chunks.first().interval.end, states.first()))) { prev, (nChunk, nState) ->
                     val (pBegin, _, pState) = prev.last()
                     when {
-                        (pState != nState) -> prev.append(Tuple(nChunk.interval.begin, nChunk.interval.end, nState))
-                        else -> prev.update(prev.lastIndex, Tuple(pBegin, nChunk.interval.end, pState))
+                        (pState != nState) -> prev.append(Tuple3(nChunk.interval.begin, nChunk.interval.end, nState))
+                        else -> prev.update(prev.lastIndex, Tuple3(pBegin, nChunk.interval.end, pState))
                     }
                 }
                 .map { (begin, end, state) ->
@@ -45,7 +41,7 @@ class Fragmenter(
                         State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
                     }
                 }
-                .toArray()
+                .asKt()
     }
 
     private enum class State {

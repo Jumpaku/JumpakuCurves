@@ -30,7 +30,7 @@ class FragmenterTest {
             val a = fragmenter.fragment(fsc)
             val e = resourceText("FragmentResult$i.json").parseJson().tryMap { it.array.flatMap { Fragment.fromJson(it).value() } }.orThrow()
                     .let { Array.ofAll(it) }
-            a.size().shouldEqualTo(e.size())
+            a.size.shouldEqualTo(e.size())
             a.zip(e).forEach { (a, e) ->
                 a.type.shouldBe(e.type)
                 a.interval.shouldEqualToInterval(e.interval)

@@ -35,7 +35,7 @@ class BSplineDerivativeTest {
         b.controlVectors[2].shouldEqualToVector(Vector(0.0, 1.0))
         b.controlVectors[3].shouldEqualToVector(Vector(0.0, 0.0))
         b.controlVectors[4].shouldEqualToVector(Vector(1.0, 0.0))
-        b.controlVectors.size().shouldEqualTo(5)
+        b.controlVectors.size.shouldEqualTo(5)
 
         b.knotVector.shouldEqualToKnotVector(KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
 
@@ -107,7 +107,7 @@ class BSplineDerivativeTest {
                 Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0), Point.xy(-0.25, 0.75)))
         beziers.get(1).toBezier().shouldEqualToBezier(Bezier(
                 Point.xy(-0.25, 0.75), Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)))
-        beziers.size().shouldEqualTo(2)
+        beziers.size.shouldEqualTo(2)
     }
 
     @Test
