@@ -3,8 +3,6 @@ package jumpaku.core.curve
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
-import io.vavr.collection.Stream
 import jumpaku.core.geom.divide
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.*
@@ -28,11 +26,11 @@ class KnotVector private constructor(val degree: Int, val knots: List<Knot>): To
 
     val domain: Interval by lazy { extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) } }
 
-    val extractedKnots: List<Double> = knots.flatMap { (v, m) -> Stream.fill(m) { v } }
+    val extractedKnots: List<Double> = knots.flatMap { (v, m) -> List(m) { v } }
 
     constructor(degree: Int, knots: Iterable<Knot>) : this(degree, knots.toList())
 
-    constructor(degree: Int, vararg knots: Knot) : this(degree, Array.of(*knots))
+    constructor(degree: Int, vararg knots: Knot) : this(degree, knots.toList())
 
     override fun toString(): String = toJsonString()
 
@@ -105,7 +103,7 @@ class KnotVector private constructor(val degree: Int, val knots: List<Knot>): To
     companion object {
 
         fun fromJson(json: JsonElement): Result<KnotVector> = result {
-            KnotVector(json["degree"].int, Array.ofAll(json["knots"].array.flatMap { Knot.fromJson(it).value() }))
+            KnotVector(json["degree"].int, json["knots"].array.flatMap { Knot.fromJson(it).value() })
         }
 
         fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {

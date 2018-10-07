@@ -2,7 +2,6 @@ package jumpaku.fsc.identify
 
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.util.hashMap
 import jumpaku.fsc.identify.reference.CircularGenerator
 import jumpaku.fsc.identify.reference.EllipticGenerator
 import jumpaku.fsc.identify.reference.LinearGenerator
@@ -14,7 +13,7 @@ class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15): Ide
         val refC = CircularGenerator(nSamples).generateBeginEnd(fsc)
         val refE = EllipticGenerator(nSamples).generateBeginEnd(fsc)
         val (pL, pC, pE) = listOf(refL, refC, refE).map { ref -> fsc.isPossible(ref.reparametrized, nFmps) }
-        val grades = hashMap(
+        val grades = hashMapOf(
                 CurveClass.LineSegment to (pL),
                 CurveClass.CircularArc to (!pL and pC),
                 CurveClass.EllipticArc to (!pL and !pC and pE),
