@@ -6,7 +6,6 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
@@ -23,13 +22,11 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     override val domain: Interval get() = toBezier().domain
 
-    val controlVectors: Array<Vector> get() = toBezier().controlPoints.map(Point::toVector)
+    val controlVectors: List<Vector> get() = toBezier().controlPoints.map(Point::toVector)
 
     val degree: Int get() = toBezier().degree
 
-    constructor(controlVectors: Array<Vector>): this(Bezier(controlVectors.map { Point(it) }))
-
-    constructor(controlVectors: Iterable<Vector>): this(Array.ofAll(controlVectors))
+    constructor(controlVectors: Iterable<Vector>): this(Bezier(controlVectors.map { Point(it) }))
 
     constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
 

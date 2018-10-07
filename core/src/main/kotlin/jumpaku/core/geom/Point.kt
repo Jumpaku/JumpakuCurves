@@ -17,7 +17,8 @@ import org.apache.commons.math3.util.Precision
 
 
 
-data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point>, ToJson {
+data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
+        Membership<Point, Point>, Divisible<Point>, ToJson {
 
     constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
 

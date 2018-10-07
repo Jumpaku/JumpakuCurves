@@ -22,7 +22,7 @@ class BezierDerivativeTest {
         b4.controlVectors[2].shouldEqualToVector(Vector(0.0, 2.0))
         b4.controlVectors[3].shouldEqualToVector(Vector(2.0, 1.0, 0.0))
         b4.controlVectors[4].shouldEqualToVector(Vector(1.0, 2.0, 0.0))
-        b4.controlVectors.size().shouldEqualTo(5)
+        b4.controlVectors.size.shouldEqualTo(5)
         b4.degree.shouldEqualTo(4)
         b4.domain.begin.shouldBeCloseTo(0.0)
         b4.domain.end.shouldBeCloseTo(1.0)

@@ -90,3 +90,8 @@ fun <T: Any> option(nullable: ()->T?): Option<T> = nullable()?.let(::some) ?: no
 fun <T: Any> T?.toOption(): Option<T> = option { this }
 
 fun <T: Any> optionWhen(condition: Boolean, supply: () -> T): Option<T> = if (condition) some(supply()) else none()
+
+fun <T: Any> Option<T>.asVavr(): io.vavr.control.Option<T> =
+        (this as? Some)?.run { io.vavr.control.Option.some(value) } ?: io.vavr.control.Option.none()
+fun <T: Any> io.vavr.control.Option<T>.asJumpaku(): Option<T> = orNull.toOption()
+

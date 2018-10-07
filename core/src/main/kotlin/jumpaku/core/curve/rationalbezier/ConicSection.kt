@@ -6,9 +6,7 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.API.*
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
@@ -28,24 +26,23 @@ class ConicSection(
         val begin: Point, val far: Point, val end: Point, val weight: Double)
     : Curve, Differentiable, ToJson {
 
-    val representPoints: Array<Point> get() = Array(begin, far, end)
+    val representPoints: List<Point> get() = listOf(begin, far, end)
 
     val degree = 2
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative
-        get() = object : Derivative {
-            override val domain: Interval = this@ConicSection.domain
-            override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
-        }
+    override val derivative: Derivative get() = object : Derivative {
+        override val domain: Interval = this@ConicSection.domain
+        override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+    }
 
     fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.divOption(weight).isDefined) {
-        RationalBezier(Stream(
+        RationalBezier(listOf(
                 begin.toCrisp(),
                 far.divide(-1 / weight, begin.middle(end)).toCrisp(),
                 end.toCrisp()
-        ).zipWith(Stream(1.0, weight, 1.0), ::WeightedPoint))
+        ).zip(listOf(1.0, weight, 1.0), ::WeightedPoint))
     }
 
     override fun differentiate(t: Double): Vector {
@@ -53,7 +50,7 @@ class ConicSection(
 
         val g = (1 - t)*(1 - 2*t)*begin.toVector() + 2*t*(1 - t)*(1 + weight)*far.toVector() + t*(2*t - 1)*end.toVector()
         val dg_dt = (4*t - 3)*begin.toVector() + 2*(1 - 2*t)*(1 + weight)*far.toVector() + (4*t - 1)*end.toVector()
-        val f = RationalBezier.bezier1D(t, Array.of(1.0, weight, 1.0))
+        val f = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
         val df_dt = 2*(weight - 1)*(1 - 2*t)
 
         return (dg_dt*f - g*df_dt)/(f*f)
@@ -62,7 +59,7 @@ class ConicSection(
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        val wt = RationalBezier.bezier1D(t, Array(1.0, weight, 1.0))
+        val wt = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
         val (p0, p1, p2) = representPoints.map { it.toVector() }
         val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + weight) * p1 + t * (2 * t - 1) * p2) / wt
         val (r0, r1, r2) = representPoints.map { it.r }
@@ -103,7 +100,7 @@ class ConicSection(
         val p1 = far.toVector()
         val p2 = end.toVector()
         val m = begin.middle(end)
-        val rootwt = FastMath.sqrt(RationalBezier.bezier1D(t, Array.of(1.0, w, 1.0)))
+        val rootwt = FastMath.sqrt(RationalBezier.bezier1D(t, listOf(1.0, w, 1.0)))
 
         val begin0 = begin
         val end0 = evaluate(t)
@@ -121,14 +118,14 @@ class ConicSection(
                 FastMath.abs(0.5*((1 - t)*((1 - 2*t)/rootwt - 1))/(rootwt + (1 - t)*w + t))*end.r
         val far1 = Point(((begin1.toVector() + end1.toVector()) * rootwt / 2.0 + (1 - t) * ((1 + w) * p1 - m.toVector()) + t * p2) / (rootwt + (1 - t) * w + t), far1R)
 
-        return Tuple(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
+        return Tuple2(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
     }
 
     fun restrict(interval: Interval): ConicSection = restrict(interval.begin, interval.end)
 
     fun restrict(begin: Double, end: Double): ConicSection {
         val t = begin/end
-        val a = FastMath.sqrt(RationalBezier.bezier1D(end, Array.of(1.0, weight, 1.0)))
+        val a = FastMath.sqrt(RationalBezier.bezier1D(end, listOf(1.0, weight, 1.0)))
         return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
     }
 
