@@ -10,7 +10,7 @@ import org.amshove.kluent.should
 
 
 fun isCloseTo(actual: ConicSectionSnapResult.Candidate, expected: ConicSectionSnapResult.Candidate, error: Double): Boolean =
-        actual.featurePoints.size() == expected.featurePoints.size() &&
+        actual.featurePoints.size == expected.featurePoints.size &&
         actual.featurePoints.zip(expected.featurePoints).all { (a, e) ->
             isCloseTo(a.source, e.source, error) &&
                     if (a.target.isDefined && e.target.isDefined) isCloseTo(a.target.orThrow(), e.target.orThrow(), error)
@@ -20,7 +20,7 @@ fun isCloseTo(actual: ConicSectionSnapResult.Candidate, expected: ConicSectionSn
 
 fun isCloseTo(actual: ConicSectionSnapResult, expected: ConicSectionSnapResult, error: Double): Boolean =
          isCloseTo(actual.snappedConicSection, expected.snappedConicSection, error) &&
-                 actual.candidates.size() == expected.candidates.size() &&
+                 actual.candidates.size == expected.candidates.size &&
                  actual.candidates.zip(expected.candidates).all { (a, e) -> isCloseTo(a, e, error) }
 
 fun ConicSectionSnapResult.shouldEqualToConicSectionSnapResult(expected: ConicSectionSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {

@@ -25,7 +25,7 @@ fun uniformParametrize(points: List<Point>): List<ParamPoint> = when {
 fun chordalParametrize(points: List<Point>): List<ParamPoint> {
     if(points.isEmpty()) return emptyList()
 
-    val ds = points.asVavr().tailOption().asJumpaku()
+    val ds = points.asVavr().tailOption().toJOpt()
             .map {
                 it.zipWith(points) { a, b -> a.dist(b) }
                         .foldLeft(listOf(0.0)) { acc, d -> acc + (d + acc.last())}

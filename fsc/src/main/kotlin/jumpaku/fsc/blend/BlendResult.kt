@@ -8,7 +8,7 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.*
 
-data class BlendResult(
+class BlendResult(
         val osm: OverlappingMatrix,
         val path: Option<OverlappingPath>,
         val data: Option<List<ParamPoint>>): ToJson {

@@ -1,8 +1,6 @@
 package jumpaku.fsc.blend
 
 import io.vavr.Tuple2
-import io.vavr.collection.HashMap
-import io.vavr.collection.Stream
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.*
 
@@ -63,9 +61,9 @@ data class OverlappingMatrix(val matrix: List<List<Grade>>) {
     operator fun get(i: Int, j: Int): Grade = matrix[i][j]
 
     fun searchPath(evaluatePath: OverlappingMatrix.(OverlappingPath) -> Grade): Option<OverlappingPath> {
-        var dpTable = HashMap.empty<Tuple2<Int, Int>, OverlappingPath.Builder>()
+        val dpTable = mutableMapOf<Tuple2<Int, Int>, OverlappingPath.Builder>()
         fun subPath(i: Int, j: Int): OverlappingPath.Builder {
-            val builder = dpTable[Tuple2(i, j)].getOrElse {
+            val builder = dpTable.getOrPut(Tuple2(i, j)) {
                 val muij = get(i, j)
                 when {
                     muij <= Grade.FALSE -> OverlappingPath.Builder(this)
@@ -76,12 +74,13 @@ data class OverlappingMatrix(val matrix: List<List<Grade>>) {
                             .orThrow()
                 }
             }
-            dpTable = dpTable.put(Tuple2(i, j), builder)
+            dpTable[Tuple2(i, j)] = builder
             return builder
         }
-        return Stream.concat((0..rowLastIndex).map { i ->  subPath(i, columnLastIndex) }, (0..columnLastIndex).map { j -> subPath(rowLastIndex, j) })
+        return ((0..rowLastIndex).map { i ->  subPath(i, columnLastIndex) } + (0..columnLastIndex).map { j -> subPath(rowLastIndex, j) })
                 .flatMap { it.build() }
-                .maxBy { b -> evaluatePath(b) }.let { optionWhen(it.isDefined) { it.get() }  }
+                .maxBy { b -> evaluatePath(b) }
+                .toOption()
     }
 }
 

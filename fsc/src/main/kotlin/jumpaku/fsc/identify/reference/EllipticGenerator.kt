@@ -1,8 +1,7 @@
 package jumpaku.fsc.identify.reference
 
 import io.vavr.API
-import io.vavr.Function3
-import io.vavr.Tuple
+import io.vavr.Tuple2
 import io.vavr.Tuple3
 import io.vavr.collection.Stream
 import jumpaku.core.curve.Curve
@@ -100,7 +99,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                         val xi = ll * t * t - dd
                         val wi = 1.0//FastMath.exp(-fsc(tp).r)
 
-                        Tuple.of(wi * yi * xi, wi * xi * xi)
+                        Tuple2(wi * yi * xi, wi * xi * xi)
                     }.toArray()
             if (xy_xx.isEmpty) return 0.999
 

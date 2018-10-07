@@ -1,6 +1,5 @@
 package jumpaku.fsc.generate
 
-import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
@@ -45,7 +44,7 @@ class DataPreparer(
             return data.zip(data.tail())
                     .flatMap { (a, b) ->
                         val nSamples = FastMath.ceil((b.param - a.param) / maxParamSpan).toInt() + 1
-                        Stream.range(0, nSamples - 1).map { a.divide(it / (nSamples - 1.0), b) }
+                        (0 until  nSamples - 1).map { a.divide(it / (nSamples - 1.0), b) }
                     }.append(data.last())
                     .asKt()
         }
@@ -58,17 +57,17 @@ class DataPreparer(
 
             val end = sortedData.first().param + innerSpan
             val begin = sortedData.first().param - outerSpan
-            val innerData = sortedData.filter { it.param <= end }
-                    .let {
-                        val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
-                        transformParams(chordalParametrize(it.map { it.point }), range)
-                                .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
-                    }.orThrow()
+            val innerData = sortedData.filter { it.param <= end }.let {
+                val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
+                transformParams(chordalParametrize(it.map { it.point }), range)
+                        .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+            }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
             val outerData = bezier.sample(Math.ceil(innerData.size*innerSpan/outerSpan).toInt())
             return transformParams(outerData, Interval(begin, begin + outerSpan)).orThrow()
-                    .asVavr().init()
-                    .appendAll(sortedData).asKt()
+                    .asVavr()
+                    .init().appendAll(sortedData)
+                    .asKt()
         }
 
         fun extendBack(sortedData: List<ParamPoint>,
@@ -79,17 +78,18 @@ class DataPreparer(
 
             val begin = sortedData.last().param - innerSpan
             val end = sortedData.last().param + outerSpan
-            val innerData = sortedData.filter { it.param >= begin }
-                    .let {
-                        val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
-                        transformParams(chordalParametrize(it.map { it.point }), range)
-                                .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
-                    }.orThrow()
+            val innerData = sortedData.filter { it.param >= begin }.let {
+                val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
+                transformParams(chordalParametrize(it.map { it.point }), range)
+                        .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+            }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
             val outerData = bezier.sample(Math.ceil(innerData.size/innerSpan*outerSpan).toInt())
             return transformParams(outerData, Interval(end - outerSpan, end)).orThrow()
-                    .asVavr().tail()
-                    .prependAll(sortedData).asKt()
+                    .asVavr()
+                    .tail()
+                    .prependAll(sortedData)
+                    .asKt()
         }
     }
 }

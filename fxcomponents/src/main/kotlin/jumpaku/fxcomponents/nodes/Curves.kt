@@ -1,18 +1,18 @@
 package jumpaku.fxcomponents.nodes
 
-import io.vavr.collection.Array
 import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.arclength.repeatBisect
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
+import jumpaku.core.curve.repeatBisect
+import jumpaku.core.util.asVavr
 import tornadofx.*
 
-fun Parent.fuzzyPoints(points: Array<Point>, op: (Circle.() -> Unit)): Unit =
+fun Parent.fuzzyPoints(points: List<Point>, op: (Circle.() -> Unit)): Unit =
         points.forEach { circle(it.x, it.y, it.r) { fill = Color.gray(0.0, 0.0); op() } }
 
 fun Parent.cubicFsc(bSpline: BSpline, deltaT: Double = 0.01, op: (Shape.() -> Unit)): Unit {
@@ -34,12 +34,12 @@ fun Parent.cubicSpline(bSpline: BSpline, op: (Shape.() -> Unit)): Unit =
 
 
 fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
-    polyline.points.size() <= 1 -> polyline.points.forEach { circle(it.x, it.y, it.r) { fill = Color.gray(0.0, 0.0); op() } }
+    polyline.points.size <= 1 -> polyline.points.forEach { circle(it.x, it.y, it.r) { fill = Color.gray(0.0, 0.0); op() } }
     else -> {
         path {
-            val (x, y) = polyline.points.head()
+            val (x, y) = polyline.points.first()
             moveTo(x, y)
-            polyline.points.tail().forEach { lineTo(it.x, it.y) }
+            polyline.points.asVavr().tail().forEach { lineTo(it.x, it.y) }
             op()
         }
         Unit
@@ -47,14 +47,12 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
 }
 
 fun Parent.curve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
-    val c = ReparametrizedCurve(curve,
-            repeatBisect(curve, 1.0).map { it.begin }.append(curve.domain.end).toArray())
-    polyline(Polyline(c.evaluateAll(delta/c.chordLength)), op)
+    val c = ReparametrizedCurve(curve, repeatBisect(curve, 1.0).map { it.begin } + (curve.domain.end))
+    polyline(Polyline.of(c.evaluateAll(delta/c.chordLength)), op)
 }
 
 fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
-    val c = ReparametrizedCurve(curve,
-            repeatBisect(curve, 1.0).map { it.begin }.append(curve.domain.end).toArray())
+    val c = ReparametrizedCurve(curve, repeatBisect(curve, 1.0).map { it.begin } + (curve.domain.end))
     val n = c.chordLength/delta + 1
     fuzzyPoints(curve.evaluateAll(curve.domain.span/n), op)
 }

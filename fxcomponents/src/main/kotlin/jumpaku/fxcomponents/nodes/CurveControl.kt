@@ -1,8 +1,5 @@
 package jumpaku.fxcomponents.nodes
 
-import io.vavr.API
-import io.vavr.collection.Array
-import io.vavr.collection.List
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.Event
@@ -44,18 +41,18 @@ private class CurveControlSkin(val control: CurveControl) : Skin<CurveControl> {
     override fun dispose() {}
     override fun getSkinnable(): CurveControl = control
 
-    fun render(points: Array<ParamPoint>): Unit = with(inputPolyline) {
+    fun render(points: List<ParamPoint>): Unit = with(inputPolyline) {
         children.clear()
         when {
-            points.isEmpty -> Unit
-            points.isSingleValued -> circle(points[0].point.x, points[0].point.y, 1) { stroke = Color.BLACK }
-            else -> polyline(Polyline(points.map(ParamPoint::point))) { stroke = Color.BLACK }
+            points.isEmpty() -> Unit
+            points.size == 1 -> circle(points[0].point.x, points[0].point.y, 1) { stroke = Color.BLACK }
+            else -> polyline(Polyline.of(points.map(ParamPoint::point))) { stroke = Color.BLACK }
         }
     }
 }
 
 
-class CurveEvent(val data: Array<ParamPoint>) : Event(CurveEvent.CURVE_DONE) {
+class CurveEvent(val data: List<ParamPoint>) : Event(CurveEvent.CURVE_DONE) {
     companion object {
         val CURVE_DONE = EventType<CurveEvent>(ANY, "CURVE_DONE")
     }
@@ -65,24 +62,24 @@ class CurveControl : Control() {
 
     class Controller(val control: CurveControl) {
         fun onPressed(e: MouseEvent) {
-            control.points = API.List()
+            control.points.clear()
             control.update()
         }
         fun onDragged(e: MouseEvent) {
-            control.points = control.points.prepend(ParamPoint.now(Point.xy(e.x, e.y)))
+            control.points.add(ParamPoint.now(Point.xy(e.x, e.y)))
             control.update()
         }
         fun onReleased(e: MouseEvent) {
-            control.points = control.points.prepend(ParamPoint.now(Point.xy(e.x, e.y)))
+            control.points.add(ParamPoint.now(Point.xy(e.x, e.y)))
             control.update()
-            control.fireEvent(CurveEvent(control.points.toArray().sorted(Comparator.comparing(ParamPoint::param))))
+            control.fireEvent(CurveEvent(control.points.sortedWith(Comparator.comparing(ParamPoint::param))))
         }
     }
 
-    private var points: List<ParamPoint> = API.List()
+    private var points: MutableList<ParamPoint> = mutableListOf()
 
     fun update() = (skin as CurveControlSkin)
-            .render(points.toArray().sorted(Comparator.comparing(ParamPoint::param)))
+            .render(points.sortedWith(Comparator.comparing(ParamPoint::param)))
 
     override fun createDefaultSkin(): Skin<*> = CurveControlSkin(this)
 

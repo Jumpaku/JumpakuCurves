@@ -1,6 +1,5 @@
 package jumpaku.fsc.generate
 
-import io.vavr.collection.Array
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline

@@ -5,6 +5,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.fsc.fragment.Fragment
 import jumpaku.fsc.fragment.Fragmenter
+import jumpaku.fsc.fragment.TruthValueThreshold
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
