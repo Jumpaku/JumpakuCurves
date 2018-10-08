@@ -117,7 +117,8 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @param p3
      * @return volume of a Tetrahedron (this, p1, p2, p3)
      */
-    fun volume(p1: Point, p2: Point, p3: Point): Double = FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
+    fun volume(p1: Point, p2: Point, p3: Point): Double =
+            FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
 
     /**
      * @param p1
@@ -147,7 +148,8 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
 
-        fun fromJson(json: JsonElement): Result<Point> =
-                result{ Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double) }
+        fun fromJson(json: JsonElement): Result<Point> = result {
+            Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double)
+        }
     }
 }

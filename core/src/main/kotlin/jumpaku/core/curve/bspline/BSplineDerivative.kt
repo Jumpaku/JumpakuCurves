@@ -35,8 +35,9 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement =
-            jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }), "knotVector" to knotVector.toJson())
+    override fun toJson(): JsonElement = jsonObject(
+            "controlVectors" to jsonArray(controlVectors.map { it.toJson() }),
+            "knotVector" to knotVector.toJson())
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 
@@ -64,7 +65,9 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
     companion object {
 
         fun fromJson(json: JsonElement): Result<BSplineDerivative> = result {
-            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it).value() }, KnotVector.fromJson(json["knotVector"]).orThrow())
+            BSplineDerivative(
+                    json["controlVectors"].array.flatMap { Vector.fromJson(it).value() },
+                    KnotVector.fromJson(json["knotVector"]).orThrow())
         }
     }
 }

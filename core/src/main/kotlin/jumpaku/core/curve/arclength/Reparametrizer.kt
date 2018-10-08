@@ -20,29 +20,36 @@ class Reparametrizer private constructor(
 
     val domain: Interval = Interval(originalParams.first(), originalParams.last())
 
-    val range: Interval = Interval.ZERO_ONE//(arcLengthParams.head(), arcLengthParams.last())
+    val range: Interval = Interval.ZERO_ONE
 
     val chordLength: Double = arcLengthParams.last()
 
     fun toOriginal(arcLengthRatio: Double): Double {
         require(arcLengthRatio in range) { "arcLengthRatio($arcLengthRatio) is out of range($range)"}
+
         val s = (arcLengthRatio*chordLength).coerceIn(0.0..chordLength)
-        val i = arcLengthParams.asVavr().search(s).let { if (it < 0) -it-1 else it }
+        val i = arcLengthParams.asVavr()
+                .search(s)
+                .let { if (it < 0) -it-1 else it }
         return if (i == 0) originalParams[0]
         else quadratics[i-1].invert(s).coerceIn(domain)
     }
 
     fun toArcLengthRatio(originalParam: Double): Double {
         require(originalParam in domain) { "originalParam($originalParam) is out of domain($domain)"}
-        val i = originalParams.asVavr().search(originalParam).let { if (it < 0) -it-1 else it }
+
+        val i = originalParams.asVavr()
+                .search(originalParam)
+                .let { if (it < 0) -it-1 else it }
         return if (i == 0) 0.0
-        else quadratics[i-1].let { it(originalParam).divOption(chordLength)
-                .orDefault { 0.0 }.coerceIn(range) }
+        else quadratics[i-1].invoke(originalParam).divOption(chordLength)
+                .orDefault { 0.0 }
+                .coerceIn(range)
     }
 
     companion object {
 
-        fun interpolate(curve: Curve, t0: Double, t2: Double): MonotonicQuadratic {
+        private fun interpolate(curve: Curve, t0: Double, t2: Double): MonotonicQuadratic {
             val domain = Interval(t0, t2)
             val (p0, p1, p2) = domain.sample(3).map { curve(it) }
             val s0 = 0.0
@@ -53,15 +60,18 @@ class Reparametrizer private constructor(
         }
 
         fun of(curve: Curve, originalParams: Iterable<Double>): Reparametrizer {
-            val qs = originalParams.zipWithNext { t0, t2 -> Reparametrizer.interpolate(curve, t0, t2) }
-            val arcLengthParams = originalParams.foldIndexed(mutableListOf<Double>()) { i, ss, t ->
-                ss.add(if (i == 0) 0.0 else ss.last() + qs[i - 1](t))
-                ss
-            }.toList()
-            val quadratics = qs.mapIndexed { i, q ->
-                val l = arcLengthParams[i]
-                q.copy(b0 = q.b0 + l, b1 = q.b1 + l, b2 = q.b2 + l) }
-            return Reparametrizer(originalParams.toList(), arcLengthParams, quadratics)
+            val params = originalParams.toList()
+            require(params.size > 1) { "originalToArcLength.size() is too small"}
+
+            val qs = params.zipWithNext { t0, t2 -> interpolate(curve, t0, t2) }
+            val arcLengthParams = mutableListOf(0.0)
+            qs.zip(params.drop(1)) { q, t -> q(t) }.forEach {
+                arcLengthParams += (arcLengthParams.last() + it)
+            }
+            val quadratics = qs.zip(arcLengthParams) { q, l  ->
+                q.copy(b0 = q.b0 + l, b1 = q.b1 + l, b2 = q.b2 + l)
+            }
+            return Reparametrizer(params, arcLengthParams, quadratics)
         }
     }
 }
@@ -77,6 +87,7 @@ data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, va
 
     override fun invoke(t: Double): Double {
         require(t in domain) { "t($t) is out of domain($domain)" }
+
         val (t0, t2) = domain
         val u = ((t - t0).divOrElse(t2 - t0, 0.5)).coerceIn(0.0, 1.0)
         return b0.divide(u, b1).divide(u, b1.divide(u, b2)).coerceIn(range)

@@ -25,9 +25,8 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     operator fun div(divisor: Double): Vector = Vector(vector.scalarMultiply(1 / divisor))
 
-    infix fun divOption(divisor: Double): Option<Vector> {
-        return optionWhen(toArray().all { it.divOption(divisor).isDefined }) { this/divisor}
-    }
+    infix fun divOption(divisor: Double): Option<Vector> =
+            optionWhen(toArray().all { it.divOption(divisor).isDefined }) { this/divisor }
 
     operator fun unaryPlus(): Vector = this
 
@@ -65,7 +64,8 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
         val Zero: Vector = Vector()
 
-        fun fromJson(json: JsonElement): Result<Vector> =
-                result { Vector(json["x"].double, json["y"].double, json["z"].double) }
+        fun fromJson(json: JsonElement): Result<Vector> = result {
+            Vector(json["x"].double, json["y"].double, json["z"].double)
+        }
     }
 }

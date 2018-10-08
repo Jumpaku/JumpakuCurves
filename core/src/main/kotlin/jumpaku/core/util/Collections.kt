@@ -5,8 +5,6 @@ import io.vavr.collection.Array
 
 inline val <T: Any> Traversable<T>.lastIndex: Int get() = size() - 1
 
-fun <T: Any> Seq<T>.indices(): Seq<Int> = zipWithIndex { _, i -> i }
-
 operator fun <T: Any> Seq<T>.component1(): T = this[0]
 operator fun <T: Any> Seq<T>.component2(): T = this[1]
 operator fun <T: Any> Seq<T>.component3(): T = this[2]

@@ -19,7 +19,7 @@ fun transformParams(paramPoints: List<ParamPoint>, range: Interval): Option<List
 fun uniformParametrize(points: List<Point>): List<ParamPoint> = when {
     points.isEmpty() -> emptyList()
     points.size == 1 -> points.map { ParamPoint(it, 0.0) }
-    else -> points.zip((0..(points.size - 1)).map(Int::toDouble)) { point, param -> ParamPoint(point, param) }
+    else -> points.zip(0..(points.size - 1)) { point, param -> ParamPoint(point, param.toDouble()) }
 }
 
 fun chordalParametrize(points: List<Point>): List<ParamPoint> {

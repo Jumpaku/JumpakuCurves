@@ -22,21 +22,23 @@ data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
     }
 }
 
-class KnotVector private constructor(val degree: Int, val knots: List<Knot>): ToJson {
-
-    val domain: Interval by lazy { extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) } }
-
-    val extractedKnots: List<Double> = knots.flatMap { (v, m) -> List(m) { v } }
-
-    constructor(degree: Int, knots: Iterable<Knot>) : this(degree, knots.toList())
+class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
 
     constructor(degree: Int, vararg knots: Knot) : this(degree, knots.toList())
 
+    val knots: List<Knot> = knots.toList()
+
+    val extractedKnots: List<Double> = knots.flatMap { (v, m) -> List(m) { v } }
+
+    val domain: Interval = extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) }
+
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
+    override fun toJson(): JsonElement =
+            jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
 
-    fun multiplicityOf(knotValue: Double): Int = search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
+    fun multiplicityOf(knotValue: Double): Int =
+            search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
     fun lastExtractedIndexUnder(value: Double): Int = extractedKnots
             .asVavr()
@@ -65,8 +67,12 @@ class KnotVector private constructor(val degree: Int, val knots: List<Knot>): To
 
     fun derivativeKnotVector(): KnotVector = KnotVector(degree - 1, knots
             .asVavr()
-            .run { if (head().multiplicity == 1) tail() else update(0) { (v, m) -> Knot(v, m - 1) } }
-            .run { if (last().multiplicity == 1) init() else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
+            .run {
+                if (head().multiplicity == 1) tail()
+                else update(0) { (v, m) -> Knot(v, m - 1) } }
+            .run {
+                if (last().multiplicity == 1) init()
+                else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
 
     fun subdivide(t: Double): Tuple2<Option<KnotVector>, Option<KnotVector>> {
         val s = multiplicityOf(t)
@@ -95,7 +101,8 @@ class KnotVector private constructor(val degree: Int, val knots: List<Knot>): To
 
     fun search(knotValue: Double): Int = knots.asVavr().search(Knot(knotValue)) { (v0), (v1) ->
         when {
-            v0 < v1 -> -1; v0 > v1 -> 1
+            v0 < v1 -> -1
+            v0 > v1 -> 1
             else -> 0
         }
     }
@@ -116,10 +123,9 @@ class KnotVector private constructor(val degree: Int, val knots: List<Knot>): To
         fun clamped(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             val nSpans = knotSize - 2 * degree - 1
             val (b, e) = domain
+            val middle = (1 until nSpans).map { Knot(b.divide(it / nSpans.toDouble(), e)) }
             return KnotVector(degree,
-                    listOf(Knot(b, degree + 1)) +
-                            (1 until nSpans).map { Knot(b.divide(it / nSpans.toDouble(), e)) } +
-                            listOf(Knot(e, degree + 1)))
+                    listOf(Knot(b, degree + 1)) + middle + listOf(Knot(e, degree + 1)))
         }
     }
 }

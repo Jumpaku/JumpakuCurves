@@ -23,19 +23,19 @@ import org.apache.commons.math3.util.Precision
 /**
  * Polyline parametrized by arc-chordLength.
  */
-class Polyline private constructor(private val paramPoints: List<ParamPoint>) : Curve, ToJson {
+class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
-    val points: List<Point> = paramPoints.map(ParamPoint::point)
+    private val paramPoints: List<ParamPoint> = paramPoints.toList()
 
     private val parameters: List<Double> = paramPoints.map(ParamPoint::param)
+
+    val points: List<Point> = paramPoints.map(ParamPoint::point)
 
     init {
         require(points.size == parameters.size){ "points.size() != parameters.size()" }
     }
 
     override val domain: Interval = Interval(parameters.first(), parameters.last())
-
-    constructor(paramPoints: Iterable<ParamPoint>) : this(paramPoints.toList())
 
     override fun toString(): String = toJsonString()
 
@@ -54,12 +54,12 @@ class Polyline private constructor(private val paramPoints: List<ParamPoint>) : 
         val evaluated = ArrayList<Point>(n)
         val ts = domain.sample(n).asVavr().subSequence(1, n-1)
         var index = 0
-        for (t in ts) {
+        ts.forEach { t ->
             index = parameters.asVavr().indexWhere({ t < it }, index)
             evaluated += evaluateInSpan(t, index-1)
         }
 
-        return listOf(listOf(points.first()), evaluated, listOf(points.last())).flatten()
+        return listOf(points.first()) + evaluated + listOf(points.last())
     }
 
     private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
@@ -91,8 +91,10 @@ class Polyline private constructor(private val paramPoints: List<ParamPoint>) : 
                         Polyline(paramPoints.drop(-1 - index).map { it.copy(param = it.param - t) }))
             else -> {
                 val p = evaluate(t)
-                Tuple2(Polyline(paramPoints.take(-1 - index).asVavr().append(ParamPoint(p, t)).asKt()),
-                        Polyline(paramPoints.drop(-1 - index).asVavr().prepend(ParamPoint(p, t)).map { it.copy(param = it.param - t) }.asKt()))
+                Tuple2(
+                        paramPoints.take(-1 - index) + listOf(ParamPoint(p, t)),
+                        (listOf(ParamPoint(p, t)) + paramPoints.drop(-1 - index))
+                ).map(::Polyline, { Polyline(it.map { it.copy(param = it.param - t) }) })
             }
         }
     }
@@ -103,8 +105,8 @@ class Polyline private constructor(private val paramPoints: List<ParamPoint>) : 
 
         fun of(vararg points: Point): Polyline = of(points.asIterable())
 
-
-        fun fromJson(json: JsonElement): Result<Polyline> =
-                result { of(json["points"].array.flatMap { Point.fromJson(it).value() }) }
+        fun fromJson(json: JsonElement): Result<Polyline> = result {
+            of(json["points"].array.flatMap { Point.fromJson(it).value() })
+        }
     }
 }

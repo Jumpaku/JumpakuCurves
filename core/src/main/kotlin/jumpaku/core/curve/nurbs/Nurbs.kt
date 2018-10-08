@@ -18,8 +18,17 @@ import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
 import jumpaku.core.util.*
 
-class Nurbs private constructor(val controlPoints: List<Point>, val weights: List<Double>, val knotVector: KnotVector)
-    : Curve, Differentiable, ToJson {
+class Nurbs(
+        controlPoints: Iterable<Point>,
+        weights: Iterable<Double>,
+        val knotVector: KnotVector) : Curve, Differentiable, ToJson {
+
+    constructor(weightedControlPoints: Iterable<WeightedPoint>, knotVector: KnotVector) : this(
+            weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight }, knotVector)
+
+    val controlPoints: List<Point> = controlPoints.toList()
+
+    val weights: List<Double> = weights.toList()
 
     val degree: Int = knotVector.degree
 
@@ -51,15 +60,12 @@ class Nurbs private constructor(val controlPoints: List<Point>, val weights: Lis
     init {
         val us = knotVector.extractedKnots
         val p = knotVector.degree
-        val n = controlPoints.size
+        val n = this.controlPoints.size
         val m = us.size
         require(n >= p + 1) { "controlPoints.size()($n) < degree($p) + 1" }
         require(m - p - 1 == n) { "knotVector.size()($m) - degree($p) - 1 != controlPoints.size()($n)" }
         require(degree > 0) { "degree($degree) <= 0" }
     }
-
-    constructor(weightedControlPoints: Iterable<WeightedPoint>, knotVector: KnotVector) : this(
-            weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight }, knotVector)
 
     override fun toString(): String = toJsonString()
 
@@ -127,7 +133,8 @@ class Nurbs private constructor(val controlPoints: List<Point>, val weights: Lis
     companion object {
 
         fun fromJson(json: JsonElement): Result<Nurbs> = result {
-            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() }, KnotVector.fromJson(json["knotVector"]).orThrow())
+            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() },
+                    KnotVector.fromJson(json["knotVector"]).orThrow())
         }
     }
 }

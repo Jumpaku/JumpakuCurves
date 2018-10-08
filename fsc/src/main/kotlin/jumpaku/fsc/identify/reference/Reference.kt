@@ -28,7 +28,7 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
     val reparametrized: ReparametrizedCurve<Reference> by lazy {
         val (t0, t1) = domain
         val ts = listOf(t0, -0.5, 0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0, 1.5, t1)
-        ReparametrizedCurve(this, ts.filter { it in domain })
+        ReparametrizedCurve.of(this, ts.filter { it in domain })
     }
 
     override fun evaluate(t: Double): Point {

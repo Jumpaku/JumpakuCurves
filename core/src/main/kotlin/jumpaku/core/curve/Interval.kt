@@ -30,7 +30,8 @@ data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Dou
                 .map { begin.divide(it / (samplesCount - 1.0), end).coerceIn(this) }
     }
 
-    fun sample(delta: Double): List<Double> = sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
+    fun sample(delta: Double): List<Double> =
+            sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
 
     override operator fun contains(value: Double): Boolean = value in begin..end
 

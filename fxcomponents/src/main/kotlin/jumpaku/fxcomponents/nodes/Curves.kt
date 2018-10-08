@@ -8,7 +8,6 @@ import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.curve.repeatBisect
 import jumpaku.core.util.asVavr
 import tornadofx.*
 
@@ -47,12 +46,12 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
 }
 
 fun Parent.curve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
-    val c = ReparametrizedCurve(curve, repeatBisect(curve, 1.0).map { it.begin } + (curve.domain.end))
+    val c = ReparametrizedCurve.approximate(curve, 1.0)
     polyline(Polyline.of(c.evaluateAll(delta/c.chordLength)), op)
 }
 
 fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
-    val c = ReparametrizedCurve(curve, repeatBisect(curve, 1.0).map { it.begin } + (curve.domain.end))
+    val c = ReparametrizedCurve.approximate(curve, 1.0)
     val n = c.chordLength/delta + 1
     fuzzyPoints(curve.evaluateAll(curve.domain.span/n), op)
 }

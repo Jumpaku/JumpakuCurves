@@ -19,7 +19,11 @@ import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 
 
-class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differentiable, ToJson {
+class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
+
+    constructor(vararg controlPoints: Point): this(controlPoints.asIterable())
+
+    val controlPoints: List<Point> = controlPoints.toList()
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
@@ -31,13 +35,10 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
 
     val degree: Int get() = controlPoints.size - 1
 
-    constructor(controlPoints: Iterable<Point>): this(controlPoints.toList())
-
-    constructor(vararg controlPoints: Point): this(controlPoints.asIterable())
-
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
+    override fun toJson(): JsonElement =
+            jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -54,7 +55,7 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
     fun restrict(begin: Double, end: Double): Bezier {
-        require(Interval(begin, end) in domain) { "Interval([begin($begin), end($end)]) is out of domain($domain)" }
+        require(Interval(begin, end) in domain) { "Interval($domain) is out of domain($domain)" }
 
         return subdivide(end)._1().subdivide(begin / end)._2()
     }
@@ -84,8 +85,9 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Bezier> =
-                result { Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it).value() }) }
+        fun fromJson(json: JsonElement): Result<Bezier> = result {
+            Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it).value() })
+        }
 
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
@@ -93,7 +95,7 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
         }
 
         fun <P : Divisible<P>> decasteljau(t: Double, cps: List<P>): List<P> =
-                cps.zip(cps.asVavr().tail()) { p0, p1 -> p0.divide(t, p1) }
+                cps.zipWithNext { p0, p1 -> p0.divide(t, p1) }
 
         internal tailrec fun <P : Divisible<P>> createEvaluatedPoint(t: Double, cp: List<P>): P =
                 if (cp.size == 1) cp.first() else createEvaluatedPoint(t, decasteljau(t, cp))
@@ -101,14 +103,13 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
         internal fun <P : Divisible<P>> createElevatedControlPoints(cp: List<P>): List<P> {
             val n = cp.size - 1
 
-            return (0..(n + 1))
-                    .map {
-                        when(it) {
-                            0 -> cp.first()
-                            n + 1 -> cp.last()
-                            else -> cp[it].divide(it / (n + 1).toDouble(), cp[it - 1])
-                        }
-                    }
+            return (0..(n + 1)).map {
+                when (it) {
+                    0 -> cp.first()
+                    n + 1 -> cp.last()
+                    else -> cp[it].divide(it / (n + 1).toDouble(), cp[it - 1])
+                }
+            }
         }
 
         internal fun <P : Divisible<P>> createSubdividedControlPoints(t: Double, cp: List<P>): Tuple2<List<P>, List<P>> {
@@ -118,11 +119,11 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
 
             while (tmp.size > 1) {
                 tmp = decasteljau(t, tmp)
-                first.add(0, tmp.first())
+                first.add(tmp.first())
                 second.add(0, tmp.last())
             }
 
-            return Tuple2(first.reversed(), second)
+            return Tuple2(first, second)
         }
 
         internal fun <P : Divisible<P>> createReducedControlPoints(cp: List<P>): List<P>  {
@@ -134,27 +135,28 @@ class Bezier private constructor(val controlPoints: List<Point>) : Curve, Differ
                     val r = (m - 3) / 2
                     val first = generateSequence(Tuple2(cp.first(), 1)) {
                         (qi, i) -> Tuple2(cp[i].divide(i / (i - n).toDouble(), qi), i + 1)
-                    }.take(r + 1)
+                    }.asIterable()
+                            .take(r + 1)
                     val second = generateSequence(Tuple2(cp.last(), n - 2)) {
                         (qi, i) -> Tuple2(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1)
-                    }.take(r + 1).asIterable().reversed()
-                    (first.toList() + (second)).map { it._1() }
+                    }.asIterable()
+                            .take(r + 1)
+                    (first + second.reversed()).map { it._1() }
                 }
                 else -> {
                     val r = (m - 2) / 2
                     val first = generateSequence(Tuple2(cp.first(), 1)) {
                         (qi, i) -> Tuple2(cp[i].divide(i / (i - n).toDouble(), qi), i + 1)
-                    }.take(r)
-                            .map { it._1() }
+                    }.asIterable()
+                            .take(r).map { it._1() }
                     val second = generateSequence(Tuple2(cp.last(), n - 2)) {
                         (qi, i) -> Tuple2(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1)
-                    }.take(r)
-                            .map { it._1() }
-                            .asIterable()
-                            .reversed()
+                    }.asIterable()
+                            .take(r).map { it._1() }
                     val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
-                    val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.first())
-                    (first.toList() + listOf(pl.middle(pr)) + (second))
+                    val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.last())
+                    (first + listOf(pl.middle(pr)) + second.reversed())
+
                 }
             }
         }

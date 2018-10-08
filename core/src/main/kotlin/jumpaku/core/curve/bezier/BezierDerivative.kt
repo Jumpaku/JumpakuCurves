@@ -18,6 +18,10 @@ import jumpaku.core.util.result
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {
 
+    constructor(controlVectors: Iterable<Vector>): this(Bezier(controlVectors.map { Point(it) }))
+
+    constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
+
     override val derivative: BezierDerivative get() = toBezier().derivative
 
     override val domain: Interval get() = toBezier().domain
@@ -25,10 +29,6 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
     val controlVectors: List<Vector> get() = toBezier().controlPoints.map(Point::toVector)
 
     val degree: Int get() = toBezier().degree
-
-    constructor(controlVectors: Iterable<Vector>): this(Bezier(controlVectors.map { Point(it) }))
-
-    constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
 
     fun toBezier(): Bezier = Bezier(bezier.controlPoints.map { it.toCrisp() })
 
@@ -38,7 +38,8 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }))
+    override fun toJson(): JsonElement =
+            jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }))
 
     fun restrict(i: Interval): BezierDerivative = BezierDerivative(toBezier().restrict(i))
 

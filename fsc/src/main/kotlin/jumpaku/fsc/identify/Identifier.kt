@@ -21,9 +21,16 @@ import kotlin.collections.set
 import kotlin.collections.sorted
 
 
+interface Identifier {
+
+    val nFmps: Int
+
+    fun <C: Curve> identify(fsc: ReparametrizedCurve<C>): IdentifyResult
+}
+
 fun reparametrize(fsc: BSpline, maxSamples: Int = 65): ReparametrizedCurve<BSpline> = fsc.run {
     val ts = knotVector.knots.map { it.value }.filter { it in domain }
-    ReparametrizedCurve(fsc, if (ts.size <= maxSamples) ts else approximateParams(maxSamples))
+    ReparametrizedCurve.of(fsc, if (ts.size <= maxSamples) ts else approximateParams(maxSamples))
 }
 
 private fun BSpline.approximateParams(n: Int): List<Double> {
@@ -43,11 +50,4 @@ private fun BSpline.approximateParams(n: Int): List<Double> {
         }
     }
     return (cache.values.flatMap { it.map { it.begin } } + domain.end).sorted()
-}
-
-interface Identifier {
-
-    val nFmps: Int
-
-    fun <C: Curve> identify(fsc: ReparametrizedCurve<C>): IdentifyResult
 }

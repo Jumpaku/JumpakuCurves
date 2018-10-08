@@ -20,31 +20,32 @@ import jumpaku.core.util.asVavr
 import jumpaku.core.util.result
 
 
-class RationalBezier private constructor(val controlPoints: List<Point>, val weights: List<Double>) : Curve, Differentiable, ToJson {
-
-    init {
-        require(controlPoints.isNotEmpty()) { "empty controlPoints" }
-        require(weights.isNotEmpty()) { "empty weights" }
-        require(controlPoints.size == weights.size) { "controlPoints.size() != weights.size()" }
-    }
-
-    constructor(controlPoints: Iterable<Point>, weights: Iterable<Double>) :
-            this(controlPoints.toList(), weights.toList())
+class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable, ToJson {
 
     constructor(weightedControlPoints: Iterable<WeightedPoint>) :
             this(weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight })
 
     constructor(vararg weightedControlPoints: WeightedPoint) : this(weightedControlPoints.asIterable())
 
-    val weightedControlPoints: List<WeightedPoint> get() = controlPoints.zip(weights, ::WeightedPoint)
+    val controlPoints: List<Point> = controlPoints.toList()
 
-    val degree: Int get() = weightedControlPoints.size - 1
+    val weights: List<Double> = weights.toList()
 
-    override val domain: Interval get() = Interval.ZERO_ONE
+    init {
+        require(this.controlPoints.isNotEmpty()) { "empty controlPoints" }
+        require(this.weights.isNotEmpty()) { "empty weights" }
+        require(this.controlPoints.size == this.weights.size) { "controlPoints.size() != weights.size()" }
+    }
+
+    val weightedControlPoints: List<WeightedPoint> = controlPoints.zip(weights, ::WeightedPoint)
+
+    val degree: Int = weightedControlPoints.size - 1
+
+    override val domain: Interval = Interval.ZERO_ONE
 
     override val derivative: Derivative get() {
         val ws = weights
-        val dws = ws.zip(ws.asVavr().tail()) { a, b -> degree * (b - a) }
+        val dws = ws.zipWithNext { a, b -> degree * (b - a) }
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
 
         return object : Derivative {
@@ -59,7 +60,7 @@ class RationalBezier private constructor(val controlPoints: List<Point>, val wei
                 return (dpt - dwt * rt) / wt
             }
 
-            override val domain: Interval get() = Interval.ZERO_ONE
+            override val domain: Interval = Interval.ZERO_ONE
         }
     }
 

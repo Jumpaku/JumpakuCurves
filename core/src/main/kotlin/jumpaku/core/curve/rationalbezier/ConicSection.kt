@@ -22,8 +22,7 @@ import kotlin.math.absoluteValue
 /**
  * Conic section defined by 3 representation points.
  */
-class ConicSection(
-        val begin: Point, val far: Point, val end: Point, val weight: Double)
+class ConicSection(val begin: Point, val far: Point, val end: Point, val weight: Double)
     : Curve, Differentiable, ToJson {
 
     val representPoints: List<Point> get() = listOf(begin, far, end)
@@ -72,8 +71,7 @@ class ConicSection(
         return Point(p, r)
     }
 
-    fun transform(a: Transform): ConicSection = ConicSection(
-            a(begin), a(far), a(end), weight)
+    fun transform(a: Transform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
 
     override fun toString(): String = toJsonString()
 
@@ -82,15 +80,10 @@ class ConicSection(
 
     override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
 
-    private val reversed: ConicSection by lazy { ConicSection(end, far, begin, weight) }
+    fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
-    fun reverse(): ConicSection = reversed
-
-    private val complement: ConicSection by lazy {
-        ConicSection(begin, center().map { it.divide(-1.0, far) }.orDefault { far }, end, -weight)
-    }
-
-    fun complement(): ConicSection = complement
+    fun complement(): ConicSection =
+            ConicSection(begin, center().map { it.divide(-1.0, far) }.orDefault { far }, end, -weight)
 
     fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
 
@@ -137,8 +130,7 @@ class ConicSection(
          *  an elliptic arc with this weight is a sheared circular arc which has the same weight.
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
-            val hh = line(begin, end).map { far.distSquare(it) }
-                    .orDefault { begin.distSquare(far) }
+            val hh = line(begin, end).map { far.distSquare(it) }.orDefault { begin.distSquare(far) }
             val ll = (begin - end).square()/4
             return ConicSection(begin, far, end, ((ll - hh) / (ll + hh)).coerceIn(-0.999, 0.999))
         }
@@ -146,7 +138,11 @@ class ConicSection(
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
         fun fromJson(json: JsonElement): Result<ConicSection> = result {
-            ConicSection(Point.fromJson(json["begin"]).orThrow(), Point.fromJson(json["far"]).orThrow(), Point.fromJson(json["end"]).orThrow(), json["weight"].double)
+            ConicSection(
+                    Point.fromJson(json["begin"]).orThrow(),
+                    Point.fromJson(json["far"]).orThrow(),
+                    Point.fromJson(json["end"]).orThrow(),
+                    json["weight"].double)
         }
     }
 }
