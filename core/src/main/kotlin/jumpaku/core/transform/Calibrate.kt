@@ -11,7 +11,8 @@ class Calibrate(
         val pair2: Pair<Point, Point>,
         val pair3: Pair<Point, Point>) : Transform {
 
-    constructor(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, pair2: Pair<Point, Point>) : this(makePairs(pair0, pair1, pair2))
+    constructor(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, pair2: Pair<Point, Point>)
+            : this(makePairs(pair0, pair1, pair2))
 
     constructor(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>) : this(makePairs(pair0, pair1))
 
@@ -33,7 +34,8 @@ class Calibrate(
 
     companion object {
 
-        private fun makePairs(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, pair2: Pair<Point, Point>): List<Pair<Point, Point>> {
+        private fun makePairs(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, pair2: Pair<Point, Point>)
+                : List<Pair<Point, Point>> {
             val (fromO, toO) = pair0
             val (fromA, toA) = pair1
             val (fromB, toB) = pair2
@@ -66,7 +68,8 @@ class Calibrate(
         }
 
 
-        fun similarityWithNormal(pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, normal: Pair<Vector, Vector>): Calibrate {
+        fun similarityWithNormal(
+                pair0: Pair<Point, Point>, pair1: Pair<Point, Point>, normal: Pair<Vector, Vector>): Calibrate {
             val (fromO, toO) = pair0
             val (fromP, toP) = pair1
             val (fromN, toN) = normal.let { (f, t) -> f.normalize().orThrow() to t.normalize().orThrow() }
@@ -78,6 +81,7 @@ class Calibrate(
             val f0 = toP - toO
             val f1 = f0.cross(toN)
             val f2 = f1.cross(f0)
+
             return Calibrate(listOf(Vector.Zero to Vector.Zero, e0 to f0, e1 to f1, e2 to f2).map { (a, b) ->
                 fromO + a to toO + b
             })

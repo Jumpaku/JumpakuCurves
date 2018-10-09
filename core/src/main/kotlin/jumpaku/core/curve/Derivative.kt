@@ -7,9 +7,7 @@ interface Derivative {
     val domain: Interval
 
     operator fun invoke(t: Double): Vector {
-        if (t !in domain) {
-            throw IllegalArgumentException("t($t) is out of domain($domain)")
-        }
+        require(t in domain) { "t($t) is out of domain($domain)" }
 
         return evaluate(t)
     }

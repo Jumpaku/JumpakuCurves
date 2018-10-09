@@ -4,16 +4,16 @@ import io.vavr.Tuple2
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.fuzzy.Grade
+import jumpaku.core.util.asVavr
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 
 data class Chunk(
         val interval: Interval,
         val necessity: Grade,
-        val possibility: Grade
-) {
+        val possibility: Grade) {
 
-    fun state(threshold: TruthValueThreshold): State = when {
+    fun state(threshold: FragmentThreshold): State = when {
         (necessity < threshold.necessity && possibility < threshold.possibility) -> State.MOVE
         (threshold.necessity < necessity && threshold.possibility < possibility) -> State.STAY
         else -> State.UNKNOWN
@@ -29,6 +29,6 @@ data class Chunk(
 fun chunk(fsc: BSpline, interval: Interval, n: Int): Chunk {
     val pointTimeSeries = fsc.restrict(interval).evaluateAll(n)
     val last = pointTimeSeries.last()
-    val (ns, ps) = pointTimeSeries.unzip { Tuple2(last.isNecessary(it), last.isPossible(it)) }
+    val (ns, ps) = pointTimeSeries.asVavr().unzip { Tuple2(last.isNecessary(it), last.isPossible(it)) }
     return Chunk(interval, ns.reduce(Grade::and), ps.reduce(Grade::and))
 }

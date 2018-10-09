@@ -3,7 +3,6 @@ package jumpaku.fsc.identify.reference
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.collection.Array
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
@@ -28,8 +27,8 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
 
     val reparametrized: ReparametrizedCurve<Reference> by lazy {
         val (t0, t1) = domain
-        val ts = Array.of(t0, -0.5, 0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0, 1.5, t1)
-        ReparametrizedCurve(this, ts.filter { it in domain })
+        val ts = listOf(t0, -0.5, 0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0, 1.5, t1)
+        ReparametrizedCurve.of(this, ts.filter { it in domain })
     }
 
     override fun evaluate(t: Double): Point {

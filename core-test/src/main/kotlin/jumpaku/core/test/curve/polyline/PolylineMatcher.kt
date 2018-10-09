@@ -6,8 +6,8 @@ import jumpaku.core.test.geom.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: Polyline, expected: Polyline, error: Double = 1.0e-9): Boolean =
-        (actual.points.size() == expected.points.size()) &&
-                actual.points.zipWith(expected.points) { a, e -> isCloseTo(a, e, error) }.all { it }
+        (actual.points.size == expected.points.size) &&
+                actual.points.zip(expected.points) { a, e -> isCloseTo(a, e, error) }.all { it }
 
 
 fun Polyline.shouldEqualToPolyline(expected: Polyline, error: Double = 1.0e-9) = this.should("$this should be $expected") {

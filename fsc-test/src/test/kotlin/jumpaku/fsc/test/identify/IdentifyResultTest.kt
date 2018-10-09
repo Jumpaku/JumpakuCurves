@@ -5,7 +5,6 @@ import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
 import jumpaku.core.json.parseJson
-import jumpaku.core.util.hashMap
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.IdentifyResult
 import jumpaku.fsc.identify.reference.Reference
@@ -18,7 +17,7 @@ class IdentifyResultTest {
 
     val r2 = sqrt(2.0)
 
-    val s = hashMap(
+    val s = hashMapOf(
             CurveClass.Point to Grade(0.3),
             CurveClass.LineSegment to Grade(0.7),
             CurveClass.Circle to Grade(0.4),

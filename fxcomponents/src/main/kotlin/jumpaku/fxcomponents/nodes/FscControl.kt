@@ -1,9 +1,5 @@
 package jumpaku.fxcomponents.nodes
 
-import io.vavr.API
-import io.vavr.collection.Array
-import io.vavr.collection.List
-import io.vavr.control.Option
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.Event
@@ -21,6 +17,8 @@ import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.geom.Point
+import jumpaku.core.util.Option
+import jumpaku.core.util.optionWhen
 import jumpaku.fsc.generate.FscGenerator
 import tornadofx.add
 import tornadofx.circle
@@ -48,12 +46,12 @@ private class FscControlSkin(val control: FscControl) : Skin<FscControl> {
     override fun dispose() {}
     override fun getSkinnable(): FscControl = control
 
-    fun render(points: Array<ParamPoint>): Unit = with(inputPolyline) {
+    fun render(points: List<ParamPoint>): Unit = with(inputPolyline) {
         children.clear()
         when {
-            points.isEmpty -> Unit
-            points.isSingleValued -> circle(points[0].point.x, points[0].point.y, 1) { stroke = Color.BLACK }
-            else -> polyline(Polyline(points.map(ParamPoint::point))) { stroke = Color.BLACK }
+            points.isEmpty() -> Unit
+            points.size == 0 -> circle(points[0].point.x, points[0].point.y, 1) { stroke = Color.BLACK }
+            else -> polyline(Polyline.of(points.map(ParamPoint::point))) { stroke = Color.BLACK }
         }
     }
 }
@@ -79,31 +77,31 @@ class FscControl(val fscGenerator: FscGenerator) : Control() {
         }
     }
 
-    private var data: List<ParamPoint> = API.List()
+    private var data: MutableList<ParamPoint> = mutableListOf()
 
     fun clearData() {
-        data = List.empty()
+        data.clear()
         update()
     }
 
     fun addData(d: ParamPoint) {
-        data = data.prepend(d)
+        data.add(d)
         update()
     }
 
-    fun generateFsc(): Option<BSpline> = Option.`when`(data.size() >= 2) {
-        fscGenerator.generate(data.toArray())
+    fun generateFsc(): Option<BSpline> = optionWhen(data.size >= 2) {
+        fscGenerator.generate(data.toList())
     }
 
-    fun update() = (skin as FscControlSkin)
-            .render(data.toArray().sorted(Comparator.comparing(ParamPoint::param)))
+    fun update(): Unit = (skin as FscControlSkin).render(data.sortedWith(Comparator.comparing(ParamPoint::param)))
 
     override fun createDefaultSkin(): Skin<*> = FscControlSkin(this)
 
-    private val onFscDoneProperty: ObjectProperty<EventHandler<FscEvent>> = object : SimpleObjectProperty<EventHandler<FscEvent>>(
-            this, "onFscDone", EventHandler { _ -> Unit }) {
-        override fun invalidated() = setEventHandler(FscEvent.FSC_DONE, get())
-    }
+    private val onFscDoneProperty: ObjectProperty<EventHandler<FscEvent>> =
+            object : SimpleObjectProperty<EventHandler<FscEvent>>(
+                    this, "onFscDone", EventHandler { _ -> Unit }) {
+                override fun invalidated() = setEventHandler(FscEvent.FSC_DONE, get())
+            }
     fun onFscDoneProperty(): ObjectProperty<EventHandler<FscEvent>> = onFscDoneProperty
     var onFscDone: EventHandler<FscEvent> get() = onFscDoneProperty().get(); set(h) = onFscDoneProperty().set(h)
 }

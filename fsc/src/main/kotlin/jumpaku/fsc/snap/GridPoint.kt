@@ -22,7 +22,8 @@ data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<GridPoint> =
-                result { GridPoint(json["x"].long, json["y"].long, json["z"].long) }
+        fun fromJson(json: JsonElement): Result<GridPoint> = result {
+            GridPoint(json["x"].long, json["y"].long, json["z"].long)
+        }
     }
 }

@@ -6,14 +6,15 @@ import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.core.curve.Interval
+import jumpaku.core.json.ToJson
 import jumpaku.core.util.Result
 import jumpaku.core.util.result
 
-data class Fragment(val interval: Interval, val type: Type) {
+data class Fragment(val interval: Interval, val type: Type): ToJson {
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("interval" to interval.toJson(), "type" to type.name.toJson())
+    override fun toJson(): JsonElement = jsonObject("interval" to interval.toJson(), "type" to type.name.toJson())
 
     enum class Type {
         Move, Stay

@@ -1,16 +1,10 @@
 package jumpaku.fsc.identify.reference
 
-import io.vavr.collection.Array
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
 
-
-fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> = conicSection.let {
-    val ts = Array.of(0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0)
-    ReparametrizedCurve(it, ts)
-}
 
 interface ReferenceGenerator {
 
@@ -34,4 +28,9 @@ interface ReferenceGenerator {
             return Interval(b.coerceIn(Interval(-1.0, 2.0)), e.coerceIn(Interval(-1.0, 2.0)))
         }
     }
+}
+
+fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> = conicSection.let {
+    val ts = listOf(0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0)
+    ReparametrizedCurve.of(it, ts)
 }

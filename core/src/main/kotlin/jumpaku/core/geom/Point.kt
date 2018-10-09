@@ -17,7 +17,8 @@ import org.apache.commons.math3.util.Precision
 
 
 
-data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) : Membership<Point, Point>, Divisible<Point>, ToJson {
+data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
+        Membership<Point, Point>, Divisible<Point>, ToJson {
 
     constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
 
@@ -44,20 +45,12 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
         return d.divOption(r + u.r)
                 .map { if (d < u.r) Grade.clamped(1 - (r + d) / (r + u.r)) else Grade.FALSE }
                 .orDefault(Grade(equalsPosition(this, u)))
-        /*val ra = r
-        val rb = u.r
-        val dd = this.dist(u)
-        return when {
-            (dd.divOption(ra + rb)).isEmpty -> Grade(equalsPosition(this, u, 1.0e-10))
-            dd < rb -> Grade(FastMath.min(1 - (ra - dd) / (ra + rb), 1 - (ra + dd) / (ra + rb)))
-            else -> Grade.FALSE
-        }*/
     }
 
     /**
      * @param t
      * @param p
-     * @return ((1-t)*this.vector + t*p.vector, |1-t|*this.r + |t|*p.r)
+     * @return ((1-t)*this + t*p, |1-t|*this.r + |t|*p.r)
      */
     override fun divide(t: Double, p: Point): Point = Point(
             toVector() * (1 - t) + t * p.toVector(),
@@ -124,7 +117,8 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @param p3
      * @return volume of a Tetrahedron (this, p1, p2, p3)
      */
-    fun volume(p1: Point, p2: Point, p3: Point): Double = FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
+    fun volume(p1: Point, p2: Point, p3: Point): Double =
+            FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
 
     /**
      * @param p1
@@ -154,7 +148,8 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
 
-        fun fromJson(json: JsonElement): Result<Point> =
-                result{ Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double) }
+        fun fromJson(json: JsonElement): Result<Point> = result {
+            Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double)
+        }
     }
 }

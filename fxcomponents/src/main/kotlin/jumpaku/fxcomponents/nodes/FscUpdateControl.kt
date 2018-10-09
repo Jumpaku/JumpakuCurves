@@ -1,9 +1,5 @@
 package jumpaku.fxcomponents.nodes
 
-import io.vavr.API
-import io.vavr.collection.Array
-import io.vavr.collection.List
-import io.vavr.control.Option
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.Event
@@ -21,6 +17,7 @@ import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.geom.Point
+import jumpaku.core.util.*
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.generate.FscGenerator
 import tornadofx.add
@@ -52,12 +49,12 @@ private class FscUpdateControlSkin(val control: FscUpdateControl) : Skin<FscUpda
     override fun dispose() {}
     override fun getSkinnable(): FscUpdateControl = control
 
-    fun render(data: Array<ParamPoint>): Unit = with(inputPolyline) {
+    fun render(data: List<ParamPoint>): Unit = with(inputPolyline) {
         children.clear()
         when {
-            data.isEmpty -> Unit
-            data.isSingleValued -> circle(data[0].point.x, data[0].point.y, 1) { stroke = Color.BLACK }
-            else -> polyline(Polyline(data.map(ParamPoint::point))) { stroke = Color.BLACK }
+            data.isEmpty() -> Unit
+            data.size == 1 -> circle(data[0].point.x, data[0].point.y, 1) { stroke = Color.BLACK }
+            else -> polyline(Polyline.of(data.map(ParamPoint::point))) { stroke = Color.BLACK }
         }
     }
 }
@@ -83,50 +80,51 @@ class FscUpdateControl(val fscGenerator: FscGenerator, val blender: Blender) : C
         }
     }
 
-    private var data: List<ParamPoint> = API.List()
+    private var data: MutableList<ParamPoint> = mutableListOf()
 
-    private var existingFsc: Option<BSpline> = Option.none()
+    private var existingFsc: Option<BSpline> = none()
 
     fun clearData() {
-        data = List.empty()
+        data.clear()
         update()
     }
 
     fun addData(d: ParamPoint) {
-        data = data.prepend(d)
+        data.add(d)
         update()
     }
 
     fun attemptUpdateFsc(): Option<BSpline> {
-        if (data.size() < 2) return Option.none()
+        if (data.size < 2) return none()
 
-        val overlap = fscGenerator.generate(data.toArray())
-        when(existingFsc) {
-            is Option.None -> {
-                existingFsc = Option.of(overlap)
+        val overlap = fscGenerator.generate(data)
+        when (existingFsc) {
+            is None -> {
+                existingFsc = some(overlap)
                 return existingFsc
             }
-            is Option.Some -> {
-                val exist = existingFsc.get()
+            is Some -> {
+                val exist = existingFsc.orThrow()
                 val blend = blender.blend(exist, overlap)
                 blend.data.forEach {
-                    existingFsc = Option.of(fscGenerator.generate(it))
+                    existingFsc = some(fscGenerator.generate(it))
                     return existingFsc
                 }
             }
-        }
-        return Option.none()
+            }
+        return none()
     }
 
     fun update() = (skin as FscUpdateControlSkin)
-            .render(data.toArray().sorted(Comparator.comparing(ParamPoint::param)))
+            .render(data.sortedWith(Comparator.comparing(ParamPoint::param)))
 
     override fun createDefaultSkin(): Skin<*> = FscUpdateControlSkin(this)
 
-    private val onFscUpdatedProperty: ObjectProperty<EventHandler<FscUpdateEvent>> = object : SimpleObjectProperty<EventHandler<FscUpdateEvent>>(
+    private val onFscUpdatedProperty: ObjectProperty<EventHandler<FscUpdateEvent>> =
+            object : SimpleObjectProperty<EventHandler<FscUpdateEvent>>(
             this, "onFscUpdated", EventHandler { _ -> Unit }) {
-        override fun invalidated() = setEventHandler(FscUpdateEvent.FSC_UPDATED, get())
-    }
+                override fun invalidated() = setEventHandler(FscUpdateEvent.FSC_UPDATED, get())
+            }
     fun onFscUpdatedProperty(): ObjectProperty<EventHandler<FscUpdateEvent>> = onFscUpdatedProperty
     var onFscUpdated: EventHandler<FscUpdateEvent> get() = onFscUpdatedProperty().get(); set(h) = onFscUpdatedProperty().set(h)
 }

@@ -5,8 +5,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.collection.Array
-import io.vavr.collection.Stream
 import jumpaku.core.geom.divide
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.Result
@@ -16,24 +14,24 @@ import org.apache.commons.math3.util.FastMath
 
 data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Double> {
 
-    val span: Double = end - begin
-
     init {
         require(begin <= end){ "begin($begin) > end($end)" }
     }
+
+    val span: Double = end - begin
 
     override val start: Double = begin
 
     override val endInclusive: Double = end
 
-    fun sample(samplesCount: Int): Array<Double> {
+    fun sample(samplesCount: Int): List<Double> {
         require(samplesCount >= 2) { "samplesCount($samplesCount) < 2" }
-        return Stream.range(0, samplesCount)
+        return (0 until  samplesCount)
                 .map { begin.divide(it / (samplesCount - 1.0), end).coerceIn(this) }
-                .toArray()
     }
 
-    fun sample(delta: Double): Array<Double> = sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
+    fun sample(delta: Double): List<Double> =
+            sample(maxOf(1, FastMath.ceil((end - begin) / delta).toInt()) + 1)
 
     override operator fun contains(value: Double): Boolean = value in begin..end
 

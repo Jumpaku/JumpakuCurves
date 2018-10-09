@@ -1,6 +1,5 @@
 package jumpaku.core.test.curve.bezier
 
-import io.vavr.collection.Array
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
@@ -27,7 +26,7 @@ class BezierTest {
         bc.controlPoints[2].shouldEqualToPoint(Point.xyr( 0.0, 2.0, 0.0))
         bc.controlPoints[3].shouldEqualToPoint(Point.xyr( 1.0, 0.0, 2.0))
         bc.controlPoints[4].shouldEqualToPoint(Point.xyr( 2.0, 0.0, 1.0))
-        bc.controlPoints.size().shouldEqualTo(5)
+        bc.controlPoints.size.shouldEqualTo(5)
         bc.degree.shouldEqualTo(4)
         bc.domain.begin.shouldBeCloseTo(0.0)
         bc.domain.end.shouldBeCloseTo(1.0)
@@ -165,10 +164,10 @@ class BezierTest {
     fun testDecasteljau(){
         println("Decasteljau")
         val result = Bezier.decasteljau(0.25,
-                Array.of(Point.xyzr(1.0, 0.0, -2.0, 1.0), Point.xyzr(0.0, 3.0, 4.0, 0.0), Point.xyzr(-1.0, -1.0, 0.0, 2.0)))
-        result.size().shouldEqualTo(result.size())
-        result.get(0).shouldEqualToPoint(Point.xyzr(0.75, 0.75, -0.5, 0.75))
-        result.get(1).shouldEqualToPoint(Point.xyzr(-0.25, 2.0, 3.0, 0.5))
+                listOf(Point.xyzr(1.0, 0.0, -2.0, 1.0), Point.xyzr(0.0, 3.0, 4.0, 0.0), Point.xyzr(-1.0, -1.0, 0.0, 2.0)))
+        result.size.shouldEqualTo(result.size)
+        result[0].shouldEqualToPoint(Point.xyzr(0.75, 0.75, -0.5, 0.75))
+        result[1].shouldEqualToPoint(Point.xyzr(-0.25, 2.0, 3.0, 0.5))
     }
 
     @Test

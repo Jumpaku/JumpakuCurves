@@ -42,7 +42,7 @@ class NurbsTest {
     fun testProperties() {
         println("Properties")
 
-        n.weightedControlPoints.size().shouldEqualTo(6)
+        n.weightedControlPoints.size.shouldEqualTo(6)
         n.weightedControlPoints[0].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
         n.weightedControlPoints[1].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 100.0, 20.0), 1/9.0))
         n.weightedControlPoints[2].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr( 400.0, 100.0, 30.0), 1/27.0))
@@ -50,7 +50,7 @@ class NurbsTest {
         n.weightedControlPoints[4].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 500.0, 20.0), 1/9.0))
         n.weightedControlPoints[5].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr( 200.0, 300.0, 10.0), 1.0))
 
-        n.controlPoints.size().shouldEqualTo(6)
+        n.controlPoints.size.shouldEqualTo(6)
         n.controlPoints[0].shouldEqualToPoint(Point.xyr( 200.0, 300.0, 10.0))
         n.controlPoints[1].shouldEqualToPoint(Point.xyr( 200.0, 100.0, 20.0))
         n.controlPoints[2].shouldEqualToPoint(Point.xyr( 400.0, 100.0, 30.0))
@@ -58,7 +58,7 @@ class NurbsTest {
         n.controlPoints[4].shouldEqualToPoint(Point.xyr( 200.0, 500.0, 20.0))
         n.controlPoints[5].shouldEqualToPoint(Point.xyr( 200.0, 300.0, 10.0))
 
-        n.controlPoints.size().shouldEqualTo(6)
+        n.controlPoints.size.shouldEqualTo(6)
         n.weights[0].shouldBeCloseTo(1.0)
         n.weights[1].shouldBeCloseTo(1/9.0)
         n.weights[2].shouldBeCloseTo(1/27.0)
@@ -181,7 +181,7 @@ class NurbsTest {
                 WeightedPoint(Point.xyr(400.0, 500.0, 30.0), 1/27.0),
                 WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1/9.0),
                 WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0))
-        qs.size().shouldEqualTo(2)
+        qs.size.shouldEqualTo(2)
         qs[0].shouldEqualToRationalBezier(e0)
         qs[1].shouldEqualToRationalBezier(e1)
     }

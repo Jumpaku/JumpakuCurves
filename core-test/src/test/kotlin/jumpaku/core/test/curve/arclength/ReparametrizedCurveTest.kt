@@ -14,7 +14,7 @@ class ReparametrizedCurveTest {
 
     val cs = ConicSection(Point.xy(0.0, 100.0), Point.xy(-R2*50, -R2*50), Point.xy(100.0, 0.0), -R2 / 2)
 
-    val rcs = ReparametrizedCurve(cs, cs.domain.sample(15))
+    val rcs = ReparametrizedCurve.of(cs, cs.domain.sample(15))
 
     @Test
     fun testEvaluate() {

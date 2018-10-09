@@ -15,7 +15,7 @@ import jumpaku.fsc.snap.GridPoint
 import jumpaku.fsc.snap.toWorldPoint
 
 
-data class PointSnapResult(
+class PointSnapResult(
         val resolution: Int,
         val gridPoint: GridPoint,
         val grade: Grade): ToJson {

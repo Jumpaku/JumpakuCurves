@@ -1,6 +1,5 @@
 package jumpaku.fsc.snap.conicsection
 
-import io.vavr.collection.Stream
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
 
@@ -12,9 +11,9 @@ data class EllipticFeaturePoints(val featurePoint0: Point, val featurePoint1: Po
 
 interface FeaturePointsCombinator {
 
-    fun linearCombinations(conicSection: ConicSection, isOpen: Boolean): Stream<LinearFeaturePoints>
+    fun linearCombinations(conicSection: ConicSection, isOpen: Boolean): List<LinearFeaturePoints>
 
-    fun circularCombinations(conicSection: ConicSection, isOpen: Boolean): Stream<CircularFeaturePoints>
+    fun circularCombinations(conicSection: ConicSection, isOpen: Boolean): List<CircularFeaturePoints>
 
-    fun ellipticCombinations(conicSection: ConicSection, isOpen: Boolean): Stream<EllipticFeaturePoints>
+    fun ellipticCombinations(conicSection: ConicSection, isOpen: Boolean): List<EllipticFeaturePoints>
 }

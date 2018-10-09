@@ -5,9 +5,7 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.API.*
 import io.vavr.Tuple2
-import io.vavr.collection.Array
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
@@ -18,33 +16,36 @@ import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
 import jumpaku.core.util.Result
+import jumpaku.core.util.asVavr
 import jumpaku.core.util.result
 
 
-class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>) : Curve, Differentiable, ToJson {
+class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable, ToJson {
+
+    constructor(weightedControlPoints: Iterable<WeightedPoint>) :
+            this(weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight })
+
+    constructor(vararg weightedControlPoints: WeightedPoint) : this(weightedControlPoints.asIterable())
+
+    val controlPoints: List<Point> = controlPoints.toList()
+
+    val weights: List<Double> = weights.toList()
 
     init {
-        require(controlPoints.nonEmpty()) { "empty controlPoints" }
-        require(weights.nonEmpty()) { "empty weights" }
-        require(controlPoints.size() == weights.size()) { "controlPoints.size() != weights.size()" }
+        require(this.controlPoints.isNotEmpty()) { "empty controlPoints" }
+        require(this.weights.isNotEmpty()) { "empty weights" }
+        require(this.controlPoints.size == this.weights.size) { "controlPoints.size() != weights.size()" }
     }
 
-    constructor(weightedControlPoints: Array<WeightedPoint>) : this(
-            weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight })
+    val weightedControlPoints: List<WeightedPoint> = controlPoints.zip(weights, ::WeightedPoint)
 
-    constructor(weightedControlPoints: Iterable<WeightedPoint>) : this(Array.ofAll(weightedControlPoints))
+    val degree: Int = weightedControlPoints.size - 1
 
-    constructor(vararg weightedControlPoints: WeightedPoint) : this(Array(*weightedControlPoints))
-
-    val weightedControlPoints: Array<WeightedPoint> get() = controlPoints.zipWith(weights, ::WeightedPoint)
-
-    val degree: Int get() = weightedControlPoints.size() - 1
-
-    override val domain: Interval get() = Interval.ZERO_ONE
+    override val domain: Interval = Interval.ZERO_ONE
 
     override val derivative: Derivative get() {
         val ws = weights
-        val dws = ws.zipWith(ws.tail()) { a, b -> degree * (b - a) }
+        val dws = ws.zipWithNext { a, b -> degree * (b - a) }
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
 
         return object : Derivative {
@@ -59,7 +60,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
                 return (dpt - dwt * rt) / wt
             }
 
-            override val domain: Interval get() = Interval.ZERO_ONE
+            override val domain: Interval = Interval.ZERO_ONE
         }
     }
 
@@ -89,7 +90,7 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
         return subdivide(end)._1().subdivide(begin / end)._2()
     }
 
-    fun reverse(): RationalBezier = RationalBezier(weightedControlPoints.reverse())
+    fun reverse(): RationalBezier = RationalBezier(weightedControlPoints.reversed())
 
     fun elevate(): RationalBezier = RationalBezier(Bezier.createElevatedControlPoints(weightedControlPoints))
 
@@ -108,8 +109,8 @@ class RationalBezier(val controlPoints: Array<Point>, val weights: Array<Double>
 
     companion object {
 
-        fun bezier1D(t: Double, weights: Array<Double>): Double {
-            var ws = weights.toJavaList()
+        fun bezier1D(t: Double, weights: List<Double>): Double {
+            var ws = weights
             while (ws.size > 1) {
                 ws = ws.zipWithNext { w0, w1 -> w0.divide(t, w1) }
             }

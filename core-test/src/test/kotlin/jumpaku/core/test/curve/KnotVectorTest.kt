@@ -18,7 +18,7 @@ class KnotVectorTest {
     @Test
     fun testProperties() {
         println("Properties")
-        k.knots.size().shouldEqualTo(4)
+        k.knots.size.shouldEqualTo(4)
         k.knots[0].value.shouldBeCloseTo(3.5)
         k.knots[1].value.shouldBeCloseTo(4.0)
         k.knots[2].value.shouldBeCloseTo(4.5)

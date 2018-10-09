@@ -25,7 +25,8 @@ data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoin
 
         fun now(point: Point): ParamPoint = ParamPoint(point, System.nanoTime() * 1.0e-9)
 
-        fun fromJson(json: JsonElement): Result<ParamPoint> =
-                result { ParamPoint(Point.fromJson(json["point"]).orThrow(), json["param"].double) }
+        fun fromJson(json: JsonElement): Result<ParamPoint> = result {
+            ParamPoint(Point.fromJson(json["point"]).orThrow(), json["param"].double)
+        }
     }
 }

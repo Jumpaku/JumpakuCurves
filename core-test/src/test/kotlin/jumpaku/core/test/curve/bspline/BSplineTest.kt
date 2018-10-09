@@ -53,7 +53,7 @@ class BSplineTest {
         clamped.controlPoints[2].shouldEqualToPoint(Point.xyr(0.0, 1.0, 2.0))
         clamped.controlPoints[3].shouldEqualToPoint(Point.xyr(0.0, 0.0, 1.0))
         clamped.controlPoints[4].shouldEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
-        clamped.controlPoints.size().shouldEqualTo(5)
+        clamped.controlPoints.size.shouldEqualTo(5)
 
         clamped.knotVector.shouldEqualToKnotVector(KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
 
@@ -158,14 +158,14 @@ class BSplineTest {
     fun testToBeziers() {
         println("ToBeziers")
         val beziers0 = clamped.toBeziers()
-        beziers0.size().shouldEqualTo(2)
+        beziers0.size.shouldEqualTo(2)
         beziers0[0].shouldEqualToBezier(Bezier(
                 Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)))
         beziers0[1].shouldEqualToBezier(Bezier(
                 Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)))
 
         val beziers1 = uniform.toBeziers()
-        beziers1.size().shouldEqualTo(3)
+        beziers1.size.shouldEqualTo(3)
         beziers1[0].shouldEqualToBezier(Bezier(
                 Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0)))
         beziers1[1].shouldEqualToBezier(Bezier(

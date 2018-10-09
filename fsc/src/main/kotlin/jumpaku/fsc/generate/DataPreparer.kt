@@ -1,7 +1,5 @@
 package jumpaku.fsc.generate
 
-import io.vavr.collection.Array
-import io.vavr.collection.Stream
 import org.apache.commons.math3.util.FastMath
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
@@ -9,10 +7,7 @@ import jumpaku.fsc.generate.fit.BezierFitter
 import jumpaku.core.curve.chordalParametrize
 import jumpaku.core.curve.transformParams
 import jumpaku.core.curve.uniformParametrize
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.orDefault
-import jumpaku.core.util.orOption
+import jumpaku.core.util.*
 
 
 /**
@@ -31,67 +26,67 @@ class DataPreparer(
         val outerSpan: Double = innerSpan,
         val degree: Int = 2) {
 
-    fun prepare(crispData: Array<ParamPoint>): Array<ParamPoint> {
-        require(crispData.size() >= 2) { "data size(${crispData.size()}) < 2" }
+    fun prepare(crispData: List<ParamPoint>): List<ParamPoint> {
+        require(crispData.size >= 2) { "data.size == ${crispData.size}, too few data" }
 
-        return  crispData.sortBy(ParamPoint::param)
-                .run { fill(this, maxParamSpan) }
-                .run { extendFront(this, innerSpan, outerSpan, degree) }
-                .run { extendBack(this, innerSpan, outerSpan, degree) }
+        return  crispData.sortedBy(ParamPoint::param)
+                .let { fill(it, maxParamSpan) }
+                .let { extendFront(it, innerSpan, outerSpan, degree) }
+                .let { extendBack(it, innerSpan, outerSpan, degree) }
     }
 
     companion object {
 
-        fun fill(sortedData: Array<ParamPoint>, maxParamSpan: Double): Array<ParamPoint> {
-            require(sortedData.size() >= 2) { "sortedData size is too few" }
+        fun fill(sortedData: List<ParamPoint>, maxParamSpan: Double): List<ParamPoint> {
+            require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
 
-            return sortedData.zip(sortedData.tail())
+            val data = sortedData.asVavr()
+            return data.zip(data.tail())
                     .flatMap { (a, b) ->
                         val nSamples = FastMath.ceil((b.param - a.param) / maxParamSpan).toInt() + 1
-                        Stream.range(0, nSamples - 1).map { a.divide(it / (nSamples - 1.0), b) }
-                    }.append(sortedData.last())
+                        (0 until  nSamples - 1).map { a.divide(it / (nSamples - 1.0), b) }
+                    }.append(data.last())
+                    .asKt()
         }
 
-        fun extendFront(sortedData: Array<ParamPoint>,
-                        innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<ParamPoint> {
-            require(sortedData.size() >= 2) { "sortedData size(${sortedData.size()} is too few" }
+        fun extendFront(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2)
+                : List<ParamPoint> {
+            require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
             require(innerSpan > 0.0 && outerSpan > 0.0) {
-                "innerSpan($innerSpan) or outerSpan($outerSpan) are negative" }
+                "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0"
+            }
 
-            val end = sortedData.head().param + innerSpan
-            val begin = sortedData.head().param - outerSpan
-            val innerData = sortedData.filter { it.param <= end }
-                    .let {
-                        val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
-                        transformParams(chordalParametrize(it.map { it.point }), range)
-                                .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
-                    }.orThrow()
+            val end = sortedData.first().param + innerSpan
+            val begin = sortedData.first().param - outerSpan
+            val innerData = sortedData.filter { it.param <= end }.let {
+                val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
+                transformParams(chordalParametrize(it.map { it.point }), range)
+                        .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+            }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
-            val outerData = bezier.sample(Math.ceil(innerData.size()*innerSpan/outerSpan).toInt())
+            val outerData = bezier.sample(Math.ceil(innerData.size*innerSpan/outerSpan).toInt())
             return transformParams(outerData, Interval(begin, begin + outerSpan)).orThrow()
-                    .init()
-                    .appendAll(sortedData)
+                    .run { dropLast(1) + sortedData }
         }
 
-        fun extendBack(sortedData: Array<ParamPoint>,
-                       innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): Array<ParamPoint> {
-            require(sortedData.size() >= 2) { "sortedData size is too few" }
+        fun extendBack(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2)
+                : List<ParamPoint> {
+            require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
             require(innerSpan > 0.0 && outerSpan > 0.0) {
-                "innerSpan($innerSpan) or outerSpan($outerSpan) are negative" }
+                "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0"
+            }
 
             val begin = sortedData.last().param - innerSpan
             val end = sortedData.last().param + outerSpan
-            val innerData = sortedData.filter { it.param >= begin }
-                    .let {
-                        val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
-                        transformParams(chordalParametrize(it.map { it.point }), range)
-                                .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
-                    }.orThrow()
+            val innerData = sortedData.filter { it.param >= begin }.let {
+                val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
+                transformParams(chordalParametrize(it.map { it.point }), range)
+                        .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+            }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
-            val outerData = bezier.sample(Math.ceil(innerData.size()/innerSpan*outerSpan).toInt())
+            val outerData = bezier.sample(Math.ceil(innerData.size/innerSpan*outerSpan).toInt())
             return transformParams(outerData, Interval(end - outerSpan, end)).orThrow()
-                    .tail()
-                    .prependAll(sortedData)
+                    .run { sortedData + drop(1) }
         }
     }
 }
