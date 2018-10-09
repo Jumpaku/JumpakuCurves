@@ -24,7 +24,6 @@ class LinearGenerator : ReferenceGenerator {
                 .toOption()
                 .map { solver.solve(50, { c(it).dist(c.end) - l0 }, 0.5 + it, 0.5 + it*2) }
                 .orThrow()
-
         val e = generateSequence(0.5) { x -> x/2 }
                 .find { c(0.5 - it).dist(c.begin) > l1 }
                 .toOption()
@@ -33,7 +32,6 @@ class LinearGenerator : ReferenceGenerator {
         val domain = Interval(b - 1, e + 1)
         return Reference(base.originalCurve, domain)
     }
-
 
     fun <C: Curve> generateBeginEnd(fsc: ReparametrizedCurve<C>): Reference {
         val s = fsc.originalCurve

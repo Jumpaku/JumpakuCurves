@@ -31,7 +31,9 @@ class ConicSectionSnapResult(val snappedConicSection: ConicSection, candidates: 
             fun fromJson(json: JsonElement): Result<SnappedPoint> = result {
                 SnappedPoint(
                         Point.fromJson(json["source"]).orThrow(),
-                        Option.fromJson(json["target"]).tryMap { it.map { PointSnapResult.fromJson(it).orThrow() } }.orThrow())
+                        Option.fromJson(json["target"]).tryMap {
+                            it.flatMap { PointSnapResult.fromJson(it).value() }
+                        }.orThrow())
             }
         }
     }

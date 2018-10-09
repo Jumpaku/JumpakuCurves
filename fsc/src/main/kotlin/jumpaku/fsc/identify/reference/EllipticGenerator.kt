@@ -3,7 +3,6 @@ package jumpaku.fsc.identify.reference
 import io.vavr.API
 import io.vavr.Tuple2
 import io.vavr.Tuple3
-import io.vavr.collection.Stream
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
@@ -69,7 +68,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val middle = fsc(t0).middle(fsc(t1))
             val ts = Interval(t0, t1).sample(nSamples)
             val ps = ts.map(fsc)
-            val areas = Stream.ofAll(ps.zipWithNext(middle::area)).scanLeft(0.0, Double::plus)
+            val areas = ps.zipWithNext(middle::area).asVavr().scanLeft(0.0, Double::plus)
             val index = areas.lastIndexWhere { it < areas.last() / 2 }
 
             val t = BrentSolver(1.0e-6).solve(50, {
@@ -81,7 +80,8 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             return ts[index].divide(t, ts[index + 1])
         }
 
-        fun computeEllipticWeight(fsc: Curve, t0: Double, t1: Double, tf: Double, rangeSamples: Interval, nSamples: Int): Double {
+        fun computeEllipticWeight(
+                fsc: Curve, t0: Double, t1: Double, tf: Double, rangeSamples: Interval, nSamples: Int): Double {
             val begin = fsc(t0)
             val end = fsc(t1)
             val far = fsc(tf)
@@ -103,8 +103,9 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                     }.toArray()
             if (xy_xx.isEmpty) return 0.999
 
-            return xy_xx.unzip { it }.apply { xy, xx ->
-                xy.sum().toDouble().divOrElse(xx.sum().toDouble(), 0.999).coerceIn(-0.999, 0.999)
+            return xy_xx.unzip { it }.let { (xy, xx) ->
+                xy.sum().toDouble().divOrElse(xx.sum().toDouble(), 0.999)
+                        .coerceIn(-0.999, 0.999)
             }
         }
     }

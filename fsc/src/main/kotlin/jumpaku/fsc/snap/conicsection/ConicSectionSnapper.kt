@@ -31,7 +31,8 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
         return ConicSectionSnapResult(snapped, candidates)
     }
 
-    fun enumerate(grid: Grid, conicSection: ConicSection, curveClass: CurveClass): List<ConicSectionSnapResult.Candidate> {
+    fun enumerate(grid: Grid, conicSection: ConicSection, curveClass: CurveClass)
+            : List<ConicSectionSnapResult.Candidate> {
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
         return when {
             curveClass.isLinear -> enumerateLinearCandidate(grid, conicSection, curveClass.isOpen)
@@ -41,7 +42,9 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
         }
     }
 
-    fun enumerateLinearCandidate(grid: Grid, conicSection: ConicSection, isOpen: Boolean): List<ConicSectionSnapResult.Candidate> =
+    fun enumerateLinearCandidate(
+            grid: Grid, conicSection: ConicSection, isOpen: Boolean
+    ): List<ConicSectionSnapResult.Candidate> =
             featurePointsCombinator.linearCombinations(conicSection, isOpen).flatMap { (f0, f1) ->
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
@@ -55,7 +58,9 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 }.value()
             }
 
-    fun enumerateCircularCandidate(grid: Grid, conicSection: ConicSection, isOpen: Boolean): List<ConicSectionSnapResult.Candidate> =
+    fun enumerateCircularCandidate(
+            grid: Grid, conicSection: ConicSection, isOpen: Boolean
+    ): List<ConicSectionSnapResult.Candidate> =
             featurePointsCombinator.circularCombinations(conicSection, isOpen).flatMap { (f0, f1, fn) ->
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
@@ -75,7 +80,9 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
                 }.value()
             }
 
-    fun enumerateEllipticCandidate(grid: Grid, conicSection: ConicSection, isOpen: Boolean): List<ConicSectionSnapResult.Candidate> =
+    fun enumerateEllipticCandidate(
+            grid: Grid, conicSection: ConicSection, isOpen: Boolean
+    ): List<ConicSectionSnapResult.Candidate> =
             featurePointsCombinator.ellipticCombinations(conicSection, isOpen).flatMap { (f0, f1, f2) ->
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
@@ -94,11 +101,13 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
 
     companion object {
 
-        fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15): (ConicSectionSnapResult.Candidate) -> Double = {
+        fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15)
+                : (ConicSectionSnapResult.Candidate) -> Double = {
             reparametrize(original.transform(it.transform)).isPossible(reparametrize(fsc), nFmps).value
         }
 
-        fun evaluateWithReference(original: ConicSection, nFmps: Int = 15): (ConicSectionSnapResult.Candidate) -> Double = {
+        fun evaluateWithReference(original: ConicSection, nFmps: Int = 15)
+                : (ConicSectionSnapResult.Candidate) -> Double = {
             reparametrize(original.transform(it.transform)).isPossible(reparametrize(original), nFmps).value
         }
     }

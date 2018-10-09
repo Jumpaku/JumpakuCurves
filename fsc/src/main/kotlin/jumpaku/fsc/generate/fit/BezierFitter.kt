@@ -22,7 +22,7 @@ class BezierFitter(val degree: Int) : Fitter<Bezier> {
     fun basis(i: Int, t: Double): Double = Bezier.basis(degree, i, t)
 
     override fun fit(data: List<WeightedParamPoint>): Bezier {
-        require(data.isNotEmpty()) { "empty data" }
+        require(data.size >= 2) { "data.size == ${data.size}, too few data" }
 
         val (ds, ts, ws) = data.asVavr().unzip3 { (pt, w) -> Tuple3(pt.point, pt.param, w) }
 

@@ -17,11 +17,14 @@ class BlendResult(
 
     override fun toJson(): JsonElement {
         val osmJson = jsonArray(osm.matrix.map { jsonArray(it.map { it.toJson() }) })
-        val pathJson = path.map { (type, grade, path) -> jsonObject(
-                "type" to type.toString(),
-                "grade" to grade.toJson(),
-                "pairs" to jsonArray(path.map { (i, j) -> jsonObject("i" to i.toJson(), "j" to j.toJson()) })) }
-                .toJson()
+        val pathJson = path.map { (type, grade, path) ->
+            jsonObject(
+                    "type" to type.toString(),
+                    "grade" to grade.toJson(),
+                    "pairs" to jsonArray(path.map { (i, j) ->
+                        jsonObject("i" to i.toJson(), "j" to j.toJson())
+                    }))
+        }.toJson()
         val dataJson = data.map { jsonArray(it.map { it.toJson() }) }.toJson()
         return jsonObject("osm" to osmJson, "path" to pathJson, "data" to dataJson)
     }

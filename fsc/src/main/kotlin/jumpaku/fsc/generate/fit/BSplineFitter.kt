@@ -37,17 +37,17 @@ class BSplineFitter(
         require(data.size >= 2) { "data.size == ${data.size}, too few data" }
 
         val distinct = data.distinctBy(WeightedParamPoint::param)
-        if(distinct.size <= degree){
+        if (distinct.size <= degree) {
             val d = transformParams(data.map { it.paramPoint }, Interval.ZERO_ONE)
                     .orDefault { data.map { (pp, _) -> pp.copy(param = 0.5) } }
-            val b = BezierFitter(degree)
-                    .fit(d, distinct.map { it.weight })
-            return BSpline(b.controlPoints,
-                    KnotVector.clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2))
+            val b = BezierFitter(degree).fit(d, distinct.map { it.weight })
+            val knots = KnotVector
+                    .clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2)
+            return BSpline(b.controlPoints, knots)
         }
 
         val (d, b, w) = data.asVavr().unzip3 { (pt, w) -> Tuple3(pt.point, pt.param, w) }
-                .map({it.asKt()}, {it.asKt()}, {it.asKt()})
+                .map({ it.asKt() }, { it.asKt() }, { it.asKt() })
                 .map(this::createDataMatrix, this::createBasisMatrix, this::createWeightMatrix)
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver
                 .solve(b.transpose().multiply(w).multiply(d))
@@ -61,8 +61,7 @@ class BSplineFitter(
 
     fun createDataMatrix(sortedDataPoints: List<Point>): RealMatrix = sortedDataPoints
             .map { doubleArrayOf(it.x, it.y, it.z) }
-            .toTypedArray()
-            .run(MatrixUtils::createRealMatrix)
+            .run { MatrixUtils.createRealMatrix(toTypedArray()) }
 
     fun createWeightMatrix(sortedDataWeights: List<Double>): RealMatrix =
             DiagonalMatrix(sortedDataWeights.toDoubleArray())

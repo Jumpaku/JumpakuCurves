@@ -45,10 +45,14 @@ class Blender(
                 this.path.map { (i, j) -> te[i].divide(blendingRate, to[j]) }
 
         return when(path.type){
-            OverlappingType.ExistingOverlapping -> rearrangeParam(te.take(beginI), path.blendData(te, to), to.drop(endJ))
-            OverlappingType.OverlappingExisting -> rearrangeParam(to.take(beginJ), path.blendData(te, to), te.drop(endI))
-            OverlappingType.ExistingOverlappingExisting -> rearrangeParam(te.take(beginI), path.blendData(te, to), te.drop(endI))
-            OverlappingType.OverlappingExistingOverlapping -> rearrangeParam(to.take(beginJ), path.blendData(te, to), to.drop(endJ))
+            OverlappingType.ExistingOverlapping ->
+                rearrangeParam(te.take(beginI), path.blendData(te, to), to.drop(endJ))
+            OverlappingType.OverlappingExisting ->
+                rearrangeParam(to.take(beginJ), path.blendData(te, to), te.drop(endI))
+            OverlappingType.ExistingOverlappingExisting ->
+                rearrangeParam(te.take(beginI), path.blendData(te, to), te.drop(endI))
+            OverlappingType.OverlappingExistingOverlapping ->
+                rearrangeParam(to.take(beginJ), path.blendData(te, to), to.drop(endJ))
         }
     }
 

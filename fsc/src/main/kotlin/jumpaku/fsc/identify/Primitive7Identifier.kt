@@ -16,7 +16,7 @@ class Primitive7Identifier(val nSamples: Int = 25, override val nFmps: Int = 15)
         val refL = LinearGenerator().generateBeginEnd(fsc)
         val refC = CircularGenerator(nSamples).generateScattered(fsc)
         val refE = EllipticGenerator(nSamples).generateScattered(fsc)
-        val (pL, pC, pE) = listOf(refL, refC, refE).map { ref -> fsc.isPossible(ref.reparametrized, nFmps) }
+        val (pL, pC, pE) = listOf(refL, refC, refE).map { fsc.isPossible(it.reparametrized, nFmps) }
         val pClosed = isClosed(fsc)
         val grades = hashMapOf(
                 CurveClass.LineSegment to (pL),

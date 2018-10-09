@@ -27,18 +27,18 @@ class DataPreparer(
         val degree: Int = 2) {
 
     fun prepare(crispData: List<ParamPoint>): List<ParamPoint> {
-        require(crispData.size >= 2) { "data size(${crispData.size}) < 2" }
+        require(crispData.size >= 2) { "data.size == ${crispData.size}, too few data" }
 
         return  crispData.sortedBy(ParamPoint::param)
-                .run { fill(this, maxParamSpan) }
-                .run { extendFront(this, innerSpan, outerSpan, degree) }
-                .run { extendBack(this, innerSpan, outerSpan, degree) }
+                .let { fill(it, maxParamSpan) }
+                .let { extendFront(it, innerSpan, outerSpan, degree) }
+                .let { extendBack(it, innerSpan, outerSpan, degree) }
     }
 
     companion object {
 
         fun fill(sortedData: List<ParamPoint>, maxParamSpan: Double): List<ParamPoint> {
-            require(sortedData.size >= 2) { "sortedData size is too few" }
+            require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
 
             val data = sortedData.asVavr()
             return data.zip(data.tail())
@@ -49,11 +49,12 @@ class DataPreparer(
                     .asKt()
         }
 
-        fun extendFront(sortedData: List<ParamPoint>,
-                        innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): List<ParamPoint> {
-            require(sortedData.size >= 2) { "sortedData size(${sortedData.size} is too few" }
+        fun extendFront(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2)
+                : List<ParamPoint> {
+            require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
             require(innerSpan > 0.0 && outerSpan > 0.0) {
-                "innerSpan($innerSpan) or outerSpan($outerSpan) are negative" }
+                "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0"
+            }
 
             val end = sortedData.first().param + innerSpan
             val begin = sortedData.first().param - outerSpan
@@ -65,16 +66,15 @@ class DataPreparer(
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
             val outerData = bezier.sample(Math.ceil(innerData.size*innerSpan/outerSpan).toInt())
             return transformParams(outerData, Interval(begin, begin + outerSpan)).orThrow()
-                    .asVavr()
-                    .init().appendAll(sortedData)
-                    .asKt()
+                    .run { dropLast(1) + sortedData }
         }
 
-        fun extendBack(sortedData: List<ParamPoint>,
-                       innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): List<ParamPoint> {
-            require(sortedData.size >= 2) { "sortedData size is too few" }
+        fun extendBack(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2)
+                : List<ParamPoint> {
+            require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
             require(innerSpan > 0.0 && outerSpan > 0.0) {
-                "innerSpan($innerSpan) or outerSpan($outerSpan) are negative" }
+                "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0"
+            }
 
             val begin = sortedData.last().param - innerSpan
             val end = sortedData.last().param + outerSpan
@@ -86,10 +86,7 @@ class DataPreparer(
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
             val outerData = bezier.sample(Math.ceil(innerData.size/innerSpan*outerSpan).toInt())
             return transformParams(outerData, Interval(end - outerSpan, end)).orThrow()
-                    .asVavr()
-                    .tail()
-                    .prependAll(sortedData)
-                    .asKt()
+                    .run { sortedData + drop(1) }
         }
     }
 }
