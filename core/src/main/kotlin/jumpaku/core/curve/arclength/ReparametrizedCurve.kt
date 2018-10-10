@@ -62,7 +62,7 @@ class ReparametrizedCurve<C : Curve>(val originalCurve: C, val reparametrizer: R
         fun repeatBisect(curve: Curve, tolerance: Double): Iterable<Interval> =
                 repeatBisect(curve) { subDomain ->
                     val (p0, p1, p2) = subDomain.sample(3).map { curve(it) }
-                    line(p0, p2).map { p1.dist(it) }.orDefault { p1.dist(p0) } > tolerance
+                    line(p0, p2).tryMap { p1.dist(it) }.value().orDefault { p1.dist(p0) } > tolerance
                 }
 
         fun repeatBisect(curve: Curve, shouldBisect: (Interval)->Boolean): Iterable<Interval> =

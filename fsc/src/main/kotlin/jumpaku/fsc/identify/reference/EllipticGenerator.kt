@@ -7,13 +7,9 @@ import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.geom.divide
-import jumpaku.core.geom.line
-import jumpaku.core.geom.plane
+import jumpaku.core.geom.*
 import jumpaku.core.util.*
 import org.apache.commons.math3.analysis.solvers.BrentSolver
-import org.apache.commons.math3.geometry.euclidean.threed.Line
-import org.apache.commons.math3.geometry.euclidean.threed.Plane
 
 
 class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
@@ -86,12 +82,12 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val end = fsc(t1)
             val far = fsc(tf)
 
-            val xy_xx = API.For(plane(begin, far, end), line(begin, end), rangeSamples.sample(nSamples))
+            val xy_xx = API.For(plane(begin, far, end).value(), line(begin, end).value(), rangeSamples.sample(nSamples))
                     .`yield` { plane: Plane, line: Line, tp: Double ->
                         val p = fsc(tp).projectTo(plane)
-                        val a = far.projectTo(line(p, end - begin).orThrow())
+                        val a = far.projectTo(line(p, p + (end - begin)).orThrow())
                         val b = far.projectTo(line)
-                        val t = (a - far).dot(b - far).divOption(b.distSquare(far)).orDefault(0.0)
+                        val t = (a - far).dot(b - far).tryDiv(b.distSquare(far)).value().orDefault(0.0)
                         val x = far.divide(t, begin.middle(end))
                         val dd = x.distSquare(p)
                         val ll = begin.distSquare(end) / 4
@@ -104,7 +100,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             if (xy_xx.isEmpty) return 0.999
 
             return xy_xx.unzip { it }.let { (xy, xx) ->
-                xy.sum().toDouble().divOrElse(xx.sum().toDouble(), 0.999)
+                xy.sum().toDouble().divOrDefault(xx.sum().toDouble()) { 0.999 }
                         .coerceIn(-0.999, 0.999)
             }
         }

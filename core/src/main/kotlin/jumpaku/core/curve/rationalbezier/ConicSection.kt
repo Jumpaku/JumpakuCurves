@@ -36,7 +36,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
         override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
     }
 
-    fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.divOption(weight).isDefined) {
+    fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.tryDiv(weight).isSuccess) {
         RationalBezier(listOf(
                 begin.toCrisp(),
                 far.divide(-1 / weight, begin.middle(end)).toCrisp(),
@@ -52,7 +52,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
         val f = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
         val df_dt = 2*(weight - 1)*(1 - 2*t)
 
-        return (dg_dt*f - g*df_dt)/(f*f)
+        return ((dg_dt*f - g*df_dt)/(f*f)).orThrow()
     }
 
     override fun evaluate(t: Double): Point {
@@ -68,7 +68,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
                 r2 * t * (2 * t - 1) / wt
         ).map { it.absoluteValue }.sum()
 
-        return Point(p, r)
+        return Point(p.orThrow(), r)
     }
 
     fun transform(a: Transform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
@@ -85,7 +85,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
     fun complement(): ConicSection =
             ConicSection(begin, center().map { it.divide(-1.0, far) }.orDefault { far }, end, -weight)
 
-    fun center(): Option<Point> = weight.divOption(weight - 1).map { begin.middle(end).divide(it, far) }
+    fun center(): Option<Point> = weight.tryDiv(weight - 1).tryMap { begin.middle(end).divide(it, far) }.value()
 
     fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
@@ -98,18 +98,20 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
         val begin0 = begin
         val end0 = evaluate(t)
         val weight0 = (1 - t + t*w)/rootwt
+        val far0P = ((begin0.toVector() + end0.toVector()) * rootwt *0.5 + (1 - t) * p0 + t * ((1 + w) * p1 - m.toVector())) / (rootwt + 1 - t + t * w)
         val far0R = FastMath.abs(0.5*(2 - 3*t + rootwt*(2*t*t - 3*t + 2))/(rootwt + 1 - t + t*w))*begin.r +
                 FastMath.abs((t*(1 + w)*(1 + (1 - t)/rootwt))/(rootwt + 1 - t + t*w))*far.r +
                 FastMath.abs(0.5*(-t + t*(2*t - 1)/rootwt)/(rootwt + 1 - t + t*w))*end.r
-        val far0 = Point(((begin0.toVector() + end0.toVector()) * rootwt / 2.0 + (1 - t) * p0 + t * ((1 + w) * p1 - m.toVector())) / (rootwt + 1 - t + t * w), far0R)
+        val far0 = Point(far0P.orThrow(), far0R)
 
         val begin1 = end0
         val end1 = end
         val weight1 = ((1 - t)*w + t)/rootwt
+        val far1P = ((begin1.toVector() + end1.toVector()) * rootwt *0.5 + (1 - t) * ((1 + w) * p1 - m.toVector()) + t * p2) / (rootwt + (1 - t) * w + t)
         val far1R = FastMath.abs(0.5*(3*t - 1 + rootwt*(2*t*t -t + 1))/(rootwt + (1 - t)*w + t))*begin.r +
                 FastMath.abs(((1 - t)*(1 + w)*(1 + t/rootwt))/(rootwt + (1 - t)*w + t))*far.r +
                 FastMath.abs(0.5*((1 - t)*((1 - 2*t)/rootwt - 1))/(rootwt + (1 - t)*w + t))*end.r
-        val far1 = Point(((begin1.toVector() + end1.toVector()) * rootwt / 2.0 + (1 - t) * ((1 + w) * p1 - m.toVector()) + t * p2) / (rootwt + (1 - t) * w + t), far1R)
+        val far1 = Point(far1P.orThrow(), far1R)
 
         return Tuple2(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
     }
@@ -130,7 +132,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
          *  an elliptic arc with this weight is a sheared circular arc which has the same weight.
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
-            val hh = line(begin, end).map { far.distSquare(it) }.orDefault { begin.distSquare(far) }
+            val hh = line(begin, end).tryMap { far.distSquare(it) }.value().orDefault { begin.distSquare(far) }
             val ll = (begin - end).square()/4
             return ConicSection(begin, far, end, ((ll - hh) / (ll + hh)).coerceIn(-0.999, 0.999))
         }

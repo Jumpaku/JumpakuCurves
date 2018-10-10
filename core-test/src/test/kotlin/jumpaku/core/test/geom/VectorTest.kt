@@ -41,8 +41,7 @@ class VectorTest {
     @Test
     fun testDiv() {
         println("Div")
-        (v / 5.0).shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
-        v.divOption(5.0).orThrow().shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
+        (v / 5.0).orThrow().shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
     }
 
     @Test

@@ -5,10 +5,7 @@ import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.transformParams
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.none
-import jumpaku.core.util.orDefault
+import jumpaku.core.util.*
 
 
 class Blender(
@@ -58,14 +55,14 @@ class Blender(
 
     fun rearrangeParam(front: List<ParamPoint>, middle: List<ParamPoint>, back: List<ParamPoint>): List<ParamPoint> {
         val f = front
+
         val m = if (front.isEmpty()) middle
-        else transformParams(
-                middle, Interval(f.last().param, f.last().param + middle.last().param - middle.first().param))
-                .orDefault { middle.map { it.copy(param = f.last().param) } }
+        else transformParams(middle, Interval(f.last().param, f.last().param + middle.last().param - middle.first().param))
+                .value().orDefault { middle.map { it.copy(param = f.last().param) } }
+
         val b = if (back.isEmpty()) back
-        else transformParams(
-                back, Interval(m.last().param, m.last().param + back.last().param - back.first().param))
-                .orDefault { back.map { it.copy(param = m.last().param) } }
+        else transformParams(back, Interval(m.last().param, m.last().param + back.last().param - back.first().param))
+                .value().orDefault { back.map { it.copy(param = m.last().param) } }
 
         return f + m + b
     }

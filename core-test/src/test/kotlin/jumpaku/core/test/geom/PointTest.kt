@@ -244,7 +244,7 @@ class PointTest {
         println("Dist")
         val dp = Point.xyz(-1.0, -2.0, 4.0).dist(Point.xyz(1.0, -2.0, 3.0))
         dp.shouldBeCloseTo(FastMath.sqrt(5.0))
-        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Vector(4.0, 3.0, 0.0)).orThrow())
+        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         dl.shouldBeCloseTo(12/5.0)
         val dplane = Point.xyz(1.0, -1.0, -3.0).dist(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         dplane.shouldBeCloseTo(3.0)

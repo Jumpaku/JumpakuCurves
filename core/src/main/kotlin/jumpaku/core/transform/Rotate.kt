@@ -17,6 +17,10 @@ class Rotate(val axis: Vector, val angleRadian: Double): Transform, ToJson {
 
     constructor(from: Vector, to: Vector, angleRadian: Double = from.angle(to)): this(from.cross(to), angleRadian)
 
+    init {
+        require(axis.run { div(length()).isSuccess }) { "axis($axis) is close to zero" }
+    }
+
     override val matrix: RealMatrix get() {
         val (x, y, z) = axis.normalize().orThrow()
         val cos = FastMath.cos(angleRadian)
