@@ -1,33 +1,27 @@
-package jumpaku.examples.classify
+package jumpaku.examples.identify
 
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.json.parseJson
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.Open4Identifier
 import jumpaku.fsc.identify.Primitive7Identifier
-import jumpaku.fsc.identify.reference.CircularGenerator
-import jumpaku.fsc.identify.reference.EllipticGenerator
-import jumpaku.fsc.identify.reference.LinearGenerator
 import jumpaku.fsc.identify.reparametrize
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
-import java.nio.file.Paths
-import kotlin.system.measureNanoTime
 
 
-fun main(vararg args: String) = Application.launch(AppClassify::class.java, *args)
+fun main(vararg args: String) = Application.launch(AppIdentify::class.java, *args)
 
-class AppClassify : App(ViewClassify::class)
+class AppIdentify : App(ViewIdentify::class)
 
-class ViewClassify : View() {
+class ViewIdentify : View() {
 
     override val root: Pane = pane {
         val group = group {}

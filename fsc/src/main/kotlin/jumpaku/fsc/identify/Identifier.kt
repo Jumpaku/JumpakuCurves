@@ -36,7 +36,7 @@ fun reparametrize(fsc: BSpline, maxSamples: Int = 65): ReparametrizedCurve<BSpli
 private fun BSpline.approximateParams(n: Int): List<Double> {
     fun Curve.evaluateError(domain: Interval): Double =
             domain.sample(3).map { evaluate(it) }.let { (p0, p1, p2) ->
-                line(p0, p2).map { p1.dist(it) }.orDefault { p1.dist(p2) }
+                line(p0, p2).tryMap { p1.dist(it) }.value().orDefault { p1.dist(p2) }
             }
     val cache = TreeMap<Double, List<Interval>>(naturalOrder())
     cache[evaluateError(domain)] = listOf(domain)

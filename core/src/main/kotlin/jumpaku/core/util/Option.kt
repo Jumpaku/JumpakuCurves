@@ -79,7 +79,8 @@ fun <T: Any> Option<T>.orDefault(default: T): T = orNull() ?: default
 
 fun <T: Any> Option<T>.orOption(option: ()->Option<T>): Option<T> = if(isDefined) this else option()
 
-fun <T: Any> Option<T>.toResult(): Result<T> = result { orThrow() }
+fun <T: Any> Option<T>.toResult(except: () -> Exception = { NoSuchElementException("None.orThrow()") }): Result<T> =
+        result { (this as? Some)?.value ?: throw except() }
 
 fun <T: Any> none(): Option<T> = None
 

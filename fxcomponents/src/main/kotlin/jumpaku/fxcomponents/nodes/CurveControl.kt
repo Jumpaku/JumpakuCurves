@@ -32,7 +32,7 @@ private class CurveControlSkin(val control: CurveControl) : Skin<CurveControl> {
     init {
         with(rootNode){
             add(inputPolyline)
-            addEventHandler(MouseEvent.MOUSE_PRESSED) { controller.onPressed(it)}
+            addEventHandler(MouseEvent.MOUSE_PRESSED) { controller.onPressed() }
             addEventHandler(MouseEvent.MOUSE_DRAGGED) { controller.onDragged(it) }
             addEventHandler(MouseEvent.MOUSE_RELEASED) { controller.onReleased(it) }
         }
@@ -61,7 +61,7 @@ class CurveEvent(val data: List<ParamPoint>) : Event(CurveEvent.CURVE_DONE) {
 class CurveControl : Control() {
 
     class Controller(val control: CurveControl) {
-        fun onPressed(e: MouseEvent) {
+        fun onPressed() {
             control.points.clear()
             control.update()
         }

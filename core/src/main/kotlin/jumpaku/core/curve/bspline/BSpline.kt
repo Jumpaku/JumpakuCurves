@@ -288,6 +288,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return ns[0]
         }
 
-        fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double = (a - b).divOption (c - d).orDefault(0.0)
+        fun basisHelper(a: Double, b: Double, c: Double, d: Double): Double =
+                (a - b).tryDiv(c - d).value().orDefault(0.0)
     }
 }

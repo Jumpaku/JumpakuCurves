@@ -11,9 +11,9 @@ fun transformParams(paramPoints: List<ParamPoint>, range: Interval): Option<List
     val a0 = paramPoints.first().param
     val a1 = paramPoints.last().param
     val (b, e) = range
-    return 1.0.divOption(a1 - a0).map { p -> paramPoints.map {
+    return 1.0.tryDiv(a1 - a0).tryMap { p -> paramPoints.map {
         it.copy(param = b.divide((it.param - a0)*p, e))
-    } }
+    } }.value()
 }
 
 fun uniformParametrize(points: List<Point>): List<ParamPoint> = when {

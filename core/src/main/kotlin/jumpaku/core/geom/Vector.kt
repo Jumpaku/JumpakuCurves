@@ -23,10 +23,12 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     operator fun times(s: Double): Vector = Vector(vector.scalarMultiply(s))
 
-    operator fun div(divisor: Double): Vector = Vector(vector.scalarMultiply(1 / divisor))
+    private fun isDivisibleBy(divisor: Double): Boolean = toArray().all { (it/divisor).isFinite() }
 
-    infix fun divOption(divisor: Double): Option<Vector> =
-            optionWhen(toArray().all { it.divOption(divisor).isDefined }) { this/divisor }
+    operator fun div(divisor: Double): Result<Vector> = result {
+        if (isDivisibleBy(divisor)) Vector(vector.scalarMultiply(1 / divisor))
+        else throw ArithmeticException("divide by zero")
+    }
 
     operator fun unaryPlus(): Vector = this
 
@@ -36,11 +38,9 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z)
 
-    fun normalize(): Option<Vector> = this.divOption(length())
+    fun normalize(): Result<Vector> = div(length()).tryMapFailure { IllegalStateException("$this is close to zero.") }
 
-    fun isZero(eps: Double = 0.0): Boolean = square() <= eps*eps || normalize().isEmpty
-
-    fun resize(l: Double): Option<Vector> = normalize().map { it*l }
+    fun resize(l: Double): Result<Vector> = normalize().tryMap { it.times(l) }
 
     fun dot(v: Vector): Double = vector.dotProduct(Vector3D(v.x, v.y, v.z))
 

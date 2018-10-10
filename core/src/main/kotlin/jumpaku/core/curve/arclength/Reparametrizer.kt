@@ -42,7 +42,7 @@ class Reparametrizer private constructor(
                 .search(originalParam)
                 .let { if (it < 0) -it-1 else it }
         return if (i == 0) 0.0
-        else quadratics[i-1].invoke(originalParam).divOption(chordLength)
+        else quadratics[i-1].invoke(originalParam).tryDiv(chordLength).value()
                 .orDefault { 0.0 }
                 .coerceIn(range)
     }
@@ -89,7 +89,7 @@ data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, va
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val (t0, t2) = domain
-        val u = ((t - t0).divOrElse(t2 - t0, 0.5)).coerceIn(0.0, 1.0)
+        val u = ((t - t0).divOrDefault(t2 - t0) { 0.5 }).coerceIn(0.0, 1.0)
         return b0.divide(u, b1).divide(u, b1.divide(u, b2)).coerceIn(range)
     }
 
@@ -103,9 +103,9 @@ data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, va
          * range -> [0, 1]
          */
         tailrec fun newton(u0: Double = 0.5, times: Int = 20, tolerance: Double = 1.0e-5): Double {
-            val u1 = (f(u0) - s).divOption(dfdt(u0)).map { u0 - it }
+            val u1 = (f(u0) - s).tryDiv(dfdt(u0)).tryMap { u0 - it }
             return when {
-                u1.isEmpty -> if (u0 < 0.5) 0.0 else 1.0
+                u1.isFailure -> if (u0 < 0.5) 0.0 else 1.0
                 FastMath.abs(u1.orThrow() - u0) <= tolerance || times == 1 -> u1.orThrow()
                 else -> newton(u1.orThrow(), times - 1, tolerance)
             }

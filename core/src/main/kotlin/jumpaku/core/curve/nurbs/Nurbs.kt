@@ -50,7 +50,7 @@ class Nurbs(
                 val dpt = dp.evaluate(t)
                 val rt = this@Nurbs.evaluate(t).toVector()
 
-                return (dpt - dwt * rt) / wt
+                return ((dpt - dwt * rt) / wt).orThrow()
             }
 
             override val domain: Interval get() = this@Nurbs.domain
