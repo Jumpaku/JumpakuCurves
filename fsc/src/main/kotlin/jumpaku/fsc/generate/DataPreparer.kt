@@ -58,10 +58,13 @@ class DataPreparer(
 
             val end = sortedData.first().param + innerSpan
             val begin = sortedData.first().param - outerSpan
-            val innerData = sortedData.filter { it.param <= end }.let {
+            val innerData = sortedData.filter { it.param <= end }.let { paramPoints ->
                 val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
-                transformParams(chordalParametrize(it.map { it.point }), range)
-                        .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+                chordalParametrize(paramPoints.map { it.point })
+                        .tryFlatMap { transformParams(it, range) }.tryRecover { _ ->
+                            uniformParametrize(paramPoints.map { it.point })
+                                    .tryFlatMap { transformParams(it, range) }.orThrow()
+                        }
             }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
             val outerData = bezier.sample(Math.ceil(innerData.size*innerSpan/outerSpan).toInt())
@@ -78,10 +81,13 @@ class DataPreparer(
 
             val begin = sortedData.last().param - innerSpan
             val end = sortedData.last().param + outerSpan
-            val innerData = sortedData.filter { it.param >= begin }.let {
+            val innerData = sortedData.filter { it.param >= begin }.let { paramPoints ->
                 val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
-                transformParams(chordalParametrize(it.map { it.point }), range)
-                        .orOption { transformParams(uniformParametrize(it.map { it.point }), range) }
+                chordalParametrize(paramPoints.map { it.point })
+                        .tryFlatMap { transformParams(it, range) }.tryRecover { _ ->
+                            uniformParametrize(paramPoints.map { it.point })
+                                    .tryFlatMap { transformParams(it, range) }.orThrow()
+                        }
             }.orThrow()
             val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
             val outerData = bezier.sample(Math.ceil(innerData.size/innerSpan*outerSpan).toInt())

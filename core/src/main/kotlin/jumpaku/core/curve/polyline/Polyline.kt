@@ -6,10 +6,7 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.curve.Curve
-import jumpaku.core.curve.Interval
-import jumpaku.core.curve.ParamPoint
-import jumpaku.core.curve.chordalParametrize
+import jumpaku.core.curve.*
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
@@ -21,7 +18,7 @@ import org.apache.commons.math3.util.Precision
 
 
 /**
- * Polyline parametrized by arc-chordLength.
+ * Polyline parametrized by arc-length.
  */
 class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
@@ -101,7 +98,12 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     companion object {
 
-        fun of(points: Iterable<Point>): Polyline = Polyline(chordalParametrize(points.toList()))
+        fun of(points: Iterable<Point>): Polyline {
+            val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
+            val paramPoints = chordalParametrize(points.toList())
+                    .tryFlatMap { transformParams(it, Interval(0.0, arcLength)) }
+            return Polyline(paramPoints.orThrow())
+        }
 
         fun of(vararg points: Point): Polyline = of(points.asIterable())
 
