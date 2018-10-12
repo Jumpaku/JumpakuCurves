@@ -1,15 +1,9 @@
 package jumpaku.core.curve.bspline
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.curve.Curve
-import jumpaku.core.curve.Differentiable
-import jumpaku.core.curve.Interval
-import jumpaku.core.curve.KnotVector
+import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.Bezier
 import jumpaku.core.geom.Divisible
 import jumpaku.core.geom.Point
@@ -53,7 +47,8 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
 
     override fun toJson(): JsonElement = jsonObject(
             "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
-            "knotVector" to knotVector.toJson())
+            "degree" to degree,
+            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
 
     override fun toCrisp(): BSpline = BSpline(controlPoints.map { it.toCrisp() }, knotVector)
 
@@ -122,8 +117,10 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
     companion object {
 
         fun fromJson(json: JsonElement): Result<BSpline> = result {
-            BSpline(json["controlPoints"].array.flatMap { Point.fromJson(it).value() },
-                    KnotVector.fromJson(json["knotVector"]).orThrow())
+            val d = json["degree"].int
+            val cp = json["controlPoints"].array.flatMap { Point.fromJson(it).value() }
+            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
+            BSpline(cp, KnotVector(d, ks))
         }
 
         tailrec fun <D : Divisible<D>> evaluate(controlPoints: List<D>, knotVector: KnotVector, t: Double): D {

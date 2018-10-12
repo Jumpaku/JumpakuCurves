@@ -5,7 +5,7 @@ fun Double.divide(t: Double, other: Double): Double = (1 - t)*this + t*other
 
 fun Double.middle(other: Double): Double = this.divide(0.5, other)
 
-interface Divisible<P> {
+interface Divisible<P: Divisible<P>> {
 
     fun divide(t: Double, p: P): P
 
