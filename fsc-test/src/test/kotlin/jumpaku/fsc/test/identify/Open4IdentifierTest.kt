@@ -70,8 +70,10 @@ class Open4IdentifierTest {
         println("IdentifierOpen4.Identify_Time")
         val fsc = resourceText("FscFO0.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
         val s = reparametrize(fsc, 65)
+        val b = System.nanoTime()
         Assertions.assertTimeoutPreemptively(Duration.ofMillis(1500)) {
             repeat(1000) { identifier.identify(s) }
         }
+        println("    ${(System.nanoTime() - b)*1e-6}")
     }
 }
