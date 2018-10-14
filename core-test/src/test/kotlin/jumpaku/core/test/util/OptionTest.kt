@@ -99,6 +99,19 @@ class OptionTest {
     }
 
     @Test
+    fun testForEach() {
+        println("ForEach")
+        val x0 = arrayOf(1, 2)
+        some.forEach({ x0[0] = 3 }, {x0[1] = -1})
+        x0[0].shouldEqualTo(3)
+        x0[1].shouldEqualTo(2)
+
+        val x1 = arrayOf(1, 2)
+        none.forEach({ x1[0] = 3 }, {x1[1] = -1})
+        x1[0].shouldEqualTo(1)
+        x1[1].shouldEqualTo(-1)
+    }
+    @Test
     fun testIterator() {
         println("Iterator")
 

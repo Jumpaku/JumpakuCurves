@@ -23,7 +23,10 @@ sealed class Option<out T: Any>: Iterable<T> {
 
     fun filter(test: (T)->Boolean): Option<T> = if (this is Some && test(value)) this else None
 
-    fun forNone(f: ()->Unit): Unit = if (this is Some) Unit else f()
+    fun forEach(actionIfPresent: (T)->Unit, actionIfAbsent: ()->Unit): Unit = when(this) {
+        is Some -> actionIfPresent(value)
+        is None -> actionIfAbsent()
+    }
 
     companion object {
 

@@ -5,9 +5,7 @@ import com.google.gson.JsonElement
 import jumpaku.core.curve.Knot
 import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.nurbs.Nurbs
 import jumpaku.core.geom.Point
-import jumpaku.core.geom.WeightedPoint
 import jumpaku.core.json.parseJson
 import java.nio.file.Paths
 
@@ -31,29 +29,6 @@ object BSplineConverter {
         val cp = j["controlPoints"].array.flatMap { Point.fromJson(it).value() }
         val ks = j["knots"].array.flatMap { Knot.fromJson(it).value() }
         return BSpline(cp, KnotVector(d, ks))
-    }
-}
-
-object NurbsConverter {
-
-    fun toJsonOld(n: Nurbs): JsonElement = jsonObject(
-            "weightedControlPoints" to jsonArray(n.weightedControlPoints.map { it.toJson() }),
-            "knotVector" to n.knotVector.toJson())
-
-    fun fromJsonOld(j: JsonElement): Nurbs =
-            Nurbs(j["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() },
-                    KnotVector.fromJson(j["knotVector"]).orThrow())
-
-    fun toJsonNew(n: Nurbs): JsonElement = jsonObject(
-            "weightedControlPoints" to jsonArray(n.weightedControlPoints.map { it.toJson() }),
-            "degree" to n.degree,
-            "knots" to jsonArray(n.knotVector.knots.map { it.toJson() }))
-
-    fun fromJsonNew(j: JsonElement): Nurbs {
-        val d = j["degree"].int
-        val wcp = j["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() }
-        val ks = j["knots"].array.flatMap { Knot.fromJson(it).value() }
-        return Nurbs(wcp, KnotVector(d, ks))
     }
 }
 
