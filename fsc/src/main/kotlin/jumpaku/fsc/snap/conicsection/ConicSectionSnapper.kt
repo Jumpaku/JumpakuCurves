@@ -1,11 +1,12 @@
 package jumpaku.fsc.snap.conicsection
 
-import io.vavr.collection.Array
-import io.vavr.collection.Stream
-import io.vavr.control.Try
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.transform.Calibrate
 import jumpaku.core.curve.rationalbezier.ConicSection
+import jumpaku.core.fuzzy.Grade
+import jumpaku.core.util.orDefault
+import jumpaku.core.util.result
+import jumpaku.core.util.toOption
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.reference.reparametrize
 import jumpaku.fsc.identify.reparametrize
@@ -19,19 +20,22 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
             grid: Grid,
             conicSection: ConicSection,
             curveClass: CurveClass,
-            evaluator: (ConicSectionSnapResult.Candidate) -> Double = evaluateWithReference(conicSection)
+            evaluator: (ConicSectionSnapResult.Candidate) -> Grade = evaluateWithReference(conicSection)
     ): ConicSectionSnapResult {
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
 
         val candidates = enumerate(grid, conicSection, curveClass)
-                .sortBy { candidate -> -evaluator(candidate) }.toArray()
-        val snapped = candidates.headOption()
-                .map { conicSection.transform(it.transform) }
-                .getOrElse { conicSection.toCrisp() }
+                .map { ConicSectionSnapResult.EvaluatedCandidate(evaluator(it), it) }
+                .sortedByDescending { it.grade }
+        val snapped = candidates.firstOrNull()
+                .toOption()
+                .filter { it.grade.value > 0.0 }
+                .map { conicSection.transform(it.candidate.transform) }
         return ConicSectionSnapResult(snapped, candidates)
     }
 
-    fun enumerate(grid: Grid, conicSection: ConicSection, curveClass: CurveClass): Stream<ConicSectionSnapResult.Candidate> {
+    fun enumerate(grid: Grid, conicSection: ConicSection, curveClass: CurveClass)
+            : List<ConicSectionSnapResult.Candidate> {
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
         return when {
             curveClass.isLinear -> enumerateLinearCandidate(grid, conicSection, curveClass.isOpen)
@@ -41,65 +45,73 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
         }
     }
 
-    fun enumerateLinearCandidate(grid: Grid, conicSection: ConicSection, isOpen: Boolean): Stream<ConicSectionSnapResult.Candidate> =
+    fun enumerateLinearCandidate(
+            grid: Grid, conicSection: ConicSection, isOpen: Boolean
+    ): List<ConicSectionSnapResult.Candidate> =
             featurePointsCombinator.linearCombinations(conicSection, isOpen).flatMap { (f0, f1) ->
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
-                Try.ofSupplier {
+                result {
                     val calibrate = Calibrate(
-                            f0 to s0.map { it.worldPoint(grid) }.getOrElse { f0 },
-                            f1 to s1.map { it.worldPoint(grid) }.getOrElse { f1 })
+                            f0 to s0.map { it.worldPoint(grid) }.orDefault { f0 },
+                            f1 to s1.map { it.worldPoint(grid) }.orDefault { f1 })
                     ConicSectionSnapResult.Candidate(
-                            Array.of(ConicSectionSnapResult.SnappedPoint(f0, s0), ConicSectionSnapResult.SnappedPoint(f1, s1)),
+                            listOf(ConicSectionSnapResult.SnappedPoint(f0, s0), ConicSectionSnapResult.SnappedPoint(f1, s1)),
                             calibrate)
-                }
+                }.value()
             }
 
-    fun enumerateCircularCandidate(grid: Grid, conicSection: ConicSection, isOpen: Boolean): Stream<ConicSectionSnapResult.Candidate> =
+    fun enumerateCircularCandidate(
+            grid: Grid, conicSection: ConicSection, isOpen: Boolean
+    ): List<ConicSectionSnapResult.Candidate> =
             featurePointsCombinator.circularCombinations(conicSection, isOpen).flatMap { (f0, f1, fn) ->
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
                 val sn = pointSnapper.snap(grid, fn)
-                val n = sn.map { it.worldPoint(grid) }.getOrElse { fn }
-                        .normal(s0.map { it.worldPoint(grid) }.getOrElse { f0 },
-                                s1.map { it.worldPoint(grid) }.getOrElse { f1 })
+                val n = sn.map { it.worldPoint(grid) }.orDefault { fn }
+                        .normal(s0.map { it.worldPoint(grid) }.orDefault { f0 },
+                                s1.map { it.worldPoint(grid) }.orDefault { f1 })
                 val m = fn.normal(f0, f1)
-                Try.ofSupplier {
+                result {
                     val calibrate = Calibrate.similarityWithNormal(
-                            f0 to s0.map { it.worldPoint(grid) }.getOrElse { f0 },
-                            f1 to s1.map { it.worldPoint(grid) }.getOrElse { f1 },
-                            m.get() to n.get())
+                            f0 to s0.map { it.worldPoint(grid) }.orDefault { f0 },
+                            f1 to s1.map { it.worldPoint(grid) }.orDefault { f1 },
+                            m.orThrow() to n.orThrow())
                     ConicSectionSnapResult.Candidate(
-                            Array.of(ConicSectionSnapResult.SnappedPoint(f0, s0), ConicSectionSnapResult.SnappedPoint(f1, s1)),
+                            listOf(ConicSectionSnapResult.SnappedPoint(f0, s0), ConicSectionSnapResult.SnappedPoint(f1, s1)),
                             calibrate)
-                }.toOption()
+                }.value()
             }
 
-    fun enumerateEllipticCandidate(grid: Grid, conicSection: ConicSection, isOpen: Boolean): Stream<ConicSectionSnapResult.Candidate> =
+    fun enumerateEllipticCandidate(
+            grid: Grid, conicSection: ConicSection, isOpen: Boolean
+    ): List<ConicSectionSnapResult.Candidate> =
             featurePointsCombinator.ellipticCombinations(conicSection, isOpen).flatMap { (f0, f1, f2) ->
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
                 val s2 = pointSnapper.snap(grid, f2)
-                Try.ofSupplier {
-                    val calibrate = Calibrate(f0 to s0.map { it.worldPoint(grid) }.getOrElse { f0 },
-                            f1 to s1.map { it.worldPoint(grid) }.getOrElse { f1 },
-                            f2 to s2.map { it.worldPoint(grid) }.getOrElse { f2 })
-                    ConicSectionSnapResult.Candidate(Array.of(
+                result {
+                    val calibrate = Calibrate(f0 to s0.map { it.worldPoint(grid) }.orDefault { f0 },
+                            f1 to s1.map { it.worldPoint(grid) }.orDefault { f1 },
+                            f2 to s2.map { it.worldPoint(grid) }.orDefault { f2 })
+                    ConicSectionSnapResult.Candidate(listOf(
                             ConicSectionSnapResult.SnappedPoint(f0, s0),
                             ConicSectionSnapResult.SnappedPoint(f1, s1),
                             ConicSectionSnapResult.SnappedPoint(f2, s2)),
                             calibrate)
-                }
+                }.value()
             }
 
     companion object {
 
-        fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15): (ConicSectionSnapResult.Candidate) -> Double = {
+        fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15)
+                : (ConicSectionSnapResult.Candidate) -> Double = {
             reparametrize(original.transform(it.transform)).isPossible(reparametrize(fsc), nFmps).value
         }
 
-        fun evaluateWithReference(original: ConicSection, nFmps: Int = 15): (ConicSectionSnapResult.Candidate) -> Double = {
-            reparametrize(original.transform(it.transform)).isPossible(reparametrize(original), nFmps).value
+        fun evaluateWithReference(original: ConicSection, nFmps: Int = 15)
+                : (ConicSectionSnapResult.Candidate) -> Grade = {
+            reparametrize(original.transform(it.transform)).isPossible(reparametrize(original), nFmps)
         }
     }
 }

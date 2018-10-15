@@ -45,13 +45,13 @@ class DataPreparerTest {
     @Test
     fun testFill() {
         println("Fill")
-        val data = Array.of(
+        val data = listOf(
                 ParamPoint(Point.xy(1.0, -2.0), 10.0),
                 ParamPoint(Point.xy(1.5, -3.0), 15.0),
                 ParamPoint(Point.xy(2.5, -5.0), 25.0))
         val a = DataPreparer.fill(data, 2.0)
 
-        a.size().shouldBe(9)
+        a.size.shouldBe(9)
         a[0].shouldEqualToParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
         a[1].shouldEqualToParamPoint(ParamPoint(Point.xy(1 + 0.5 / 3.0, -2 - 1 / 3.0), 10 + 5 / 3.0))
         a[2].shouldEqualToParamPoint(ParamPoint(Point.xy(1 + 1 / 3.0, -2 - 2 / 3.0), 10 + 10 / 3.0))
@@ -70,8 +70,8 @@ class DataPreparerTest {
         val b = BSpline(Array.of(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.5, 3.0).sample(100).map { ParamPoint(b(it), it) }
         val subdivided = BSplineFitter(2, knots).fit(DataPreparer.extendFront(data, 0.5)).subdivide(2.0)
-        subdivided._1().get().shouldEqualToBSpline(b.subdivide(2.0)._1().get(), 0.2)
-        subdivided._2().get().shouldEqualToBSpline(b.subdivide(2.0)._2().get(), 0.01)
+        subdivided._1().orThrow().shouldEqualToBSpline(b.subdivide(2.0)._1().orThrow(), 0.2)
+        subdivided._2().orThrow().shouldEqualToBSpline(b.subdivide(2.0)._2().orThrow(), 0.01)
     }
 
     @Test
@@ -81,7 +81,7 @@ class DataPreparerTest {
         val b = BSpline(Array.of(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val subdivided = BSplineFitter(2, knots).fit(DataPreparer.extendBack(data, 0.5)).subdivide(1.0)
-        subdivided._1().get().shouldEqualToBSpline(b.subdivide(1.0)._1().get(), 0.01)
-        subdivided._2().get().shouldEqualToBSpline(b.subdivide(1.0)._2().get(), 0.2)
+        subdivided._1().orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow(), 0.01)
+        subdivided._2().orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow(), 0.2)
     }
 }

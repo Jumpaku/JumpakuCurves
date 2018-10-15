@@ -5,9 +5,9 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 fun Point.weighted(weight: Double = 1.0): WeightedPoint = WeightedPoint(this, weight)
 
@@ -24,8 +24,9 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<WeightedPoint> =
-                Try.ofSupplier { WeightedPoint(Point.fromJson(json["point"]).get(), json["weight"].double) }.toOption()
+        fun fromJson(json: JsonElement): Result<WeightedPoint> = result {
+            WeightedPoint(Point.fromJson(json["point"]).orThrow(), json["weight"].double)
+        }
     }
 }
 

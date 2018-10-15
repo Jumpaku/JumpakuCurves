@@ -2,9 +2,9 @@ package jumpaku.core.fuzzy
 
 import com.github.salomonbrys.kotson.double
 import com.google.gson.JsonPrimitive
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 
 fun Boolean.toGrade(): Grade = if (this) Grade.TRUE else Grade.FALSE
@@ -39,7 +39,7 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
         fun clamped(value: Double): Grade = Grade(value.coerceIn(0.0, 1.0))
 
-        fun fromJson(json: JsonPrimitive): Option<Grade> = Try.ofSupplier { Grade(json.double) }.toOption()
+        fun fromJson(json: JsonPrimitive): Result<Grade> = result { Grade(json.double) }
     }
 }
 

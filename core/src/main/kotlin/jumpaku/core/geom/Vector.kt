@@ -4,11 +4,8 @@ import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.divOption
+import jumpaku.core.util.*
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 
 
@@ -26,10 +23,11 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     operator fun times(s: Double): Vector = Vector(vector.scalarMultiply(s))
 
-    operator fun div(divisor: Double): Vector = Vector(vector.scalarMultiply(1 / divisor))
+    private fun isDivisibleBy(divisor: Double): Boolean = toArray().all { (it/divisor).isFinite() }
 
-    infix fun divOption(divisor: Double): Option<Vector> {
-        return Option.`when`(toArray().all { it.divOption(divisor).isDefined }, this/divisor)
+    operator fun div(divisor: Double): Result<Vector> = result {
+        if (isDivisibleBy(divisor)) Vector(vector.scalarMultiply(1 / divisor))
+        else throw ArithmeticException("divide by zero")
     }
 
     operator fun unaryPlus(): Vector = this
@@ -40,11 +38,9 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z)
 
-    fun normalize(): Option<Vector> = this.divOption(length())
+    fun normalize(): Result<Vector> = div(length()).tryMapFailure { IllegalStateException("$this is close to zero.") }
 
-    fun isZero(eps: Double = 0.0): Boolean = square() <= eps*eps || normalize().isEmpty
-
-    fun resize(l: Double): Option<Vector> = normalize().map { it*l }
+    fun resize(l: Double): Result<Vector> = normalize().tryMap { it.times(l) }
 
     fun dot(v: Vector): Double = vector.dotProduct(Vector3D(v.x, v.y, v.z))
 
@@ -56,7 +52,7 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     fun angle(v: Vector): Double = Vector3D.angle(vector, Vector3D(v.x, v.y, v.z))
 
-    fun toArray(): Array<Double> = Array.of(x, y, z)
+    fun toArray(): Array<Double> = arrayOf(x, y, z)
 
     companion object {
 
@@ -68,8 +64,8 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
         val Zero: Vector = Vector()
 
-        fun fromJson(json: JsonElement): Option<Vector> {
-            return Try.ofSupplier { Vector(json["x"].double, json["y"].double, json["z"].double) }.toOption()
+        fun fromJson(json: JsonElement): Result<Vector> = result {
+            Vector(json["x"].double, json["y"].double, json["z"].double)
         }
     }
 }

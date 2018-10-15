@@ -41,8 +41,7 @@ class VectorTest {
     @Test
     fun testDiv() {
         println("Div")
-        (v / 5.0).shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
-        v.divOption(5.0).get().shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
+        (v / 5.0).orThrow().shouldEqualToVector(Vector(1 / 5.0, -2 / 5.0, 3 / 5.0))
     }
 
     @Test
@@ -60,13 +59,13 @@ class VectorTest {
     @Test
     fun testNormalize() {
         println("Normalize")
-        v.normalize().get().shouldEqualToVector(Vector(1.0 / FastMath.sqrt(14.0), -2.0 / FastMath.sqrt(14.0), 3.0 / FastMath.sqrt(14.0)))
+        v.normalize().orThrow().shouldEqualToVector(Vector(1.0 / FastMath.sqrt(14.0), -2.0 / FastMath.sqrt(14.0), 3.0 / FastMath.sqrt(14.0)))
     }
 
     @Test
     fun testResize() {
         println("Resize")
-        v.resize(2.0).get().shouldEqualToVector(Vector(1.0 / FastMath.sqrt(14.0) * 2, -2.0 / FastMath.sqrt(14.0) * 2, 3.0 / FastMath.sqrt(14.0) * 2))
+        v.resize(2.0).orThrow().shouldEqualToVector(Vector(1.0 / FastMath.sqrt(14.0) * 2, -2.0 / FastMath.sqrt(14.0) * 2, 3.0 / FastMath.sqrt(14.0) * 2))
     }
 
     @Test
@@ -107,7 +106,7 @@ class VectorTest {
     @Test
     fun testJson() {
         println("Json")
-        v.toString().parseJson().flatMap { Vector.fromJson(it) }.get().shouldEqualToVector(v)
+        v.toString().parseJson().tryFlatMap { Vector.fromJson(it) }.orThrow().shouldEqualToVector(v)
     }
 
     @Test

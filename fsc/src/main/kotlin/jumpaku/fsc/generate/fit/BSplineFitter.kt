@@ -1,22 +1,19 @@
 package jumpaku.fsc.generate.fit
 
-import io.vavr.API.Tuple
-import io.vavr.collection.Array
-import org.apache.commons.math3.linear.*
-import org.apache.commons.math3.util.Precision
-import jumpaku.core.geom.Point
-import jumpaku.core.curve.WeightedParamPoint
-import jumpaku.core.curve.transformParams
+import io.vavr.Tuple3
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.KnotVector
+import jumpaku.core.curve.WeightedParamPoint
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.component3
+import jumpaku.core.curve.transformParams
+import jumpaku.core.geom.Point
+import jumpaku.core.util.*
+import org.apache.commons.math3.linear.*
+import org.apache.commons.math3.util.Precision
 
-fun createModelMatrix(sataParams: Array<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
-    val n = knotVector.extractedKnots.size() - degree - 1
-    val sparse = OpenMapRealMatrix(sataParams.size(), n)
+fun createModelMatrix(sataParams: List<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
+    val n = knotVector.extractedKnots.size - degree - 1
+    val sparse = OpenMapRealMatrix(sataParams.size, n)
     sataParams.map { t ->
         (0..(n - 1)).map { BSpline.basis(t, it, knotVector) }
     }.forEachIndexed { i, row ->
@@ -34,23 +31,23 @@ class BSplineFitter(
         val knotVector: KnotVector) : Fitter<BSpline> {
 
     constructor(degree: Int, domain: Interval, delta: Double) : this(
-            degree, KnotVector.clamped(domain, degree, domain.sample(delta).size() + degree*2))
+            degree, KnotVector.clamped(domain, degree, domain.sample(delta).size + degree*2))
 
-    override fun fit(data: Array<WeightedParamPoint>): BSpline {
-        require(data.nonEmpty()) { "empty data" }
-        require(!data.isSingleValued) { "single valued too few data" }
+    override fun fit(data: List<WeightedParamPoint>): BSpline {
+        require(data.size >= 2) { "data.size == ${data.size}, too few data" }
 
         val distinct = data.distinctBy(WeightedParamPoint::param)
-        if(distinct.size() <= degree){
-            val d = transformParams(data.map { it.paramPoint }, Interval.ZERO_ONE)
-                    .getOrElse { data.map { (pp, _) -> pp.copy(param = 0.5) } }
-            val b = BezierFitter(degree)
-                    .fit(d, distinct.map { it.weight })
-            return BSpline(b.controlPoints,
-                    KnotVector.clamped(Interval(distinct.head().param, distinct.last().param), degree, degree * 2 + 2))
+        if (distinct.size <= degree) {
+            val d = transformParams(data.map { it.paramPoint }, Interval.ZERO_ONE).value()
+                    .orDefault { data.map { (pp, _) -> pp.copy(param = 0.5) } }
+            val b = BezierFitter(degree).fit(d, distinct.map { it.weight })
+            val knots = KnotVector
+                    .clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2)
+            return BSpline(b.controlPoints, knots)
         }
 
-        val (d, b, w) = data.unzip3 { (pt, w) -> Tuple(pt.point, pt.param, w) }
+        val (d, b, w) = data.asVavr().unzip3 { (pt, w) -> Tuple3(pt.point, pt.param, w) }
+                .map({ it.asKt() }, { it.asKt() }, { it.asKt() })
                 .map(this::createDataMatrix, this::createBasisMatrix, this::createWeightMatrix)
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver
                 .solve(b.transpose().multiply(w).multiply(d))
@@ -59,15 +56,14 @@ class BSplineFitter(
         return BSpline(p, knotVector)
     }
 
-    fun createBasisMatrix(sortedDataTimes: Array<Double>): RealMatrix =
+    fun createBasisMatrix(sortedDataTimes: List<Double>): RealMatrix =
             createModelMatrix(sortedDataTimes, degree, knotVector)
 
-    fun createDataMatrix(sortedDataPoints: Array<Point>): RealMatrix = sortedDataPoints
+    fun createDataMatrix(sortedDataPoints: List<Point>): RealMatrix = sortedDataPoints
             .map { doubleArrayOf(it.x, it.y, it.z) }
-            .toJavaArray(DoubleArray::class.java)
-            .run(MatrixUtils::createRealMatrix)
+            .run { MatrixUtils.createRealMatrix(toTypedArray()) }
 
-    fun createWeightMatrix(sortedDataWeights: Array<Double>): RealMatrix =
-            DiagonalMatrix(sortedDataWeights.toMutableList().toDoubleArray())
+    fun createWeightMatrix(sortedDataWeights: List<Double>): RealMatrix =
+            DiagonalMatrix(sortedDataWeights.toDoubleArray())
 }
 

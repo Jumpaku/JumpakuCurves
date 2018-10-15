@@ -53,7 +53,7 @@ class BSplineTest {
         clamped.controlPoints[2].shouldEqualToPoint(Point.xyr(0.0, 1.0, 2.0))
         clamped.controlPoints[3].shouldEqualToPoint(Point.xyr(0.0, 0.0, 1.0))
         clamped.controlPoints[4].shouldEqualToPoint(Point.xyr(1.0, 0.0, 0.0))
-        clamped.controlPoints.size().shouldEqualTo(5)
+        clamped.controlPoints.size.shouldEqualTo(5)
 
         clamped.knotVector.shouldEqualToKnotVector(KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
 
@@ -65,7 +65,7 @@ class BSplineTest {
     @Test
     fun testToString() {
         println("ToString")
-        clamped.toString().parseJson().flatMap { BSpline.fromJson(it) }.get().shouldEqualToBSpline(clamped)
+        clamped.toString().parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow().shouldEqualToBSpline(clamped)
     }
 
     @Test
@@ -158,14 +158,14 @@ class BSplineTest {
     fun testToBeziers() {
         println("ToBeziers")
         val beziers0 = clamped.toBeziers()
-        beziers0.size().shouldEqualTo(2)
+        beziers0.size.shouldEqualTo(2)
         beziers0[0].shouldEqualToBezier(Bezier(
                 Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)))
         beziers0[1].shouldEqualToBezier(Bezier(
                 Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)))
 
         val beziers1 = uniform.toBeziers()
-        beziers1.size().shouldEqualTo(3)
+        beziers1.size.shouldEqualTo(3)
         beziers1[0].shouldEqualToBezier(Bezier(
                 Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0)))
         beziers1[1].shouldEqualToBezier(Bezier(
@@ -179,28 +179,28 @@ class BSplineTest {
         println("Subdivide")
         val (s01, s02) = clamped.subdivide(3.0)
         s01.isDefined.shouldBeFalse()
-        s02.get().shouldEqualToBSpline(clamped)
+        s02.orThrow().shouldEqualToBSpline(clamped)
 
         val (s11, s12) = clamped.subdivide(3.5)
-        s11.get().shouldEqualToBSpline(BSpline(
+        s11.orThrow().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
                 KnotVector.clamped(Interval(3.0, 3.5), 3, 8)))
-        s12.get().shouldEqualToBSpline(BSpline(
+        s12.orThrow().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
                 KnotVector.clamped(Interval(3.5, 4.0), 3, 8)))
 
         val (s21, s22) = clamped.subdivide(4.0)
-        s21.get().shouldEqualToBSpline(clamped)
+        s21.orThrow().shouldEqualToBSpline(clamped)
         s22.isDefined.shouldBeFalse()
 
         val (s31, s32) = uniform.subdivide(3.0)
         s31.isDefined.shouldBeFalse()
-        s32.get().shouldEqualToBSpline(BSpline(
+        s32.orThrow().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector(2, Knot(3.0, 3), Knot(10/3.0), Knot(11/3.0), Knot(4.0), Knot(13/3.0), Knot(14/3.0))))
 
         val (s41, s42) = uniform.subdivide(4.0)
-        s41.get().shouldEqualToBSpline(BSpline(
+        s41.orThrow().shouldEqualToBSpline(BSpline(
                 Array.of(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.5, 0.0)),
                 KnotVector(2, Knot(7/3.0), Knot(8/3.0), Knot(3.0), Knot(10/3.0), Knot(11/3.0), Knot(4.0, 3))))
         s42.isDefined.shouldBeFalse()

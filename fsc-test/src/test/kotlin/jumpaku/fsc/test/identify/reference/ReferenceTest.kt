@@ -42,7 +42,7 @@ class ReferenceTest {
     @Test
     fun testToString() {
         println("ToString")
-        circular.toString().parseJson().flatMap { Reference.fromJson(it) }.get().shouldEqualToReference(circular)
-        linear.toString().parseJson().flatMap { Reference.fromJson(it) }.get().shouldEqualToReference(linear)
+        circular.toString().parseJson().tryFlatMap { Reference.fromJson(it) }.orThrow().shouldEqualToReference(circular)
+        linear.toString().parseJson().tryFlatMap { Reference.fromJson(it) }.orThrow().shouldEqualToReference(linear)
     }
 }

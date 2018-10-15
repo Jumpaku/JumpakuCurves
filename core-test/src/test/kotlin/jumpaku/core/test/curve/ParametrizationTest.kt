@@ -1,6 +1,5 @@
 package jumpaku.core.test.curve
 
-import io.vavr.API
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.Interval
@@ -15,9 +14,10 @@ class ParametrizationTest {
     @Test
     fun testTransformParams() {
         println("TransformParams")
-        val data = chordalParametrize(API.Array(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
-        val t = transformParams(data, Interval(2.0, 5.0)).get()
-        t.size().shouldEqualTo(3)
+        val data = chordalParametrize(listOf(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
+                .orThrow()
+        val t = transformParams(data, Interval(2.0, 5.0)).orThrow()
+        t.size.shouldEqualTo(3)
         t[0].shouldEqualToParamPoint(ParamPoint(Point.xyr(-1.0, 2.0, 3.0), 2.0))
         t[1].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 11 / 3.0))
         t[2].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, 2.0, 1.0), 5.0))
@@ -26,21 +26,23 @@ class ParametrizationTest {
     @Test
     fun testChordalParametrize() {
         println("ChordalParametrize")
-        val data = chordalParametrize(API.Array(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
-        data.size().shouldEqualTo(3)
+        val data = chordalParametrize(listOf(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
+                .orThrow()
+        data.size.shouldEqualTo(3)
         data[0].shouldEqualToParamPoint(ParamPoint(Point.xyr(-1.0, 2.0, 3.0), 0.0))
-        data[1].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 5.0))
-        data[2].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, 2.0, 1.0), 9.0))
+        data[1].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 5/9.0))
+        data[2].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, 2.0, 1.0), 1.0))
     }
 
     @Test
     fun testUniformParametrize() {
         println("UniformParametrize")
-        val data = uniformParametrize(API.Array(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
-        data.size().shouldEqualTo(3)
+        val data = uniformParametrize(listOf(Point.xyr(-1.0, 2.0, 3.0), Point.xyr(2.0, -2.0, 2.0), Point.xyr(2.0, 2.0, 1.0)))
+                .orThrow()
+        data.size.shouldEqualTo(3)
         data[0].shouldEqualToParamPoint(ParamPoint(Point.xyr(-1.0, 2.0, 3.0), 0.0))
-        data[1].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 1.0))
-        data[2].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, 2.0, 1.0), 2.0))
+        data[1].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 0.5))
+        data[2].shouldEqualToParamPoint(ParamPoint(Point.xyr(2.0, 2.0, 1.0), 1.0))
     }
 }
 

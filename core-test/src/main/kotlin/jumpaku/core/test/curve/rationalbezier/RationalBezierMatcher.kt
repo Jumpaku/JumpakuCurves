@@ -6,8 +6,8 @@ import jumpaku.core.test.geom.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: RationalBezier, expected: RationalBezier, error: Double = 1.0e-9): Boolean =
-        (actual.weightedControlPoints.size() == expected.weightedControlPoints.size()) &&
-                actual.weightedControlPoints.zipWith(expected.weightedControlPoints) { a, e ->
+        (actual.weightedControlPoints.size == expected.weightedControlPoints.size) &&
+                actual.weightedControlPoints.zip(expected.weightedControlPoints) { a, e ->
                     isCloseTo(a, e, error)
                 }.all { it }
 

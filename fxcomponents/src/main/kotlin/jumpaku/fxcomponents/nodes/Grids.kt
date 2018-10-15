@@ -56,6 +56,6 @@ fun Parent.snappedPoint(grid: Grid, pointSnapResult: PointSnapResult, op: Shape.
 }
 
 fun Parent.conjugateBox(conjugateBox: ConjugateBox, op: Shape.()->Unit): Unit {
-    polyline(Polyline(conjugateBox.bottomLeft, conjugateBox.topLeft, conjugateBox.topRight, conjugateBox.bottomRight, conjugateBox.bottomLeft), op)
-    polyline(Polyline(conjugateBox.left, conjugateBox.top, conjugateBox.right, conjugateBox.bottom, conjugateBox.left), op)
+    polyline(Polyline.of(conjugateBox.bottomLeft, conjugateBox.topLeft, conjugateBox.topRight, conjugateBox.bottomRight, conjugateBox.bottomLeft), op)
+    polyline(Polyline.of(conjugateBox.left, conjugateBox.top, conjugateBox.right, conjugateBox.bottom, conjugateBox.left), op)
 }

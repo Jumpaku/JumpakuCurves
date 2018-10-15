@@ -1,7 +1,9 @@
 package jumpaku.core.util
 
-import io.vavr.control.Option
 
-infix fun Double.divOption(divisor: Double): Option<Double> = Option.`when`((this/divisor).isFinite(), this/divisor)
+infix fun Double.tryDiv(divisor: Double): Result<Double> = result {
+    if ((this/divisor).isFinite()) this / divisor
+    else throw ArithmeticException("divide by zero")
+}
 
-fun Double.divOrElse(divisor: Double, default: Double): Double = this.divOption(divisor).getOrElse(default)
+fun Double.divOrDefault(divisor: Double, default: () -> Double): Double = tryDiv(divisor).value().orDefault(default)

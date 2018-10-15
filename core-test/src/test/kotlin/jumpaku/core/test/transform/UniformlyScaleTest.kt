@@ -20,7 +20,7 @@ class UniformlyScaleTest {
     @Test
     fun testToString() {
         println("ToString")
-        val a = t.toString().parseJson().flatMap { UniformlyScale.fromJson(it) }.get()
+        val a = t.toString().parseJson().tryFlatMap { UniformlyScale.fromJson(it) }.orThrow()
         a(p).shouldEqualToPoint(Point(6.0, 8.0, -10.0))
     }
 }

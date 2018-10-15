@@ -6,32 +6,29 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
 import jumpaku.core.curve.Derivative
 import jumpaku.core.curve.Differentiable
 import jumpaku.core.curve.Interval
+import jumpaku.core.geom.Point
+import jumpaku.core.geom.Vector
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {
+
+    constructor(controlVectors: Iterable<Vector>): this(Bezier(controlVectors.map { Point(it) }))
+
+    constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
 
     override val derivative: BezierDerivative get() = toBezier().derivative
 
     override val domain: Interval get() = toBezier().domain
 
-    val controlVectors: Array<Vector> get() = toBezier().controlPoints.map(Point::toVector)
+    val controlVectors: List<Vector> get() = toBezier().controlPoints.map(Point::toVector)
 
     val degree: Int get() = toBezier().degree
-
-    constructor(controlVectors: Array<Vector>): this(Bezier(controlVectors.map { Point(it) }))
-
-    constructor(controlVectors: Iterable<Vector>): this(Array.ofAll(controlVectors))
-
-    constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
 
     fun toBezier(): Bezier = Bezier(bezier.controlPoints.map { it.toCrisp() })
 
@@ -41,7 +38,8 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }))
+    override fun toJson(): JsonElement =
+            jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }))
 
     fun restrict(i: Interval): BezierDerivative = BezierDerivative(toBezier().restrict(i))
 
@@ -60,8 +58,8 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<BezierDerivative> = Try.ofSupplier {
-            BezierDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) })
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<BezierDerivative> = result {
+            BezierDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it).value() })
+        }
     }
 }

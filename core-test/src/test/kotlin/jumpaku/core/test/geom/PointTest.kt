@@ -219,8 +219,8 @@ class PointTest {
     @Test
     fun testToString() {
         println("ToString")
-        f.toString().parseJson().flatMap { Point.fromJson(it) }.get().shouldEqualToPoint(f)
-        c.toString().parseJson().flatMap { Point.fromJson(it) }.get().shouldEqualToPoint(c)
+        f.toString().parseJson().tryFlatMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(f)
+        c.toString().parseJson().tryFlatMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(c)
     }
 
     @Test
@@ -244,9 +244,9 @@ class PointTest {
         println("Dist")
         val dp = Point.xyz(-1.0, -2.0, 4.0).dist(Point.xyz(1.0, -2.0, 3.0))
         dp.shouldBeCloseTo(FastMath.sqrt(5.0))
-        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Vector(4.0, 3.0, 0.0)).get())
+        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         dl.shouldBeCloseTo(12/5.0)
-        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
+        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         dplane.shouldBeCloseTo(3.0)
     }
 
@@ -255,18 +255,18 @@ class PointTest {
         println("DistSquare")
         val dp = Point.xyz(-1.0, -2.0, 4.0).distSquare(Point.xyz(1.0, -2.0, 3.0))
         dp.shouldBeCloseTo(5.0)
-        val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
+        val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         dl.shouldBeCloseTo(144/25.0)
-        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
+        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         dplane.shouldBeCloseTo(9.0)
     }
 
     @Test
     fun testProjectTo() {
         println("ProjectTo")
-        val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)).get())
+        val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)).orThrow())
         pl.shouldEqualToPoint(Point.xyz(-1.0, 1.0, 0.0))
-        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).get())
+        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
         pp.shouldEqualToPoint(Point.xyz(1.0, -1.0, 0.0))
     }
 
@@ -288,7 +288,7 @@ class PointTest {
     fun testNormal() {
         println("Normal")
         val n = Point.xyz(1.0, 1.0, 0.0).normal(Point.xyz(-1.0, 1.0, 0.0), Point.xyz(0.0, 1.0, 1.0))
-        n.get().shouldEqualToVector(Vector(0.0, 1.0, 0.0))
+        n.orThrow().shouldEqualToVector(Vector(0.0, 1.0, 0.0))
     }
 
     @Test

@@ -44,7 +44,7 @@ class ConicSectionTest {
     fun testToCrispQuadratic() {
         println("ToCrispQuadratic")
         val i = cs
-        i.toCrispQuadratic().get().shouldEqualToRationalBezier(RationalBezier(
+        i.toCrispQuadratic().orThrow().shouldEqualToRationalBezier(RationalBezier(
                 WeightedPoint(Point.xy(0.0, 1.0), 1.0),
                 WeightedPoint(Point.xy(1.0, 1.0), 1 / R2),
                 WeightedPoint(Point.xy(1.0, 0.0), 1.0)))
@@ -54,7 +54,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = cs
-        i.toString().parseJson().flatMap { ConicSection.fromJson(it) }.get().shouldEqualToConicSection(i)
+        i.toString().parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow().shouldEqualToConicSection(i)
     }
 
     @Test
@@ -137,7 +137,7 @@ class ConicSectionTest {
     fun testCenter() {
         println("Center")
         val i = cs.center()
-        i.get().shouldEqualToPoint(Point.xyr(0.0, 0.0, 4*R2 + 6))
+        i.orThrow().shouldEqualToPoint(Point.xyr(0.0, 0.0, 4*R2 + 6))
     }
 
     @Test

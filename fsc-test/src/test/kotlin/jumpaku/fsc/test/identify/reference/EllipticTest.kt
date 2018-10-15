@@ -19,8 +19,8 @@ class EllipticTest {
     fun testEllipticGenerate() {
         println("EllipticGenerate")
         for (i in 0..2) {
-            val fsc = resourceText("FscEA$i.json").parseJson().flatMap { BSpline.fromJson(it) }.get()
-            val e = resourceText("ReferenceElliptic$i.json").parseJson().flatMap { Reference.fromJson(it) }.get()
+            val fsc = resourceText("FscEA$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val e = resourceText("ReferenceElliptic$i.json").parseJson().tryFlatMap { Reference.fromJson(it) }.orThrow()
             val s = reparametrize(fsc, 65)
             val a = generator.generate(s, t0 = s.originalCurve.domain.begin, t1 = s.originalCurve.domain.end)
             a.reparametrized.isPossible(e.reparametrized, 15).value.shouldBeGreaterThan(0.75)

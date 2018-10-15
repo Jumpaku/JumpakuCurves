@@ -3,46 +3,48 @@ package jumpaku.fsc.blend
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
-import jumpaku.core.json.jsonOption
-import jumpaku.core.json.option
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
+import jumpaku.core.util.*
 
-data class BlendResult(
+class BlendResult(
         val osm: OverlappingMatrix,
         val path: Option<OverlappingPath>,
-        val data: Option<Array<ParamPoint>>): ToJson {
+        val data: Option<List<ParamPoint>>): ToJson {
 
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement {
         val osmJson = jsonArray(osm.matrix.map { jsonArray(it.map { it.toJson() }) })
-        val pathJson = jsonOption(path.map { (type, grade, path) -> jsonObject(
-                "type" to type.toString(),
-                "grade" to grade.toJson(),
-                "pairs" to jsonArray(path.map { (i, j) -> jsonObject("i" to i.toJson(), "j" to j.toJson()) })) })
-        val dataJson = jsonOption(data.map { jsonArray(it.map { it.toJson() }) })
+        val pathJson = path.map { (type, grade, path) ->
+            jsonObject(
+                    "type" to type.toString(),
+                    "grade" to grade.toJson(),
+                    "pairs" to jsonArray(path.map { (i, j) ->
+                        jsonObject("i" to i.toJson(), "j" to j.toJson())
+                    }))
+        }.toJson()
+        val dataJson = data.map { jsonArray(it.map { it.toJson() }) }.toJson()
         return jsonObject("osm" to osmJson, "path" to pathJson, "data" to dataJson)
     }
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<BlendResult> = Try.ofSupplier {
-            val osm = OverlappingMatrix(Array.ofAll(json["osm"].array.map { Array.ofAll(it.array.flatMap { Grade.fromJson(it.asJsonPrimitive) }) }))
-            val path = json["path"].option.map {
+        fun fromJson(json: JsonElement): Result<BlendResult> = result {
+            val osm = OverlappingMatrix(json["osm"].array.map {
+                it.array.flatMap { Grade.fromJson(it.asJsonPrimitive).value() }.toList()
+            }.toList())
+            val path = Option.fromJson(json["path"]).orThrow().map {
                 OverlappingPath(
                         OverlappingType.valueOf(it["type"].string),
-                        Grade.fromJson(it["grade"].asJsonPrimitive).get(),
-                        Array.ofAll(it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }))
+                        Grade.fromJson(it["grade"].asJsonPrimitive).orThrow(),
+                        it["pairs"].array.map { Tuple2(it["i"].int, it["j"].int) }.toList())
             }
-            val data = json["data"].option.map { Array.ofAll(it.array.flatMap { ParamPoint.fromJson(it) }) }
+            val data = Option.fromJson(json["data"]).orThrow().map {
+                it.array.flatMap { ParamPoint.fromJson(it).value() }.toList()
+            }
             BlendResult(osm, path, data)
-        }.toOption()
+        }
     }
 }

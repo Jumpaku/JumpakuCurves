@@ -2,14 +2,14 @@ package jumpaku.fsc.snap
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.*
 import jumpaku.core.transform.Rotate
 import jumpaku.core.transform.Transform
 import jumpaku.core.transform.Translate
 import jumpaku.core.transform.UniformlyScale
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 import org.apache.commons.math3.util.FastMath
 
 open class Grid(
@@ -33,7 +33,7 @@ open class Grid(
             .andThen(UniformlyScale(spacing(resolution)))
             .andThen(Translate(origin - Point.origin))
 
-    fun snapToNearestGrid(cursor: Point, resolution: Int): GridPoint = localToWorld(resolution).invert().get()(cursor)
+    fun snapToNearestGrid(cursor: Point, resolution: Int): GridPoint = localToWorld(resolution).invert().orThrow()(cursor)
             .let { (x, y, z) -> GridPoint(FastMath.round(x), FastMath.round(y), FastMath.round(z)) }
 
     override fun toString(): String = toJsonString()
@@ -47,12 +47,12 @@ open class Grid(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Grid> = Try.ofSupplier { Grid(
+        fun fromJson(json: JsonElement): Result<Grid> = result { Grid(
                 baseSpacing = json["baseSpacing"].double,
                 magnification = json["magnification"].int,
-                origin = Point.fromJson(json["origin"]).get(),
-                rotation = Rotate.fromJson(json["rotation"]).get(),
+                origin = Point.fromJson(json["origin"]).orThrow(),
+                rotation = Rotate.fromJson(json["rotation"]).orThrow(),
                 baseFuzziness = json["baseFuzziness"].double)
-        }.toOption()
+        }
     }
 }

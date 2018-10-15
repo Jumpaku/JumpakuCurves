@@ -1,6 +1,5 @@
 package jumpaku.fsc.generate
 
-import io.vavr.collection.Array
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
@@ -19,9 +18,9 @@ class FscGenerator(
                 velocityCoefficient = 0.006,
                 accelerationCoefficient = 0.004)) {
 
-    fun generate(data: Array<ParamPoint>): BSpline {
+    fun generate(data: List<ParamPoint>): BSpline {
         val prepared = preparer.prepare(data)
-        val fitter = BSplineFitter(degree, Interval(prepared.head().param, prepared.last().param), knotSpan)
+        val fitter = BSplineFitter(degree, Interval(prepared.first().param, prepared.last().param), knotSpan)
         val crisp = fitter.fit(prepared)
         val fuzzified = fuzzifier.fuzzify(crisp)
         val (b, e) = fuzzified.domain

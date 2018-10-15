@@ -1,19 +1,16 @@
 package jumpaku.core.curve.bspline
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import io.vavr.collection.Array
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.curve.*
 import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.json.ToJson
+import jumpaku.core.util.Option
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
 
 class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable, ToJson {
@@ -21,13 +18,13 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
     constructor(controlVectors: Iterable<Vector>, knots: KnotVector) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
 
-    fun toBSpline(): BSpline = BSpline(bSpline.controlPoints.map { it.toCrisp() }, bSpline.knotVector)
+    fun toBSpline(): BSpline = bSpline.toCrisp()
 
     override val domain: Interval get() = toBSpline().domain
 
     override val derivative: BSplineDerivative get() = toBSpline().derivative
 
-    val controlVectors: Array<Vector> get() = toBSpline().controlPoints.map(Point::toVector)
+    val controlVectors: List<Vector> get() = toBSpline().controlPoints.map(Point::toVector)
 
     val knotVector: KnotVector get() = toBSpline().knotVector
 
@@ -35,8 +32,10 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement =
-            jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }), "knotVector" to knotVector.toJson())
+    override fun toJson(): JsonElement = jsonObject(
+            "controlVectors" to jsonArray(controlVectors.map { it.toJson() }),
+            "degree" to degree,
+            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 
@@ -56,15 +55,18 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun removeKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().removeKnot(t, m))
 
-    fun toBeziers(): Array<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
+    fun toBeziers(): List<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
 
     fun subdivide(t: Double): Tuple2<Option<BSplineDerivative>, Option<BSplineDerivative>> =
             toBSpline().subdivide(t).map({ it.map { BSplineDerivative(it) } }, { it.map { BSplineDerivative(it) } })
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<BSplineDerivative> = Try.ofSupplier {
-            BSplineDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it) }, KnotVector.fromJson(json["knotVector"]).get())
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<BSplineDerivative> = result {
+            val d = json["degree"].int
+            val cv = json["controlVectors"].array.flatMap { Vector.fromJson(it).value() }
+            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
+            BSplineDerivative(cv, KnotVector(d, ks))
+        }
     }
 }

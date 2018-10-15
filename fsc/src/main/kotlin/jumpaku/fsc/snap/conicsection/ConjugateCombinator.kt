@@ -1,7 +1,6 @@
 package jumpaku.fsc.snap.conicsection
 
 import io.vavr.Tuple3
-import io.vavr.collection.Stream
 import jumpaku.core.geom.Point
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.util.component1
@@ -21,7 +20,7 @@ class ConjugateCombinator : FeaturePointsCombinator {
         return when (featurePosition) {
             FeaturePosition.B0 -> begin
             FeaturePosition.B2 -> end
-            FeaturePosition.O -> center().get()
+            FeaturePosition.O -> center().orThrow()
             FeaturePosition.D0 -> evaluate(t)
             FeaturePosition.D1 -> far
             FeaturePosition.D2 -> evaluate(1 - t)
@@ -33,70 +32,66 @@ class ConjugateCombinator : FeaturePointsCombinator {
         }
     }
 
-    override fun linearCombinations(conicSection: ConicSection, isOpen: Boolean): Stream<LinearFeaturePoints> = when{
-        isOpen -> Stream.of(LinearFeaturePoints(conicSection.begin, conicSection.end))
-        else -> Stream.of(LinearFeaturePoints(conicSection.far, conicSection.far))
+    override fun linearCombinations(conicSection: ConicSection, isOpen: Boolean): List<LinearFeaturePoints> = when{
+        isOpen -> listOf(LinearFeaturePoints(conicSection.begin, conicSection.end))
+        else -> listOf(LinearFeaturePoints(conicSection.far, conicSection.far))
     }
 
-    override fun circularCombinations(conicSection: ConicSection, isOpen: Boolean): Stream<CircularFeaturePoints> =
-            when {
-                conicSection.weight > 0.0 -> Stream.of(
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.O, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.B2, FeaturePosition.O, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.B0),
-                        Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.B2)
-                )
-                isOpen -> Stream.of(
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.O, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.B2, FeaturePosition.O, FeaturePosition.D1),
+    override fun circularCombinations(conicSection: ConicSection, isOpen: Boolean): List<CircularFeaturePoints> = when {
+        conicSection.weight > 0.0 -> listOf(
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
+                Tuple3(FeaturePosition.B0, FeaturePosition.O, FeaturePosition.D1),
+                Tuple3(FeaturePosition.B2, FeaturePosition.O, FeaturePosition.D1),
+                Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.B0),
+                Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.B2)
+        )
+        isOpen -> listOf(
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
+                Tuple3(FeaturePosition.B0, FeaturePosition.O, FeaturePosition.D1),
+                Tuple3(FeaturePosition.B2, FeaturePosition.O, FeaturePosition.D1),
 
-                        Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.D0),
-                        Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.D2),
+                Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.D0),
+                Tuple3(FeaturePosition.D1, FeaturePosition.O, FeaturePosition.D2),
 
-                        Tuple3(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D1)
-                )
-                else -> Stream.of(
-                        Tuple3(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D3),
-                        Tuple3(FeaturePosition.D1, FeaturePosition.D3, FeaturePosition.D0),
-                        Tuple3(FeaturePosition.D1, FeaturePosition.D3, FeaturePosition.D2),
+                Tuple3(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D1)
+        )
+        else -> listOf(
+                Tuple3(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D1),
+                Tuple3(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D3),
+                Tuple3(FeaturePosition.D1, FeaturePosition.D3, FeaturePosition.D0),
+                Tuple3(FeaturePosition.D1, FeaturePosition.D3, FeaturePosition.D2),
 
-                        Tuple3(FeaturePosition.E0, FeaturePosition.E2, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.E0, FeaturePosition.E2, FeaturePosition.D3),
-                        Tuple3(FeaturePosition.E1, FeaturePosition.E3, FeaturePosition.D0),
-                        Tuple3(FeaturePosition.E1, FeaturePosition.E3, FeaturePosition.D2)
-                )
-            } .map { (p0, p1, pn) -> CircularFeaturePoints(conicSection[p0], conicSection[p1], conicSection[pn])}
+                Tuple3(FeaturePosition.E0, FeaturePosition.E2, FeaturePosition.D1),
+                Tuple3(FeaturePosition.E0, FeaturePosition.E2, FeaturePosition.D3),
+                Tuple3(FeaturePosition.E1, FeaturePosition.E3, FeaturePosition.D0),
+                Tuple3(FeaturePosition.E1, FeaturePosition.E3, FeaturePosition.D2)
+        )
+    } .map { (p0, p1, pn) -> CircularFeaturePoints(conicSection[p0], conicSection[p1], conicSection[pn])}
 
-    override fun ellipticCombinations(conicSection: ConicSection, isOpen: Boolean): Stream<EllipticFeaturePoints> =
-            when {
-                conicSection.weight > 0.0 -> Stream.of(
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.E1)
-                )
-                isOpen -> Stream.of(
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.E1),
-                        Tuple3(FeaturePosition.D0, FeaturePosition.D1, FeaturePosition.D2),
-                        Tuple3(FeaturePosition.E0, FeaturePosition.E1, FeaturePosition.E2)
-                )
-                else -> Stream.of(
-                        Tuple3(FeaturePosition.D0, FeaturePosition.D1, FeaturePosition.D2),
-                        Tuple3(FeaturePosition.D1, FeaturePosition.D2, FeaturePosition.D3),
-                        Tuple3(FeaturePosition.D2, FeaturePosition.D3, FeaturePosition.D0),
-                        Tuple3(FeaturePosition.D3, FeaturePosition.D0, FeaturePosition.D1),
-                        Tuple3(FeaturePosition.E0, FeaturePosition.E1, FeaturePosition.E2),
-                        Tuple3(FeaturePosition.E1, FeaturePosition.E2, FeaturePosition.E3),
-                        Tuple3(FeaturePosition.E2, FeaturePosition.E3, FeaturePosition.E0),
-                        Tuple3(FeaturePosition.E3, FeaturePosition.E0, FeaturePosition.E1)
-                )
-            }.map { (f0, f1, f2) ->
-                EllipticFeaturePoints(conicSection[f0], conicSection[f1], conicSection[f2])
-            }
+    override fun ellipticCombinations(conicSection: ConicSection, isOpen: Boolean): List<EllipticFeaturePoints> = when {
+        conicSection.weight > 0.0 -> listOf(
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.E1)
+        )
+        isOpen -> listOf(
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.O),
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
+                Tuple3(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.E1),
+                Tuple3(FeaturePosition.D0, FeaturePosition.D1, FeaturePosition.D2),
+                Tuple3(FeaturePosition.E0, FeaturePosition.E1, FeaturePosition.E2)
+        )
+        else -> listOf(
+                Tuple3(FeaturePosition.D0, FeaturePosition.D1, FeaturePosition.D2),
+                Tuple3(FeaturePosition.D1, FeaturePosition.D2, FeaturePosition.D3),
+                Tuple3(FeaturePosition.D2, FeaturePosition.D3, FeaturePosition.D0),
+                Tuple3(FeaturePosition.D3, FeaturePosition.D0, FeaturePosition.D1),
+                Tuple3(FeaturePosition.E0, FeaturePosition.E1, FeaturePosition.E2),
+                Tuple3(FeaturePosition.E1, FeaturePosition.E2, FeaturePosition.E3),
+                Tuple3(FeaturePosition.E2, FeaturePosition.E3, FeaturePosition.E0),
+                Tuple3(FeaturePosition.E3, FeaturePosition.E0, FeaturePosition.E1)
+        )
+    }.map { (f0, f1, f2) -> EllipticFeaturePoints(conicSection[f0], conicSection[f1], conicSection[f2]) }
 }

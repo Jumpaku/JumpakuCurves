@@ -1,15 +1,11 @@
 package jumpaku.fsc.blend
 
-import io.vavr.collection.Array
-import io.vavr.collection.Stream
-import io.vavr.control.Option
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.transformParams
 import jumpaku.core.fuzzy.Grade
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
+import jumpaku.core.util.*
 
 
 class Blender(
@@ -23,7 +19,7 @@ class Blender(
         return path.map {
             val data = resample(existing, overlapping, it)
             BlendResult(osm, path, path.map { data })
-        }.getOrElse { BlendResult(osm, Option.none(), Option.none()) }
+        }.orDefault { BlendResult(osm, none(), none()) }
     }
 
     fun overlappingMatrix(samplingSpan: Double, existing: BSpline, overlapping: BSpline): OverlappingMatrix {
@@ -36,34 +32,38 @@ class Blender(
         })
     }
 
-    fun resample(existing: BSpline, overlapping: BSpline, path: OverlappingPath): Array<ParamPoint> {
-        val (beginI, beginJ) = path.path.head()
+    fun resample(existing: BSpline, overlapping: BSpline, path: OverlappingPath): List<ParamPoint> {
+        val (beginI, beginJ) = path.path.first()
         val (endI, endJ) = path.path.last()
         val te = existing.sample(samplingSpan)
         val to = overlapping.sample(samplingSpan)
 
-        fun OverlappingPath.blendData(te: Array<ParamPoint>, to: Array<ParamPoint>): Array<ParamPoint> =
+        fun OverlappingPath.blendData(te: List<ParamPoint>, to: List<ParamPoint>): List<ParamPoint> =
                 this.path.map { (i, j) -> te[i].divide(blendingRate, to[j]) }
 
         return when(path.type){
-            OverlappingType.ExistingOverlapping -> rearrangeParam(te.take(beginI), path.blendData(te, to), to.drop(endJ))
-            OverlappingType.OverlappingExisting -> rearrangeParam(to.take(beginJ), path.blendData(te, to), te.drop(endI))
-            OverlappingType.ExistingOverlappingExisting -> rearrangeParam(te.take(beginI), path.blendData(te, to), te.drop(endI))
-            OverlappingType.OverlappingExistingOverlapping -> rearrangeParam(to.take(beginJ), path.blendData(te, to), to.drop(endJ))
+            OverlappingType.ExistingOverlapping ->
+                rearrangeParam(te.take(beginI), path.blendData(te, to), to.drop(endJ))
+            OverlappingType.OverlappingExisting ->
+                rearrangeParam(to.take(beginJ), path.blendData(te, to), te.drop(endI))
+            OverlappingType.ExistingOverlappingExisting ->
+                rearrangeParam(te.take(beginI), path.blendData(te, to), te.drop(endI))
+            OverlappingType.OverlappingExistingOverlapping ->
+                rearrangeParam(to.take(beginJ), path.blendData(te, to), to.drop(endJ))
         }
     }
 
-    fun rearrangeParam(front: Array<ParamPoint>, middle: Array<ParamPoint>, back: Array<ParamPoint>): Array<ParamPoint> {
+    fun rearrangeParam(front: List<ParamPoint>, middle: List<ParamPoint>, back: List<ParamPoint>): List<ParamPoint> {
         val f = front
-        val m = if (front.isEmpty) middle
-        else transformParams(
-                middle, Interval(f.last().param, f.last().param + middle.last().param - middle.head().param))
-                .getOrElse { middle.map { it.copy(param = f.last().param) } }
-        val b = if (back.isEmpty) back
-        else transformParams(
-                back, Interval(m.last().param, m.last().param + back.last().param - back.head().param))
-                .getOrElse { back.map { it.copy(param = m.last().param) } }
 
-        return Stream.concat(f, m, b).toArray()
+        val m = if (front.isEmpty()) middle
+        else transformParams(middle, Interval(f.last().param, f.last().param + middle.last().param - middle.first().param))
+                .value().orDefault { middle.map { it.copy(param = f.last().param) } }
+
+        val b = if (back.isEmpty()) back
+        else transformParams(back, Interval(m.last().param, m.last().param + back.last().param - back.first().param))
+                .value().orDefault { back.map { it.copy(param = m.last().param) } }
+
+        return f + m + b
     }
 }

@@ -31,21 +31,21 @@ class RationalBezierTest {
     fun testProperties() {
         println("Properties")
         val wp = rb.weightedControlPoints
-        wp.size().shouldEqualTo(4)
+        wp.size.shouldEqualTo(4)
         wp[0].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0))
         wp[1].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3))
         wp[2].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3))
         wp[3].shouldEqualToWeightedPoint(WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
 
         val cp = rb.controlPoints
-        cp.size().shouldEqualTo(4)
+        cp.size.shouldEqualTo(4)
         cp[0].shouldEqualToPoint(Point.xyr( 0.0,  1.0,  1.0))
         cp[1].shouldEqualToPoint(Point.xyr(2-R2,  1.0, 3-R2))
         cp[2].shouldEqualToPoint(Point.xyr( 1.0, 2-R2, 1+R2))
         cp[3].shouldEqualToPoint(Point.xyr(1.0, 0.0, 3.0))
 
         val w = rb.weights
-        w.size().shouldEqualTo(4)
+        w.size.shouldEqualTo(4)
         w[0].shouldBeCloseTo(1.0)
         w[1].shouldBeCloseTo((1+R2)/3)
         w[2].shouldBeCloseTo((1+R2)/3)
@@ -104,7 +104,7 @@ class RationalBezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        rb.toString().parseJson().flatMap { RationalBezier.fromJson(it) }.get().shouldEqualToRationalBezier(rb)
+        rb.toString().parseJson().tryFlatMap { RationalBezier.fromJson(it) }.orThrow().shouldEqualToRationalBezier(rb)
     }
 
     @Test

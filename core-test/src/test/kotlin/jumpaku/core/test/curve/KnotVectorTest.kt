@@ -18,7 +18,7 @@ class KnotVectorTest {
     @Test
     fun testProperties() {
         println("Properties")
-        k.knots.size().shouldEqualTo(4)
+        k.knots.size.shouldEqualTo(4)
         k.knots[0].value.shouldBeCloseTo(3.5)
         k.knots[1].value.shouldBeCloseTo(4.0)
         k.knots[2].value.shouldBeCloseTo(4.5)
@@ -35,7 +35,7 @@ class KnotVectorTest {
     @Test
     fun testToString() {
         println("ToString")
-        k.toString().parseJson().flatMap { KnotVector.fromJson(it) }.get().shouldEqualToKnotVector(k)
+        k.toString().parseJson().tryFlatMap { KnotVector.fromJson(it) }.orThrow().shouldEqualToKnotVector(k)
     }
 
     @Test
@@ -69,34 +69,34 @@ class KnotVectorTest {
         println("Subdivide")
         val (a00, a01) = k.subdivide(3.5)
         a00.isDefined.shouldBeFalse()
-        a01.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
+        a01.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
 
         val (a10, a11) = k.subdivide(3.7)
-        a10.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 3.7), 3, 8))
-        a11.get().shouldEqualToKnotVector(KnotVector(3,
+        a10.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 3.7), 3, 8))
+        a11.orThrow().shouldEqualToKnotVector(KnotVector(3,
                 Knot(3.7, 4), Knot(4.0), Knot(4.5), Knot(5.0, 4)))
 
         val (a20, a21) = k.subdivide(4.0)
-        a20.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.0), 3, 8))
-        a21.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(4.0, 5.0), 3, 9))
+        a20.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.0), 3, 8))
+        a21.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(4.0, 5.0), 3, 9))
 
         val (a30, a31) = k.subdivide(4.2)
-        a30.get().shouldEqualToKnotVector(KnotVector(3,
+        a30.orThrow().shouldEqualToKnotVector(KnotVector(3,
                 Knot(3.5, 4), Knot(4.0), Knot(4.2, 4)))
-        a31.get().shouldEqualToKnotVector(KnotVector(3,
+        a31.orThrow().shouldEqualToKnotVector(KnotVector(3,
                 Knot(4.2, 4), Knot(4.5), Knot(5.0, 4)))
 
         val (a40, a41) = k.subdivide(4.5)
-        a40.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.5), 3, 9))
-        a41.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(4.5, 5.0), 3, 8))
+        a40.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 4.5), 3, 9))
+        a41.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(4.5, 5.0), 3, 8))
 
         val (a50, a51) = k.subdivide(4.6)
-        a50.get().shouldEqualToKnotVector(KnotVector(3,
+        a50.orThrow().shouldEqualToKnotVector(KnotVector(3,
                 Knot(3.5, 4), Knot(4.0), Knot(4.5), Knot(4.6, 4)))
-        a51.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(4.6, 5.0), 3, 8))
+        a51.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(4.6, 5.0), 3, 8))
 
         val (a60, a61) = k.subdivide(5.0)
-        a60.get().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
+        a60.orThrow().shouldEqualToKnotVector(KnotVector.clamped(Interval(3.5, 5.0), 3, 10))
         a61.isDefined.shouldBeFalse()
     }
 

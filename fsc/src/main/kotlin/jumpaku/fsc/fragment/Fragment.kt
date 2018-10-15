@@ -5,15 +5,16 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.control.Option
-import io.vavr.control.Try
 import jumpaku.core.curve.Interval
+import jumpaku.core.json.ToJson
+import jumpaku.core.util.Result
+import jumpaku.core.util.result
 
-data class Fragment(val interval: Interval, val type: Type) {
+data class Fragment(val interval: Interval, val type: Type): ToJson {
 
-    override fun toString(): String = toJson().toString()
+    override fun toString(): String = toJsonString()
 
-    fun toJson(): JsonElement = jsonObject("interval" to interval.toJson(), "type" to type.name.toJson())
+    override fun toJson(): JsonElement = jsonObject("interval" to interval.toJson(), "type" to type.name.toJson())
 
     enum class Type {
         Move, Stay
@@ -21,8 +22,8 @@ data class Fragment(val interval: Interval, val type: Type) {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Option<Fragment> = Try.ofSupplier {
-            Fragment(Interval.fromJson(json["interval"]).get(), Fragment.Type.valueOf(json["type"].string))
-        }.toOption()
+        fun fromJson(json: JsonElement): Result<Fragment> = result {
+            Fragment(Interval.fromJson(json["interval"]).orThrow(), Fragment.Type.valueOf(json["type"].string))
+        }
     }
 }

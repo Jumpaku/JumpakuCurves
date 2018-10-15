@@ -28,7 +28,7 @@ class IntervalTest {
     fun testSample() {
         println("Sample")
         val i0 = Interval(-0.1, 0.5).sample(7)
-        i0.size().shouldEqual(7)
+        i0.size.shouldEqual(7)
         i0[0].shouldBeCloseTo(-0.1)
         i0[1].shouldBeCloseTo( 0.0)
         i0[2].shouldBeCloseTo( 0.1)
@@ -37,7 +37,7 @@ class IntervalTest {
         i0[5].shouldBeCloseTo( 0.4)
         i0[6].shouldBeCloseTo( 0.5)
         val i1 = Interval(-0.1, 0.5).sample(0.11)
-        i1.size().shouldEqual(7)
+        i1.size.shouldEqual(7)
         i1[0].shouldBeCloseTo(-0.1)
         i1[1].shouldBeCloseTo( 0.0)
         i1[2].shouldBeCloseTo( 0.1)
@@ -65,6 +65,6 @@ class IntervalTest {
     @Test
     fun testToString() {
         println("ToString")
-        i.toString().parseJson().flatMap { Interval.fromJson(it) }.get().shouldEqualToInterval(i)
+        i.toString().parseJson().tryFlatMap { Interval.fromJson(it) }.orThrow().shouldEqualToInterval(i)
     }
 }
