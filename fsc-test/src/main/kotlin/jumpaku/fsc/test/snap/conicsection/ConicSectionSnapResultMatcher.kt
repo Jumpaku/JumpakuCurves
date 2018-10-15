@@ -2,8 +2,7 @@ package jumpaku.fsc.test.snap.conicsection
 
 import jumpaku.core.test.curve.rationalbezier.isCloseTo
 import jumpaku.core.test.geom.isCloseTo
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
+import jumpaku.core.test.isCloseTo
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.test.snap.point.isCloseTo
 import org.amshove.kluent.should
@@ -19,9 +18,14 @@ fun isCloseTo(actual: ConicSectionSnapResult.Candidate, expected: ConicSectionSn
         }
 
 fun isCloseTo(actual: ConicSectionSnapResult, expected: ConicSectionSnapResult, error: Double): Boolean =
-         isCloseTo(actual.snappedConicSection, expected.snappedConicSection, error) &&
-                 actual.candidates.size == expected.candidates.size &&
-                 actual.candidates.zip(expected.candidates).all { (a, e) -> isCloseTo(a, e, error) }
+        actual.snappedConicSection.isDefined == expected.snappedConicSection.isDefined &&
+                actual.snappedConicSection.isEmpty ||
+                (actual.snappedConicSection.isDefined &&
+                        isCloseTo(actual.snappedConicSection.orThrow(), expected.snappedConicSection.orThrow(), error)) &&
+                actual.candidates.size == expected.candidates.size &&
+                actual.candidates.zip(expected.candidates).all { (a, e) ->
+                    isCloseTo(a.grade.value, e.grade.value) &&
+                            isCloseTo(a.candidate, e.candidate, error) }
 
 fun ConicSectionSnapResult.shouldEqualToConicSectionSnapResult(expected: ConicSectionSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)

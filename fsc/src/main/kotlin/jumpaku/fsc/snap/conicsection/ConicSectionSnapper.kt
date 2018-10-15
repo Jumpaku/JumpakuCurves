@@ -3,6 +3,7 @@ package jumpaku.fsc.snap.conicsection
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.transform.Calibrate
 import jumpaku.core.curve.rationalbezier.ConicSection
+import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.orDefault
 import jumpaku.core.util.result
 import jumpaku.core.util.toOption
@@ -19,15 +20,17 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
             grid: Grid,
             conicSection: ConicSection,
             curveClass: CurveClass,
-            evaluator: (ConicSectionSnapResult.Candidate) -> Double = evaluateWithReference(conicSection)
+            evaluator: (ConicSectionSnapResult.Candidate) -> Grade = evaluateWithReference(conicSection)
     ): ConicSectionSnapResult {
         require(curveClass.isConicSection) { "curveClass($curveClass) must be conic section" }
 
-        val candidates = enumerate(grid, conicSection, curveClass).sortedBy { candidate -> -evaluator(candidate) }
+        val candidates = enumerate(grid, conicSection, curveClass)
+                .map { ConicSectionSnapResult.EvaluatedCandidate(evaluator(it), it) }
+                .sortedByDescending { it.grade }
         val snapped = candidates.firstOrNull()
                 .toOption()
-                .map { conicSection.transform(it.transform) }
-                .orDefault { conicSection.toCrisp() }
+                .filter { it.grade.value > 0.0 }
+                .map { conicSection.transform(it.candidate.transform) }
         return ConicSectionSnapResult(snapped, candidates)
     }
 
@@ -107,8 +110,8 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
         }
 
         fun evaluateWithReference(original: ConicSection, nFmps: Int = 15)
-                : (ConicSectionSnapResult.Candidate) -> Double = {
-            reparametrize(original.transform(it.transform)).isPossible(reparametrize(original), nFmps).value
+                : (ConicSectionSnapResult.Candidate) -> Grade = {
+            reparametrize(original.transform(it.transform)).isPossible(reparametrize(original), nFmps)
         }
     }
 }

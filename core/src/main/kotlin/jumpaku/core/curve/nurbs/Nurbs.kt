@@ -1,9 +1,6 @@
 package jumpaku.core.curve.nurbs
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import jumpaku.core.curve.*
@@ -71,7 +68,8 @@ class Nurbs(
 
     override fun toJson(): JsonElement = jsonObject(
             "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
-            "knotVector" to knotVector.toJson())
+            "degree" to degree,
+            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 
@@ -133,8 +131,10 @@ class Nurbs(
     companion object {
 
         fun fromJson(json: JsonElement): Result<Nurbs> = result {
-            Nurbs(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() },
-                    KnotVector.fromJson(json["knotVector"]).orThrow())
+            val d = json["degree"].int
+            val wcp = json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() }
+            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
+            Nurbs(wcp, KnotVector(d, ks))
         }
     }
 }

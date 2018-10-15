@@ -6,6 +6,7 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import jumpaku.core.curve.rationalbezier.ConicSection
+import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
@@ -16,9 +17,9 @@ import jumpaku.core.util.result
 import jumpaku.core.util.toJson
 import jumpaku.fsc.snap.point.PointSnapResult
 
-class ConicSectionSnapResult(val snappedConicSection: ConicSection, candidates: Iterable<Candidate>) : ToJson {
+class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, candidates: Iterable<EvaluatedCandidate>) : ToJson {
 
-    class SnappedPoint(val source: Point, val target: Option<PointSnapResult>) : ToJson {
+    data class SnappedPoint(val source: Point, val target: Option<PointSnapResult>) : ToJson {
 
         override fun toString(): String = toJsonString()
 
@@ -38,9 +39,7 @@ class ConicSectionSnapResult(val snappedConicSection: ConicSection, candidates: 
         }
     }
 
-    class Candidate(
-            featurePoints: Iterable<SnappedPoint>,
-            val transform: Transform) : ToJson {
+    class Candidate(featurePoints: Iterable<SnappedPoint>, val transform: Transform) : ToJson {
 
         val featurePoints: List<SnappedPoint> = featurePoints.toList()
 
@@ -60,20 +59,37 @@ class ConicSectionSnapResult(val snappedConicSection: ConicSection, candidates: 
         }
     }
 
-    val candidates: List<Candidate> = candidates.toList()
+    data class EvaluatedCandidate(val grade: Grade, val candidate: Candidate): ToJson {
+
+        override fun toString(): String = toJsonString()
+
+        override fun toJson(): JsonElement =
+                jsonObject("grade" to grade.toJson(), "candidate" to candidate.toJson())
+
+        companion object {
+
+            fun fromJson(json: JsonElement): Result<EvaluatedCandidate> = result {
+                EvaluatedCandidate(
+                        Grade.fromJson(json["grade"].asJsonPrimitive).orThrow(),
+                        Candidate.fromJson(json["candidate"]).orThrow())
+            }
+        }
+    }
+
+    val candidates: List<EvaluatedCandidate> = candidates.toList()
 
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement = jsonObject(
-            "snappedConicSection" to snappedConicSection.toJson(),
+            "snappedConicSection" to snappedConicSection.map { it.toJson() }.toJson(),
             "candidates" to jsonArray(candidates.map { it.toJson() }))
 
     companion object {
 
         fun fromJson(json: JsonElement): Result<ConicSectionSnapResult> = result {
             ConicSectionSnapResult(
-                    ConicSection.fromJson(json["snappedConicSection"]).orThrow(),
-                    json["candidates"].array.flatMap { Candidate.fromJson(it).value() })
+                    Option.fromJson(json["snappedConicSection"]).orThrow().flatMap { ConicSection.fromJson(it).value() },
+                    json["candidates"].array.flatMap { EvaluatedCandidate.fromJson(it).value() })
         }
     }
 }

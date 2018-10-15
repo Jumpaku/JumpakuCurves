@@ -10,6 +10,7 @@ import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.json.parseJson
 import jumpaku.core.transform.Rotate
+import jumpaku.core.util.orDefault
 import jumpaku.fsc.generate.FscGenerator
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.Open4Identifier
@@ -75,18 +76,22 @@ class ViewSnap : View() {
 
     fun Group.drawSnapping(cs: ConicSection, curveClass: CurveClass) {
         fuzzyCurve(cs) { stroke = Color.BLACK }
-        val snapped = conicSectionSnapper.snap(grid, cs, curveClass)
+        val snapped = conicSectionSnapper.snap(grid, cs, curveClass, evaluator = ConicSectionSnapper.evaluateWithReference(cs, 15))
         //File("./fsc-test/src/test/resources/jumpaku/fsc/test/snap/conicsection/SnapResult$xxx.json")
         //        .writeText(snapped.toString())
-        conjugateBox(ConjugateBox.ofConicSection(snapped.snappedConicSection)) { stroke = Color.GREEN }
-        snapped.candidates.reversed().forEachIndexed { i, candidate ->
+        conjugateBox(ConjugateBox.ofConicSection(snapped.snappedConicSection.orDefault { cs })) { stroke = Color.GREEN }
+        snapped.candidates.reversed().forEachIndexed { i, (grade, candidate) ->
+            println(grade)
             val color = Color.hsb(0.0, 0.3 + i*0.7/snapped.candidates.size, 1.0)
             fuzzyCurve(cs.transform(candidate.transform)) { stroke = color }
             candidate.featurePoints.forEach {
                 val c = it.source
                 val s = it.target
-                s.forNone { circle(c.x, c.y, 3.0) { stroke = color; fill = color } }
-                s.forEach { snappedPoint(grid, it) { stroke = color; fill = color } }
+                s.forEach({
+                    snappedPoint(grid, it) { stroke = color; fill = color }
+                }, {
+                    circle(c.x, c.y, 3.0) { stroke = color; fill = color }
+                })
             }
         }
     }
@@ -111,15 +116,21 @@ class ViewSnap : View() {
         }
         val snapped = conicSectionSnapper.snap(grid, cs, identifyResult.curveClass)
 
-        conjugateBox(ConjugateBox.ofConicSection(snapped.snappedConicSection)) { stroke = Color.GREEN }
+        conjugateBox(ConjugateBox.ofConicSection(snapped.snappedConicSection.orDefault { cs })) { stroke = Color.GREEN }
         //curve(cs) { stroke = Color.BLUE }
-        curve(snapped.snappedConicSection) { stroke = Color.RED }
-        snapped.candidates[0].featurePoints.forEach {
-            val c = it.source
-            val s = it.target
-            s.forNone { circle(c.x, c.y, 3.0) { stroke = Color.RED; fill =  Color.RED } }
-            s.forEach { snappedPoint(grid, it) { stroke =  Color.RED; fill =  Color.RED } }
+        curve(snapped.snappedConicSection.orDefault { cs }) { stroke = Color.RED }
+        snapped.snappedConicSection.forEach {
+            snapped.candidates[0].candidate.featurePoints.forEach {
+                val c = it.source
+                val s = it.target
+                s.forEach({
+                    snappedPoint(grid, it) { stroke = Color.RED; fill = Color.RED }
+                }, {
+                    circle(c.x, c.y, 3.0) { stroke = Color.RED; fill = Color.RED }
+                })
+            }
         }
+
         /*snapped.candidates.reversed().forEachIndexed { i, candidate ->
             val color = Color.hsb(i*180.0/snapped.candidates.size, 1.0, 1.0)
             curve(cs.transform(candidate.transform)) { stroke = color }

@@ -1,9 +1,6 @@
 package jumpaku.core.curve.bspline
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import jumpaku.core.geom.Point
@@ -21,7 +18,7 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
     constructor(controlVectors: Iterable<Vector>, knots: KnotVector) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
 
-    fun toBSpline(): BSpline = BSpline(bSpline.controlPoints.map { it.toCrisp() }, bSpline.knotVector)
+    fun toBSpline(): BSpline = bSpline.toCrisp()
 
     override val domain: Interval get() = toBSpline().domain
 
@@ -37,7 +34,8 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     override fun toJson(): JsonElement = jsonObject(
             "controlVectors" to jsonArray(controlVectors.map { it.toJson() }),
-            "knotVector" to knotVector.toJson())
+            "degree" to degree,
+            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 
@@ -65,9 +63,10 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
     companion object {
 
         fun fromJson(json: JsonElement): Result<BSplineDerivative> = result {
-            BSplineDerivative(
-                    json["controlVectors"].array.flatMap { Vector.fromJson(it).value() },
-                    KnotVector.fromJson(json["knotVector"]).orThrow())
+            val d = json["degree"].int
+            val cv = json["controlVectors"].array.flatMap { Vector.fromJson(it).value() }
+            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
+            BSplineDerivative(cv, KnotVector(d, ks))
         }
     }
 }
