@@ -46,7 +46,6 @@ class ConicSectionSnapperTest {
             val cs = resourceText("ConicSectionL$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow()
             val e = resourceText("SnapResultL$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it["snappedConicSection"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.LineSegment, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
-            a.candidates.forEachIndexed { index, evaluatedCandidate -> println("$i, $index : ${evaluatedCandidate.grade}") }
             a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
         }
     }
@@ -58,7 +57,6 @@ class ConicSectionSnapperTest {
             val cs = resourceText("ConicSectionCA$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow()
             val e = resourceText("SnapResultCA$i.json").parseJson().tryFlatMap { ConicSection.fromJson(it["snappedConicSection"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.CircularArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
-            a.candidates.forEachIndexed { index, evaluatedCandidate -> println("$i, $index : ${evaluatedCandidate.grade}") }
             a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
         }
     }
