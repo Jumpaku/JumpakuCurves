@@ -25,6 +25,7 @@ subprojects {
     version '0.10'
 
     apply plugin: 'kotlin'
+    apply plugin: 'maven'
 
     repositories {
         mavenCentral()
