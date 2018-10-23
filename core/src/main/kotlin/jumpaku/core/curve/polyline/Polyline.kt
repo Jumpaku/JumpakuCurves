@@ -102,6 +102,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
             val paramPoints = chordalParametrize(points.toList())
                     .tryFlatMap { transformParams(it, Interval(0.0, arcLength)) }
+                    .tryRecover { _ -> points.map { ParamPoint(it, 0.0) } }
             return Polyline(paramPoints.orThrow())
         }
 
