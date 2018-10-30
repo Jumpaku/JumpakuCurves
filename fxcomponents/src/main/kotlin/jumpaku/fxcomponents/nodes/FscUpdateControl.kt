@@ -105,8 +105,8 @@ class FscUpdateControl(val fscGenerator: FscGenerator, val blender: Blender) : C
             }
             is Some -> {
                 val exist = existingFsc.orThrow()
-                val blend = blender.blend(exist, overlap)
-                blend.data.forEach {
+                val data = blender.blend(exist, overlap)
+                data.forEach {
                     existingFsc = some(fscGenerator.generate(it))
                     return existingFsc
                 }
