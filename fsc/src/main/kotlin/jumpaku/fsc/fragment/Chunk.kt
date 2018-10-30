@@ -13,7 +13,7 @@ data class Chunk(
         val necessity: Grade,
         val possibility: Grade) {
 
-    fun state(threshold: FragmentThreshold): State = when {
+    fun state(threshold: Fragmenter.Threshold): State = when {
         (necessity < threshold.necessity && possibility < threshold.possibility) -> State.MOVE
         (threshold.necessity < necessity && threshold.possibility < possibility) -> State.STAY
         else -> State.UNKNOWN
