@@ -6,14 +6,14 @@ import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.test.shouldBeCloseTo
 import jumpaku.fsc.fragment.Chunk
-import jumpaku.fsc.fragment.FragmentThreshold
+import jumpaku.fsc.fragment.Fragmenter
 import jumpaku.fsc.fragment.chunk
 import org.amshove.kluent.shouldBe
 import org.junit.Test
 
 class ChunkTest {
 
-    private val threshold = FragmentThreshold(0.4, 0.6)
+    private val threshold = Fragmenter.Threshold(0.4, 0.6)
 
     val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it*3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
     val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it)*3) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))

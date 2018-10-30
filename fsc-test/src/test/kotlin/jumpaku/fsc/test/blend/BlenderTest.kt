@@ -1,16 +1,22 @@
 package jumpaku.fsc.test.blend
 
+import com.github.salomonbrys.kotson.array
 import io.vavr.API
 import io.vavr.Tuple2
+import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
+import jumpaku.core.test.curve.isCloseTo
+import jumpaku.core.util.Option
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
+import jumpaku.core.util.flatten
 import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.generate.FscGenerator
 import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 
 class BlenderTest {
@@ -21,7 +27,7 @@ class BlenderTest {
     val blender = Blender(
             samplingSpan = 1.0/128,
             blendingRate = 0.5,
-            evaluatePath = { it.grade })
+            evaluatePath = { _, _, _ -> grade.value })
 
     @Test
     fun testBlend() {
@@ -29,9 +35,17 @@ class BlenderTest {
         for (i in 0..4) {
             val existing = resourceText("BlendExisting$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
             val overlapping = resourceText("BlendOverlapping$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
-            val a = resourceText("BlendResult$i.json").parseJson().tryFlatMap { BlendResult.fromJson(it) }.orThrow()
-            val e = blender.blend(existing, overlapping)
-            a.shouldEqualToBlendResult(e)
+            val expected = resourceText("BlendResult$i.json").parseJson().tryFlatMap {
+                Option.fromJson(it).tryMap { it.map { it.array.flatMap { ParamPoint.fromJson(it).value() } } }
+            }.orThrow()
+            val actual = blender.blend(existing, overlapping)
+            actual.isDefined.shouldBe(expected.isDefined)
+            if (actual.isDefined) {
+                actual.orThrow().size.shouldEqualTo(expected.orThrow().size)
+                actual.orThrow().zip(expected.orThrow()).forEach { (e, a) ->
+                    isCloseTo(a, e)
+                }
+            }
         }
     }
 }
