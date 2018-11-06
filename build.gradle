@@ -1,7 +1,9 @@
 
 buildscript {
-    ext.kotlin_version = '1.2.50'
+    ext.jumpaku_curves_version = '0.10.3'
+    ext.kotlin_version = '1.3.0'
     ext.jvm_version = '1.8'
+    ext.dokka_version = '0.9.17'
     ext.dependencyVersions = [
             'junit4': '4.12',
             'junit5': '5.1.0',
@@ -11,21 +13,28 @@ buildscript {
             'vavr': '0.9.1',
             'tornadofx': '1.7.12'
     ]
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+    }
 }
 
-plugins {
-    id 'java'
-    id 'maven'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.50'
-}
-
+// Common configuration
 subprojects {
 
     group 'jumpaku'
-    version '0.10.2'
+    version jumpaku_curves_version
 
     apply plugin: 'kotlin'
     apply plugin: 'maven'
+    apply plugin: 'java'
+    apply plugin: 'org.jetbrains.dokka'
 
     repositories {
         mavenCentral()
@@ -47,6 +56,7 @@ subprojects {
         compile "io.vavr:vavr:${dependencyVersions.vavr}"
     }
 
+    // Documentation
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
@@ -59,10 +69,36 @@ subprojects {
         archives sourcesJar
         archives javadocJar
     }
+    dokka {
+        outputFormat = 'javadoc'
+        outputDirectory = "$buildDir/javadoc"
+    }
+
+    // Publishing
+    /**
+     * To run uploadArchives,  ./gradlew uploadArchives -Pargs="`user id in nexus.jumpaku.net` `password`"
+     */
+    uploadArchives {
+        def args = project.hasProperty("args") ? project.findProperty("args").split(/\s+/) : []
+        def nexusUsername = args.size() >= 1 ? args[0] : "UNKNOWN USER"
+        def nexusPassword = args.size() >= 2 ? args[1] : "NO PASSWORD"
+        def nexusUrl = "https://nexus.jumpaku.net"
+        repositories {
+            mavenDeployer {
+                def releaseUrl = "${nexusUrl}/repository/maven-releases/"
+                repository(url: releaseUrl) {
+                    authentication(userName: nexusUsername, password: nexusPassword)
+                }
+                def snapshotUrl = "${nexusUrl}/repository/maven-snapshots/"
+                snapshotRepository(url: snapshotUrl) {
+                    authentication(userName: nexusUsername, password: nexusPassword)
+                }
+            }
+        }
+    }
 }
 
-// settings of sub projects
-
+// Configurations for sub-projects
 project(':core') {
 }
 
