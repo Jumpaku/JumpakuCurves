@@ -3,6 +3,7 @@ package jumpaku.fsc.test.blend
 import com.github.salomonbrys.kotson.array
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.curve.isCloseTo
 import jumpaku.core.util.Option
@@ -19,7 +20,8 @@ class BlenderTest {
     val blender = Blender(
             samplingSpan = 1.0/128,
             blendingRate = 0.5,
-            evaluatePath = { _, _, _ -> grade.value })
+            minPossibility = Grade(1e-10),
+            evaluatePath = { path, _ -> path.grade.value })
 
     @Test
     fun testBlend() {
