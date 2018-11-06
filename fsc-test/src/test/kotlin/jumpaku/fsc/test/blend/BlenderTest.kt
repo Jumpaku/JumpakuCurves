@@ -1,20 +1,13 @@
 package jumpaku.fsc.test.blend
 
 import com.github.salomonbrys.kotson.array
-import io.vavr.API
-import io.vavr.Tuple2
 import jumpaku.core.curve.ParamPoint
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.parseJson
-import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
 import jumpaku.core.test.curve.isCloseTo
 import jumpaku.core.util.Option
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
-import jumpaku.core.util.flatten
-import jumpaku.fsc.blend.BlendResult
 import jumpaku.fsc.blend.Blender
-import jumpaku.fsc.generate.FscGenerator
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
@@ -27,7 +20,8 @@ class BlenderTest {
     val blender = Blender(
             samplingSpan = 1.0/128,
             blendingRate = 0.5,
-            evaluatePath = { _, _, _ -> grade.value })
+            minPossibility = Grade(1e-10),
+            evaluatePath = { path, _ -> path.grade.value })
 
     @Test
     fun testBlend() {
