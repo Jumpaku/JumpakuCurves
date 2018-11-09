@@ -2,7 +2,7 @@
 
 A library to identify geometric curves.
 
-## setting
+## Setting
 
 ```gradle
 repositories {
