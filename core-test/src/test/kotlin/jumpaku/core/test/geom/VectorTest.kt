@@ -112,7 +112,7 @@ class VectorTest {
     @Test
     fun testToArray() {
         println("ToArray")
-        val a = v.toArray()
+        val a = v.toDoubleArray()
         a[0].shouldBeCloseTo(1.0)
         a[1].shouldBeCloseTo(-2.0)
         a[2].shouldBeCloseTo(3.0)

@@ -4,7 +4,7 @@ import jumpaku.core.util.Result
 import jumpaku.core.util.result
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 
-private typealias CoomonsMathLine = org.apache.commons.math3.geometry.euclidean.threed.Line
+private typealias CommonsMathLine = org.apache.commons.math3.geometry.euclidean.threed.Line
 
 class Line(val p0: Point, val p1: Point) {
 
@@ -12,7 +12,7 @@ class Line(val p0: Point, val p1: Point) {
         require((p1 - p0).run { div(length()).isSuccess }) { "p0 and p1 are degenerated" }
     }
 
-    internal val line: CoomonsMathLine = CoomonsMathLine(
+    internal val line: CommonsMathLine = CommonsMathLine(
             Vector3D(p0.x, p0.y, p0.z), Vector3D(p1.x, p1.y, p1.z), 0.0)
 }
 

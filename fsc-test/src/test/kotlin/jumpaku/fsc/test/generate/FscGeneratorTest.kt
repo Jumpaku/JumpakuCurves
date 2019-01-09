@@ -32,7 +32,7 @@ class FscGeneratorTest {
             val e = resourceText("Fsc$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
             val a = generator.generate(data)
             a.evaluateAll(100).zip(e.evaluateAll(100)).forEach { (actual, expected) ->
-                actual.isPossible(expected).value.shouldBeGreaterThan(0.9)
+                actual.isPossible(expected).value.shouldBeGreaterThan(0.85)
             }
         }
     }

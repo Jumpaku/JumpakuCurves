@@ -14,8 +14,19 @@
 
 # gradle
 *.gradle/
-*build/
-*classes/
+core/build/*
+core/classes/*
+fsc/build/*
+fsc/classes/*
+core-test/build/*
+core-test/classes/*
+fsc-test/build/*
+fsc-test/classes/*
+fxcomponents/build/*
+fxcomponents/classes/*
+examples/build/*
+examples/classes/*
+!gradle/wrapper/gradle-wrapper.jar
 
 # Netbeans
 nbproject/

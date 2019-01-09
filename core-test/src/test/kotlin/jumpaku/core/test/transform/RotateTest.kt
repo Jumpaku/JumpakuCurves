@@ -10,7 +10,7 @@ import kotlin.math.sqrt
 
 class RotateTest {
 
-    val t = Rotate(Vector(1.0, 1.0), Vector(0.0, 1.0))
+    val t = Rotate.of(Vector(1.0, 1.0), Vector(0.0, 1.0))
     val p = Point(2.0, 2.0, 2.0)
     val r2 = sqrt(2.0)
 

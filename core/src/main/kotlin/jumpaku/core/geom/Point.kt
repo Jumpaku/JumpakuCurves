@@ -21,13 +21,14 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     init {
         require(r >= -0.0) { "r($r) must be positive"}
+        require(x.isFinite() && y.isFinite() && z.isFinite()) { "($x, $y, $z) must be finite" }
     }
 
     fun toCrisp(): Point = copy(r = 0.0)
 
     fun toVector(): Vector = Vector(x, y, z)
 
-    fun toArray(): Array<Double> = toVector().toArray()
+    fun toDoubleArray(): DoubleArray = toVector().toDoubleArray()
 
     override fun membership(p: Point): Grade = dist(p).tryDiv(r)
             .tryMap { Grade.clamped(1 - it) }.value()

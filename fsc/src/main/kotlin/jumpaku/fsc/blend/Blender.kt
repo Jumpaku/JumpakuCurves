@@ -21,7 +21,7 @@ class Blender(
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
         val paths = findPaths(osm, minPossibility)
         val path = paths.maxBy { evaluatePath(it, osm) }.toOption()
-        return path.map { resample(existing, overlapping, it) }
+        return path.map { resample(existSamples, overlapSamples, it) }
     }
 
     fun findPaths(osm: OverlapMatrix, possibilityThreshold: Grade): List<OverlapPath> {
@@ -65,35 +65,45 @@ class Blender(
         }
     }
 
-    fun resample(existing: BSpline, overlapping: BSpline, path: OverlapPath): List<ParamPoint> {
+    fun resample(existing: List<ParamPoint>, overlapping: List<ParamPoint>, path: OverlapPath): List<ParamPoint> {
         val (beginI, beginJ) = path.first()
         val (endI, endJ) = path.last()
-        val te = existing.sample(samplingSpan)
-        val to = overlapping.sample(samplingSpan)
 
         fun OverlapPath.blendData(te: List<ParamPoint>, to: List<ParamPoint>): List<ParamPoint> =
                 map { (i, j) -> te[i].divide(blendingRate, to[j]) }
 
         return when(path.type){
-            OverlapType.ExistOverlap -> rearrangeParam(te.take(beginI), path.blendData(te, to), to.drop(endJ))
-            OverlapType.OverlapExist -> rearrangeParam(to.take(beginJ), path.blendData(te, to), te.drop(endI))
-            OverlapType.ExistOverlapExist -> rearrangeParam(te.take(beginI), path.blendData(te, to), te.drop(endI))
-            OverlapType.OverlapExistOverlap -> rearrangeParam(to.take(beginJ), path.blendData(te, to), to.drop(endJ))
+            OverlapType.ExistOverlap ->
+                rearrangeParam(existing.take(beginI), path.blendData(existing, overlapping), overlapping.drop(endJ))
+            OverlapType.OverlapExist ->
+                rearrangeParam(overlapping.take(beginJ), path.blendData(existing, overlapping), existing.drop(endI))
+            OverlapType.ExistOverlapExist ->
+                rearrangeParam(existing.take(beginI), path.blendData(existing, overlapping), existing.drop(endI))
+            OverlapType.OverlapExistOverlap ->
+                rearrangeParam(overlapping.take(beginJ), path.blendData(existing, overlapping), overlapping.drop(endJ))
         }
     }
 
     fun rearrangeParam(front: List<ParamPoint>, middle: List<ParamPoint>, back: List<ParamPoint>): List<ParamPoint> {
-        val f = if (front.isEmpty()) front else {
-            val fEnd = middle.first().param - samplingSpan
-            val span = front.run { last().param - first().param }
-            val fBegin = (fEnd - span).coerceAtMost(fEnd)
-            transformParams(front, Interval(fBegin, fEnd)).value().orDefault { front.map { it.copy(param = fEnd) } }
+        val f = when {
+            front.isEmpty() -> front
+            front.size == 1 -> front.map { it.copy(param = middle.first().param - samplingSpan) }
+            else -> {
+                val fEnd = middle.first().param - samplingSpan
+                val span = front.run { last().param - first().param }
+                val fBegin = (fEnd - span).coerceAtMost(fEnd)
+                transformParams(front, range = Interval(fBegin, fEnd))
+            }
         }
-        val b = if (back.isEmpty()) back else {
-            val bBegin = middle.last().param + samplingSpan
-            val span = back.run { last().param - first().param }
-            val bEnd = (bBegin + span).coerceAtLeast(bBegin)
-            transformParams(back, Interval(bBegin, bEnd)).value().orDefault { back.map { it.copy(param = bBegin) } }
+        val b = when {
+            back.isEmpty() -> back
+            back.size == 1 -> back.map { it.copy(param = middle.last().param + samplingSpan) }
+            else -> {
+                val bBegin = middle.last().param + samplingSpan
+                val span = back.run { last().param - first().param }
+                val bEnd = (bBegin + span).coerceAtLeast(bBegin)
+                transformParams(back, range = Interval(bBegin, bEnd))
+            }
         }
         return f + middle + b
     }

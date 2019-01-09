@@ -11,8 +11,8 @@ class FscGenerator(
         val knotSpan: Double = 0.1,
         val preparer: DataPreparer = DataPreparer(
                 maxParamSpan = knotSpan / degree,
-                innerSpan = knotSpan/2,
-                outerSpan = knotSpan/2,
+                innerSpan = knotSpan,
+                outerSpan = knotSpan,
                 degree = degree - 1),
         val fuzzifier: Fuzzifier = LinearFuzzifier(
                 velocityCoefficient = 0.006,
@@ -24,6 +24,6 @@ class FscGenerator(
         val crisp = fitter.fit(prepared)
         val fuzzified = fuzzifier.fuzzify(crisp)
         val (b, e) = fuzzified.domain
-        return fuzzified.restrict(Interval(b + preparer.outerSpan, e - preparer.outerSpan))
+        return fuzzified.restrict(data.first().param, data.last().param)//b + preparer.outerSpan, e - preparer.outerSpan)
     }
 }

@@ -1,6 +1,5 @@
 package jumpaku.examples.generate
 
-import com.github.salomonbrys.kotson.jsonArray
 import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
@@ -14,7 +13,6 @@ import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
-import java.nio.file.Paths
 
 
 fun main(vararg args: String) = Application.launch(AppFscGenerate::class.java, *args)
@@ -25,9 +23,9 @@ class ViewFscGenerate : View() {
 
     val generator = FscGenerator(
             degree = 3,
-            knotSpan = 0.1,
-            preparer = DataPreparer(0.1/3, 0.1, 0.1, 2),
-            fuzzifier = LinearFuzzifier(0.004, 0.003))
+            knotSpan = 0.05,
+            preparer = DataPreparer(0.05/3, 0.1, 0.1, 2),
+            fuzzifier = LinearFuzzifier(0.01, 0.0004))
 
     override val root: Pane = pane {
         val group = group { }

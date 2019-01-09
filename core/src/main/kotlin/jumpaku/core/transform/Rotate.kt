@@ -15,14 +15,12 @@ import org.apache.commons.math3.util.FastMath
 
 class Rotate(val axis: Vector, val angleRadian: Double): Transform, ToJson {
 
-    constructor(from: Vector, to: Vector, angleRadian: Double = from.angle(to)): this(from.cross(to), angleRadian)
-
     init {
         require(axis.run { div(length()).isSuccess }) { "axis($axis) is close to zero" }
     }
 
     override val matrix: RealMatrix get() {
-        val (x, y, z) = axis.normalize().orThrow()
+        val (x, y, z) = axis.normalize().value().orNull() ?: return Transform.Identity.matrix
         val cos = FastMath.cos(angleRadian)
         val sin = FastMath.sin(angleRadian)
         return MatrixUtils.createRealMatrix(arrayOf(
@@ -43,6 +41,17 @@ class Rotate(val axis: Vector, val angleRadian: Double): Transform, ToJson {
 
         fun fromJson(json: JsonElement): Result<Rotate> = result {
             Rotate(Vector.fromJson(json["axis"]).orThrow(), json["angleRadian"].double)
+        }
+
+        /**
+         * @throws IllegalArgumentException when from is close to -to
+         */
+        fun of(from: Vector, to: Vector, angleRadian: Double = from.angle(to)): Rotate {
+            val cross = from.cross(to)
+            val dot = from.dot(to)
+            require(cross.normalize().isSuccess || dot >= 0) { "from($from) is close to -to$($to)" }
+            return if (cross.normalize().isFailure) Rotate(Vector.K, 0.0)
+            else Rotate(cross, angleRadian)
         }
     }
 }

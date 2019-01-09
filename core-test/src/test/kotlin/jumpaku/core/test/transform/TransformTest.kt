@@ -12,7 +12,7 @@ class TransformTest {
 
     val r2 = sqrt(2.0)
 
-    val r = Rotate(Vector(1.0, 1.0), Vector(0.0, 1.0))
+    val r = Rotate.of(Vector(1.0, 1.0), Vector(0.0, 1.0))
     val t = Translate(1.0, 2.0, -3.0)
     val s = UniformlyScale(2.0)
 
