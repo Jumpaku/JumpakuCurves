@@ -35,7 +35,7 @@ class KnotVectorTest {
     @Test
     fun testToString() {
         println("ToString")
-        k.toString().parseJson().tryFlatMap { KnotVector.fromJson(it) }.orThrow().shouldEqualToKnotVector(k)
+        k.toString().parseJson().tryMap { KnotVector.fromJson(it) }.orThrow().shouldEqualToKnotVector(k)
     }
 
     @Test

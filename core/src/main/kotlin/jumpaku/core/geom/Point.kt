@@ -161,8 +161,6 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
 
-        fun fromJson(json: JsonElement): Result<Point> = result {
-            Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double)
-        }
+        fun fromJson(json: JsonElement): Point = Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double)
     }
 }

@@ -219,8 +219,8 @@ class PointTest {
     @Test
     fun testToString() {
         println("ToString")
-        f.toString().parseJson().tryFlatMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(f)
-        c.toString().parseJson().tryFlatMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(c)
+        f.toString().parseJson().tryMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(f)
+        c.toString().parseJson().tryMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(c)
     }
 
     @Test

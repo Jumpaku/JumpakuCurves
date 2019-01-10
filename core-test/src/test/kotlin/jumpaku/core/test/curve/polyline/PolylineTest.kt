@@ -32,7 +32,7 @@ class PolylineTest {
     @Test
     fun testToString() {
         println("ToString")
-        pl.toString().parseJson().tryFlatMap { Polyline.fromJson(it) }.orThrow().shouldEqualToPolyline(pl)
+        pl.toString().parseJson().tryMap { Polyline.fromJson(it) }.orThrow().shouldEqualToPolyline(pl)
     }
 
     @Test

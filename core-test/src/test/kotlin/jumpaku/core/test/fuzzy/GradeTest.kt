@@ -30,9 +30,9 @@ class GradeTest {
     @Test
     fun testToString() {
         println("ToString")
-        Grade(1.0).toString().parseJson().tryFlatMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow().value.shouldBeCloseTo(Grade(1.0).value)
-        Grade(0.0).toString().parseJson().tryFlatMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow().value.shouldBeCloseTo(Grade(0.0).value)
-        Grade(0.5).toString().parseJson().tryFlatMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow().value.shouldBeCloseTo(Grade(0.5).value)
+        Grade(1.0).toString().parseJson().tryMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow().value.shouldBeCloseTo(Grade(1.0).value)
+        Grade(0.0).toString().parseJson().tryMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow().value.shouldBeCloseTo(Grade(0.0).value)
+        Grade(0.5).toString().parseJson().tryMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow().value.shouldBeCloseTo(Grade(0.5).value)
     }
 
     @Test

@@ -117,8 +117,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
             return ws.first()
         }
 
-        fun fromJson(json: JsonElement): Result<RationalBezier> = result {
+        fun fromJson(json: JsonElement): RationalBezier =
             RationalBezier(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() })
-        }
     }
 }

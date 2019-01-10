@@ -68,8 +68,6 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
         val Zero: Vector = Vector()
 
-        fun fromJson(json: JsonElement): Result<Vector> = result {
-            Vector(json["x"].double, json["y"].double, json["z"].double)
-        }
+        fun fromJson(json: JsonElement): Vector = Vector(json["x"].double, json["y"].double, json["z"].double)
     }
 }

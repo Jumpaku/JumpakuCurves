@@ -22,8 +22,6 @@ class UniformlyScale(val scale: Double = 1.0) : Transform, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<UniformlyScale> = result {
-            UniformlyScale(json["scale"].double)
-        }
+        fun fromJson(json: JsonElement): UniformlyScale = UniformlyScale(json["scale"].double)
     }
 }

@@ -2,6 +2,7 @@ package jumpaku.fsc.generate
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.geom.Point
+import jumpaku.fsc.generate.Fuzzifier.Companion.nonNegativeLinearLeastSquare
 import jumpaku.fsc.generate.fit.createModelMatrix
 import org.apache.commons.math3.linear.ArrayRealVector
 

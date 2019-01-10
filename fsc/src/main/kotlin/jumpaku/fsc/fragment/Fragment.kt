@@ -22,8 +22,7 @@ data class Fragment(val interval: Interval, val type: Type): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Fragment> = result {
-            Fragment(Interval.fromJson(json["interval"]).orThrow(), Fragment.Type.valueOf(json["type"].string))
-        }
+        fun fromJson(json: JsonElement): Fragment =
+            Fragment(Interval.fromJson(json["interval"]), Fragment.Type.valueOf(json["type"].string))
     }
 }

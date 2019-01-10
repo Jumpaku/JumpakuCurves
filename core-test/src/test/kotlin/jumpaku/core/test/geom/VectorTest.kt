@@ -106,7 +106,7 @@ class VectorTest {
     @Test
     fun testJson() {
         println("Json")
-        v.toString().parseJson().tryFlatMap { Vector.fromJson(it) }.orThrow().shouldEqualToVector(v)
+        v.toString().parseJson().tryMap { Vector.fromJson(it) }.orThrow().shouldEqualToVector(v)
     }
 
     @Test

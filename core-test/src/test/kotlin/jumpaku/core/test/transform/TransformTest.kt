@@ -54,6 +54,6 @@ class TransformTest {
         println("ToMatrixJson")
         val e = r.at(o)(p)
         r.at(o).toMatrixJson()
-                .toString().parseJson().tryFlatMap { Transform.fromMatrixJson(it) }.orThrow()(p).shouldEqualToPoint(e)
+                .toString().parseJson().tryMap { Transform.fromMatrixJson(it) }.orThrow()(p).shouldEqualToPoint(e)
     }
 }

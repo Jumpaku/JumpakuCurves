@@ -29,13 +29,9 @@ class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, cand
 
         companion object {
 
-            fun fromJson(json: JsonElement): Result<SnappedPoint> = result {
-                SnappedPoint(
-                        Point.fromJson(json["source"]).orThrow(),
-                        Option.fromJson(json["target"]).tryMap {
-                            it.flatMap { PointSnapResult.fromJson(it).value() }
-                        }.orThrow())
-            }
+            fun fromJson(json: JsonElement): SnappedPoint = SnappedPoint(
+                    Point.fromJson(json["source"]),
+                    Option.fromJson(json["target"]) { PointSnapResult.fromJson(it) })
         }
     }
 
@@ -51,11 +47,10 @@ class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, cand
 
         companion object {
 
-            fun fromJson(json: JsonElement): Result<Candidate> = result {
+            fun fromJson(json: JsonElement): Candidate =
                 Candidate(
-                        json["featurePoints"].array.flatMap { SnappedPoint.fromJson(it).value() },
-                        Transform.fromMatrixJson(json["transform"]).orThrow())
-            }
+                        json["featurePoints"].array.map { SnappedPoint.fromJson(it) },
+                        Transform.fromMatrixJson(json["transform"]))
         }
     }
 
@@ -68,11 +63,9 @@ class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, cand
 
         companion object {
 
-            fun fromJson(json: JsonElement): Result<EvaluatedCandidate> = result {
-                EvaluatedCandidate(
-                        Grade.fromJson(json["grade"].asJsonPrimitive).orThrow(),
-                        Candidate.fromJson(json["candidate"]).orThrow())
-            }
+            fun fromJson(json: JsonElement): EvaluatedCandidate = EvaluatedCandidate(
+                    Grade.fromJson(json["grade"].asJsonPrimitive),
+                    Candidate.fromJson(json["candidate"]))
         }
     }
 
@@ -86,10 +79,8 @@ class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, cand
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<ConicSectionSnapResult> = result {
-            ConicSectionSnapResult(
-                    Option.fromJson(json["snappedConicSection"]).orThrow().flatMap { ConicSection.fromJson(it).value() },
-                    json["candidates"].array.flatMap { EvaluatedCandidate.fromJson(it).value() })
-        }
+        fun fromJson(json: JsonElement): ConicSectionSnapResult = ConicSectionSnapResult(
+                Option.fromJson(json["snappedConicSection"]).map { ConicSection.fromJson(it) },
+                json["candidates"].array.map { EvaluatedCandidate.fromJson(it) })
     }
 }

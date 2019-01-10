@@ -39,7 +39,7 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
         fun clamped(value: Double): Grade = Grade(value.coerceIn(0.0, 1.0))
 
-        fun fromJson(json: JsonPrimitive): Result<Grade> = result { Grade(json.double) }
+        fun fromJson(json: JsonPrimitive): Grade = Grade(json.double)
     }
 }
 

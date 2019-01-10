@@ -21,7 +21,7 @@ class Open4IdentifierTest {
     fun testIdentify_L() {
         println("IdentifierOpen4.Identify_L")
         for (i in 0..1) {
-            val fsc = resourceText("FscL$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val fsc = resourceText("FscL$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.LineSegment
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
@@ -33,7 +33,7 @@ class Open4IdentifierTest {
     fun testIdentify_CA() {
         println("IdentifierOpen4.Identify_CA")
         for (i in 0..2) {
-            val fsc = resourceText("FscCA$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val fsc = resourceText("FscCA$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.CircularArc
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
@@ -45,7 +45,7 @@ class Open4IdentifierTest {
     fun testIdentify_EA() {
         println("IdentifierOpen4.Identify_EA")
         for (i in 0..2) {
-            val fsc = resourceText("FscEA$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val fsc = resourceText("FscEA$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.EllipticArc
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
@@ -57,7 +57,7 @@ class Open4IdentifierTest {
     fun testIdentify_FO() {
         println("IdentifierOpen4.Identify_FO")
         for (i in 0..0) {
-            val fsc = resourceText("FscFO$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val fsc = resourceText("FscFO$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.OpenFreeCurve
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
@@ -68,7 +68,7 @@ class Open4IdentifierTest {
     @Test
     fun testIdentify_Time() {
         println("IdentifierOpen4.Identify_Time")
-        val fsc = resourceText("FscFO0.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+        val fsc = resourceText("FscFO0.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
         val s = reparametrize(fsc, 65)
         repeat(1000) { identifier.identify(s) }
         val b = System.nanoTime()

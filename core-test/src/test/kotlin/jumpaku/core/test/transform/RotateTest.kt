@@ -23,7 +23,7 @@ class RotateTest {
     @Test
     fun testToString() {
         println("ToString")
-        val a = t.toString().parseJson().tryFlatMap { Rotate.fromJson(it) }.orThrow()
+        val a = t.toString().parseJson().tryMap { Rotate.fromJson(it) }.orThrow()
         a(p).shouldEqualToPoint(Point(0.0, r2*2, 2.0))
     }
 }

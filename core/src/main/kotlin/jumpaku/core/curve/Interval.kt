@@ -45,7 +45,6 @@ data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Dou
 
         val ZERO_ONE = Interval(0.0, 1.0)
 
-        fun fromJson(json: JsonElement): Result<Interval> =
-                result { Interval(json["begin"].double, json["end"].double) }
+        fun fromJson(json: JsonElement): Interval = Interval(json["begin"].double, json["end"].double)
     }
 }

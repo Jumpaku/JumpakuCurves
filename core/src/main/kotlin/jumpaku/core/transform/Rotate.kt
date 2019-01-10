@@ -39,9 +39,7 @@ class Rotate(val axis: Vector, val angleRadian: Double): Transform, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Rotate> = result {
-            Rotate(Vector.fromJson(json["axis"]).orThrow(), json["angleRadian"].double)
-        }
+        fun fromJson(json: JsonElement): Rotate = Rotate(Vector.fromJson(json["axis"]), json["angleRadian"].double)
 
         /**
          * @throws IllegalArgumentException when from is close to -to

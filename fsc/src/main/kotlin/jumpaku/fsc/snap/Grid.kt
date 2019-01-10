@@ -50,8 +50,8 @@ open class Grid(
         fun fromJson(json: JsonElement): Result<Grid> = result { Grid(
                 baseSpacing = json["baseSpacing"].double,
                 magnification = json["magnification"].int,
-                origin = Point.fromJson(json["origin"]).orThrow(),
-                rotation = Rotate.fromJson(json["rotation"]).orThrow(),
+                origin = Point.fromJson(json["origin"]),
+                rotation = Rotate.fromJson(json["rotation"]),
                 baseFuzziness = json["baseFuzziness"].double)
         }
     }

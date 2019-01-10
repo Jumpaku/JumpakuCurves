@@ -31,11 +31,9 @@ class PointSnapResult(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<PointSnapResult> = result {
-            PointSnapResult(
-                    json["resolution"].int,
-                    GridPoint.fromJson(json["gridPoint"]).orThrow(),
-                    Grade.fromJson(json["grade"].asJsonPrimitive).orThrow())
-        }
+        fun fromJson(json: JsonElement): PointSnapResult = PointSnapResult(
+                json["resolution"].int,
+                GridPoint.fromJson(json["gridPoint"]).orThrow(),
+                Grade.fromJson(json["grade"].asJsonPrimitive))
     }
 }

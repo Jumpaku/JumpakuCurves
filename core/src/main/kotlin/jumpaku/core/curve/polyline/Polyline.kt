@@ -108,8 +108,6 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
         fun of(vararg points: Point): Polyline = of(points.asIterable())
 
-        fun fromJson(json: JsonElement): Result<Polyline> = result {
-            of(json["points"].array.flatMap { Point.fromJson(it).value() })
-        }
+        fun fromJson(json: JsonElement): Polyline = of(json["points"].array.map { Point.fromJson(it) })
     }
 }

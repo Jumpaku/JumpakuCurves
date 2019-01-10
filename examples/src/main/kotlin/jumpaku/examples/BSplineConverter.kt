@@ -16,8 +16,7 @@ object BSplineConverter {
             "knotVector" to s.knotVector.toJson())
 
     fun fromJsonOld(j: JsonElement): BSpline =
-            BSpline(j["controlPoints"].array.flatMap { Point.fromJson(it).value() },
-                    KnotVector.fromJson(j["knotVector"]).orThrow())
+            BSpline(j["controlPoints"].array.map { Point.fromJson(it) }, KnotVector.fromJson(j["knotVector"]))
 
     fun toJsonNew(s: BSpline): JsonElement = jsonObject(
             "controlPoints" to jsonArray(s.controlPoints.map { it.toJson() }),
@@ -26,8 +25,8 @@ object BSplineConverter {
 
     fun fromJsonNew(j: JsonElement): BSpline {
         val d = j["degree"].int
-        val cp = j["controlPoints"].array.flatMap { Point.fromJson(it).value() }
-        val ks = j["knots"].array.flatMap { Knot.fromJson(it).value() }
+        val cp = j["controlPoints"].array.map { Point.fromJson(it) }
+        val ks = j["knots"].array.map { Knot.fromJson(it) }
         return BSpline(cp, KnotVector(d, ks))
     }
 }

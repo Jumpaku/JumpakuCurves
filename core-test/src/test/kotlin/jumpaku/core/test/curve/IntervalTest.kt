@@ -65,6 +65,6 @@ class IntervalTest {
     @Test
     fun testToString() {
         println("ToString")
-        i.toString().parseJson().tryFlatMap { Interval.fromJson(it) }.orThrow().shouldEqualToInterval(i)
+        i.toString().parseJson().tryMap { Interval.fromJson(it) }.orThrow().shouldEqualToInterval(i)
     }
 }
