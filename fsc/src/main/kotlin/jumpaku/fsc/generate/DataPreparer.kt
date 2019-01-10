@@ -49,12 +49,13 @@ class DataPreparer(
             require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
             require(innerSpan * outerSpan > 0.0) { "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0" }
 
-            val innerOuterBSpline = sortedData.first().param.let { Interval(it - outerSpan, it + innerSpan) }
+            val first = sortedData.first().param
+            val innerOuterBSpline = first.let { Interval(it - outerSpan, it + innerSpan) }
             val (begin, end) = innerOuterBSpline
             val innerPoints = sortedData.filter { it.param <= end }
             val outerBezier = Interval(0.0, outerSpan / (outerSpan + innerSpan))
-            val outerBSpline = Interval(begin, begin + outerSpan)
-            val outerData = extend(degree, innerPoints, innerSpan, outerSpan, Interval(begin, end), outerBezier, outerBSpline)
+            val outerBSpline = Interval(begin, first)
+            val outerData = extend(degree, innerPoints, innerSpan, outerSpan, innerOuterBSpline, outerBezier, outerBSpline)
             return outerData + sortedData
         }
 
@@ -62,20 +63,21 @@ class DataPreparer(
             require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
             require(innerSpan * outerSpan > 0.0) { "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0" }
 
-            val innerOuterBSpline = sortedData.last().param.let { Interval(it - innerSpan, it + outerSpan) }
+            val last = sortedData.last().param
+            val innerOuterBSpline = last.let { Interval(it - innerSpan, it + outerSpan) }
             val (begin, end) = innerOuterBSpline
             val innerPoints = sortedData.filter { it.param >= begin }
             val outerBezier = Interval(innerSpan / (outerSpan + innerSpan), 1.0)
-            val outerBSpline = Interval(end - outerSpan, end)
+            val outerBSpline = Interval(last, end)
             val outerData = extend(degree, innerPoints, innerSpan, outerSpan, innerOuterBSpline, outerBezier, outerBSpline)
             return sortedData + outerData
         }
 
-        private fun extend(degree: Int, innerPoints: List<ParamPoint>, innerSpan: Double, outerSpan: Double, innerOuterBSpline: Interval, outerBezierDomain: Interval, outerBSplineDomain: Interval): List<ParamPoint> {
+        private fun extend(degree: Int, innerPoints: List<ParamPoint>, innerSpan: Double, outerSpan: Double, innerOuterBSpline: Interval, outerBezier: Interval, outerBSpline: Interval): List<ParamPoint> {
             val innerData = transformParams(innerPoints, domain = innerOuterBSpline, range = Interval.ZERO_ONE)
-            val bezier = BezierFitter(degree).fit(innerData).restrict(outerBezierDomain)
+            val bezier = BezierFitter(degree).fit(innerData).restrict(outerBezier)
             val points = bezier.sample(Math.ceil(innerData.size * outerSpan / innerSpan).toInt())
-            return transformParams(points, range = outerBSplineDomain)
+            return transformParams(points, range = outerBSpline)
         }
     }
 }

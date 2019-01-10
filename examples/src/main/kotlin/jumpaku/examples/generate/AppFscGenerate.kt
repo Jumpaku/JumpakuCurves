@@ -23,9 +23,9 @@ class ViewFscGenerate : View() {
 
     val generator = FscGenerator(
             degree = 3,
-            knotSpan = 0.05,
-            preparer = DataPreparer(0.05/3, 0.1, 0.1, 2),
-            fuzzifier = LinearFuzzifier(0.01, 0.0004))
+            knotSpan = 0.075,
+            preparer = DataPreparer(0.075/4, 0.0375, 0.0375, 2),
+            fuzzifier = LinearFuzzifier(0.02, 0.02/25))
 
     override val root: Pane = pane {
         val group = group { }

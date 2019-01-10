@@ -15,15 +15,14 @@ class FscGenerator(
                 outerSpan = knotSpan,
                 degree = degree - 1),
         val fuzzifier: Fuzzifier = LinearFuzzifier(
-                velocityCoefficient = 0.006,
-                accelerationCoefficient = 0.004)) {
+                velocityCoefficient = 0.025,
+                accelerationCoefficient = 0.001)) {
 
     fun generate(data: List<ParamPoint>): BSpline {
         val prepared = preparer.prepare(data)
         val fitter = BSplineFitter(degree, Interval(prepared.first().param, prepared.last().param), knotSpan)
         val crisp = fitter.fit(prepared)
         val fuzzified = fuzzifier.fuzzify(crisp)
-        val (b, e) = fuzzified.domain
-        return fuzzified.restrict(data.first().param, data.last().param)//b + preparer.outerSpan, e - preparer.outerSpan)
+        return fuzzified.restrict(data.first().param, data.last().param)
     }
 }
