@@ -52,7 +52,7 @@ class IdentifyResultTest {
     @Test
     fun testToString() {
         println("ToString")
-        val a = r.toString().parseJson().tryFlatMap { IdentifyResult.fromJson(it) }.orThrow()
+        val a = r.toString().parseJson().tryMap { IdentifyResult.fromJson(it) }.orThrow()
         a.shouldEqualToClassifyResult(r)
     }
 }

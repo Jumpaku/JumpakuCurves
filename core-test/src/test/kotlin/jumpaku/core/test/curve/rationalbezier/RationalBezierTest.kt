@@ -104,7 +104,7 @@ class RationalBezierTest {
     @Test
     fun testToString() {
         println("ToString")
-        rb.toString().parseJson().tryFlatMap { RationalBezier.fromJson(it) }.orThrow().shouldEqualToRationalBezier(rb)
+        rb.toString().parseJson().tryMap { RationalBezier.fromJson(it) }.orThrow().shouldEqualToRationalBezier(rb)
     }
 
     @Test

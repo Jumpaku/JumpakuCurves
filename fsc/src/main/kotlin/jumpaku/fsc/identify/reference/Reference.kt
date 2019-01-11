@@ -43,8 +43,7 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Reference> = result {
-            Reference(ConicSection.fromJson(json["base"]).orThrow(), Interval.fromJson(json["domain"]).orThrow())
-        }
+        fun fromJson(json: JsonElement): Reference =
+            Reference(ConicSection.fromJson(json["base"]), Interval.fromJson(json["domain"]))
     }
 }

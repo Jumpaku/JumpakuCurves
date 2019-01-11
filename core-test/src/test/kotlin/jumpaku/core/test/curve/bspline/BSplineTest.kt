@@ -65,7 +65,7 @@ class BSplineTest {
     @Test
     fun testToString() {
         println("ToString")
-        clamped.toString().parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow().shouldEqualToBSpline(clamped)
+        clamped.toString().parseJson().tryMap { BSpline.fromJson(it) }.orThrow().shouldEqualToBSpline(clamped)
     }
 
     @Test

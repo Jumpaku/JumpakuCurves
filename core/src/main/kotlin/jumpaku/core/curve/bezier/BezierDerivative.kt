@@ -58,8 +58,6 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<BezierDerivative> = result {
-            BezierDerivative(json["controlVectors"].array.flatMap { Vector.fromJson(it).value() })
-        }
+        fun fromJson(json: JsonElement): BezierDerivative = BezierDerivative(json["controlVectors"].array.map { Vector.fromJson(it) })
     }
 }

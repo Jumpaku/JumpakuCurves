@@ -25,7 +25,7 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<
     companion object {
 
         fun fromJson(json: JsonElement): Result<WeightedPoint> = result {
-            WeightedPoint(Point.fromJson(json["point"]).orThrow(), json["weight"].double)
+            WeightedPoint(Point.fromJson(json["point"]), json["weight"].double)
         }
     }
 }

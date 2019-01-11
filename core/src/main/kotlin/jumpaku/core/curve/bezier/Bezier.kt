@@ -85,9 +85,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Bezier> = result {
-            Bezier(json["controlPoints"].array.flatMap { Point.fromJson(it).value() })
-        }
+        fun fromJson(json: JsonElement): Bezier = Bezier(json["controlPoints"].array.map { Point.fromJson(it) })
 
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble

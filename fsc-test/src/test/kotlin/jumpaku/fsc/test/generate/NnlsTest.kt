@@ -8,7 +8,7 @@ import jumpaku.core.curve.KnotVector
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.fsc.generate.fit.createModelMatrix
 import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
-import jumpaku.fsc.generate.nonNegativeLinearLeastSquare
+import jumpaku.fsc.generate.Fuzzifier.Companion.nonNegativeLinearLeastSquare
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeTrue
 import org.apache.commons.math3.linear.ArrayRealVector

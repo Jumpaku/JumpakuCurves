@@ -1,7 +1,7 @@
 
 buildscript {
-    ext.jumpaku_curves_version = '0.10.3'
-    ext.kotlin_version = '1.3.0'
+    ext.jumpaku_curves_version = '0.11.0'
+    ext.kotlin_version = '1.3.11'
     ext.jvm_version = '1.8'
     ext.dokka_version = '0.9.17'
     ext.dependencyVersions = [
@@ -70,13 +70,13 @@ subprojects {
         archives javadocJar
     }
     dokka {
-        outputFormat = 'javadoc'
+        outputFormat = 'html'
         outputDirectory = "$buildDir/javadoc"
     }
 
     // Publishing
     /**
-     * To run uploadArchives,  ./gradlew uploadArchives -Pargs="`user id in nexus.jumpaku.net` `password`"
+     * To run uploadArchives,  ./gradlew uploadArchives -Pargs="`user id of nexus.jumpaku.net` `password`"
      */
     uploadArchives {
         def args = project.hasProperty("args") ? project.findProperty("args").split(/\s+/) : []

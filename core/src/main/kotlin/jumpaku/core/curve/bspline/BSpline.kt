@@ -116,11 +116,11 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<BSpline> = result {
+        fun fromJson(json: JsonElement): BSpline {
             val d = json["degree"].int
-            val cp = json["controlPoints"].array.flatMap { Point.fromJson(it).value() }
-            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
-            BSpline(cp, KnotVector(d, ks))
+            val cp = json["controlPoints"].array.map { Point.fromJson(it) }
+            val ks = json["knots"].array.map { Knot.fromJson(it) }
+            return BSpline(cp, KnotVector(d, ks))
         }
 
         tailrec fun <D : Divisible<D>> evaluate(controlPoints: List<D>, knotVector: KnotVector, t: Double): D {

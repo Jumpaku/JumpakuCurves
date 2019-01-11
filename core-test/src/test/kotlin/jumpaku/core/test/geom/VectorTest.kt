@@ -106,13 +106,13 @@ class VectorTest {
     @Test
     fun testJson() {
         println("Json")
-        v.toString().parseJson().tryFlatMap { Vector.fromJson(it) }.orThrow().shouldEqualToVector(v)
+        v.toString().parseJson().tryMap { Vector.fromJson(it) }.orThrow().shouldEqualToVector(v)
     }
 
     @Test
     fun testToArray() {
         println("ToArray")
-        val a = v.toArray()
+        val a = v.toDoubleArray()
         a[0].shouldBeCloseTo(1.0)
         a[1].shouldBeCloseTo(-2.0)
         a[2].shouldBeCloseTo(3.0)

@@ -101,15 +101,13 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
         fun of(points: Iterable<Point>): Polyline {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
             val paramPoints = chordalParametrize(points.toList())
-                    .tryFlatMap { transformParams(it, Interval(0.0, arcLength)) }
-                    .tryRecover { _ -> points.map { ParamPoint(it, 0.0) } }
+                    .tryMap { transformParams(it, range = Interval(0.0, arcLength)) }
+                    .tryRecover { points.map { ParamPoint(it, 0.0) } }
             return Polyline(paramPoints.orThrow())
         }
 
         fun of(vararg points: Point): Polyline = of(points.asIterable())
 
-        fun fromJson(json: JsonElement): Result<Polyline> = result {
-            of(json["points"].array.flatMap { Point.fromJson(it).value() })
-        }
+        fun fromJson(json: JsonElement): Polyline = of(json["points"].array.map { Point.fromJson(it) })
     }
 }

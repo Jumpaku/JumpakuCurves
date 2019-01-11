@@ -62,11 +62,11 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<BSplineDerivative> = result {
+        fun fromJson(json: JsonElement): BSplineDerivative {
             val d = json["degree"].int
-            val cv = json["controlVectors"].array.flatMap { Vector.fromJson(it).value() }
-            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
-            BSplineDerivative(cv, KnotVector(d, ks))
+            val cv = json["controlVectors"].array.map { Vector.fromJson(it) }
+            val ks = json["knots"].array.map { Knot.fromJson(it) }
+            return BSplineDerivative(cv, KnotVector(d, ks))
         }
     }
 }

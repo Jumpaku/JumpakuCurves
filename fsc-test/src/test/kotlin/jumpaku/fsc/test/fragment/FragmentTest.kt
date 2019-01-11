@@ -12,6 +12,6 @@ class FragmentTest {
     @Test
     fun testToString() {
         println("ToString")
-        f.toString().parseJson().tryFlatMap { Fragment.fromJson(it) }.orThrow().shouldEqualToFragment(f)
+        f.toString().parseJson().tryMap { Fragment.fromJson(it) }.orThrow().shouldEqualToFragment(f)
     }
 }

@@ -210,7 +210,7 @@ class PointTest {
     @Test
     fun testToArray() {
         println("ToArray")
-        val a = f.toArray()
+        val a = f.toDoubleArray()
         a[0].shouldBeCloseTo( 1.0)
         a[1].shouldBeCloseTo(-2.0)
         a[2].shouldBeCloseTo( 3.0)
@@ -219,8 +219,8 @@ class PointTest {
     @Test
     fun testToString() {
         println("ToString")
-        f.toString().parseJson().tryFlatMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(f)
-        c.toString().parseJson().tryFlatMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(c)
+        f.toString().parseJson().tryMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(f)
+        c.toString().parseJson().tryMap { Point.fromJson(it) }.orThrow().shouldEqualToPoint(c)
     }
 
     @Test
@@ -244,9 +244,9 @@ class PointTest {
         println("Dist")
         val dp = Point.xyz(-1.0, -2.0, 4.0).dist(Point.xyz(1.0, -2.0, 3.0))
         dp.shouldBeCloseTo(FastMath.sqrt(5.0))
-        val dl = Point.xyz(1.0, -1.0, 0.0).dist(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
+        val dl = Point.xyz(1.0, -1.0, 0.0).dist(Line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         dl.shouldBeCloseTo(12/5.0)
-        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
+        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(Plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         dplane.shouldBeCloseTo(3.0)
     }
 
@@ -255,18 +255,18 @@ class PointTest {
         println("DistSquare")
         val dp = Point.xyz(-1.0, -2.0, 4.0).distSquare(Point.xyz(1.0, -2.0, 3.0))
         dp.shouldBeCloseTo(5.0)
-        val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
+        val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(Line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         dl.shouldBeCloseTo(144/25.0)
-        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
+        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(Plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         dplane.shouldBeCloseTo(9.0)
     }
 
     @Test
     fun testProjectTo() {
         println("ProjectTo")
-        val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)).orThrow())
+        val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(Line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)))
         pl.shouldEqualToPoint(Point.xyz(-1.0, 1.0, 0.0))
-        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)).orThrow())
+        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(Plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         pp.shouldEqualToPoint(Point.xyz(1.0, -1.0, 0.0))
     }
 

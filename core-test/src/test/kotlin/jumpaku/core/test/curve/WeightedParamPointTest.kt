@@ -16,6 +16,6 @@ class WeightedParamPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        wpp.toString().parseJson().tryFlatMap { WeightedParamPoint.fromJson(it) }.orThrow().shouldEqualToWeightedParamPoint(wpp)
+        wpp.toString().parseJson().tryMap { WeightedParamPoint.fromJson(it) }.orThrow().shouldEqualToWeightedParamPoint(wpp)
     }
 }

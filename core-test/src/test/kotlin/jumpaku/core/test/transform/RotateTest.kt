@@ -10,7 +10,7 @@ import kotlin.math.sqrt
 
 class RotateTest {
 
-    val t = Rotate(Vector(1.0, 1.0), Vector(0.0, 1.0))
+    val t = Rotate.of(Vector(1.0, 1.0), Vector(0.0, 1.0))
     val p = Point(2.0, 2.0, 2.0)
     val r2 = sqrt(2.0)
 
@@ -23,7 +23,7 @@ class RotateTest {
     @Test
     fun testToString() {
         println("ToString")
-        val a = t.toString().parseJson().tryFlatMap { Rotate.fromJson(it) }.orThrow()
+        val a = t.toString().parseJson().tryMap { Rotate.fromJson(it) }.orThrow()
         a(p).shouldEqualToPoint(Point(0.0, r2*2, 2.0))
     }
 }

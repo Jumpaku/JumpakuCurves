@@ -30,13 +30,11 @@ sealed class Option<out T: Any>: Iterable<T> {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Option<JsonElement>> = result {
+        fun fromJson(json: JsonElement): Option<JsonElement> =
             if ("value" in (json as JsonObject) && !json["value"].isJsonNull) some(json["value"])
             else none()
-        }
 
-        fun <T: Any> fromJson(json: JsonElement, transform: (JsonElement) -> T): Result<Option<T>> =
-                fromJson(json).tryMap { it.map(transform) }
+        fun <T: Any> fromJson(json: JsonElement, transform: (JsonElement) -> T): Option<T> = fromJson(json).map(transform)
     }
 }
 
@@ -79,8 +77,6 @@ fun <T: Any> Option<Option<T>>.flatten(): Option<T> = flatMap { it }
 
 fun <T: Any> Option<T>.orDefault(default: () -> T): T = orNull() ?: default()
 fun <T: Any> Option<T>.orDefault(default: T): T = orNull() ?: default
-
-fun <T: Any> Option<T>.orOption(option: ()->Option<T>): Option<T> = if(isDefined) this else option()
 
 fun <T: Any> Option<T>.toResult(except: () -> Exception = { NoSuchElementException("None.orThrow()") }): Result<T> =
         result { (this as? Some)?.value ?: throw except() }

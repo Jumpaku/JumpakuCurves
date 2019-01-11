@@ -48,7 +48,7 @@ class BSplineDerivativeTest {
     @Test
     fun testToString() {
         println("ToString")
-        b.toString().parseJson().tryFlatMap { BSplineDerivative.fromJson(it) }.orThrow().toBSpline().shouldEqualToBSpline(b.toBSpline())
+        b.toString().parseJson().tryMap { BSplineDerivative.fromJson(it) }.orThrow().toBSpline().shouldEqualToBSpline(b.toBSpline())
     }
 
     @Test
