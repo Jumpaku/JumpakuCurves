@@ -28,7 +28,7 @@ class JsonMapKtTest {
 
         val str2point = mapOf("A" to Point.x(1.0), "B" to Point.x(2.0), "C" to Point.x(3.0))
         val ssp = jsonMap(str2point.map { (k, v) -> k.toJson() to v.toJson() }.toMap()).toString()
-        val dsp = ssp.parseJson().orThrow().map.map { (k, v) -> k.string to Point.fromJson(v).orThrow() }.toMap()
+        val dsp = ssp.parseJson().orThrow().map.map { (k, v) -> k.string to Point.fromJson(v) }.toMap()
         dsp.size.shouldEqualTo(3)
         dsp["A"]!!.shouldEqualToPoint(str2point["A"]!!)
         dsp["B"]!!.shouldEqualToPoint(str2point["B"]!!)

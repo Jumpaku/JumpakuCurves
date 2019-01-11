@@ -5,38 +5,33 @@ import jumpaku.core.geom.divide
 import jumpaku.core.util.Result
 import jumpaku.core.util.result
 import java.util.*
+import kotlin.math.pow
 
-
-fun transformParams(paramPoints: List<ParamPoint>, range: Interval): Result<List<ParamPoint>> = result {
-    require(paramPoints.size >= 2) { "must be paramPoints.size(${paramPoints.size}) >= 2" }
-
-    val a0 = paramPoints.first().param
-    val a1 = paramPoints.last().param
-    require((a1 - a0).let { range.span.div(it) }.isFinite()) {
-        "paramPoints.first().param($a0) is close to paramPoints.last().param($a1)"
+fun chordalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE, power: Double = 1.0): Result<List<ParamPoint>> = result {
+    require(points.size >= 2) { "must be points.size(${points.size}) >= 2" }
+    val ds = points.zipWithNext { p0, p1 -> p1.distSquare(p0).pow(power/2) }
+    val ls = ds.fold(listOf(0.0)) { acc, d -> acc + (acc.last() + d) }
+    check((ls.last()/ls.last()).isFinite()) {
+        ""
     }
+    val (a, b) = range
+    ls.zip(points) { l, p -> ParamPoint(p, a.divide(l/ls.last(), b).coerceIn(range)) }
+}
 
+fun centripetalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE): Result<List<ParamPoint>> =
+        chordalParametrize(points, range,  0.5)
+
+fun uniformParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE): List<ParamPoint> =
+        chordalParametrize(points, range,  0.0).orThrow()
+
+fun transformParams(
+        paramPoints: List<ParamPoint>,
+        domain: Interval = Interval(paramPoints.first().param, paramPoints.last().param),
+        range: Interval
+): List<ParamPoint> {
+    require(paramPoints.size >= 2) { "must be paramPoints.size(${paramPoints.size}) >= 2" }
+    require((range.span/domain.span).isFinite()) { "must be domain.span(${domain.span}) > 0.0" }
+    val (a0, a1) = domain
     val (b, e) = range
-    paramPoints.map { it.copy(param = b.divide((it.param - a0)/(a1 - a0), e).coerceIn(range)) }
+    return paramPoints.map { it.copy(param = b.divide((it.param - a0)/(a1 - a0), e).coerceIn(range)) }
 }
-
-/**
- * Parametrizes points with parameters in [0, 1] uniformly.
- */
-fun uniformParametrize(points: List<Point>): Result<List<ParamPoint>> = result {
-    val n = points.size
-    require(n >= 2) { "must be points.size($n) >= 2" }
-    points.withIndex().map { (i, p) -> ParamPoint(p, i / (n - 1.0)) }
-}
-
-/**
- * Parametrizes points with parameters of arc-length ratio in [0, 1].
- */
-fun chordalParametrize(points: List<Point>): Result<List<ParamPoint>> = result {
-    val n = points.distinctBy { Objects.hash(it.x, it.y, it.z) }.size
-    require(n >= 2) { "must be points.size($n) >= 2" }
-    points.zipWithNext()
-            .fold(listOf(ParamPoint(points.first(), 0.0))) { acc, (a, b) ->
-                acc + ParamPoint(b, a.dist(b) + acc.last().param)
-            }
-}.tryFlatMap { transformParams(it, Interval.ZERO_ONE) }

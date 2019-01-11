@@ -28,8 +28,6 @@ class Translate(val move: Vector = Vector.Zero): Transform, ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Translate> = result {
-            Translate(Vector.fromJson(json["move"]).orThrow())
-        }
+        fun fromJson(json: JsonElement): Translate = Translate(Vector.fromJson(json["move"]))
     }
 }

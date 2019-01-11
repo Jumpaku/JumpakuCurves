@@ -23,9 +23,9 @@ class FragmenterTest {
     fun fragment() {
         println("Fragment")
         for (i in 0..1) {
-            val fsc = resourceText("Fsc$i.json").parseJson().tryFlatMap { BSpline.fromJson(it) }.orThrow()
+            val fsc = resourceText("Fsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val a = fragmenter.fragment(fsc)
-            val e = resourceText("FragmentResult$i.json").parseJson().tryMap { it.array.flatMap { Fragment.fromJson(it).value() } }.orThrow()
+            val e = resourceText("FragmentResult$i.json").parseJson().tryMap { it.array.map { Fragment.fromJson(it) } }.orThrow()
                     .let { Array.ofAll(it) }
             a.size.shouldEqualTo(e.size())
             a.zip(e).forEach { (a, e) ->

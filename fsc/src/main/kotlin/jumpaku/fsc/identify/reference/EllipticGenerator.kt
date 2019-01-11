@@ -82,25 +82,28 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val end = fsc(t1)
             val far = fsc(tf)
 
-            val xy_xx = API.For(plane(begin, far, end).value(), line(begin, end).value(), rangeSamples.sample(nSamples))
-                    .`yield` { plane: Plane, line: Line, tp: Double ->
-                        val p = fsc(tp).projectTo(plane)
-                        val a = far.projectTo(line(p, p + (end - begin)).orThrow())
-                        val b = far.projectTo(line)
-                        val t = (a - far).dot(b - far).tryDiv(b.distSquare(far)).value().orDefault(0.0)
-                        val x = far.divide(t, begin.middle(end))
-                        val dd = x.distSquare(p)
-                        val ll = begin.distSquare(end) / 4
-                        val yi = dd + t * t * ll - 2 * t * ll
-                        val xi = ll * t * t - dd
-                        val wi = 1.0//FastMath.exp(-fsc(tp).r)
+            val xy_xx = result {
+                val plane = Plane(begin, far, end)
+                val line = Line(begin, end)
+                rangeSamples.sample(nSamples).map { tp ->
+                    val p = fsc(tp).projectTo(plane)
+                    val a = far.projectTo(line(p, p + (end - begin)).orThrow())
+                    val b = far.projectTo(line)
+                    val t = (a - far).dot(b - far).tryDiv(b.distSquare(far)).value().orDefault(0.0)
+                    val x = far.divide(t, begin.middle(end))
+                    val dd = x.distSquare(p)
+                    val ll = begin.distSquare(end) / 4
+                    val yi = dd + t * t * ll - 2 * t * ll
+                    val xi = ll * t * t - dd
+                    val wi = 1.0//FastMath.exp(-fsc(tp).r)
 
-                        Tuple2(wi * yi * xi, wi * xi * xi)
-                    }.toArray()
-            if (xy_xx.isEmpty) return 0.999
+                    Tuple2(wi * yi * xi, wi * xi * xi)
+                }
+            }.value().orNull() ?: return 0.999
 
-            return xy_xx.unzip { it }.let { (xy, xx) ->
-                xy.sum().toDouble().divOrDefault(xx.sum().toDouble()) { 0.999 }
+            return xy_xx.asVavr().unzip { it }.let { (xy, xx) ->
+                xy.sum().toDouble()
+                        .divOrDefault(xx.sum().toDouble()) { 0.999 }
                         .coerceIn(-0.999, 0.999)
             }
         }

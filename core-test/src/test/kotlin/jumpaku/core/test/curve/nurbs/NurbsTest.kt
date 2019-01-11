@@ -74,7 +74,7 @@ class NurbsTest {
     @Test
     fun testToString() {
         println("ToString")
-        n.toString().parseJson().tryFlatMap { Nurbs.fromJson(it) }.orThrow().shouldEqualToNurbs(n)
+        n.toString().parseJson().tryMap { Nurbs.fromJson(it) }.orThrow().shouldEqualToNurbs(n)
     }
 
     @Test

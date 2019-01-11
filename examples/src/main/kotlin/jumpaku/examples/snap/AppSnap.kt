@@ -57,7 +57,7 @@ class ViewSnap : View() {
         val group = group {
             grid(grid, 0.0, 0.0, w, h) { stroke = Color.BLACK }
             //val cs = File("./fsc-test/src/test/resources/jumpaku/fsc/test/snap/conicsection/ConicSection$xxx.json")
-            //        .parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow()
+            //        .parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
             //drawSnapping(cs, cc)
 
         }
@@ -74,16 +74,17 @@ class ViewSnap : View() {
         }
     }
 
-    fun Group.drawSnapping(cs: ConicSection, curveClass: CurveClass) {
+    /*fun Group.drawSnapping(cs: ConicSection, curveClass: CurveClass) {
         fuzzyCurve(cs) { stroke = Color.BLACK }
         val snapped = conicSectionSnapper.snap(grid, cs, curveClass, evaluator = ConicSectionSnapper.evaluateWithReference(cs, 15))
-        //File("./fsc-test/src/test/resources/jumpaku/fsc/test/snap/conicsection/SnapResult$xxx.json")
-        //        .writeText(snapped.toString())
+        File("./fsc-test/src/test/resources/jumpaku/fsc/test/snap/conicsection/SnapResult$xxx.json")
+                .writeText(snapped.toString())
         conjugateBox(ConjugateBox.ofConicSection(snapped.snappedConicSection.orDefault { cs })) { stroke = Color.GREEN }
         snapped.candidates.reversed().forEachIndexed { i, (grade, candidate) ->
+            if (i < snapped.candidates.lastIndex) return@forEachIndexed
             println(grade)
             val color = Color.hsb(0.0, 0.3 + i*0.7/snapped.candidates.size, 1.0)
-            fuzzyCurve(cs.transform(candidate.transform)) { stroke = color }
+            curve(cs.transform(candidate.transform)) { stroke = color }
             candidate.featurePoints.forEach {
                 val c = it.source
                 val s = it.target
@@ -94,7 +95,7 @@ class ViewSnap : View() {
                 })
             }
         }
-    }
+    }*/
 
     fun Group.update(fsc: BSpline) {
         grid(grid, 0.0, 0.0, w, h) { stroke = Color.BLACK }

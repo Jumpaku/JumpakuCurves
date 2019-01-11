@@ -38,8 +38,7 @@ class BSplineFitter(
 
         val distinct = data.distinctBy(WeightedParamPoint::param)
         if (distinct.size <= degree) {
-            val d = transformParams(data.map { it.paramPoint }, Interval.ZERO_ONE).value()
-                    .orDefault { data.map { (pp, _) -> pp.copy(param = 0.5) } }
+            val d = transformParams(data.map { it.paramPoint }, range = Interval.ZERO_ONE)
             val b = BezierFitter(degree).fit(d, distinct.map { it.weight })
             val knots = KnotVector
                     .clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2)

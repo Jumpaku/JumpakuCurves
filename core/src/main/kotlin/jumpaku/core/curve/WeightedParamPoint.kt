@@ -26,8 +26,7 @@ data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<WeightedParamPoint> = result {
-            WeightedParamPoint(ParamPoint.fromJson(json["paramPoint"]).orThrow(), json["weight"].double)
-        }
+        fun fromJson(json: JsonElement): WeightedParamPoint =
+                WeightedParamPoint(ParamPoint.fromJson(json["paramPoint"]).orThrow(), json["weight"].double)
     }
 }

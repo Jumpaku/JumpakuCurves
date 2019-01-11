@@ -61,12 +61,8 @@ class ConjugateCombinatorTest {
         println("CircularCombinations")
         val aopen0 = conjugateCombinator.circularCombinations(c0, true)
         val eopen0 = listOf(
-                CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2), Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, 0.0)),
                 CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2), Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(-r2 / 2, r2 / 2)),
-                CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(r2 / 2, r2 / 2))
+                CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2),Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, r2))
         )
         aopen0.size.shouldEqualTo(eopen0.size)
         for ((a, e) in aopen0.zip(eopen0)) {
@@ -79,15 +75,9 @@ class ConjugateCombinatorTest {
 
         val aopen1 = conjugateCombinator.circularCombinations(c1, true)
         val eopen1 = listOf(
-                CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 0.0)),
                 CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(1.0, 0.0), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0)),
-
-                CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(-1.0, 0.0)),
-                CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
-
-                CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0))
+                CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0)),
+                CircularFeaturePoints(Point.xy(-r2, 0.0), Point.xy(r2, 0.0), Point.xy(0.0, 1.0))
         )
         aopen1.size.shouldEqualTo(eopen1.size)
         for ((a, e) in aopen1.zip(eopen1)) {
@@ -100,15 +90,9 @@ class ConjugateCombinatorTest {
 
         val aopen2 = conjugateCombinator.circularCombinations(c2, true)
         val eopen2 = listOf(
-                CircularFeaturePoints(Point.xy(-r2 / 2, -r2 / 2), Point.xy(r2 / 2, -r2 / 2), Point.xy(0.0, 0.0)),
                 CircularFeaturePoints(Point.xy(-r2 / 2, -r2 / 2), Point.xy(r2 / 2, -r2 / 2), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(-r2 / 2, -r2 / 2), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(r2 / 2, -r2 / 2), Point.xy(0.0, 0.0), Point.xy(0.0, 1.0)),
-
-                CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(-1.0, 0.0)),
-                CircularFeaturePoints(Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
-
-                CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0))
+                CircularFeaturePoints(Point.xy(-1.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 1.0)),
+                CircularFeaturePoints(Point.xy(-r2, 0.0), Point.xy(r2, 0.0), Point.xy(0.0, 1.0))
         )
         aopen2.size.shouldEqualTo(eopen2.size)
         for ((a, e) in aopen2.zip(eopen2)) {
@@ -146,7 +130,6 @@ class ConjugateCombinatorTest {
         println("EllipticCombinations")
         val aopen0 = conjugateCombinator.ellipticCombinations(e0, true)
         val eopen0 = listOf(
-                EllipticFeaturePoints(Point.xy(-r2, r2 / 2), Point.xy(r2, r2 / 2), Point.xy(0.0, 0.0)),
                 EllipticFeaturePoints(Point.xy(-r2, r2 / 2), Point.xy(r2, r2 / 2), Point.xy(0.0, 1.0)),
                 EllipticFeaturePoints(Point.xy(-r2, r2 / 2), Point.xy(r2, r2 / 2), Point.xy(0.0, r2))
         )
@@ -161,12 +144,9 @@ class ConjugateCombinatorTest {
 
         val aopen1 = conjugateCombinator.ellipticCombinations(e1, true)
         val eopen1 = listOf(
-                EllipticFeaturePoints(Point.xy(-2.0, 0.0), Point.xy(2.0, 0.0), Point.xy(0.0, 0.0)),
                 EllipticFeaturePoints(Point.xy(-2.0, 0.0), Point.xy(2.0, 0.0), Point.xy(0.0, 1.0)),
                 EllipticFeaturePoints(Point.xy(-2.0, 0.0), Point.xy(2.0, 0.0), Point.xy(0.0, r2)),
-
                 EllipticFeaturePoints(Point.xy(-2.0, 0.0), Point.xy(0.0, 1.0), Point.xy(2.0, 0.0)),
-
                 EllipticFeaturePoints(Point.xy(-2 * r2, 0.0), Point.xy(0.0, r2), Point.xy(2 * r2, 0.0))
         )
         aopen1.size.shouldEqualTo(eopen1.size)
@@ -180,12 +160,9 @@ class ConjugateCombinatorTest {
 
         val aopen2 = conjugateCombinator.ellipticCombinations(e2, true)
         val eopen2 = listOf(
-                EllipticFeaturePoints(Point.xy(-r2, -r2 / 2), Point.xy(r2, -r2 / 2), Point.xy(0.0, 0.0)),
                 EllipticFeaturePoints(Point.xy(-r2, -r2 / 2), Point.xy(r2, -r2 / 2), Point.xy(0.0, 1.0)),
                 EllipticFeaturePoints(Point.xy(-r2, -r2 / 2), Point.xy(r2, -r2 / 2), Point.xy(0.0, r2)),
-
                 EllipticFeaturePoints(Point.xy(-2.0, 0.0), Point.xy(0.0, 1.0), Point.xy(2.0, 0.0)),
-
                 EllipticFeaturePoints(Point.xy(-2 * r2, 0.0), Point.xy(0.0, r2), Point.xy(2 * r2, 0.0))
         )
         aopen2.size.shouldEqualTo(eopen2.size)

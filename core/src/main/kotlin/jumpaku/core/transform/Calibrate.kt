@@ -24,10 +24,10 @@ class Calibrate(
 
     override val matrix: RealMatrix by lazy {
         val from = arrayOf(pair0, pair1, pair2, pair3)
-                .map { (f, _) -> (f.toArray() + 1.0).toDoubleArray() }
+                .map { (f, _) -> (f.toDoubleArray() + 1.0) }
                 .run { (MatrixUtils.createRealMatrix(toTypedArray())) }
         val to = arrayOf(pair0, pair1, pair2, pair3)
-                .map { (_, t) -> (t.toArray() + 1.0).toDoubleArray() }
+                .map { (_, t) -> (t.toDoubleArray() + 1.0) }
                 .run { (MatrixUtils.createRealMatrix(toTypedArray())) }
         QRDecomposition(from).solver.solve(to).transpose()
     }

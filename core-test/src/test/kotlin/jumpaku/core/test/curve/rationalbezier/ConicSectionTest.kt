@@ -54,7 +54,7 @@ class ConicSectionTest {
     fun testToString() {
         println("ToString")
         val i = cs
-        i.toString().parseJson().tryFlatMap { ConicSection.fromJson(it) }.orThrow().shouldEqualToConicSection(i)
+        i.toString().parseJson().tryMap { ConicSection.fromJson(it) }.orThrow().shouldEqualToConicSection(i)
     }
 
     @Test

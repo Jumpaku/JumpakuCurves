@@ -16,8 +16,13 @@ object BSplineConverter {
             "knotVector" to s.knotVector.toJson())
 
     fun fromJsonOld(j: JsonElement): BSpline =
-            BSpline(j["controlPoints"].array.flatMap { Point.fromJson(it).value() },
-                    KnotVector.fromJson(j["knotVector"]).orThrow())
+            BSpline(
+                    j["controlPoints"].array.map { Point.fromJson(it) }.dropLast(1),
+                    KnotVector(
+                            j["knotVector"]["degree"].int,
+                            j["knotVector"]["knots"].array.toList().dropLast(1).groupBy { it.double }.map { (k, v) ->
+                                Knot(k, v.size)
+                            }))
 
     fun toJsonNew(s: BSpline): JsonElement = jsonObject(
             "controlPoints" to jsonArray(s.controlPoints.map { it.toJson() }),
@@ -26,15 +31,16 @@ object BSplineConverter {
 
     fun fromJsonNew(j: JsonElement): BSpline {
         val d = j["degree"].int
-        val cp = j["controlPoints"].array.flatMap { Point.fromJson(it).value() }
-        val ks = j["knots"].array.flatMap { Knot.fromJson(it).value() }
+        val cp = j["controlPoints"].array.map { Point.fromJson(it) }
+        val ks = j["knots"].array.map { Knot.fromJson(it) }
         return BSpline(cp, KnotVector(d, ks))
     }
 }
 
 fun main(args: Array<String>) {
-    Paths.get("fsctarget").toFile().walkBottomUp().forEach {
-        if (it.extension == "json") {
+    println(Paths.get(".").toAbsolutePath())
+    Paths.get("oldfsc").toFile().walkBottomUp().forEach {
+        if (it.isFile && it.extension == "json") {
             print(it.path + ":")
             val s = it.parseJson().tryMap { BSplineConverter.fromJsonOld(it) }.orThrow()
 
@@ -46,7 +52,7 @@ fun main(args: Array<String>) {
             }
             println(samecp && sameknot)
 
-            it.writeText(newJson.toString())
+            Paths.get("newfsc", it.name).toFile().writeText(s.toString())
         }
     }
 }

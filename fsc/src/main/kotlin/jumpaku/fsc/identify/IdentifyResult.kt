@@ -38,14 +38,10 @@ class IdentifyResult(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<IdentifyResult> = result {
-            IdentifyResult(
-                    json["grades"].map.map { (c, g) ->
-                        CurveClass.valueOf(c.string) to Grade.fromJson(g.asJsonPrimitive).orThrow()
-                    }.toMap(),
-                    Reference.fromJson(json["linear"]).orThrow(),
-                    Reference.fromJson(json["circular"]).orThrow(),
-                    Reference.fromJson(json["elliptic"]).orThrow())
-        }
+        fun fromJson(json: JsonElement): IdentifyResult = IdentifyResult(
+                json["grades"].map.map { (c, g) -> CurveClass.valueOf(c.string) to Grade.fromJson(g.asJsonPrimitive) }.toMap(),
+                Reference.fromJson(json["linear"]),
+                Reference.fromJson(json["circular"]),
+                Reference.fromJson(json["elliptic"]))
     }
 }

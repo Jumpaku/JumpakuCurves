@@ -16,9 +16,7 @@ data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Knot> = result {
-            Knot(json["value"].double, json["multiplicity"].int)
-        }
+        fun fromJson(json: JsonElement): Knot = Knot(json["value"].double, json["multiplicity"].int)
     }
 }
 
@@ -109,9 +107,7 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<KnotVector> = result {
-            KnotVector(json["degree"].int, json["knots"].array.flatMap { Knot.fromJson(it).value() })
-        }
+        fun fromJson(json: JsonElement): KnotVector = KnotVector(json["degree"].int, json["knots"].array.map { Knot.fromJson(it) })
 
         fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             val h = degree

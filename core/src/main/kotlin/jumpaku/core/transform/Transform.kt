@@ -32,10 +32,9 @@ interface Transform {
             override val matrix: RealMatrix = m
         }
 
-        fun fromMatrixJson(json: JsonElement): Result<Transform> = result {
+        fun fromMatrixJson(json: JsonElement): Transform =
             json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
                     .let { ofMatrix(MatrixUtils.createRealMatrix(it)) }
-        }
 
         val Identity = ofMatrix(MatrixUtils.createRealIdentityMatrix(4))
     }

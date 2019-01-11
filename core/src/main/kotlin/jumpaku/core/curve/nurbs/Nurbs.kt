@@ -130,11 +130,11 @@ class Nurbs(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Nurbs> = result {
+        fun fromJson(json: JsonElement): Nurbs {
             val d = json["degree"].int
             val wcp = json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() }
-            val ks = json["knots"].array.flatMap { Knot.fromJson(it).value() }
-            Nurbs(wcp, KnotVector(d, ks))
+            val ks = json["knots"].array.map { Knot.fromJson(it) }
+            return Nurbs(wcp, KnotVector(d, ks))
         }
     }
 }

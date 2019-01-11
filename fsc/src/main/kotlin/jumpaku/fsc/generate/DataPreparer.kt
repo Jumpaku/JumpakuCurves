@@ -4,10 +4,7 @@ import org.apache.commons.math3.util.FastMath
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.ParamPoint
 import jumpaku.fsc.generate.fit.BezierFitter
-import jumpaku.core.curve.chordalParametrize
 import jumpaku.core.curve.transformParams
-import jumpaku.core.curve.uniformParametrize
-import jumpaku.core.util.*
 
 
 /**
@@ -40,59 +37,47 @@ class DataPreparer(
         fun fill(sortedData: List<ParamPoint>, maxParamSpan: Double): List<ParamPoint> {
             require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
 
-            val data = sortedData.asVavr()
-            return data.zip(data.tail())
-                    .flatMap { (a, b) ->
-                        val nSamples = FastMath.ceil((b.param - a.param) / maxParamSpan).toInt() + 1
-                        (0 until  nSamples - 1).map { a.divide(it / (nSamples - 1.0), b) }
-                    }.append(data.last())
-                    .asKt()
+            return sortedData.drop(1).fold(mutableListOf(sortedData.first())) { filled, next ->
+                val prev = filled.last()
+                val n = FastMath.ceil((next.param - prev.param) / maxParamSpan).toInt()
+                filled += (1..n).map { prev.divide(it / n.toDouble(), next) }
+                filled
+            }
         }
 
-        fun extendFront(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2)
-                : List<ParamPoint> {
+        fun extendFront(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): List<ParamPoint> {
             require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
-            require(innerSpan > 0.0 && outerSpan > 0.0) {
-                "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0"
-            }
+            require(innerSpan * outerSpan > 0.0) { "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0" }
 
-            val end = sortedData.first().param + innerSpan
-            val begin = sortedData.first().param - outerSpan
-            val innerData = sortedData.filter { it.param <= end }.let { paramPoints ->
-                val range = Interval(outerSpan / (outerSpan + innerSpan), 1.0)
-                chordalParametrize(paramPoints.map { it.point })
-                        .tryFlatMap { transformParams(it, range) }.tryRecover { _ ->
-                            uniformParametrize(paramPoints.map { it.point })
-                                    .tryFlatMap { transformParams(it, range) }.orThrow()
-                        }
-            }.orThrow()
-            val bezier = BezierFitter(degree).fit(innerData).subdivide(outerSpan/(outerSpan+innerSpan))._1()
-            val outerData = bezier.sample(Math.ceil(innerData.size*innerSpan/outerSpan).toInt())
-            return transformParams(outerData, Interval(begin, begin + outerSpan)).orThrow()
-                    .run { dropLast(1) + sortedData }
+            val first = sortedData.first().param
+            val innerOuterBSpline = first.let { Interval(it - outerSpan, it + innerSpan) }
+            val (begin, end) = innerOuterBSpline
+            val innerPoints = sortedData.filter { it.param <= end }
+            val outerBezier = Interval(0.0, outerSpan / (outerSpan + innerSpan))
+            val outerBSpline = Interval(begin, first)
+            val outerData = extend(degree, innerPoints, innerSpan, outerSpan, innerOuterBSpline, outerBezier, outerBSpline)
+            return outerData + sortedData
         }
 
-        fun extendBack(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2)
-                : List<ParamPoint> {
+        fun extendBack(sortedData: List<ParamPoint>, innerSpan: Double, outerSpan: Double = innerSpan, degree: Int = 2): List<ParamPoint> {
             require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
-            require(innerSpan > 0.0 && outerSpan > 0.0) {
-                "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0"
-            }
+            require(innerSpan * outerSpan > 0.0) { "must be innerSpan($innerSpan) > 0 && outerSpan($outerSpan) > 0" }
 
-            val begin = sortedData.last().param - innerSpan
-            val end = sortedData.last().param + outerSpan
-            val innerData = sortedData.filter { it.param >= begin }.let { paramPoints ->
-                val range = Interval(0.0, innerSpan / (outerSpan + innerSpan))
-                chordalParametrize(paramPoints.map { it.point })
-                        .tryFlatMap { transformParams(it, range) }.tryRecover { _ ->
-                            uniformParametrize(paramPoints.map { it.point })
-                                    .tryFlatMap { transformParams(it, range) }.orThrow()
-                        }
-            }.orThrow()
-            val bezier = BezierFitter(degree).fit(innerData).subdivide(innerSpan/(innerSpan+outerSpan))._2()
-            val outerData = bezier.sample(Math.ceil(innerData.size/innerSpan*outerSpan).toInt())
-            return transformParams(outerData, Interval(end - outerSpan, end)).orThrow()
-                    .run { sortedData + drop(1) }
+            val last = sortedData.last().param
+            val innerOuterBSpline = last.let { Interval(it - innerSpan, it + outerSpan) }
+            val (begin, end) = innerOuterBSpline
+            val innerPoints = sortedData.filter { it.param >= begin }
+            val outerBezier = Interval(innerSpan / (outerSpan + innerSpan), 1.0)
+            val outerBSpline = Interval(last, end)
+            val outerData = extend(degree, innerPoints, innerSpan, outerSpan, innerOuterBSpline, outerBezier, outerBSpline)
+            return sortedData + outerData
+        }
+
+        private fun extend(degree: Int, innerPoints: List<ParamPoint>, innerSpan: Double, outerSpan: Double, innerOuterBSpline: Interval, outerBezier: Interval, outerBSpline: Interval): List<ParamPoint> {
+            val innerData = transformParams(innerPoints, domain = innerOuterBSpline, range = Interval.ZERO_ONE)
+            val bezier = BezierFitter(degree).fit(innerData).restrict(outerBezier)
+            val points = bezier.sample(Math.ceil(innerData.size * outerSpan / innerSpan).toInt())
+            return transformParams(points, range = outerBSpline)
         }
     }
 }

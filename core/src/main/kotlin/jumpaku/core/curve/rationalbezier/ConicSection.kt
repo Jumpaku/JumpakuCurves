@@ -139,12 +139,11 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
-        fun fromJson(json: JsonElement): Result<ConicSection> = result {
+        fun fromJson(json: JsonElement): ConicSection =
             ConicSection(
-                    Point.fromJson(json["begin"]).orThrow(),
-                    Point.fromJson(json["far"]).orThrow(),
-                    Point.fromJson(json["end"]).orThrow(),
+                    Point.fromJson(json["begin"]),
+                    Point.fromJson(json["far"]),
+                    Point.fromJson(json["end"]),
                     json["weight"].double)
-        }
     }
 }

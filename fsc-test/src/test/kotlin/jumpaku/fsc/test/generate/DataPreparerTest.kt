@@ -9,6 +9,8 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.fsc.generate.fit.BSplineFitter
 import jumpaku.core.test.curve.shouldEqualToParamPoint
 import jumpaku.core.test.curve.bspline.shouldEqualToBSpline
+import jumpaku.core.util.component1
+import jumpaku.core.util.component2
 import jumpaku.fsc.generate.DataPreparer
 import org.amshove.kluent.shouldBe
 import org.junit.Test
@@ -19,19 +21,19 @@ class DataPreparerTest {
     fun testPrepare() {
         println("Prepare")
         val knots = KnotVector.clamped(Interval(0.0, 3.0), 2, 8)
-        val b = BSpline(Array.of(
+        val b = BSpline(listOf(
                 Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)),
                 knots)
         val data = Interval(0.5, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val a = BSplineFitter(2, knots).fit(DataPreparer(0.1, 0.5, 0.5, 2).prepare(data))
         a.shouldEqualToBSpline(b, 0.2)
 
-        val b2 = BSpline(Array.of(
+        val b2 = BSpline(listOf(
                 Point.xy(1.0, 3.0), Point.xy(2.0, 0.0), Point.xy(3.0, 5.0), Point.xy(4.0, 3.0), Point.xy(5.0, 3.0)),
                 KnotVector.clamped(Interval(0.0, 3.0), 2, 8))
         val data2 = Interval(0.2, 2.8).sample(50).map { ParamPoint(b2(it), it) }
         val a2 = BSplineFitter(2, KnotVector.clamped(Interval(0.0, 3.0), 2, 8)).fit(DataPreparer(0.1, 0.2, 0.2, 2).prepare(data2))
-        val e2 = BSpline(Array.of(
+        val e2 = BSpline(listOf(
                 Point.xy(1.1157219672319155, 2.7493678060976845),
                 Point.xy(1.9591584061231399, 0.09817360222120309),
                 Point.xy(3.010446626771964, 4.961079201399634),
@@ -67,21 +69,25 @@ class DataPreparerTest {
     fun testExtendFront() {
         println("ExtendFront")
         val knots = KnotVector.clamped(Interval(0.0, 3.0), 2, 8)
-        val b = BSpline(Array.of(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
-        val data = Interval(0.5, 3.0).sample(100).map { ParamPoint(b(it), it) }
-        val subdivided = BSplineFitter(2, knots).fit(DataPreparer.extendFront(data, 0.5)).subdivide(2.0)
-        subdivided._1().orThrow().shouldEqualToBSpline(b.subdivide(2.0)._1().orThrow(), 0.2)
-        subdivided._2().orThrow().shouldEqualToBSpline(b.subdivide(2.0)._2().orThrow(), 0.01)
+        val b = BSpline(
+                listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
+        val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it) }
+        val (sub1, sub2) = BSplineFitter(2, knots)
+                .fit(DataPreparer.extendFront(data, 0.5, 0.5, 2)).subdivide(1.0)
+        sub1.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow())
+        sub2.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow())
     }
 
     @Test
     fun testExtendBack() {
         println("ExtendBack")
         val knots = KnotVector.clamped(Interval(0.0, 3.0), 2, 8)
-        val b = BSpline(Array.of(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
+        val b = BSpline(
+                listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
-        val subdivided = BSplineFitter(2, knots).fit(DataPreparer.extendBack(data, 0.5)).subdivide(1.0)
-        subdivided._1().orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow(), 0.01)
-        subdivided._2().orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow(), 0.2)
+        val (sub1, sub2) = BSplineFitter(2, knots)
+                .fit(DataPreparer.extendBack(data, 0.5, 0.5, 2)).subdivide(1.0)
+        sub1.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow())
+        sub2.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow())
     }
 }
