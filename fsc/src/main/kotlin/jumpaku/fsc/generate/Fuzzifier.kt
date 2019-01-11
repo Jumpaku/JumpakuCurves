@@ -41,7 +41,7 @@ interface Fuzzifier {
             }
 
             val problem = LeastSquaresBuilder()
-                    .start(ArrayRealVector(modelMatrix.columnDimension, 4.0))
+                    .start(ArrayRealVector(modelMatrix.columnDimension, 0.0))
                     .model(NonNegativeLinearModel(modelMatrix))
                     .target(targetVector)
                     .lazyEvaluation(false)
@@ -51,8 +51,8 @@ interface Fuzzifier {
                     .build()
             val result = LevenbergMarquardtOptimizer()
                     .withInitialStepBoundFactor(1.0)
-                    .withParameterRelativeTolerance(1.0e-3)
-                    .withCostRelativeTolerance(targetVector.dimension * 1.0e-4)
+                    .withParameterRelativeTolerance(1.0e-12)
+                    .withCostRelativeTolerance(targetVector.dimension * 1.0e-12)
                     .optimize(problem)
             return result.point.map(FastMath::exp)
         }

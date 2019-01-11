@@ -20,7 +20,7 @@ class LinearFuzzifier(
         val fs = ts.map {
             val v = derivative1(it).length()
             val a = derivative2(it).length()
-            velocityCoefficient * v + accelerationCoefficient * a + 1.0
+            velocityCoefficient * v + accelerationCoefficient * a
         }
         val targetVector = fs.toDoubleArray().run(::ArrayRealVector)
         val modelMatrix = createModelMatrix(ts, degree, knot)
