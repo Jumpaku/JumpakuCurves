@@ -17,7 +17,7 @@ class Optimizer {
                 MaxEval(50),
                 GoalType.MINIMIZE,
                 SearchInterval(0.0, 1.0))
-        optimum.run { point to value }
+        optimum.run { interval.run { begin.divide(point, end).coerceIn(interval) } to value }
     }
 
     fun maximize(interval: Interval, f: (Double) -> Double): Result<Pair<Double, Double>> =

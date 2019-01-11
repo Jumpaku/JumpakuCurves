@@ -12,7 +12,8 @@ class Solver {
         fun f(x: Double): Double = function(interval.run { begin.divide(x, end).coerceIn(interval) })
         val x0 = interval.run { ((initial - begin) / span).coerceIn(Interval.ZERO_ONE) }
         return result {
-            BrentSolver(1e-15, 1e-10).solve(50, { f(it) }, 0.0, 1.0, x0)
+            val x = BrentSolver(1e-15, 1e-10).solve(50, { f(it) }, 0.0, 1.0, x0)
+            interval.run { begin.divide(x, end).coerceIn(interval) }
         }
     }
 }
