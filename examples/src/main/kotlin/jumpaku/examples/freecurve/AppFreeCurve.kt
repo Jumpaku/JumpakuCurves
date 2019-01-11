@@ -1,9 +1,15 @@
 package jumpaku.examples.freecurve
 
+import com.github.salomonbrys.kotson.jsonArray
+import com.github.salomonbrys.kotson.jsonObject
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import jumpaku.core.curve.bspline.BSpline
+import jumpaku.core.json.parseJson
+import jumpaku.core.json.prettyGson
+import jumpaku.core.util.result
+import jumpaku.fsc.freecurve.Segmenter
 import jumpaku.fsc.freecurve.Shaper
 import jumpaku.fsc.freecurve.Smoother
 import jumpaku.fxcomponents.colors.Color
@@ -14,6 +20,7 @@ import tornadofx.App
 import tornadofx.View
 import tornadofx.group
 import tornadofx.pane
+import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppExample::class.java, *args)
@@ -37,7 +44,16 @@ class ViewExample : View() {
 
     fun Group.update(fsc: BSpline) {
         cubicFsc(fsc) { stroke = Color.rgb(63, 63, 63, 0.3).fx(); strokeWidth = 0.5 }
-        val (ts, segment, smooth) = Shaper { it.domain.sample(0.1) }.shape(fsc)
+        val shaper = Shaper(
+                segmenter = Segmenter(Segmenter.defaultIdentifier),
+                smoother = Smoother(
+                        pruningFactor = 2.0,
+                        nFitSamples = 33,
+                        fscSampleSpan = 0.02)) {
+            it.domain.sample(0.1)
+        }
+
+        val (ts, segment, smooth) = shaper.shape(fsc)
         println(ts.size)
         fuzzyPoints(ts.map(fsc)) { stroke = CudPalette.BLACK.fx() }
         fuzzyPoints(segment.segmentParamIndices.map { fsc(ts[it]) }) { stroke = CudPalette.RED.fx() }

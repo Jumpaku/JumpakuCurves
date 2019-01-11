@@ -44,10 +44,9 @@ class ConicSectionSnapperTest {
         println("Snap_L")
         for (i in 0..0) {
             val cs = resourceText("ConicSectionL$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
-            val e = resourceText("SnapResultL$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
+            val e = resourceText("SnapResultL$i.json").parseJson().tryMap { ConicSection.fromJson(it["snappedConicSection"]["value"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.LineSegment, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
-            println(a.toJsonString())
         }
     }
 
@@ -56,7 +55,7 @@ class ConicSectionSnapperTest {
         println("Snap_CA")
         for (i in 0..2) {
             val cs = resourceText("ConicSectionCA$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
-            val e = resourceText("SnapResultCA$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
+            val e = resourceText("SnapResultCA$i.json").parseJson().tryMap { ConicSection.fromJson(it["snappedConicSection"]["value"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.CircularArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
         }
@@ -67,7 +66,7 @@ class ConicSectionSnapperTest {
         println("Snap_EA")
         for (i in 0..2) {
             val cs = resourceText("ConicSectionEA$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
-            val e = resourceText("SnapResultEA$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
+            val e = resourceText("SnapResultEA$i.json").parseJson().tryMap { ConicSection.fromJson(it["snappedConicSection"]["value"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.EllipticArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
         }
