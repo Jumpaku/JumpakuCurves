@@ -13,9 +13,10 @@ fun Point.weighted(weight: Double = 1.0): WeightedPoint = WeightedPoint(this, we
 
 data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint>, ToJson {
 
-    override fun divide(t: Double, p: WeightedPoint): WeightedPoint {
-        val w = weight.divide(t, p.weight)
-        return WeightedPoint(point.divide(t * p.weight / w, p.point), w)
+    override fun lerp(vararg terms: Pair<Double, WeightedPoint>): WeightedPoint {
+        val w = weight.lerp(*terms.map { (c, wp) -> c to wp.weight }.toTypedArray())
+        val p = point.lerp(*terms.map { (c, wp) -> (c*wp.weight/w) to wp.point }.toTypedArray())
+        return WeightedPoint(p, w)
     }
 
     override fun toString(): String = toJsonString()

@@ -15,9 +15,6 @@ import jumpaku.core.curve.bezier.BezierDerivative
 import jumpaku.core.geom.*
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
-import jumpaku.core.util.Result
-import jumpaku.core.util.asVavr
-import jumpaku.core.util.result
 
 
 class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable, ToJson {
@@ -112,7 +109,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         fun bezier1D(t: Double, weights: List<Double>): Double {
             var ws = weights
             while (ws.size > 1) {
-                ws = ws.zipWithNext { w0, w1 -> w0.divide(t, w1) }
+                ws = ws.zipWithNext { w0, w1 -> w0.lerp(t, w1) }
             }
             return ws.first()
         }

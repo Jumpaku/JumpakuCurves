@@ -10,10 +10,7 @@ import jumpaku.core.curve.*
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
 import jumpaku.core.transform.Transform
-import jumpaku.core.util.Result
-import jumpaku.core.util.asKt
 import jumpaku.core.util.asVavr
-import jumpaku.core.util.result
 import org.apache.commons.math3.util.Precision
 
 
@@ -59,7 +56,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
         return listOf(points.first()) + evaluated + listOf(points.last())
     }
 
-    private fun evaluateInSpan(t: Double, index: Int): Point = points[index].divide(
+    private fun evaluateInSpan(t: Double, index: Int): Point = points[index].lerp(
                 (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
 
     fun transform(a: Transform): Polyline = of(points.map(a::invoke))

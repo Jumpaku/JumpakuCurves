@@ -4,7 +4,7 @@ import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.fsc.generate.DataPreparer
-import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.Generator
 import jumpaku.fsc.generate.LinearFuzzifier
 import jumpaku.fxcomponents.nodes.cubicFsc
 import jumpaku.fxcomponents.nodes.curveControl
@@ -21,7 +21,7 @@ class AppFscGenerate : App(ViewFscGenerate::class)
 
 class ViewFscGenerate : View() {
 
-    val generator = FscGenerator(
+    val generator = Generator(
             degree = 3,
             knotSpan = 0.075,
             preparer = DataPreparer(0.075/4, 0.0375, 0.0375, 2),

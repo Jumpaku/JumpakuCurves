@@ -70,7 +70,7 @@ class Blender(
         val (endI, endJ) = path.last()
 
         fun OverlapPath.blendData(te: List<ParamPoint>, to: List<ParamPoint>): List<ParamPoint> =
-                map { (i, j) -> te[i].divide(blendingRate, to[j]) }
+                map { (i, j) -> te[i].lerp(blendingRate, to[j]) }
 
         return when(path.type){
             OverlapType.ExistOverlap ->

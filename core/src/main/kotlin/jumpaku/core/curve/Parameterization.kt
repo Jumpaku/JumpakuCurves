@@ -1,21 +1,18 @@
 package jumpaku.core.curve
 
 import jumpaku.core.geom.Point
-import jumpaku.core.geom.divide
+import jumpaku.core.geom.lerp
 import jumpaku.core.util.Result
 import jumpaku.core.util.result
-import java.util.*
 import kotlin.math.pow
 
 fun chordalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE, power: Double = 1.0): Result<List<ParamPoint>> = result {
     require(points.size >= 2) { "must be points.size(${points.size}) >= 2" }
     val ds = points.zipWithNext { p0, p1 -> p1.distSquare(p0).pow(power/2) }
     val ls = ds.fold(listOf(0.0)) { acc, d -> acc + (acc.last() + d) }
-    check((ls.last()/ls.last()).isFinite()) {
-        ""
-    }
+    check((ls.last()/ls.last()).isFinite()) { "" }
     val (a, b) = range
-    ls.zip(points) { l, p -> ParamPoint(p, a.divide(l/ls.last(), b).coerceIn(range)) }
+    ls.zip(points) { l, p -> ParamPoint(p, a.lerp(l/ls.last(), b).coerceIn(range)) }
 }
 
 fun centripetalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE): Result<List<ParamPoint>> =
@@ -33,5 +30,5 @@ fun transformParams(
     require((range.span/domain.span).isFinite()) { "must be domain.span(${domain.span}) > 0.0" }
     val (a0, a1) = domain
     val (b, e) = range
-    return paramPoints.map { it.copy(param = b.divide((it.param - a0)/(a1 - a0), e).coerceIn(range)) }
+    return paramPoints.map { it.copy(param = b.lerp((it.param - a0)/(a1 - a0), e).coerceIn(range)) }
 }

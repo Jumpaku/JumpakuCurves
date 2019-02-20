@@ -7,15 +7,14 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.core.geom.Divisible
 import jumpaku.core.geom.Point
-import jumpaku.core.geom.divide
+import jumpaku.core.geom.lerp
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.Result
-import jumpaku.core.util.result
 
 data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {
 
-    override fun divide(t: Double, p: ParamPoint): ParamPoint =
-            ParamPoint(point.divide(t, p.point), param.divide(t, p.param))
+    override fun lerp(vararg terms: Pair<Double, ParamPoint>): ParamPoint = ParamPoint(
+            point.lerp(*terms.map { (c, p) -> c to p.point }.toTypedArray()),
+            param.lerp(*terms.map { (c, p) -> c to p.param }.toTypedArray()))
 
     override fun toString(): String = toJsonString()
 
@@ -25,8 +24,6 @@ data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoin
 
         fun now(point: Point): ParamPoint = ParamPoint(point, System.nanoTime() * 1.0e-9)
 
-        fun fromJson(json: JsonElement): Result<ParamPoint> = result {
-            ParamPoint(Point.fromJson(json["point"]), json["param"].double)
-        }
+        fun fromJson(json: JsonElement): ParamPoint = ParamPoint(Point.fromJson(json["point"]), json["param"].double)
     }
 }

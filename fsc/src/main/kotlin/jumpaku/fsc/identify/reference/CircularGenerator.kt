@@ -6,8 +6,7 @@ import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.geom.divide
-import jumpaku.core.geom.middle
+import jumpaku.core.geom.lerp
 import jumpaku.core.util.component1
 import jumpaku.core.util.component2
 import jumpaku.core.util.component3
@@ -61,10 +60,10 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val begin = fsc(t0)
             val end = fsc(t1)
             val t = BrentSolver(1.0e-6).solve(50, {
-                val f = fsc(t0.divide(it, t1))
+                val f = fsc(t0.lerp(it, t1))
                 f.distSquare(begin) - f.distSquare(end)
             }, 0.0, 1.0)
-            return t0.divide(t, t1)
+            return t0.lerp(t, t1)
         }
     }
 }

@@ -68,12 +68,12 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
             val index = areas.lastIndexWhere { it < areas.last() / 2 }
 
             val t = BrentSolver(1.0e-6).solve(50, {
-                val m = fsc(ts[index].divide(it, ts[index + 1]))
+                val m = fsc(ts[index].lerp(it, ts[index + 1]))
                 val l = areas[index] + middle.area(ps[index], m)
                 val r = areas.last() - areas[index + 1] + middle.area(ps[index + 1], m)
                 l - r
             }, 0.0, 1.0)
-            return ts[index].divide(t, ts[index + 1])
+            return ts[index].lerp(t, ts[index + 1])
         }
 
         fun computeEllipticWeight(
@@ -90,7 +90,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                     val a = far.projectTo(line(p, p + (end - begin)).orThrow())
                     val b = far.projectTo(line)
                     val t = (a - far).dot(b - far).tryDiv(b.distSquare(far)).value().orDefault(0.0)
-                    val x = far.divide(t, begin.middle(end))
+                    val x = far.lerp(t, begin.middle(end))
                     val dd = x.distSquare(p)
                     val ll = begin.distSquare(end) / 4
                     val yi = dd + t * t * ll - 2 * t * ll

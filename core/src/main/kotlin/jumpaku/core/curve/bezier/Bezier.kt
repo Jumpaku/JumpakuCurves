@@ -93,7 +93,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
         }
 
         fun <P : Divisible<P>> decasteljau(t: Double, cps: List<P>): List<P> =
-                cps.zipWithNext { p0, p1 -> p0.divide(t, p1) }
+                cps.zipWithNext { p0, p1 -> p0.lerp(t, p1) }
 
         internal tailrec fun <P : Divisible<P>> createEvaluatedPoint(t: Double, cp: List<P>): P =
                 if (cp.size == 1) cp.first() else createEvaluatedPoint(t, decasteljau(t, cp))
@@ -105,7 +105,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
                 when (it) {
                     0 -> cp.first()
                     n + 1 -> cp.last()
-                    else -> cp[it].divide(it / (n + 1).toDouble(), cp[it - 1])
+                    else -> cp[it].lerp(it / (n + 1).toDouble(), cp[it - 1])
                 }
             }
         }
@@ -132,11 +132,11 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
                 m.isOdd() -> {
                     val r = (m - 3) / 2
                     val first = generateSequence(Tuple2(cp.first(), 1)) {
-                        (qi, i) -> Tuple2(cp[i].divide(i / (i - n).toDouble(), qi), i + 1)
+                        (qi, i) -> Tuple2(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
                     }.asIterable()
                             .take(r + 1)
                     val second = generateSequence(Tuple2(cp.last(), n - 2)) {
-                        (qi, i) -> Tuple2(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1)
+                        (qi, i) -> Tuple2(cp[i+1].lerp((i + 1 - n)/(i + 1.0), qi), i - 1)
                     }.asIterable()
                             .take(r + 1)
                     (first + second.reversed()).map { it._1() }
@@ -144,15 +144,15 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
                 else -> {
                     val r = (m - 2) / 2
                     val first = generateSequence(Tuple2(cp.first(), 1)) {
-                        (qi, i) -> Tuple2(cp[i].divide(i / (i - n).toDouble(), qi), i + 1)
+                        (qi, i) -> Tuple2(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
                     }.asIterable()
                             .take(r).map { it._1() }
                     val second = generateSequence(Tuple2(cp.last(), n - 2)) {
-                        (qi, i) -> Tuple2(cp[i+1].divide((i + 1 - n)/(i + 1.0), qi), i - 1)
+                        (qi, i) -> Tuple2(cp[i+1].lerp((i + 1 - n)/(i + 1.0), qi), i - 1)
                     }.asIterable()
                             .take(r).map { it._1() }
-                    val pl = cp[r].divide(r / (r - n).toDouble(), first.last())
-                    val pr = cp[r + 1].divide((r + 1 - n) / (r + 1.0), second.last())
+                    val pl = cp[r].lerp(r / (r - n).toDouble(), first.last())
+                    val pr = cp[r + 1].lerp((r + 1 - n) / (r + 1.0), second.last())
                     (first + listOf(pl.middle(pr)) + second.reversed())
 
                 }

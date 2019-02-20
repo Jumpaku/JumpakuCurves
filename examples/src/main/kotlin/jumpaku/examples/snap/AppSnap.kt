@@ -11,7 +11,7 @@ import jumpaku.core.geom.Vector
 import jumpaku.core.json.parseJson
 import jumpaku.core.transform.Rotate
 import jumpaku.core.util.orDefault
-import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.Generator
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.Open4Identifier
 import jumpaku.fsc.identify.reparametrize
@@ -34,7 +34,7 @@ class ViewSnap : View() {
     val w = 1280.0
     val h = 720.0
 
-    val generator = FscGenerator(
+    val generator = Generator(
             degree = 3,
             knotSpan = 0.1)
 

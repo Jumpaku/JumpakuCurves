@@ -58,7 +58,7 @@ class Calibrate(
             val (fromP, toP) = pair1
             val v = fromP - fromO
             return listOf(Vector.Zero, Vector.I, Vector.J, Vector.K)
-                    .map { fromO + it to toO.divide(v.dot(it)/v.square(), toP) }
+                    .map { fromO + it to toO.lerp(v.dot(it)/v.square(), toP) }
         }
 
         private fun makePairs(pair0: Pair<Point, Point>): List<Pair<Point, Point>> {

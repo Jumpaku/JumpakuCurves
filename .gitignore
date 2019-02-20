@@ -6,6 +6,7 @@
 
 # gradle
 *.gradle/
+build/*
 core/build/*
 core/classes/*
 core/out/*
