@@ -83,3 +83,22 @@ class InputFsc : Application() {
     }
 }
 ```
+
+## Authors
+
+* Ito Tomohiko
+* Hatamoto Naoya
+
+## Releases
+
+* 2019-01-19 ver. 0.11.0
+* 2018-10-15 ver. 0.10
+* 2018-08-19 ver. 0.9
+* 2018-05-21 ver. 0.8
+* 2018-04-27 ver. 0.7
+* 2018-03-31 ver. 0.6
+* 2018-03-24 ver. 0.5
+* 2017-12-09 ver. 0.4
+* 2017-11-03 ver. 0.3
+* 2017-09-14 ver. 0.2
+* 2017-09-02 ver. 0.1
