@@ -86,8 +86,8 @@ class InputFsc : Application() {
 
 ## Authors
 
-* Ito Tomohiko
-* Hatamoto Naoya
+* Tomohiko Ito
+* Naoya Hatamoto
 
 ## Releases
 
