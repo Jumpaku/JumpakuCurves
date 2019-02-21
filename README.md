@@ -12,8 +12,8 @@ repositories {
 }
 
 dependencies {
-    compile "jumpaku:core:0.10.3"
-    compile "jumpaku:fsc:0.10.3"
+    compile "jumpaku:core:0.11.0"
+    compile "jumpaku:fsc:0.11.0"
 }
 ```
 
