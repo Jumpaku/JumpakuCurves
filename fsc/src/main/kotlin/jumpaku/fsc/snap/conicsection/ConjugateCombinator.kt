@@ -13,7 +13,7 @@ class ConjugateCombinator : FeaturePointsCombinator {
 
     private operator fun ConicSection.get(featurePosition: FeaturePosition): Point {
         val t = ((1 - FastMath.sqrt((1 + weight) / (1 - weight))) / 2).coerceIn(0.0, 0.5)
-        val o = center().orThrow()
+        val o = center().orThrow().toCrisp()
         return when (featurePosition) {
             FeaturePosition.B0 -> begin
             FeaturePosition.B2 -> end
@@ -21,10 +21,10 @@ class ConjugateCombinator : FeaturePointsCombinator {
             FeaturePosition.D1 -> far
             FeaturePosition.D2 -> evaluate(1 - t)
             FeaturePosition.D3 -> complement().far
-            FeaturePosition.E0 -> o.divide(FastMath.sqrt(2.0), get(FeaturePosition.D0))
-            FeaturePosition.E1 -> o.divide(FastMath.sqrt(2.0), get(FeaturePosition.D1))
-            FeaturePosition.E2 -> o.divide(FastMath.sqrt(2.0), get(FeaturePosition.D2))
-            FeaturePosition.E3 -> o.divide(FastMath.sqrt(2.0), get(FeaturePosition.D3))
+            FeaturePosition.E0 -> o.lerp(FastMath.sqrt(2.0), get(FeaturePosition.D0))
+            FeaturePosition.E1 -> o.lerp(FastMath.sqrt(2.0), get(FeaturePosition.D1))
+            FeaturePosition.E2 -> o.lerp(FastMath.sqrt(2.0), get(FeaturePosition.D2))
+            FeaturePosition.E3 -> o.lerp(FastMath.sqrt(2.0), get(FeaturePosition.D3))
         }
     }
 

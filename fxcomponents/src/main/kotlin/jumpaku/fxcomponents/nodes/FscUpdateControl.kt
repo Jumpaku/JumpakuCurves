@@ -19,14 +19,14 @@ import jumpaku.core.curve.polyline.Polyline
 import jumpaku.core.geom.Point
 import jumpaku.core.util.*
 import jumpaku.fsc.blend.Blender
-import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.Generator
 import tornadofx.add
 import tornadofx.circle
 import tornadofx.opcr
 
 
 fun EventTarget.fscUpdateControl(
-        fscGenerator: FscGenerator = FscGenerator(),
+        fscGenerator: Generator = Generator(),
         blender: Blender = Blender(),
         op: (FscUpdateControl.() -> Unit) = {}): FscUpdateControl =
         opcr(this, FscUpdateControl(fscGenerator, blender), op)
@@ -66,7 +66,7 @@ class FscUpdateEvent(val fsc: BSpline) : Event(FscUpdateEvent.FSC_UPDATED) {
     }
 }
 
-class FscUpdateControl(val fscGenerator: FscGenerator, val blender: Blender) : Control() {
+class FscUpdateControl(val fscGenerator: Generator, val blender: Blender) : Control() {
 
     class Controller(val control: FscUpdateControl) {
         fun onPressed(e: MouseEvent) = control.clearData()

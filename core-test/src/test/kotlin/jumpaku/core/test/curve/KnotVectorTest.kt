@@ -41,13 +41,12 @@ class KnotVectorTest {
     @Test
     fun testLastIndexUnder() {
         println("LastIndexUnder")
-        k.lastExtractedIndexUnder(3.5).shouldEqualTo(3)
-        k.lastExtractedIndexUnder(3.7).shouldEqualTo(3)
-        k.lastExtractedIndexUnder(4.0).shouldEqualTo(4)
-        k.lastExtractedIndexUnder(4.1).shouldEqualTo(4)
-        k.lastExtractedIndexUnder(4.5).shouldEqualTo(5)
-        k.lastExtractedIndexUnder(4.6).shouldEqualTo(5)
-        k.lastExtractedIndexUnder(5.0).shouldEqualTo(5)
+        k.searchLastExtractedLessThanOrEqualTo(3.5).shouldEqualTo(3)
+        k.searchLastExtractedLessThanOrEqualTo(3.7).shouldEqualTo(3)
+        k.searchLastExtractedLessThanOrEqualTo(4.0).shouldEqualTo(4)
+        k.searchLastExtractedLessThanOrEqualTo(4.1).shouldEqualTo(4)
+        k.searchLastExtractedLessThanOrEqualTo(4.5).shouldEqualTo(5)
+        k.searchLastExtractedLessThanOrEqualTo(4.6).shouldEqualTo(5)
     }
 
     @Test

@@ -3,12 +3,17 @@ package jumpaku.core.curve
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.geom.divide
+import jumpaku.core.geom.lerp
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.*
 
 
 data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
+
+    init {
+        require(value.isFinite()) { "value($value)" }
+        require(multiplicity > 0) { "must be multiplicity($multiplicity) > 0" }
+    }
 
     override fun toString(): String = toJsonString()
 
@@ -38,9 +43,21 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
     fun multiplicityOf(knotValue: Double): Int =
             search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
-    fun lastExtractedIndexUnder(value: Double): Int = extractedKnots
-            .asVavr()
-            .run { slice(degree, size() - degree) }.zipWithNext { a, b -> value in a..b }.indexOfLast { it } + degree
+    fun searchLastExtractedLessThanOrEqualTo(value: Double): Int {
+        require(domain.begin <= value && value < domain.end)
+        val us = extractedKnots
+        var a = degree
+        var b = us.lastIndex - degree
+        while (true) {
+            val c = (a + b).ushr(1)
+            when {
+                a == b -> return c
+                value < us[c] -> b = c - 1
+                us[c + 1] <= value -> a = c + 1
+                else/* us[c] <= t && t < us[c + 1] */ -> return c
+            }
+        }
+    }
 
     fun insert(knotValue: Double, times: Int): KnotVector {
         val i = search(knotValue)
@@ -113,13 +130,13 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
             val h = degree
             val l = knotSize - 1 - degree
             return KnotVector(degree,
-                    (0 until knotSize).map { Knot(domain.begin.divide((it.toDouble() - h) / (l - h), domain.end)) })
+                    (0 until knotSize).map { Knot(domain.begin.lerp((it.toDouble() - h) / (l - h), domain.end)) })
         }
 
         fun clamped(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             val nSpans = knotSize - 2 * degree - 1
             val (b, e) = domain
-            val middle = (1 until nSpans).map { Knot(b.divide(it / nSpans.toDouble(), e)) }
+            val middle = (1 until nSpans).map { Knot(b.lerp(it / nSpans.toDouble(), e)) }
             return KnotVector(degree,
                     listOf(Knot(b, degree + 1)) + middle + listOf(Knot(e, degree + 1)))
         }

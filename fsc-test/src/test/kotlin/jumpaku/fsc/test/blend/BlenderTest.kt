@@ -30,7 +30,7 @@ class BlenderTest {
             val existing = resourceText("BlendExisting$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val overlapping = resourceText("BlendOverlapping$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val expected = resourceText("BlendResult$i.json").parseJson().tryMap {
-                Option.fromJson(it).map { it.array.flatMap { ParamPoint.fromJson(it).value() } }
+                Option.fromJson(it).map { it.array.map { ParamPoint.fromJson(it) } }
             }.orThrow()
             val actual = blender.blend(existing, overlapping)
             actual.isDefined.shouldBe(expected.isDefined)

@@ -11,7 +11,9 @@ import jumpaku.core.json.ToJson
 import jumpaku.core.util.*
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.MathArrays
 import org.apache.commons.math3.util.Precision
+import kotlin.math.abs
 
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
@@ -46,13 +48,19 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     }
 
     /**
-     * @param t
-     * @param p
-     * @return ((1-t)*this + t*p, |1-t|*this.r + |t|*p.r)
+     * Computes affine combination of conic fuzzy points.
+     * @param terms sequence of pairs of coefficient and conic fuzzy point.
+     * @return affine combination of conic fuzzy points
      */
-    override fun divide(t: Double, p: Point): Point = Point(
-            toVector() * (1 - t) + t * p.toVector(),
-            FastMath.abs(1 - t) * r + FastMath.abs(t) * p.r)
+    override fun lerp(vararg terms: Pair<Double, Point>): Point {
+        val cs = terms.map { it.first }
+        val c0 = 1 - sum(cs)
+        val vs = terms.map { it.second.toVector() }
+        val v = linearCombination(*(cs.zip(vs) + (c0 to this.toVector())).toTypedArray())
+        val rs = terms.map { it.second.r }
+        val r = MathArrays.linearCombination((cs + c0).map { abs(it) }.toDoubleArray(), (rs + this.r).toDoubleArray())
+        return Point(v, r)
+    }
 
     override fun toString(): String = toJsonString()
 

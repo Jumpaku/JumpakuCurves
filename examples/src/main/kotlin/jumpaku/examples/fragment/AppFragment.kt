@@ -5,7 +5,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.fsc.fragment.Fragment
 import jumpaku.fsc.fragment.Fragmenter
-import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.Generator
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
 import jumpaku.fxcomponents.nodes.fuzzyCurve
@@ -18,7 +18,7 @@ class AppFragment : App(ViewFragment::class)
 
 class ViewFragment : View() {
 
-    val generator = FscGenerator(3, 0.1)
+    val generator = Generator(3, 0.1)
 
     val fragmenter = Fragmenter()
 

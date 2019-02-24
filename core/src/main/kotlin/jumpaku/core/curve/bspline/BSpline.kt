@@ -128,7 +128,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             val (b, e) = knotVector.domain
             if (b < e && t == e) return evaluate(controlPoints.reversed(), knotVector.reverse(), b)
 
-            val l = knotVector.lastExtractedIndexUnder(t)
+            val l = knotVector.searchLastExtractedLessThanOrEqualTo(t)
 
             val result = controlPoints.toMutableList()
             val d = knotVector.degree
@@ -136,7 +136,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             for (k in 1..d) {
                 for (i in l downTo (l - d + k)) {
                     val aki = basisHelper(t, us[i], us[i + d + 1 - k], us[i])
-                    result[i] = result[i - 1].divide(aki, result[i])
+                    result[i] = result[i - 1].lerp(aki, result[i])
                 }
             }
 
@@ -151,7 +151,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             val us = knotVector.extractedKnots
             val p = knotVector.degree
             val s = knotVector.multiplicityOf(knotValue)
-            val k = knotVector.lastExtractedIndexUnder(knotValue)
+            val k = knotVector.searchLastExtractedLessThanOrEqualTo(knotValue)
             var cp = controlPoints.toMutableList()
 
             for (r in 1..times) {
@@ -159,7 +159,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
                 val back = cp.drop(k - s)
                 for (i in (k - s) downTo (k - p + r)) {
                     val a = basisHelper(knotValue, us[i], us[i + p - r + 1], us[i])
-                    cp[i] = cp[i - 1].divide(a, cp[i])
+                    cp[i] = cp[i - 1].lerp(a, cp[i])
                 }
                 cp = (front + cp.slice((k - p + r)..(k - s)) + back).toMutableList()
             }
@@ -177,7 +177,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             ).reversed()
 
             val p = knotVector.degree
-            val k = knotVector.lastExtractedIndexUnder(u)
+            val k = knotVector.searchLastExtractedLessThanOrEqualTo(u)
             if (s > p) return removedControlPoints(
                     controlPoints.asVavr().removeAt(k - p).asKt(),
                     knotVector.remove(knotIndex, 1), knotIndex, times - 1)
@@ -190,10 +190,10 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
                 var j = k - s + t - 1
                 while (j - i >= t) {
                     val ai = basisHelper(u, us[i], us[i + p + t], us[i])
-                    cp[i] = cp[i].divide((ai - 1)/ai, cp[i - 1])
+                    cp[i] = cp[i].lerp((ai - 1)/ai, cp[i - 1])
                     ++i
                     val aj = basisHelper(u, us[j - t + 1], us[j + p + 1], us[j - t + 1])
-                    cp[j] = cp[j].divide(aj/(aj - 1), cp[j + 1])
+                    cp[j] = cp[j].lerp(aj/(aj - 1), cp[j + 1])
                     --j
                 }
             }
@@ -215,7 +215,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
                 return subdividedControlPoints(b, controlPoints.reversed(), knotVector.reverse())
                         .let { (x, y) -> Tuple2(y.reversed(), x.reversed()) }
 
-            val k = knotVector.lastExtractedIndexUnder(t)
+            val k = knotVector.searchLastExtractedLessThanOrEqualTo(t)
             val cp = insertedControlPoints(controlPoints, knotVector, t, times)
             val i = k - p + times
             val front = when {
@@ -271,7 +271,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             val p = knotVector.degree
             if (t == e) return if (i == us.size - p - 2) 1.0 else 0.0
 
-            val l = knotVector.lastExtractedIndexUnder(t)
+            val l = knotVector.searchLastExtractedLessThanOrEqualTo(t)
             val ns = (0..p).map { index -> if ( index == l - i ) 1.0 else 0.0}.toMutableList()
 
             for (j in 1..(ns.lastIndex)) {

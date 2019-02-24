@@ -5,16 +5,15 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.core.geom.divide
+import jumpaku.core.geom.lerp
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.Result
-import jumpaku.core.util.result
 import org.apache.commons.math3.util.FastMath
 
 
 data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Double> {
 
     init {
+        require(begin.isFinite() && end.isFinite()){ "[$begin, $end]" }
         require(begin <= end){ "begin($begin) > end($end)" }
     }
 
@@ -27,7 +26,7 @@ data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Dou
     fun sample(samplesCount: Int): List<Double> {
         require(samplesCount >= 2) { "samplesCount($samplesCount) < 2" }
         return (0 until  samplesCount)
-                .map { begin.divide(it / (samplesCount - 1.0), end).coerceIn(this) }
+                .map { begin.lerp(it / (samplesCount - 1.0), end).coerceIn(this) }
     }
 
     fun sample(delta: Double): List<Double> =

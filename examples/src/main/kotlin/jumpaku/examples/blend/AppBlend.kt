@@ -14,7 +14,8 @@ import jumpaku.core.util.some
 import jumpaku.core.util.toJson
 import jumpaku.fsc.blend.Blender
 import jumpaku.fsc.blend.OverlapMatrix
-import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.Generator
+import jumpaku.fsc.generate.LinearFuzzifier
 import jumpaku.fxcomponents.nodes.cubicFsc
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
@@ -28,9 +29,10 @@ class AppBlend : App(ViewBlend::class)
 
 class ViewBlend : View() {
 
-    val generator = FscGenerator(
+    val generator = Generator(
             degree = 3,
-            knotSpan = 0.1)
+            knotSpan = 0.1,
+            fuzzifier = LinearFuzzifier(0.008581, 0.0007742))
 
     val blender = Blender(
             1.0/128,
@@ -55,7 +57,7 @@ class ViewBlend : View() {
             }*/
             onCurveDone { e ->
                 clear()
-                group.update(FscGenerator().generate(e.data))
+                group.update(generator.generate(e.data))
             }
         }
     }

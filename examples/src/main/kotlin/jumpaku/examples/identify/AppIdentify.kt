@@ -5,7 +5,7 @@ import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
-import jumpaku.fsc.generate.FscGenerator
+import jumpaku.fsc.generate.Generator
 import jumpaku.fsc.identify.CurveClass
 import jumpaku.fsc.identify.Open4Identifier
 import jumpaku.fsc.identify.Primitive7Identifier
@@ -30,7 +30,7 @@ class ViewIdentify : View() {
             prefHeight = 720.0
             onCurveDone { e ->
                 clear()
-                group.update(FscGenerator().generate(e.data))
+                group.update(Generator().generate(e.data))
             }
         }
     }

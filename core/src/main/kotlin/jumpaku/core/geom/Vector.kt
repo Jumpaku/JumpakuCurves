@@ -7,9 +7,21 @@ import com.google.gson.JsonElement
 import jumpaku.core.json.ToJson
 import jumpaku.core.util.*
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
+import org.apache.commons.math3.util.MathArrays
 
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
+
+fun linearCombination(vararg terms: Pair<Double, Vector>): Vector {
+    val cs = terms.map { it.first }.toDoubleArray()
+    val xs = terms.map { it.second.x }.toDoubleArray()
+    val ys = terms.map { it.second.y }.toDoubleArray()
+    val zs = terms.map { it.second.z }.toDoubleArray()
+    val x = MathArrays.linearCombination(cs, xs)
+    val y = MathArrays.linearCombination(cs, ys)
+    val z = MathArrays.linearCombination(cs, zs)
+    return Vector(x, y, z)
+}
 
 data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0): ToJson {
 

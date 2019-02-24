@@ -17,6 +17,8 @@ import org.junit.Test
 
 class DataPreparerTest {
 
+    val preparer = DataPreparer(2.0, 0.5, 0.5, 2)
+
     @Test
     fun testPrepare() {
         println("Prepare")
@@ -51,7 +53,7 @@ class DataPreparerTest {
                 ParamPoint(Point.xy(1.0, -2.0), 10.0),
                 ParamPoint(Point.xy(1.5, -3.0), 15.0),
                 ParamPoint(Point.xy(2.5, -5.0), 25.0))
-        val a = DataPreparer.fill(data, 2.0)
+        val a = preparer.fill(data)
 
         a.size.shouldBe(9)
         a[0].shouldEqualToParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
@@ -73,7 +75,7 @@ class DataPreparerTest {
                 listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it) }
         val (sub1, sub2) = BSplineFitter(2, knots)
-                .fit(DataPreparer.extendFront(data, 0.5, 0.5, 2)).subdivide(1.0)
+                .fit(preparer.extendFront(data)).subdivide(1.0)
         sub1.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow())
         sub2.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow())
     }
@@ -86,7 +88,7 @@ class DataPreparerTest {
                 listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val (sub1, sub2) = BSplineFitter(2, knots)
-                .fit(DataPreparer.extendBack(data, 0.5, 0.5, 2)).subdivide(1.0)
+                .fit(preparer.extendBack(data)).subdivide(1.0)
         sub1.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow())
         sub2.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow())
     }

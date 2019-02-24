@@ -39,7 +39,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
     fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.tryDiv(weight).isSuccess) {
         RationalBezier(listOf(
                 begin.toCrisp(),
-                far.divide(-1 / weight, begin.middle(end)).toCrisp(),
+                far.lerp(-1 / weight, begin.middle(end)).toCrisp(),
                 end.toCrisp()
         ).zip(listOf(1.0, weight, 1.0), ::WeightedPoint))
     }
@@ -57,18 +57,8 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
-
         val wt = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
-        val (p0, p1, p2) = representPoints.map { it.toVector() }
-        val p = ((1 - t) * (1 - 2 * t) * p0 + 2 * t * (1 - t) * (1 + weight) * p1 + t * (2 * t - 1) * p2) / wt
-        val (r0, r1, r2) = representPoints.map { it.r }
-        val r = listOf(
-                r0 * (1 - t) * (1 - 2 * t) / wt,
-                r1 * 2 * (weight + 1) * t * (1 - t) / wt,
-                r2 * t * (2 * t - 1) / wt
-        ).map { it.absoluteValue }.sum()
-
-        return Point(p.orThrow(), r)
+        return far.lerp((1 - t) * (1 - 2 * t) / wt to begin, t * (2 * t - 1) / wt to end)
     }
 
     fun transform(a: Transform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
@@ -82,11 +72,18 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     fun reverse(): ConicSection = ConicSection(end, far, begin, weight)
 
-    fun complement(): ConicSection =
-            ConicSection(begin, center().map { it.divide(-1.0, far) }.orDefault { far }, end, -weight)
+    fun complement(): ConicSection {
+        val farComplement = 1.0.tryDiv(1 - weight)
+                .tryMap { far.lerp(it to begin, it to end) }
+                .tryRecover { far }.orThrow()
+        return ConicSection(begin, farComplement, end, -weight)
+    }
 
-    fun center(): Option<Point> = weight.tryDiv(weight - 1).tryMap { begin.middle(end).divide(it, far) }.value()
+    fun center(): Option<Point> = 0.5.tryDiv(1 - weight).tryMap { far.lerp(it to begin, it to end) }.value()
 
+    /**
+     * Subdivides this at t into 2 conic sections
+     */
     fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
         val w = weight
         val p0 = begin.toVector()

@@ -2,7 +2,7 @@ package jumpaku.core.curve.arclength
 
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval
-import jumpaku.core.geom.divide
+import jumpaku.core.geom.lerp
 import jumpaku.core.geom.middle
 import jumpaku.core.util.*
 import org.apache.commons.math3.util.FastMath
@@ -90,14 +90,14 @@ data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, va
 
         val (t0, t2) = domain
         val u = ((t - t0).divOrDefault(t2 - t0) { 0.5 }).coerceIn(0.0, 1.0)
-        return b0.divide(u, b1).divide(u, b1.divide(u, b2)).coerceIn(range)
+        return b0.lerp(u, b1).lerp(u, b1.lerp(u, b2)).coerceIn(range)
     }
 
     fun invert(s: Double): Double {
         require(s in range) { "s($s) is out of range($range)" }
 
-        fun f(t: Double): Double = b0.divide(t, b1).divide(t, b1.divide(t, b2))
-        fun dfdt(t: Double): Double = (b1 - b0).divide(t, b2 - b1)*2
+        fun f(t: Double): Double = b0.lerp(t, b1).lerp(t, b1.lerp(t, b2))
+        fun dfdt(t: Double): Double = (b1 - b0).lerp(t, b2 - b1)*2
 
         /**
          * range -> [0, 1]
@@ -111,6 +111,6 @@ data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, va
             }
         }
 
-        return domain.let { (t0, t2) -> t0.divide(newton(), t2) }.coerceIn(domain)
+        return domain.let { (t0, t2) -> t0.lerp(newton(), t2) }.coerceIn(domain)
     }
 }
