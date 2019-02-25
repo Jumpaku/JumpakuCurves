@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.curves.fsc.snap.conicsection
 
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point

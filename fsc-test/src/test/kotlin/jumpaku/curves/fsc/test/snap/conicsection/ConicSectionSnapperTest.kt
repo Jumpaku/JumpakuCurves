@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.curves.fsc.test.snap.conicsection
 
 import com.github.salomonbrys.kotson.get
 import jumpaku.curves.core.geom.Point
@@ -7,16 +7,16 @@ import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.core.test.curve.rationalbezier.shouldEqualToConicSection
-import jumpaku.fsc.identify.primitive.CurveClass
-import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
-import jumpaku.fsc.snap.conicsection.ConjugateCombinator
-import jumpaku.fsc.snap.point.MFGS
+import jumpaku.curves.fsc.identify.primitive.CurveClass
+import jumpaku.curves.fsc.snap.Grid
+import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapper
+import jumpaku.curves.fsc.snap.conicsection.ConjugateCombinator
+import jumpaku.curves.fsc.snap.point.MFGS
 import org.junit.Test
 
 class ConicSectionSnapperTest {
 
-    val urlString = "/jumpaku/fsc/test/snap/conicsection/"
+    val urlString = "/jumpaku/curves/fsc/test/snap/conicsection/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val w = 1280.0

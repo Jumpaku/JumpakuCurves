@@ -1,9 +1,9 @@
-package jumpaku.core.curve
+package jumpaku.curves.core.curve
 
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.lerp
-import jumpaku.core.util.Result
-import jumpaku.core.util.result
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.lerp
+import jumpaku.curves.core.util.Result
+import jumpaku.curves.core.util.result
 import kotlin.math.pow
 
 fun chordalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE, power: Double = 1.0): Result<List<ParamPoint>> = result {

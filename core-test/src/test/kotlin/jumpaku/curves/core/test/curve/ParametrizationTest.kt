@@ -1,7 +1,7 @@
-package jumpaku.core.test.curve
+package jumpaku.curves.core.test.curve
 
-import jumpaku.core.curve.*
-import jumpaku.core.geom.Point
+import jumpaku.curves.core.curve.*
+import jumpaku.curves.core.geom.Point
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 import kotlin.math.sqrt

@@ -1,11 +1,9 @@
 
-package jumpaku.core.test.curve.nurbs
+package jumpaku.curves.core.test.curve.nurbs
 
-import jumpaku.core.curve.nurbs.Nurbs
-import jumpaku.core.test.curve.isCloseTo
-import jumpaku.core.test.geom.isCloseTo
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
+import jumpaku.curves.core.curve.nurbs.Nurbs
+import jumpaku.curves.core.test.curve.isCloseTo
+import jumpaku.curves.core.test.geom.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: Nurbs, expected: Nurbs, error: Double = 1.0e-9): Boolean =

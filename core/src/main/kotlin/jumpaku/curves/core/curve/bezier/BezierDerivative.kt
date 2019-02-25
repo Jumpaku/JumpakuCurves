@@ -1,4 +1,4 @@
-package jumpaku.core.curve.bezier
+package jumpaku.curves.core.curve.bezier
 
 import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.get
@@ -6,14 +6,12 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.curve.Derivative
-import jumpaku.core.curve.Differentiable
-import jumpaku.core.curve.Interval
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
-import jumpaku.core.json.ToJson
-import jumpaku.core.util.Result
-import jumpaku.core.util.result
+import jumpaku.curves.core.curve.Derivative
+import jumpaku.curves.core.curve.Differentiable
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.json.ToJson
 
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {

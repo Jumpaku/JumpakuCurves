@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.curves.fsc.snap.conicsection
 
 import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.transform.Calibrate

@@ -1,8 +1,8 @@
-package jumpaku.core.test.curve
+package jumpaku.curves.core.test.curve
 
-import jumpaku.core.curve.Knot
-import jumpaku.core.curve.KnotVector
-import jumpaku.core.test.isCloseTo
+import jumpaku.curves.core.curve.Knot
+import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.test.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: Knot, expected: Knot, error: Double = 1.0e-9): Boolean =

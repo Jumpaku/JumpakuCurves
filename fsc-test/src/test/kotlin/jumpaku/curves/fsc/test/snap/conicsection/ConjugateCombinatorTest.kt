@@ -1,12 +1,12 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.curves.fsc.test.snap.conicsection
 
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.test.geom.shouldEqualToPoint
-import jumpaku.fsc.snap.conicsection.CircularFeaturePoints
-import jumpaku.fsc.snap.conicsection.ConjugateCombinator
-import jumpaku.fsc.snap.conicsection.EllipticFeaturePoints
-import jumpaku.fsc.snap.conicsection.LinearFeaturePoints
+import jumpaku.curves.fsc.snap.conicsection.CircularFeaturePoints
+import jumpaku.curves.fsc.snap.conicsection.ConjugateCombinator
+import jumpaku.curves.fsc.snap.conicsection.EllipticFeaturePoints
+import jumpaku.curves.fsc.snap.conicsection.LinearFeaturePoints
 import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test

@@ -1,4 +1,4 @@
-package jumpaku.core.curve.rationalbezier
+package jumpaku.curves.core.curve.rationalbezier
 
 
 import com.github.salomonbrys.kotson.double
@@ -7,16 +7,15 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.curve.Curve
-import jumpaku.core.curve.Derivative
-import jumpaku.core.curve.Differentiable
-import jumpaku.core.curve.Interval
-import jumpaku.core.geom.*
-import jumpaku.core.json.ToJson
-import jumpaku.core.transform.Transform
-import jumpaku.core.util.*
+import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Derivative
+import jumpaku.curves.core.curve.Differentiable
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.geom.*
+import jumpaku.curves.core.json.ToJson
+import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.util.*
 import org.apache.commons.math3.util.FastMath
-import kotlin.math.absoluteValue
 
 
 /**

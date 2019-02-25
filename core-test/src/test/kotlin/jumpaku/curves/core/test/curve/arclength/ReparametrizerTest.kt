@@ -1,14 +1,12 @@
-package jumpaku.core.test.curve.arclength
+package jumpaku.curves.core.test.curve.arclength
 
-import jumpaku.core.curve.Interval
-import jumpaku.core.curve.arclength.MonotonicQuadratic
-import jumpaku.core.curve.arclength.Reparametrizer
-import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.geom.Point
-import jumpaku.core.test.curve.shouldEqualToInterval
-import jumpaku.core.test.shouldBeCloseTo
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.arclength.MonotonicQuadratic
+import jumpaku.curves.core.curve.arclength.Reparametrizer
+import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.curve.shouldEqualToInterval
+import jumpaku.curves.core.test.shouldBeCloseTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 

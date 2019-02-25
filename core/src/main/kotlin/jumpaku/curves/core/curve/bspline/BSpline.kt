@@ -1,16 +1,16 @@
-package jumpaku.core.curve.bspline
+package jumpaku.curves.core.curve.bspline
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.curve.*
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.geom.Divisible
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
-import jumpaku.core.json.ToJson
-import jumpaku.core.transform.Transform
-import jumpaku.core.util.*
+import jumpaku.curves.core.curve.*
+import jumpaku.curves.core.curve.bezier.Bezier
+import jumpaku.curves.core.geom.Divisible
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.json.ToJson
+import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.util.*
 
 
 class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curve, Differentiable, ToJson {

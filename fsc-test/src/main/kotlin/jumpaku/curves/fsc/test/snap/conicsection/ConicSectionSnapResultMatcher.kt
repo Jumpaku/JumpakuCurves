@@ -1,10 +1,10 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.curves.fsc.test.snap.conicsection
 
 import jumpaku.curves.core.test.curve.rationalbezier.isCloseTo
 import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.core.test.isCloseTo
-import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
-import jumpaku.fsc.test.snap.point.isCloseTo
+import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResult
+import jumpaku.curves.fsc.test.snap.point.isCloseTo
 import org.amshove.kluent.should
 
 

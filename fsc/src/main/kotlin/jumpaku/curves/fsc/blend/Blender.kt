@@ -1,4 +1,4 @@
-package jumpaku.fsc.blend
+package jumpaku.curves.fsc.blend
 
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint

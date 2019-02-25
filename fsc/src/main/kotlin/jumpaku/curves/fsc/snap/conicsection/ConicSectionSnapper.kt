@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.curves.fsc.snap.conicsection
 
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.transform.Calibrate
@@ -7,11 +7,11 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.util.orDefault
 import jumpaku.curves.core.util.result
 import jumpaku.curves.core.util.toOption
-import jumpaku.fsc.identify.primitive.CurveClass
-import jumpaku.fsc.identify.primitive.reference.reparametrize
-import jumpaku.fsc.identify.primitive.reparametrize
-import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.point.PointSnapper
+import jumpaku.curves.fsc.identify.primitive.CurveClass
+import jumpaku.curves.fsc.identify.primitive.reference.reparametrize
+import jumpaku.curves.fsc.identify.primitive.reparametrize
+import jumpaku.curves.fsc.snap.Grid
+import jumpaku.curves.fsc.snap.point.PointSnapper
 
 
 class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombinator: FeaturePointsCombinator) {

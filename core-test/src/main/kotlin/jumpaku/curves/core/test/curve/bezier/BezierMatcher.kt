@@ -1,7 +1,7 @@
-package jumpaku.core.test.curve.bezier
+package jumpaku.curves.core.test.curve.bezier
 
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.test.geom.isCloseTo
+import jumpaku.curves.core.curve.bezier.Bezier
+import jumpaku.curves.core.test.geom.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: Bezier, expected: Bezier, error: Double = 1.0e-9): Boolean =

@@ -1,4 +1,4 @@
-package jumpaku.fsc.test.blend
+package jumpaku.curves.fsc.test.blend
 
 import com.github.salomonbrys.kotson.array
 import jumpaku.curves.core.curve.ParamPoint
@@ -7,14 +7,14 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.core.test.curve.isCloseTo
 import jumpaku.curves.core.util.Option
-import jumpaku.fsc.blend.Blender
+import jumpaku.curves.fsc.blend.Blender
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 
 class BlenderTest {
 
-    val urlString = "/jumpaku/fsc/test/blend/"
+    val urlString = "/jumpaku/curves/fsc/test/blend/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val blender = Blender(

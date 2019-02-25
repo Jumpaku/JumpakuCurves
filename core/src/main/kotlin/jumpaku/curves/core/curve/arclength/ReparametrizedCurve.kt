@@ -1,12 +1,12 @@
-package jumpaku.core.curve.arclength
+package jumpaku.curves.core.curve.arclength
 
-import jumpaku.core.curve.Curve
-import jumpaku.core.curve.Interval
-import jumpaku.core.fuzzy.Grade
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.line
-import jumpaku.core.util.asVavr
-import jumpaku.core.util.orDefault
+import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.line
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.orDefault
 
 /**
  * maps arc-length ratio parameter to point on original curve.

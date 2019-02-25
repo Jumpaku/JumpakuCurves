@@ -1,13 +1,13 @@
-package jumpaku.core.test.curve.bezier
+package jumpaku.curves.core.test.curve.bezier
 
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
-import jumpaku.core.curve.Interval
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.curve.bezier.BezierDerivative
-import jumpaku.core.json.parseJson
-import jumpaku.core.test.geom.shouldEqualToVector
-import jumpaku.core.test.shouldBeCloseTo
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.bezier.Bezier
+import jumpaku.curves.core.curve.bezier.BezierDerivative
+import jumpaku.curves.core.json.parseJson
+import jumpaku.curves.core.test.geom.shouldEqualToVector
+import jumpaku.curves.core.test.shouldBeCloseTo
 import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 

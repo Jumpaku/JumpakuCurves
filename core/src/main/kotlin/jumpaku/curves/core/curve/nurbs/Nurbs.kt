@@ -1,19 +1,19 @@
-package jumpaku.core.curve.nurbs
+package jumpaku.curves.core.curve.nurbs
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.core.curve.*
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.bspline.BSplineDerivative
-import jumpaku.core.curve.rationalbezier.RationalBezier
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
-import jumpaku.core.geom.WeightedPoint
-import jumpaku.core.geom.times
-import jumpaku.core.json.ToJson
-import jumpaku.core.transform.Transform
-import jumpaku.core.util.*
+import jumpaku.curves.core.curve.*
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.bspline.BSplineDerivative
+import jumpaku.curves.core.curve.rationalbezier.RationalBezier
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.geom.WeightedPoint
+import jumpaku.curves.core.geom.times
+import jumpaku.curves.core.json.ToJson
+import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.util.*
 
 class Nurbs(
         controlPoints: Iterable<Point>,

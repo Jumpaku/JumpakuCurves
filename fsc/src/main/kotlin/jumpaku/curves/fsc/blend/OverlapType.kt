@@ -1,4 +1,4 @@
-package jumpaku.fsc.blend
+package jumpaku.curves.fsc.blend
 
 enum class OverlapType {
     ExistOverlap,

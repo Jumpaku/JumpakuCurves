@@ -1,9 +1,9 @@
-package jumpaku.core.test.curve.arclength
+package jumpaku.curves.core.test.curve.arclength
 
-import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.geom.Point
-import jumpaku.core.test.geom.shouldEqualToPoint
+import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
+import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.geom.shouldEqualToPoint
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 

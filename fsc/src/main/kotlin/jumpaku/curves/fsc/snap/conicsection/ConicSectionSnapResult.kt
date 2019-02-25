@@ -1,4 +1,4 @@
-package jumpaku.fsc.snap.conicsection
+package jumpaku.curves.fsc.snap.conicsection
 
 import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.get
@@ -13,7 +13,7 @@ import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.transform.toMatrixJson
 import jumpaku.curves.core.util.Option
 import jumpaku.curves.core.util.toJson
-import jumpaku.fsc.snap.point.PointSnapResult
+import jumpaku.curves.fsc.snap.point.PointSnapResult
 
 class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, candidates: Iterable<EvaluatedCandidate>) : ToJson {
 

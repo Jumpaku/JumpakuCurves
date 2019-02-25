@@ -1,4 +1,4 @@
-package jumpaku.fsc.generate.fit
+package jumpaku.curves.fsc.generate.fit
 
 import io.vavr.Tuple3
 import org.apache.commons.math3.linear.DiagonalMatrix

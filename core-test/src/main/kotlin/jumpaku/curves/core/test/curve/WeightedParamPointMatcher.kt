@@ -1,7 +1,7 @@
-package jumpaku.core.test.curve
+package jumpaku.curves.core.test.curve
 
-import jumpaku.core.curve.WeightedParamPoint
-import jumpaku.core.test.isCloseTo
+import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.core.test.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: WeightedParamPoint, expected: WeightedParamPoint, error: Double = 1.0e-9): Boolean =

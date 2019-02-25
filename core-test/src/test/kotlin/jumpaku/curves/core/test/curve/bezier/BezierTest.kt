@@ -1,15 +1,15 @@
-package jumpaku.core.test.curve.bezier
+package jumpaku.curves.core.test.curve.bezier
 
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
-import jumpaku.core.transform.Rotate
-import jumpaku.core.transform.Translate
-import jumpaku.core.transform.UniformlyScale
-import jumpaku.core.curve.bezier.Bezier
-import jumpaku.core.json.parseJson
-import jumpaku.core.test.geom.shouldEqualToPoint
-import jumpaku.core.test.geom.shouldEqualToVector
-import jumpaku.core.test.shouldBeCloseTo
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.transform.Rotate
+import jumpaku.curves.core.transform.Translate
+import jumpaku.curves.core.transform.UniformlyScale
+import jumpaku.curves.core.curve.bezier.Bezier
+import jumpaku.curves.core.json.parseJson
+import jumpaku.curves.core.test.geom.shouldEqualToPoint
+import jumpaku.curves.core.test.geom.shouldEqualToVector
+import jumpaku.curves.core.test.shouldBeCloseTo
 import org.amshove.kluent.shouldEqualTo
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test

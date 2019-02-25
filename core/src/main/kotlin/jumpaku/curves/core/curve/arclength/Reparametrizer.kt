@@ -1,10 +1,10 @@
-package jumpaku.core.curve.arclength
+package jumpaku.curves.core.curve.arclength
 
-import jumpaku.core.curve.Curve
-import jumpaku.core.curve.Interval
-import jumpaku.core.geom.lerp
-import jumpaku.core.geom.middle
-import jumpaku.core.util.*
+import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.geom.lerp
+import jumpaku.curves.core.geom.middle
+import jumpaku.curves.core.util.*
 import org.apache.commons.math3.util.FastMath
 
 class Reparametrizer private constructor(

@@ -1,9 +1,9 @@
-package jumpaku.fsc.test.snap.conicsection
+package jumpaku.curves.fsc.test.snap.conicsection
 
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.test.geom.shouldEqualToPoint
-import jumpaku.fsc.snap.conicsection.ConjugateBox
+import jumpaku.curves.fsc.snap.conicsection.ConjugateBox
 import org.apache.commons.math3.util.FastMath
 import org.junit.Test
 

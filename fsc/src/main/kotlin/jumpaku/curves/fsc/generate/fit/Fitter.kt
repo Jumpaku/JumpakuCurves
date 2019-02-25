@@ -1,4 +1,4 @@
-package jumpaku.fsc.generate.fit
+package jumpaku.curves.fsc.generate.fit
 
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.ParamPoint

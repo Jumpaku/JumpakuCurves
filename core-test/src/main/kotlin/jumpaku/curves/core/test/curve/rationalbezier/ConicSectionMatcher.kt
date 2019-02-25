@@ -1,9 +1,8 @@
-package jumpaku.core.test.curve.rationalbezier
+package jumpaku.curves.core.test.curve.rationalbezier
 
-import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.test.curve.isCloseTo
-import jumpaku.core.test.geom.isCloseTo
-import jumpaku.core.test.isCloseTo
+import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.test.geom.isCloseTo
+import jumpaku.curves.core.test.isCloseTo
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: ConicSection, expected: ConicSection, error: Double = 1.0e-9): Boolean =
