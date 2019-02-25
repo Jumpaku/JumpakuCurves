@@ -5,9 +5,11 @@ import jumpaku.curves.core.curve.arclength.MonotonicQuadratic
 import jumpaku.curves.core.curve.arclength.Reparametrizer
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.test.curve.shouldEqualToInterval
-import jumpaku.curves.core.test.shouldBeCloseTo
+import jumpaku.curves.core.test.closeTo
+import jumpaku.curves.core.test.curve.closeTo
 import org.apache.commons.math3.util.FastMath
+import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 
@@ -24,23 +26,23 @@ class ReparametrizerTest {
     @Test
     fun testRange() {
         println("Range")
-        r.range.shouldEqualToInterval(Interval.ZERO_ONE)
+        assertThat(r.range, `is`(closeTo(Interval.ZERO_ONE)))
     }
 
     @Test
     fun testToArcLength() {
         println("ToArcLength")
-        r.toArcLengthRatio(0.0).shouldBeCloseTo(0.0, 1.0)
-        r.toArcLengthRatio(0.5).shouldBeCloseTo(0.5, 1.0)
-        r.toArcLengthRatio(1.0).shouldBeCloseTo(1.0, 1.0)
+        assertThat(r.toArcLengthRatio(0.0), `is`(closeTo(0.0, 1.0)))
+        assertThat(r.toArcLengthRatio(0.5), `is`(closeTo(0.5, 1.0)))
+        assertThat(r.toArcLengthRatio(1.0), `is`(closeTo(1.0, 1.0)))
     }
 
     @Test
     fun testToOriginal() {
         println("ToOriginal")
-        r.toOriginal((0.0).coerceIn(r.range)).shouldBeCloseTo(0.0, 1.0e-3)
-        r.toOriginal((0.5).coerceIn(r.range)).shouldBeCloseTo(0.5, 1.0e-3)
-        r.toOriginal((1.0).coerceIn(r.range)).shouldBeCloseTo(1.0, 1.0e-3)
+        assertThat(r.toOriginal((0.0).coerceIn(r.range)), `is`(closeTo(0.0, 1.0e-3)))
+        assertThat(r.toOriginal((0.5).coerceIn(r.range)), `is`(closeTo(0.5, 1.0e-3)))
+        assertThat(r.toOriginal((1.0).coerceIn(r.range)), `is`(closeTo(1.0, 1.0e-3)))
     }
 }
 
@@ -56,35 +58,35 @@ class MonotonicQuadraticTest {
     @Test
     fun testInvoke() {
         println("Invoke")
-        q0(2.0).shouldBeCloseTo(2.0)
-        q0(3.0).shouldBeCloseTo(9.0)
-        q0(4.0).shouldBeCloseTo(14.0)
+        assertThat(q0(2.0), `is`(closeTo(2.0)))
+        assertThat(q0(3.0), `is`(closeTo(9.0)))
+        assertThat(q0(4.0), `is`(closeTo(14.0)))
 
-        q1(2.0).shouldBeCloseTo(2.0)
-        q1(3.0).shouldBeCloseTo(7.0)
-        q1(4.0).shouldBeCloseTo(14.0)
+        assertThat(q1(2.0), `is`(closeTo(2.0)))
+        assertThat(q1(3.0), `is`(closeTo(7.0)))
+        assertThat(q1(4.0), `is`(closeTo(14.0)))
 
-        q2(2.0).shouldBeCloseTo(2.0)
-        q2(3.0).shouldBeCloseTo(8.0)
-        q2(4.0).shouldBeCloseTo(14.0)
+        assertThat(q2(2.0), `is`(closeTo(2.0)))
+        assertThat(q2(3.0), `is`(closeTo(8.0)))
+        assertThat(q2(4.0), `is`(closeTo(14.0)))
     }
 
     @Test
     fun testInvert() {
         println("Invert")
-        q0.invert(2.0).shouldBeCloseTo(2.0)
-        q0.invert(9.0).shouldBeCloseTo(3.0)
-        q0.invert(14.0).shouldBeCloseTo(4.0)
+        assertThat(q0.invert(2.0), `is`(closeTo(2.0)))
+        assertThat(q0.invert(9.0), `is`(closeTo(3.0)))
+        assertThat(q0.invert(14.0), `is`(closeTo(4.0)))
 
-        q1.invert(2.0).shouldBeCloseTo(2.0)
-        q1.invert(7.0).shouldBeCloseTo(3.0)
-        q1.invert(14.0).shouldBeCloseTo(4.0)
+        assertThat(q1.invert(2.0), `is`(closeTo(2.0)))
+        assertThat(q1.invert(7.0), `is`(closeTo(3.0)))
+        assertThat(q1.invert(14.0), `is`(closeTo(4.0)))
 
-        q2.invert(2.0).shouldBeCloseTo(2.0)
+        assertThat(q2.invert(2.0), `is`(closeTo(2.0)))
 
-        q2.invert(5.0).shouldBeCloseTo(2.5)
-        q2.invert(8.0).shouldBeCloseTo(3.0)
-        q2.invert(11.0).shouldBeCloseTo(3.5)
-        q2.invert(14.0).shouldBeCloseTo(4.0)
+        assertThat(q2.invert(5.0), `is`(closeTo(2.5)))
+        assertThat(q2.invert(8.0), `is`(closeTo(3.0)))
+        assertThat(q2.invert(11.0), `is`(closeTo(3.5)))
+        assertThat(q2.invert(14.0), `is`(closeTo(4.0)))
     }
 }
