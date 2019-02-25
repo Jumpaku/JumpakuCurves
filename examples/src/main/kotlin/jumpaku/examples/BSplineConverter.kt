@@ -2,11 +2,11 @@ package jumpaku.examples
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import jumpaku.core.curve.Knot
-import jumpaku.core.curve.KnotVector
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.geom.Point
-import jumpaku.core.json.parseJson
+import jumpaku.curves.core.curve.Knot
+import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.json.parseJson
 import java.nio.file.Paths
 
 object BSplineConverter {

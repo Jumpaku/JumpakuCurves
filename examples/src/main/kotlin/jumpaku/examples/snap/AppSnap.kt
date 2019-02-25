@@ -4,25 +4,23 @@ import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.core.geom.Point
-import jumpaku.core.geom.Vector
-import jumpaku.core.json.parseJson
-import jumpaku.core.transform.Rotate
-import jumpaku.core.util.orDefault
-import jumpaku.fsc.generate.Generator
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.Open4Identifier
-import jumpaku.fsc.identify.reparametrize
-import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
-import jumpaku.fsc.snap.conicsection.ConjugateBox
-import jumpaku.fsc.snap.conicsection.ConjugateCombinator
-import jumpaku.fsc.snap.point.MFGS
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.transform.Rotate
+import jumpaku.curves.core.util.orDefault
+import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.identify.primitive.CurveClass
+import jumpaku.curves.fsc.identify.primitive.Open4Identifier
+import jumpaku.curves.fsc.identify.primitive.reparametrize
+import jumpaku.curves.fsc.snap.Grid
+import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapper
+import jumpaku.curves.fsc.snap.conicsection.ConjugateBox
+import jumpaku.curves.fsc.snap.conicsection.ConjugateCombinator
+import jumpaku.curves.fsc.snap.point.MFGS
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.*
-import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppSnap::class.java, *args)

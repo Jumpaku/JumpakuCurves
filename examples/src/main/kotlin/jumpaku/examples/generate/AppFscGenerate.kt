@@ -3,9 +3,9 @@ package jumpaku.examples.generate
 import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.fsc.generate.DataPreparer
-import jumpaku.fsc.generate.Generator
-import jumpaku.fsc.generate.LinearFuzzifier
+import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.fxcomponents.nodes.cubicFsc
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone

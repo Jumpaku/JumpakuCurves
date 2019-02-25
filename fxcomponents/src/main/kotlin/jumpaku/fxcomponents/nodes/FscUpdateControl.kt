@@ -13,13 +13,13 @@ import javafx.scene.control.Skin
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
-import jumpaku.core.curve.ParamPoint
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.curve.polyline.Polyline
-import jumpaku.core.geom.Point
-import jumpaku.core.util.*
-import jumpaku.fsc.blend.Blender
-import jumpaku.fsc.generate.Generator
+import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.polyline.Polyline
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.util.*
+import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.fsc.generate.Generator
 import tornadofx.add
 import tornadofx.circle
 import tornadofx.opcr
@@ -54,7 +54,7 @@ private class FscUpdateControlSkin(val control: FscUpdateControl) : Skin<FscUpda
         when {
             data.isEmpty() -> Unit
             data.size == 1 -> circle(data[0].point.x, data[0].point.y, 1) { stroke = Color.BLACK }
-            else -> polyline(Polyline.of(data.map(ParamPoint::point))) { stroke = Color.BLACK }
+            else -> polyline(Polyline.byArcLength(data.map(ParamPoint::point))) { stroke = Color.BLACK }
         }
     }
 }

@@ -3,9 +3,9 @@ package jumpaku.examples.fragment
 import javafx.application.Application
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.fsc.fragment.Fragment
-import jumpaku.fsc.fragment.Fragmenter
-import jumpaku.fsc.generate.Generator
+import jumpaku.curves.fsc.fragment.Fragment
+import jumpaku.curves.fsc.fragment.Fragmenter
+import jumpaku.curves.fsc.generate.Generator
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
 import jumpaku.fxcomponents.nodes.fuzzyCurve

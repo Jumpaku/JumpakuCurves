@@ -3,13 +3,13 @@ package jumpaku.fxcomponents.nodes
 import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
-import jumpaku.core.geom.Point
-import jumpaku.core.curve.polyline.Polyline
-import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.GridPoint
-import jumpaku.fsc.snap.conicsection.ConjugateBox
-import jumpaku.fsc.snap.point.PointSnapResult
-import jumpaku.fsc.snap.toWorldPoint
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.curve.polyline.Polyline
+import jumpaku.curves.fsc.snap.Grid
+import jumpaku.curves.fsc.snap.GridPoint
+import jumpaku.curves.fsc.snap.conicsection.ConjugateBox
+import jumpaku.curves.fsc.snap.point.PointSnapResult
+import jumpaku.curves.fsc.snap.toWorldPoint
 import org.apache.commons.math3.util.FastMath
 import tornadofx.circle
 import tornadofx.line
@@ -56,6 +56,6 @@ fun Parent.snappedPoint(grid: Grid, pointSnapResult: PointSnapResult, op: Shape.
 }
 
 fun Parent.conjugateBox(conjugateBox: ConjugateBox, op: Shape.()->Unit): Unit {
-    polyline(Polyline.of(conjugateBox.bottomLeft, conjugateBox.topLeft, conjugateBox.topRight, conjugateBox.bottomRight, conjugateBox.bottomLeft), op)
-    polyline(Polyline.of(conjugateBox.left, conjugateBox.top, conjugateBox.right, conjugateBox.bottom, conjugateBox.left), op)
+    polyline(Polyline.byArcLength(conjugateBox.bottomLeft, conjugateBox.topLeft, conjugateBox.topRight, conjugateBox.bottomRight, conjugateBox.bottomLeft), op)
+    polyline(Polyline.byArcLength(conjugateBox.left, conjugateBox.top, conjugateBox.right, conjugateBox.bottom, conjugateBox.left), op)
 }
