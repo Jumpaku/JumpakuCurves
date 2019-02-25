@@ -3,6 +3,8 @@ package jumpaku.curves.core.test.curve
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.WeightedParamPoint
 import jumpaku.curves.core.json.parseJson
+import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 
 
@@ -16,6 +18,7 @@ class WeightedParamPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        wpp.toString().parseJson().tryMap { WeightedParamPoint.fromJson(it) }.orThrow().shouldEqualToWeightedParamPoint(wpp)
+        val a = wpp.toString().parseJson().tryMap { WeightedParamPoint.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(wpp)))
     }
 }
