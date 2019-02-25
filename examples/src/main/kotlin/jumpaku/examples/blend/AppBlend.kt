@@ -1,27 +1,21 @@
 package jumpaku.examples.blend
 
-import com.github.salomonbrys.kotson.jsonArray
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import jumpaku.core.curve.bspline.BSpline
-import jumpaku.core.fuzzy.Grade
-import jumpaku.core.json.parseJson
-import jumpaku.core.util.Option
-import jumpaku.core.util.none
-import jumpaku.core.util.some
-import jumpaku.core.util.toJson
-import jumpaku.fsc.blend.Blender
-import jumpaku.fsc.blend.OverlapMatrix
-import jumpaku.fsc.generate.Generator
-import jumpaku.fsc.generate.LinearFuzzifier
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.util.Option
+import jumpaku.curves.core.util.none
+import jumpaku.curves.core.util.some
+import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.fxcomponents.nodes.cubicFsc
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
 import tornadofx.*
-import java.nio.file.Paths
-import kotlin.system.measureNanoTime
 
 fun main(vararg args: String) = Application.launch(AppBlend::class.java, *args)
 

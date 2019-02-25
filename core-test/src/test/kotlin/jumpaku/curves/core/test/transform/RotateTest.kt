@@ -1,0 +1,29 @@
+package jumpaku.curves.core.test.transform
+
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.transform.Rotate
+import jumpaku.curves.core.json.parseJson
+import jumpaku.curves.core.test.geom.shouldEqualToPoint
+import org.junit.jupiter.api.Test
+import kotlin.math.sqrt
+
+class RotateTest {
+
+    val t = Rotate.of(Vector(1.0, 1.0), Vector(0.0, 1.0))
+    val p = Point(2.0, 2.0, 2.0)
+    val r2 = sqrt(2.0)
+
+    @Test
+    fun testInvoke() {
+        println("Invoke")
+        t(p).shouldEqualToPoint(Point(0.0, r2*2, 2.0))
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = t.toString().parseJson().tryMap { Rotate.fromJson(it) }.orThrow()
+        a(p).shouldEqualToPoint(Point(0.0, r2*2, 2.0))
+    }
+}
