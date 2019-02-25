@@ -4,7 +4,7 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
 import jumpaku.fsc.identify.nquarter.NQuarterIdentifier
 import jumpaku.fsc.identify.nquarter.NQuarterIdentifyResult
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.reparametrize
 import org.junit.Test
 import java.nio.file.Paths
 

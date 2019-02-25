@@ -1,15 +1,13 @@
-package jumpaku.fsc.test.identify.reference
+package jumpaku.fsc.test.identify.primitive.reference
 
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.geom.Point
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.geom.shouldEqualToPoint
-import jumpaku.core.test.shouldBeCloseTo
-import jumpaku.fsc.identify.reference.Reference
-import jumpaku.fsc.test.identify.reference.shouldEqualToReference
+import jumpaku.fsc.identify.primitive.reference.Reference
+import jumpaku.fsc.test.identify.primitive.reference.shouldEqualToReference
 import org.junit.jupiter.api.Test
-import kotlin.math.PI
 import kotlin.math.sqrt
 
 class ReferenceTest {
@@ -17,7 +15,7 @@ class ReferenceTest {
     val r2 = sqrt(2.0)
 
     val circular = Reference(
-            ConicSection(Point.xy(-r2/2, -r2/2), Point.xy(0.0, 1.0), Point.xy(r2/2, -r2/2), -r2/2),
+            ConicSection(Point.xy(-r2 / 2, -r2 / 2), Point.xy(0.0, 1.0), Point.xy(r2 / 2, -r2 / 2), -r2 / 2),
             Interval(-0.5, 1.5))
 
     val linear = Reference(

@@ -9,7 +9,7 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonMap
 import jumpaku.core.json.map
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.reference.Reference
 
 class NQuarterIdentifyResult(grades: Map<NQuarterClass, Grade>,
                              val nQuarter1: Reference,

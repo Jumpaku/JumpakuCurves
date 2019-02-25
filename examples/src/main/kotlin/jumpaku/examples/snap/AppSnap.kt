@@ -8,13 +8,12 @@ import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
-import jumpaku.core.json.parseJson
 import jumpaku.core.transform.Rotate
 import jumpaku.core.util.orDefault
 import jumpaku.fsc.generate.Generator
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.Open4Identifier
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.Open4Identifier
+import jumpaku.fsc.identify.primitive.reparametrize
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateBox
@@ -22,7 +21,6 @@ import jumpaku.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.fsc.snap.point.MFGS
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.*
-import java.io.File
 
 
 fun main(vararg args: String) = Application.launch(AppSnap::class.java, *args)

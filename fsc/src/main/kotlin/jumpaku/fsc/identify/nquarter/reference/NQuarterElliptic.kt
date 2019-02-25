@@ -3,8 +3,8 @@ package jumpaku.fsc.identify.nquarter.reference
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.fsc.identify.reference.EllipticGenerator
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.reference.EllipticGenerator
+import jumpaku.fsc.identify.primitive.reference.Reference
 
 class NQuarterElliptic(val nSamples: Int) : NQuarterGenerator {
 

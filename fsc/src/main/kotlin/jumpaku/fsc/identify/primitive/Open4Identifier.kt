@@ -1,10 +1,10 @@
-package jumpaku.fsc.identify
+package jumpaku.fsc.identify.primitive
 
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
-import jumpaku.fsc.identify.reference.CircularGenerator
-import jumpaku.fsc.identify.reference.EllipticGenerator
-import jumpaku.fsc.identify.reference.LinearGenerator
+import jumpaku.fsc.identify.primitive.reference.CircularGenerator
+import jumpaku.fsc.identify.primitive.reference.EllipticGenerator
+import jumpaku.fsc.identify.primitive.reference.LinearGenerator
 
 class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15): Identifier {
 

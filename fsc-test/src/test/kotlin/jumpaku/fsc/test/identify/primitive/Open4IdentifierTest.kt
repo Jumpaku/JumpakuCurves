@@ -1,10 +1,10 @@
-package jumpaku.fsc.test.identify
+package jumpaku.fsc.test.identify.primitive
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.Open4Identifier
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.Open4Identifier
+import jumpaku.fsc.identify.primitive.reparametrize
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 import org.junit.jupiter.api.Assertions
@@ -12,7 +12,7 @@ import java.time.Duration
 
 class Open4IdentifierTest {
 
-    val urlString = "/jumpaku/fsc/test/identify/reference/"
+    val urlString = "/jumpaku/fsc/test/identify/primitive/reference/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val identifier = Open4Identifier(nSamples = 25, nFmps = 15)

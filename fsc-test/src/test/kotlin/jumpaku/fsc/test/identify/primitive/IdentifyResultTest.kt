@@ -1,13 +1,13 @@
-package jumpaku.fsc.test.identify
+package jumpaku.fsc.test.identify.primitive
 
 import jumpaku.core.curve.Interval
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
 import jumpaku.core.geom.Point
 import jumpaku.core.json.parseJson
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.IdentifyResult
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.IdentifyResult
+import jumpaku.fsc.identify.primitive.reference.Reference
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.Test
@@ -33,11 +33,11 @@ class IdentifyResultTest {
 
 
     val c = Reference(
-            ConicSection(Point.xy(-r2/2, -r2/2), Point.xy(0.0, 1.0), Point.xy(r2/2, -r2/2), -r2/2),
+            ConicSection(Point.xy(-r2 / 2, -r2 / 2), Point.xy(0.0, 1.0), Point.xy(r2 / 2, -r2 / 2), -r2 / 2),
             Interval(-0.5, 1.5))
 
     val e = Reference(
-            ConicSection(Point.xy(-r2/2, -r2/2), Point.xy(-r2/2, 1.0), Point.xy(r2/2, -r2/2), -r2/2),
+            ConicSection(Point.xy(-r2 / 2, -r2 / 2), Point.xy(-r2 / 2, 1.0), Point.xy(r2 / 2, -r2 / 2), -r2 / 2),
             Interval(-0.5, 1.5))
 
     val r = IdentifyResult(s, l, c, e)

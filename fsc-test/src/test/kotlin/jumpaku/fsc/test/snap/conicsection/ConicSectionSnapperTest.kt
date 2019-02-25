@@ -1,23 +1,17 @@
 package jumpaku.fsc.test.snap.conicsection
 
 import com.github.salomonbrys.kotson.get
-import jumpaku.core.util.component1
-import jumpaku.core.util.component2
 import jumpaku.core.geom.Point
 import jumpaku.core.geom.Vector
 import jumpaku.core.transform.Rotate
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.json.parseJson
 import jumpaku.core.test.curve.rationalbezier.shouldEqualToConicSection
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.reference.reparametrize
+import jumpaku.fsc.identify.primitive.CurveClass
 import jumpaku.fsc.snap.Grid
-import jumpaku.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.fsc.snap.point.MFGS
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldEqualTo
 import org.junit.Test
 
 class ConicSectionSnapperTest {

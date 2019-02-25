@@ -9,9 +9,9 @@ fun isCloseTo(a: NQuarterIdentifyResult, e: NQuarterIdentifyResult, error: Doubl
                 jumpaku.core.test.isCloseTo(a.grades[nQuarterClass]!!.value, e.grades[nQuarterClass]!!.value, error)
             } &&
             a.nQuarterClass == e.nQuarterClass &&
-            jumpaku.fsc.test.identify.reference.isCloseTo(a.nQuarter1, e.nQuarter1, error) &&
-            jumpaku.fsc.test.identify.reference.isCloseTo(a.nQuarter2, e.nQuarter2, error) &&
-            jumpaku.fsc.test.identify.reference.isCloseTo(a.nQuarter3, e.nQuarter3, error)
+            jumpaku.fsc.test.identify.primitive.reference.isCloseTo(a.nQuarter1, e.nQuarter1, error) &&
+            jumpaku.fsc.test.identify.primitive.reference.isCloseTo(a.nQuarter2, e.nQuarter2, error) &&
+            jumpaku.fsc.test.identify.primitive.reference.isCloseTo(a.nQuarter3, e.nQuarter3, error)
 
 fun NQuarterIdentifyResult.shouldBeCloseTo(expected: NQuarterIdentifyResult, error: Double = 1.0e-9): NQuarterIdentifyResult = this.should("$this should be $expected") {
     isCloseTo(this, expected, error)

@@ -7,9 +7,9 @@ import jumpaku.core.fuzzy.Grade
 import jumpaku.core.util.orDefault
 import jumpaku.core.util.result
 import jumpaku.core.util.toOption
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.reference.reparametrize
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.reference.reparametrize
+import jumpaku.fsc.identify.primitive.reparametrize
 import jumpaku.fsc.snap.Grid
 import jumpaku.fsc.snap.point.PointSnapper
 

@@ -1,4 +1,4 @@
-package jumpaku.fsc.identify
+package jumpaku.fsc.identify.primitive
 
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
@@ -10,7 +10,7 @@ import jumpaku.core.json.ToJson
 import jumpaku.core.json.jsonMap
 import jumpaku.core.json.map
 import jumpaku.core.util.*
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.reference.Reference
 
 class IdentifyResult(
         grades: Map<CurveClass, Grade>,

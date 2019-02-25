@@ -3,8 +3,8 @@ package jumpaku.fsc.identify.nquarter.reference
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
-import jumpaku.fsc.identify.reference.CircularGenerator
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.reference.CircularGenerator
+import jumpaku.fsc.identify.primitive.reference.Reference
 import org.apache.commons.math3.util.FastMath
 
 class NQuarterCircular : NQuarterGenerator {

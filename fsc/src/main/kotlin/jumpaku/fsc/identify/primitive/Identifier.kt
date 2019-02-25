@@ -1,4 +1,4 @@
-package jumpaku.fsc.identify
+package jumpaku.fsc.identify.primitive
 
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.Interval

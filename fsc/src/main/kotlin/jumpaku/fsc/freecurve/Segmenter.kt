@@ -4,9 +4,9 @@ import jumpaku.core.curve.Curve
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.fuzzy.Grade
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.Open4Identifier
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.Open4Identifier
+import jumpaku.fsc.identify.primitive.reparametrize
 import java.util.*
 
 class SegmentResult(val isConicSections: Grade, val segmentParamIndices: List<Int>, val segments: List<Segment.CS>)

@@ -1,4 +1,4 @@
-package jumpaku.fsc.identify
+package jumpaku.fsc.identify.primitive
 
 
 enum class CurveClass{

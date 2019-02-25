@@ -1,6 +1,6 @@
-package jumpaku.fsc.test.identify
+package jumpaku.fsc.test.identify.primitive
 
-import jumpaku.fsc.identify.CurveClass
+import jumpaku.fsc.identify.primitive.CurveClass
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.Test

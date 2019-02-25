@@ -3,7 +3,7 @@ package jumpaku.fsc.identify.nquarter
 import jumpaku.core.curve.Curve
 import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.fuzzy.Grade
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.reference.Reference
 import jumpaku.fsc.identify.nquarter.reference.NQuarterCircular
 import jumpaku.fsc.identify.nquarter.reference.NQuarterElliptic
 

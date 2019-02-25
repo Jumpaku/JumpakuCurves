@@ -1,18 +1,16 @@
-package jumpaku.fsc.test.identify
+package jumpaku.fsc.test.identify.primitive
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.IdentifyResult
-import jumpaku.fsc.identify.Primitive7Identifier
-import jumpaku.fsc.identify.reparametrize
-import org.amshove.kluent.shouldBe
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.Primitive7Identifier
+import jumpaku.fsc.identify.primitive.reparametrize
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class Primitive7IdentifierTest {
 
-    val urlString = "/jumpaku/fsc/test/identify/reference/"
+    val urlString = "/jumpaku/fsc/test/identify/primitive/reference/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val identifier = Primitive7Identifier(nSamples = 25, nFmps = 15)

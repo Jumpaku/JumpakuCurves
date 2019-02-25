@@ -1,16 +1,16 @@
-package jumpaku.fsc.test.identify.reference
+package jumpaku.fsc.test.identify.primitive.reference
 
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.core.json.parseJson
-import jumpaku.fsc.identify.reference.LinearGenerator
-import jumpaku.fsc.identify.reference.Reference
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.reference.LinearGenerator
+import jumpaku.fsc.identify.primitive.reference.Reference
+import jumpaku.fsc.identify.primitive.reparametrize
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.Test
 
 class LinearTest {
 
-    val urlString = "/jumpaku/fsc/test/identify/reference/"
+    val urlString = "/jumpaku/fsc/test/identify/primitive/reference/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val generator = LinearGenerator()

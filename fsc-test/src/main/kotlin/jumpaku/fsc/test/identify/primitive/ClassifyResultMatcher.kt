@@ -1,10 +1,10 @@
 
-package jumpaku.fsc.test.identify
+package jumpaku.fsc.test.identify.primitive
 
 import jumpaku.core.test.isCloseTo
 import jumpaku.core.util.asVavr
-import jumpaku.fsc.identify.IdentifyResult
-import jumpaku.fsc.test.identify.reference.isCloseTo
+import jumpaku.fsc.identify.primitive.IdentifyResult
+import jumpaku.fsc.test.identify.primitive.reference.isCloseTo
 import org.amshove.kluent.should
 
 

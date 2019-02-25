@@ -1,4 +1,4 @@
-package jumpaku.fsc.identify.reference
+package jumpaku.fsc.identify.primitive.reference
 
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
@@ -9,8 +9,6 @@ import jumpaku.core.curve.arclength.ReparametrizedCurve
 import jumpaku.core.curve.rationalbezier.ConicSection
 import jumpaku.core.geom.Point
 import jumpaku.core.json.ToJson
-import jumpaku.core.util.Result
-import jumpaku.core.util.result
 
 
 class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE): Curve, ToJson {
@@ -44,6 +42,6 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
     companion object {
 
         fun fromJson(json: JsonElement): Reference =
-            Reference(ConicSection.fromJson(json["base"]), Interval.fromJson(json["domain"]))
+                Reference(ConicSection.fromJson(json["base"]), Interval.fromJson(json["domain"]))
     }
 }

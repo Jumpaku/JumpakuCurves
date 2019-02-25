@@ -1,8 +1,8 @@
-package jumpaku.fsc.test.identify.reference
+package jumpaku.fsc.test.identify.primitive.reference
 
 import jumpaku.core.test.curve.isCloseTo
 import jumpaku.core.test.curve.rationalbezier.isCloseTo
-import jumpaku.fsc.identify.reference.Reference
+import jumpaku.fsc.identify.primitive.reference.Reference
 import org.amshove.kluent.should
 
 fun isCloseTo(actual: Reference, expected: Reference, error: Double = 1.0e-9): Boolean =

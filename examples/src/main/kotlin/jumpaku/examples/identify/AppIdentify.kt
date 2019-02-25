@@ -6,10 +6,10 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import jumpaku.core.curve.bspline.BSpline
 import jumpaku.fsc.generate.Generator
-import jumpaku.fsc.identify.CurveClass
-import jumpaku.fsc.identify.Open4Identifier
-import jumpaku.fsc.identify.Primitive7Identifier
-import jumpaku.fsc.identify.reparametrize
+import jumpaku.fsc.identify.primitive.CurveClass
+import jumpaku.fsc.identify.primitive.Open4Identifier
+import jumpaku.fsc.identify.primitive.Primitive7Identifier
+import jumpaku.fsc.identify.primitive.reparametrize
 import jumpaku.fxcomponents.nodes.*
 import tornadofx.App
 import tornadofx.View

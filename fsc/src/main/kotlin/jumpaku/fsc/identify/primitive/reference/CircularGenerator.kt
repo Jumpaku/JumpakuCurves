@@ -1,4 +1,4 @@
-package jumpaku.fsc.identify.reference
+package jumpaku.fsc.identify.primitive.reference
 
 import io.vavr.API
 import io.vavr.Tuple3
