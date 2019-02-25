@@ -9,6 +9,8 @@ import jumpaku.fsc.generate.Generator
 import jumpaku.fsc.generate.LinearFuzzifier
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import java.time.Duration
 
 class FscGeneratorTest {
 
@@ -18,13 +20,13 @@ class FscGeneratorTest {
     val generator = Generator(
             degree = 3,
             knotSpan = 0.1,
-            preparer = DataPreparer(0.1/3, 0.1, 0.1, 2),
+            preparer = DataPreparer(0.1 / 3, 0.1, 0.1, 2),
             fuzzifier = LinearFuzzifier(0.004, 0.003))
 
     @Test
     fun testGenerate() {
         println("Generate")
-        (0..2).forEach { i ->
+        (0..3).forEach { i ->
             val data = resourceText("Data$i.json").parseJson().orThrow().array.map { ParamPoint.fromJson(it) }
             val e = resourceText("Fsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val a = generator.generate(data)
@@ -33,4 +35,19 @@ class FscGeneratorTest {
             }
         }
     }
+
+    @Test
+    fun testGenerate_Time() {
+        println("Generate_Time")
+        val data = (0..3).map { resourceText("Data$it.json").parseJson().orThrow().array.map { ParamPoint.fromJson(it) } }
+        data.forEach { generator.generate(it) }
+        data.forEachIndexed { i, d ->
+            val b = System.nanoTime()
+            Assertions.assertTimeoutPreemptively(Duration.ofMillis(300)) {
+                generator.generate(d)
+                println("    $i: ${d.last().param - d.first().param}, ${(System.nanoTime() - b) * 1e-9} [s]")
+            }
+        }
+    }
+
 }

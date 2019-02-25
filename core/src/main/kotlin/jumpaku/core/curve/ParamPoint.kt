@@ -12,6 +12,9 @@ import jumpaku.core.json.ToJson
 
 data class ParamPoint(val point: Point, val param: Double) : Divisible<ParamPoint>, ToJson {
 
+    init {
+        require(param.isFinite()) { "param($param)" }
+    }
     override fun lerp(vararg terms: Pair<Double, ParamPoint>): ParamPoint = ParamPoint(
             point.lerp(*terms.map { (c, p) -> c to p.point }.toTypedArray()),
             param.lerp(*terms.map { (c, p) -> c to p.param }.toTypedArray()))

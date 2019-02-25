@@ -50,7 +50,6 @@ class ShaperTest {
         }
     }
 
-
     @Test
     fun testShape_Time() {
         println("Shape_Time")

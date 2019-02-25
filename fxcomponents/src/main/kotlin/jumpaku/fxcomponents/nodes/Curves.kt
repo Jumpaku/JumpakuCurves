@@ -47,7 +47,7 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
 
 fun Parent.curve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {
     val c = ReparametrizedCurve.approximate(curve, 1.0)
-    polyline(Polyline.of(c.evaluateAll(delta/c.chordLength)), op)
+    polyline(Polyline.byArcLength(c.evaluateAll(delta/c.chordLength)), op)
 }
 
 fun Parent.fuzzyCurve(curve: Curve, delta: Double = 5.0, op: (Shape.() -> Unit)) {

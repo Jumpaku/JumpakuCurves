@@ -51,7 +51,7 @@ private class FscControlSkin(val control: FscControl) : Skin<FscControl> {
         when {
             points.isEmpty() -> Unit
             points.size == 0 -> circle(points[0].point.x, points[0].point.y, 1) { stroke = Color.BLACK }
-            else -> polyline(Polyline.of(points.map(ParamPoint::point))) { stroke = Color.BLACK }
+            else -> polyline(Polyline.byArcLength(points.map(ParamPoint::point))) { stroke = Color.BLACK }
         }
     }
 }

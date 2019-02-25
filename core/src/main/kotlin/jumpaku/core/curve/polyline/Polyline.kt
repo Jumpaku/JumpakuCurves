@@ -14,12 +14,9 @@ import jumpaku.core.util.asVavr
 import org.apache.commons.math3.util.Precision
 
 
-/**
- * Polyline parametrized by arc-length.
- */
 class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
-    private val paramPoints: List<ParamPoint> = paramPoints.toList()
+    val paramPoints: List<ParamPoint> = paramPoints.sortedBy { it.param }
 
     private val parameters: List<Double> = paramPoints.map(ParamPoint::param)
 
@@ -33,7 +30,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("points" to jsonArray(points.map { it.toJson() }))
+    override fun toJson(): JsonElement = jsonObject("paramPoints" to jsonArray(paramPoints.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
@@ -56,46 +53,37 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
         return listOf(points.first()) + evaluated + listOf(points.last())
     }
 
-    private fun evaluateInSpan(t: Double, index: Int): Point = points[index].lerp(
-                (t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
+    private fun evaluateInSpan(t: Double, index: Int): Point =
+            points[index].lerp((t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
 
-    fun transform(a: Transform): Polyline = of(points.map(a::invoke))
+    fun transform(a: Transform): Polyline = byArcLength(points.map(a::invoke))
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 
-    fun reverse(): Polyline = Polyline(points.reversed().zip(parameters.map { domain.end + domain.begin - it }.reversed(), ::ParamPoint))
+    fun reverse(): Polyline =
+            Polyline(points.reversed().zip(parameters.map { domain.end + domain.begin - it }.reversed(), ::ParamPoint))
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
 
-    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin)._2().subdivide(end-begin)._1()
+    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin)._2().subdivide(end)._1()
 
     fun subdivide(t: Double): Tuple2<Polyline, Polyline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val index = parameters.asVavr().search(t)
         return when{
-            index >= 0 ->
-                Tuple2(Polyline(paramPoints.take(index + 1)),
-                        Polyline(paramPoints.drop(index).map { it.copy(param = it.param - t) }))
-            Precision.equals(parameters[-2-index], t, 1.0e-10) ->
-                Tuple2(Polyline(paramPoints.take(-1 - index)),
-                        Polyline(paramPoints.drop(-2 - index).map { it.copy(param = it.param - t) }))
-            Precision.equals(parameters[-1-index], t, 1.0e-10) ->
-                Tuple2(Polyline(paramPoints.take(-index)),
-                        Polyline(paramPoints.drop(-1 - index).map { it.copy(param = it.param - t) }))
+            index >= 0 -> Tuple2(Polyline(paramPoints.take(index + 1)), Polyline(paramPoints.drop(index)))
             else -> {
                 val p = evaluate(t)
-                Tuple2(
-                        paramPoints.take(-1 - index) + listOf(ParamPoint(p, t)),
-                        (listOf(ParamPoint(p, t)) + paramPoints.drop(-1 - index))
-                ).map(::Polyline, { Polyline(it.map { it.copy(param = it.param - t) }) })
+                Tuple2(Polyline(paramPoints.take(-1 - index) + listOf(ParamPoint(p, t))),
+                        Polyline((listOf(ParamPoint(p, t)) + paramPoints.drop(-1 - index))))
             }
         }
     }
 
     companion object {
 
-        fun of(points: Iterable<Point>): Polyline {
+        fun byArcLength(points: Iterable<Point>): Polyline {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
             val paramPoints = chordalParametrize(points.toList())
                     .tryMap { transformParams(it, range = Interval(0.0, arcLength)) }
@@ -103,8 +91,8 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
             return Polyline(paramPoints.orThrow())
         }
 
-        fun of(vararg points: Point): Polyline = of(points.asIterable())
+        fun byArcLength(vararg points: Point): Polyline = byArcLength(points.asIterable())
 
-        fun fromJson(json: JsonElement): Polyline = of(json["points"].array.map { Point.fromJson(it) })
+        fun fromJson(json: JsonElement): Polyline = Polyline(json["paramPoints"].array.map { ParamPoint.fromJson(it) })
     }
 }

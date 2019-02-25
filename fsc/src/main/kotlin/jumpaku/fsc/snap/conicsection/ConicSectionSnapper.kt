@@ -105,8 +105,8 @@ class ConicSectionSnapper(val pointSnapper: PointSnapper, val featurePointsCombi
     companion object {
 
         fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15)
-                : (ConicSectionSnapResult.Candidate) -> Double = {
-            reparametrize(original.transform(it.transform)).isPossible(reparametrize(fsc), nFmps).value
+                : (ConicSectionSnapResult.Candidate) -> Grade = {
+            reparametrize(original.transform(it.transform)).isPossible(reparametrize(fsc), nFmps)
         }
 
         fun evaluateWithReference(original: ConicSection, nFmps: Int = 15)
