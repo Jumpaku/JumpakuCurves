@@ -4,6 +4,7 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.line
 import jumpaku.curves.core.util.orDefault
 import java.util.*
@@ -23,6 +24,11 @@ interface Identifier {
 fun reparametrize(fsc: BSpline, maxSamples: Int = 65): ReparametrizedCurve<BSpline> = fsc.run {
     val ts = knotVector.knots.map { it.value }.filter { it in domain }
     ReparametrizedCurve.of(fsc, if (ts.size <= maxSamples) ts else approximateParams(maxSamples))
+}
+
+fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> = conicSection.let {
+    val ts = listOf(0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0)
+    ReparametrizedCurve.of(it, ts)
 }
 
 private fun BSpline.approximateParams(n: Int): List<Double> {
