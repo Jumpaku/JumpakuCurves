@@ -3,7 +3,9 @@ package jumpaku.curves.core.test
 import org.amshove.kluent.should
 import org.apache.commons.math3.util.Precision
 import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
+import org.hamcrest.Matchers
 
 
 fun <A> matcher(message: String, test: (A) -> Boolean): TypeSafeMatcher<A> = object : TypeSafeMatcher<A>() {
@@ -13,13 +15,9 @@ fun <A> matcher(message: String, test: (A) -> Boolean): TypeSafeMatcher<A> = obj
     override fun matchesSafely(actual: A): Boolean = test(actual)
 }
 
-fun closeTo(expected: Double, precision: Double = 1.0e-9): TypeSafeMatcher<Double> =
-        matcher("close to <$expected> with precision $precision") { actual ->
-            isCloseTo(actual, expected, precision)
-        }
-
 fun isCloseTo(actual: Double, expected: Double, error: Double = 1.0e-9): Boolean = Precision.equals(actual, expected, error)
 
+fun closeTo(expected: Double, precision: Double = 1.0e-9): Matcher<Double> = Matchers.closeTo(expected, precision)
 
 fun <A> eachItemMatchesWith(list: List<A>, test: (A, A) -> Boolean): TypeSafeMatcher<List<A>> =
         matcher("each item matches with <$list>") { actual ->

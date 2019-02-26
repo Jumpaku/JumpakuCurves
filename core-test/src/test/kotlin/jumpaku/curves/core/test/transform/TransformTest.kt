@@ -3,8 +3,10 @@ package jumpaku.curves.core.test.transform
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.geom.shouldEqualToPoint
+import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.*
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 
@@ -22,38 +24,38 @@ class TransformTest {
     @Test
     fun testAndThen() {
         println("AndThen")
-        r.andThen(t).andThen(s)(p).shouldEqualToPoint(Point(2.0, r2*4+4, -2.0))
+        assertThat(r.andThen(t).andThen(s)(p), `is`(closeTo(Point(2.0, r2*4+4, -2.0))))
     }
 
     @Test
     fun testAt() {
         println("At")
-        r.at(o)(p).shouldEqualToPoint(Point(r2, 2+r2, 2.0))
-        t.at(o)(p).shouldEqualToPoint(Point(3.0, 4.0, -1.0))
-        s.at(o)(p).shouldEqualToPoint(Point(4.0, 2.0, 2.0))
+        assertThat(r.at(o)(p), `is`(closeTo(Point(r2, 2+r2, 2.0))))
+        assertThat(t.at(o)(p), `is`(closeTo(Point(3.0, 4.0, -1.0))))
+        assertThat(s.at(o)(p), `is`(closeTo(Point(4.0, 2.0, 2.0))))
     }
 
 
     @Test
     fun testInvert() {
         println("Invert")
-        r.invert().orThrow()(p).shouldEqualToPoint(Point(2*r2, 0.0, 2.0))
-        t.invert().orThrow()(p).shouldEqualToPoint(Point(1.0, 0.0, 5.0))
-        s.invert().orThrow()(p).shouldEqualToPoint(Point(1.0, 1.0, 1.0))
+        assertThat(r.invert().orThrow()(p), `is`(closeTo(Point(2*r2, 0.0, 2.0))))
+        assertThat(t.invert().orThrow()(p), `is`(closeTo(Point(1.0, 0.0, 5.0))))
+        assertThat(s.invert().orThrow()(p), `is`(closeTo(Point(1.0, 1.0, 1.0))))
     }
 
     @Test
     fun testIdentity() {
         println("Identity")
-        Transform.Identity(p).shouldEqualToPoint(p)
-        Transform.Identity.invert().orThrow()(p).shouldEqualToPoint(p)
+        assertThat(Transform.Identity(p), `is`(closeTo(p)))
+        assertThat(Transform.Identity.invert().orThrow()(p), `is`(closeTo(p)))
     }
 
     @Test
     fun testToMatrixJson() {
         println("ToMatrixJson")
         val e = r.at(o)(p)
-        r.at(o).toMatrixJson()
-                .toString().parseJson().tryMap { Transform.fromMatrixJson(it) }.orThrow()(p).shouldEqualToPoint(e)
+        assertThat(r.at(o).toMatrixJson()
+                .toString().parseJson().tryMap { Transform.fromMatrixJson(it) }.orThrow()(p), `is`(closeTo(e)))
     }
 }

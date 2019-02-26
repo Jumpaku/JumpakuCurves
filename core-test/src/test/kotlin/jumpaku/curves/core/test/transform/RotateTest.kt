@@ -4,7 +4,9 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.geom.shouldEqualToPoint
+import jumpaku.curves.core.test.geom.closeTo
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 
@@ -17,13 +19,13 @@ class RotateTest {
     @Test
     fun testInvoke() {
         println("Invoke")
-        t(p).shouldEqualToPoint(Point(0.0, r2*2, 2.0))
+        assertThat(t(p), `is`(closeTo(Point(0.0, r2*2, 2.0))))
     }
 
     @Test
     fun testToString() {
         println("ToString")
         val a = t.toString().parseJson().tryMap { Rotate.fromJson(it) }.orThrow()
-        a(p).shouldEqualToPoint(Point(0.0, r2*2, 2.0))
+        assertThat(a(p), `is`(closeTo(Point(0.0, r2*2, 2.0))))
     }
 }

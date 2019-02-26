@@ -14,6 +14,10 @@ data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1
 
     constructor(point: Point, param: Double, weight: Double = 1.0) : this(ParamPoint(point, param), weight)
 
+    init {
+        require(weight.isFinite()) { "weight($weight)" }
+    }
+
     val point: Point = paramPoint.point
 
     val param: Double = paramPoint.param

@@ -16,6 +16,8 @@ class Reparametrizer private constructor(
         require(originalParams.size > 1) { "originalToArcLength.size() is too small"}
         require(arcLengthParams.size == originalParams.size) { "arcLengthParams.size() != originalParams.size()" }
         require(quadratics.size == originalParams.size - 1) { "quadratics.size() != originalParams.size() - 1" }
+        require(originalParams.all { it.isFinite() }) { "originalParams contains infinite value" }
+        require(arcLengthParams.all { it.isFinite() }) { "arcLengthParams contains infinite value" }
     }
 
     val domain: Interval = Interval(originalParams.first(), originalParams.last())
@@ -60,6 +62,7 @@ class Reparametrizer private constructor(
         }
 
         fun of(curve: Curve, originalParams: Iterable<Double>): Reparametrizer {
+            require(originalParams.all { it.isFinite() }) { "originalParams contains infinite value" }
             val params = originalParams.toList()
             require(params.size > 1) { "originalToArcLength.size() is too small"}
 

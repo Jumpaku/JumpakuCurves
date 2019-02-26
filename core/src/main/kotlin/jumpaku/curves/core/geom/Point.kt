@@ -6,7 +6,6 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.fuzzy.Membership
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.util.*
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
@@ -17,7 +16,7 @@ import kotlin.math.abs
 
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
-        Membership<Point, Point>, Divisible<Point>, ToJson {
+        Lerpable<Point>, ToJson {
 
     constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
 
@@ -32,15 +31,11 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     fun toDoubleArray(): DoubleArray = toVector().toDoubleArray()
 
-    override fun membership(p: Point): Grade = dist(p).tryDiv(r)
+    fun isPossible(u: Point): Grade = dist(u).tryDiv(r + u.r)
             .tryMap { Grade.clamped(1 - it) }.value()
-            .orDefault(Grade(isCloseTo(this, p)))
+            .orDefault(Grade(1.0.tryDiv(this.dist(u)).isFailure))
 
-    override fun isPossible(u: Point): Grade = dist(u).tryDiv(r + u.r)
-            .tryMap { Grade.clamped(1 - it) }.value()
-            .orDefault(Grade(isCloseTo(this, u)))
-
-    override fun isNecessary(u: Point): Grade {
+    fun isNecessary(u: Point): Grade {
         val d = this.dist(u)
         return d.tryDiv(r + u.r)
                 .tryMap { if (d < u.r) Grade.clamped(1 - (r + d) / (r + u.r)) else Grade.FALSE }.value()

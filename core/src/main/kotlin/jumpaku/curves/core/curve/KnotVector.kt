@@ -29,6 +29,10 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
 
     constructor(degree: Int, vararg knots: Knot) : this(degree, knots.toList())
 
+    init {
+        require(degree >= 0) { "degree($degree)" }
+    }
+
     val knots: List<Knot> = knots.toList()
 
     val extractedKnots: List<Double> = knots.flatMap { (v, m) -> List(m) { v } }
@@ -127,6 +131,8 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
         fun fromJson(json: JsonElement): KnotVector = KnotVector(json["degree"].int, json["knots"].array.map { Knot.fromJson(it) })
 
         fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {
+            require(degree >= 0) { "degree($degree)" }
+            require(knotSize > 1) { "knotSize($knotSize)" }
             val h = degree
             val l = knotSize - 1 - degree
             return KnotVector(degree,
@@ -134,6 +140,8 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
         }
 
         fun clamped(domain: Interval, degree: Int, knotSize: Int): KnotVector {
+            require(degree >= 0) { "degree($degree)" }
+            require(knotSize > 1) { "knotSize($knotSize)" }
             val nSpans = knotSize - 2 * degree - 1
             val (b, e) = domain
             val middle = (1 until nSpans).map { Knot(b.lerp(it / nSpans.toDouble(), e)) }

@@ -11,7 +11,7 @@ import jumpaku.curves.core.util.result
 
 fun Point.weighted(weight: Double = 1.0): WeightedPoint = WeightedPoint(this, weight)
 
-data class WeightedPoint(val point: Point, val weight: Double = 1.0): Divisible<WeightedPoint>, ToJson {
+data class WeightedPoint(val point: Point, val weight: Double = 1.0): Lerpable<WeightedPoint>, ToJson {
 
     override fun lerp(vararg terms: Pair<Double, WeightedPoint>): WeightedPoint {
         val w = weight.lerp(*terms.map { (c, wp) -> c to wp.weight }.toTypedArray())

@@ -7,6 +7,7 @@ buildscript {
     ext.dependencyVersions = [
             'junit4': '4.12',
             'junit5': '5.1.0',
+            'hamcrest': '2.1',
             'kluent': '1.38',
             'commons_math3': '3.6.1',
             'kotson': '2.5.0',
@@ -108,6 +109,7 @@ project(':core-test') {
         testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
         testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
+        compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
 
         compile "org.amshove.kluent:kluent:${dependencyVersions.kluent}"
         compile project(':core')
@@ -129,6 +131,7 @@ project(':fsc-test') {
         testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
         testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
+        compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
 
         compile "org.amshove.kluent:kluent:${dependencyVersions.kluent}"
         compile project(':fsc')
