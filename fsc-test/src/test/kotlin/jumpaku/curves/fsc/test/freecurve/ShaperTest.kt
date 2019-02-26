@@ -13,16 +13,16 @@ import jumpaku.curves.fsc.freecurve.SmoothResult
 import jumpaku.curves.fsc.freecurve.Smoother
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.Test
+import org.junit.Testr
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
-import java.io.File
 import java.time.Duration
 
 class ShaperTest {
 
-    val parent = "src/test/resources/jumpaku/curves/fsc/test/freecurve"
+    val urlString = "/jumpaku/curves/fsc/test/freecurve/"
+    fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
-    fun parseSmoothResult(name: String): SmoothResult = File(parent, name + "Result.json").parseJson().tryMap { json ->
+    fun parseSmoothResult(name: String): SmoothResult = resourceText(name + "Result.json").parseJson().tryMap { json ->
         SmoothResult(
                 json["conicSections"].array.map { ConicSection.fromJson(it) },
                 json["cubicBeziers"].array.map { Bezier.fromJson(it) })
@@ -37,7 +37,7 @@ class ShaperTest {
         it.domain.sample(0.1)
     }
 
-    fun parseJsonBSpline(name: String): JsonElement = File(parent, name + "Fsc.json").parseJson().orThrow()
+    fun parseJsonBSpline(name: String): JsonElement = resourceText(name + "Fsc.json").parseJson().orThrow()
 
     @Test
     fun testShape() {
