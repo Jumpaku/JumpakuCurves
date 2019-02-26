@@ -13,7 +13,7 @@ import jumpaku.curves.fsc.freecurve.SmoothResult
 import jumpaku.curves.fsc.freecurve.Smoother
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.Testr
+import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import java.time.Duration
 
