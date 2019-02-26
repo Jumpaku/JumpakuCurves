@@ -1,6 +1,9 @@
 package jumpaku.curves.fsc.snap
 
-import com.github.salomonbrys.kotson.*
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.long
+import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.json.ToJson

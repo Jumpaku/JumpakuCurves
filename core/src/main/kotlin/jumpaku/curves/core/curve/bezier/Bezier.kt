@@ -14,7 +14,10 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.component1
+import jumpaku.curves.core.util.component2
+import jumpaku.curves.core.util.isOdd
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 

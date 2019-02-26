@@ -2,10 +2,11 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.curves.core.test.isCloseTo
+import jumpaku.curves.core.test.matcher
 import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.fsc.identify.primitive.IdentifyResult
 import jumpaku.curves.fsc.test.identify.primitive.reference.isCloseTo
-import org.amshove.kluent.should
+import org.hamcrest.TypeSafeMatcher
 
 
 fun isCloseTo(actual: IdentifyResult, expected: IdentifyResult, error: Double = 1.0e-9): Boolean =
@@ -18,6 +19,8 @@ fun isCloseTo(actual: IdentifyResult, expected: IdentifyResult, error: Double = 
                 && isCloseTo(actual.circular, expected.circular, error)
                 && isCloseTo(actual.elliptic, expected.elliptic, error)
 
-fun IdentifyResult.shouldEqualToClassifyResult(expected: IdentifyResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}
+fun closeTo(expected: IdentifyResult, precision: Double = 1.0e-9): TypeSafeMatcher<IdentifyResult> =
+        matcher("close to <$expected> with precision $precision") { actual ->
+            isCloseTo(actual, expected, precision)
+        }
+

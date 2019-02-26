@@ -7,7 +7,10 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
-import jumpaku.curves.core.geom.*
+import jumpaku.curves.core.geom.Line
+import jumpaku.curves.core.geom.Plane
+import jumpaku.curves.core.geom.lerp
+import jumpaku.curves.core.geom.line
 import jumpaku.curves.core.util.*
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 

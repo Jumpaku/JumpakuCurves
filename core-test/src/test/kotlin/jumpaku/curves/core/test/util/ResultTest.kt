@@ -4,7 +4,6 @@ import jumpaku.curves.core.util.failure
 import jumpaku.curves.core.util.flatten
 import jumpaku.curves.core.util.result
 import jumpaku.curves.core.util.success
-import org.amshove.kluent.*
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThat

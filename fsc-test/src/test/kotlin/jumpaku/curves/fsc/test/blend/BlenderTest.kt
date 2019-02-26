@@ -5,11 +5,11 @@ import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.curve.isCloseTo
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.util.Option
 import jumpaku.curves.fsc.blend.Blender
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqualTo
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class BlenderTest {
@@ -33,11 +33,11 @@ class BlenderTest {
                 Option.fromJson(it).map { it.array.map { ParamPoint.fromJson(it) } }
             }.orThrow()
             val actual = blender.blend(existing, overlapping)
-            actual.isDefined.shouldBe(expected.isDefined)
+            assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual.isDefined) {
-                actual.orThrow().size.shouldEqualTo(expected.orThrow().size)
+                assertThat(actual.orThrow().size, `is`(expected.orThrow().size))
                 actual.orThrow().zip(expected.orThrow()).forEach { (e, a) ->
-                    isCloseTo(a, e)
+                    assertThat(a, `is`(closeTo(e, 1e-6)))
                 }
             }
         }

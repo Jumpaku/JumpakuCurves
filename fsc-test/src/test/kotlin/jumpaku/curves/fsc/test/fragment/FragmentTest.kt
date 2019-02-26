@@ -3,6 +3,8 @@ package jumpaku.curves.fsc.test.fragment
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.fragment.Fragment
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class FragmentTest {
@@ -12,6 +14,7 @@ class FragmentTest {
     @Test
     fun testToString() {
         println("ToString")
-        f.toString().parseJson().tryMap { Fragment.fromJson(it) }.orThrow().shouldEqualToFragment(f)
+        val a = f.toString().parseJson().tryMap { Fragment.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(f)))
     }
 }

@@ -2,7 +2,6 @@ package jumpaku.curves.core.test.curve
 
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
-import org.amshove.kluent.shouldEqualTo
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

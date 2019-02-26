@@ -3,10 +3,10 @@ package jumpaku.curves.core.curve.bspline
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
-import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.BezierDerivative
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.util.Option
 

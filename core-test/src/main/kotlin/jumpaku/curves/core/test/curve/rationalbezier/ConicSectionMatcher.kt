@@ -4,7 +4,6 @@ import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.core.test.isCloseTo
 import jumpaku.curves.core.test.matcher
-import org.amshove.kluent.should
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: ConicSection, expected: ConicSection, error: Double = 1.0e-9): Boolean =
@@ -18,6 +17,3 @@ fun closeTo(expected: ConicSection, precision: Double = 1.0e-9): TypeSafeMatcher
             isCloseTo(actual, expected, precision)
         }
 
-fun ConicSection.shouldEqualToConicSection(expected: ConicSection, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}

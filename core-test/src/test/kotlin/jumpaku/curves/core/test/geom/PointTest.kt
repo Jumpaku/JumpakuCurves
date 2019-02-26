@@ -1,11 +1,14 @@
 package jumpaku.curves.core.test.geom
 
-import jumpaku.curves.core.geom.*
+import jumpaku.curves.core.geom.Line
+import jumpaku.curves.core.geom.Plane
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.json.parseJson
+import jumpaku.curves.core.test.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale
-import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.closeTo
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

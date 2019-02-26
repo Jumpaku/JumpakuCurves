@@ -5,7 +5,10 @@ import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.Option
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.lastIndex
+import jumpaku.curves.core.util.optionWhen
 
 
 data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {

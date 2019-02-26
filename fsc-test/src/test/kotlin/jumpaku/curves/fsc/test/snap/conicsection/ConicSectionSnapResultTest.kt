@@ -2,6 +2,8 @@ package jumpaku.curves.fsc.test.snap.conicsection
 
 import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResult
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class ConicSectionSnapResultTest {
@@ -14,7 +16,7 @@ class ConicSectionSnapResultTest {
     @Test
     fun testToString() {
         println("ToString")
-        r.toString().parseJson().tryMap { ConicSectionSnapResult.fromJson(it) }.orThrow().shouldEqualToConicSectionSnapResult(r)
+        assertThat(r.toString().parseJson().tryMap { ConicSectionSnapResult.fromJson(it) }.orThrow(), `is`(closeTo(r)))
     }
 
 }

@@ -1,7 +1,8 @@
 package jumpaku.curves.fsc.test.identify.nquarter
 
 import jumpaku.curves.fsc.identify.nquarter.NQuarterClass
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 

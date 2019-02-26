@@ -4,10 +4,13 @@ import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.util.Result
+import jumpaku.curves.core.util.orDefault
+import jumpaku.curves.core.util.sum
+import jumpaku.curves.core.util.tryDiv
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.MathArrays

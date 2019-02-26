@@ -2,7 +2,6 @@ package jumpaku.curves.core.test.util
 
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.test.closeTo
-import jumpaku.curves.core.test.shouldBeCloseTo
 import jumpaku.curves.core.util.Optimizer
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

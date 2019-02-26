@@ -1,17 +1,19 @@
 package jumpaku.curves.fsc.test.snap.conicsection
 
 import com.github.salomonbrys.kotson.get
+import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.transform.Rotate
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.curve.rationalbezier.shouldEqualToConicSection
+import jumpaku.curves.core.test.curve.rationalbezier.closeTo
+import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.curves.fsc.snap.conicsection.ConjugateCombinator
 import jumpaku.curves.fsc.snap.point.MFGS
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class ConicSectionSnapperTest {
@@ -40,7 +42,7 @@ class ConicSectionSnapperTest {
             val cs = resourceText("ConicSectionL$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
             val e = resourceText("SnapResultL$i.json").parseJson().tryMap { ConicSection.fromJson(it["snappedConicSection"]["value"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.LineSegment, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
-            a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
+            assertThat(a.snappedConicSection.orThrow(), `is`(closeTo(e)))
         }
     }
 
@@ -51,7 +53,7 @@ class ConicSectionSnapperTest {
             val cs = resourceText("ConicSectionCA$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
             val e = resourceText("SnapResultCA$i.json").parseJson().tryMap { ConicSection.fromJson(it["snappedConicSection"]["value"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.CircularArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
-            a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
+            assertThat(a.snappedConicSection.orThrow(), `is`(closeTo(e)))
         }
     }
 
@@ -62,7 +64,7 @@ class ConicSectionSnapperTest {
             val cs = resourceText("ConicSectionEA$i.json").parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
             val e = resourceText("SnapResultEA$i.json").parseJson().tryMap { ConicSection.fromJson(it["snappedConicSection"]["value"]) }.orThrow()
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.EllipticArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
-            a.snappedConicSection.orThrow().shouldEqualToConicSection(e)
+            assertThat(a.snappedConicSection.orThrow(), `is`(closeTo(e)))
         }
     }
 }

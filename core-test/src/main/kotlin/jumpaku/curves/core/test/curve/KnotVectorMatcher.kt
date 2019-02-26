@@ -4,7 +4,6 @@ import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.test.isCloseTo
 import jumpaku.curves.core.test.matcher
-import org.amshove.kluent.should
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: Knot, expected: Knot, error: Double = 1.0e-9): Boolean =
@@ -21,6 +20,3 @@ fun closeTo(expected: KnotVector, precision: Double = 1.0e-9): TypeSafeMatcher<K
             isCloseTo(actual, expected, precision)
         }
 
-fun KnotVector.shouldEqualToKnotVector(expected: KnotVector, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}

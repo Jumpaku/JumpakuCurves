@@ -4,7 +4,6 @@ import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.core.test.isCloseTo
 import jumpaku.curves.core.test.matcher
-import org.amshove.kluent.should
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: ParamPoint, expected: ParamPoint, error: Double = 1.0e-9): Boolean =
@@ -16,6 +15,3 @@ fun closeTo(expected: ParamPoint, precision: Double = 1.0e-9): TypeSafeMatcher<P
             isCloseTo(actual, expected, precision)
         }
 
-fun ParamPoint.shouldEqualToParamPoint(expected: ParamPoint, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}

@@ -4,11 +4,11 @@ import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.curve.shouldEqualToInterval
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqualTo
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class FragmenterTest {
@@ -27,10 +27,10 @@ class FragmenterTest {
             val a = fragmenter.fragment(fsc)
             val e = resourceText("FragmentResult$i.json").parseJson().tryMap { it.array.map { Fragment.fromJson(it) } }.orThrow()
                     .let { Array.ofAll(it) }
-            a.size.shouldEqualTo(e.size())
+            assertThat(a.size, `is`(e.size()))
             a.zip(e).forEach { (a, e) ->
-                a.type.shouldBe(e.type)
-                a.interval.shouldEqualToInterval(e.interval)
+                assertThat(a.type, `is`(e.type))
+                assertThat(a.interval, `is`(closeTo(e.interval)))
             }
         }
     }

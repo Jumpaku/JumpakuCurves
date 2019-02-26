@@ -2,9 +2,6 @@ package jumpaku.curves.core.test.geom
 
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.line
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeTrue
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThat

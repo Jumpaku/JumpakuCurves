@@ -2,8 +2,6 @@ package jumpaku.curves.core.test.util
 
 import jumpaku.curves.core.util.isEven
 import jumpaku.curves.core.util.isOdd
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

@@ -2,12 +2,13 @@ package jumpaku.curves.fsc.snap
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import jumpaku.curves.core.geom.*
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale
-import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.util.Result
 import jumpaku.curves.core.util.result
 import org.apache.commons.math3.util.FastMath

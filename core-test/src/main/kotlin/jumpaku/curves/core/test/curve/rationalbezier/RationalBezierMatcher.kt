@@ -3,7 +3,6 @@ package jumpaku.curves.core.test.curve.rationalbezier
 import jumpaku.curves.core.curve.rationalbezier.RationalBezier
 import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.core.test.matcher
-import org.amshove.kluent.should
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: RationalBezier, expected: RationalBezier, error: Double = 1.0e-9): Boolean =
@@ -17,6 +16,3 @@ fun closeTo(expected: RationalBezier, precision: Double = 1.0e-9): TypeSafeMatch
             isCloseTo(actual, expected, precision)
         }
 
-fun RationalBezier.shouldEqualToRationalBezier(expected: RationalBezier, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}

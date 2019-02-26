@@ -4,8 +4,10 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.geom.shouldEqualToPoint
+import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 
@@ -23,23 +25,23 @@ class ReferenceTest {
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        circular(-0.5).shouldEqualToPoint(Point.xy(0.0, -1.0))
-        circular(0.0).shouldEqualToPoint(Point.xy(-r2/2, -r2/2))
-        circular(0.5).shouldEqualToPoint(Point.xy(0.0, 1.0))
-        circular(1.0).shouldEqualToPoint(Point.xy(r2/2, -r2/2))
-        circular(1.5).shouldEqualToPoint(Point.xy(0.0, -1.0))
+        assertThat(circular(-0.5), `is`(closeTo(Point.xy(0.0, -1.0))))
+        assertThat(circular(0.0), `is`(closeTo(Point.xy(-r2/2, -r2/2))))
+        assertThat(circular(0.5), `is`(closeTo(Point.xy(0.0, 1.0))))
+        assertThat(circular(1.0), `is`(closeTo(Point.xy(r2/2, -r2/2))))
+        assertThat(circular(1.5), `is`(closeTo(Point.xy(0.0, -1.0))))
 
-        linear(-0.25).shouldEqualToPoint(Point.x(-2.0))
-        linear(0.0).shouldEqualToPoint(Point.x(-1.0))
-        linear(0.5).shouldEqualToPoint(Point.x(0.0))
-        linear(1.0).shouldEqualToPoint(Point.x(1.0))
-        linear(1.25).shouldEqualToPoint(Point.x(2.0))
+        assertThat(linear(-0.25), `is`(closeTo(Point.x(-2.0))))
+        assertThat(linear(0.0), `is`(closeTo(Point.x(-1.0))))
+        assertThat(linear(0.5), `is`(closeTo(Point.x(0.0))))
+        assertThat(linear(1.0), `is`(closeTo(Point.x(1.0))))
+        assertThat(linear(1.25), `is`(closeTo(Point.x(2.0))))
     }
 
     @Test
     fun testToString() {
         println("ToString")
-        circular.toString().parseJson().tryMap { Reference.fromJson(it) }.orThrow().shouldEqualToReference(circular)
-        linear.toString().parseJson().tryMap { Reference.fromJson(it) }.orThrow().shouldEqualToReference(linear)
+        assertThat(circular.toString().parseJson().tryMap { Reference.fromJson(it) }.orThrow(), `is`(closeTo(circular)))
+        assertThat(linear.toString().parseJson().tryMap { Reference.fromJson(it) }.orThrow(), `is`(closeTo(linear)))
     }
 }

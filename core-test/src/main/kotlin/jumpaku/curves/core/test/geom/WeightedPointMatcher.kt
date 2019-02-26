@@ -2,7 +2,6 @@ package jumpaku.curves.core.test.geom
 
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.test.matcher
-import org.amshove.kluent.should
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: WeightedPoint, expected: WeightedPoint, error: Double = 1.0e-9): Boolean =
@@ -14,6 +13,3 @@ fun closeTo(expected: WeightedPoint, precision: Double = 1.0e-9): TypeSafeMatche
             isCloseTo(actual, expected, precision)
         }
 
-fun WeightedPoint.shouldEqualToWeightedPoint(expected: WeightedPoint, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}
