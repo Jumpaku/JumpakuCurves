@@ -8,8 +8,9 @@ import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.IdentifyResult
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeGreaterThan
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.greaterThan
+import org.junit.Assert.assertThat
 import org.junit.Test
 import kotlin.math.sqrt
 
@@ -45,14 +46,14 @@ class IdentifyResultTest {
     @Test
     fun testProperties() {
         println("Properties")
-        r.curveClass.shouldBe(CurveClass.Ellipse)
-        r.grade.value.shouldBeGreaterThan(0.5)
+        assertThat(r.curveClass, `is`(CurveClass.Ellipse))
+        assertThat(r.grade.value, `is`(greaterThan(0.5)))
     }
 
     @Test
     fun testToString() {
         println("ToString")
         val a = r.toString().parseJson().tryMap { IdentifyResult.fromJson(it) }.orThrow()
-        a.shouldEqualToClassifyResult(r)
+        assertThat(a, `is`(closeTo(r)))
     }
 }

@@ -2,6 +2,8 @@ package jumpaku.curves.fsc.test.identify.nquarter
 
 import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifyResult
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class NQuarterIdentifyResultTest {
@@ -12,7 +14,7 @@ class NQuarterIdentifyResultTest {
         val e = str.parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }.orThrow()
         val a = e.toJsonString().parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }.orThrow()
 
-        a.shouldBeCloseTo(e)
+        assertThat(a, `is`(closeTo(e)))
     }
 }
 

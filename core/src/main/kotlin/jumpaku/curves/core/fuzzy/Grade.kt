@@ -5,15 +5,11 @@ import com.google.gson.JsonPrimitive
 import jumpaku.curves.core.json.ToJson
 
 
-fun Boolean.toGrade(): Grade = if (this) Grade.TRUE else Grade.FALSE
-
 data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
     init {
         require(value.isFinite() && value in 0.0..1.0) { "value($value) is out of [0.0, 1.0]." }
     }
-
-    constructor(booleanValue: Boolean): this(if (booleanValue) 1.0 else 0.0)
 
     override fun compareTo(other: Grade): Int = value.compareTo(other.value)
 
@@ -21,9 +17,10 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
 
     infix fun or(g: Grade): Grade = maxOf(this, g)
 
-    operator fun not(): Grade = Grade(1.0 - value)
+    operator fun not(): Grade = Grade((1.0 - value).coerceIn(0.0, 1.0))
 
-    fun toBoolean(): Boolean = value >= 0.5
+    fun toBoolean(greaterThan: Double = 0.5, orEqual: Boolean = true): Boolean =
+            if (orEqual) value >= greaterThan else value > greaterThan
 
     override fun toString(): String = value.toString()
 
@@ -34,6 +31,8 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
         val TRUE = Grade(1.0)
 
         val FALSE = Grade(0.0)
+
+        operator fun invoke(booleanValue: Boolean) = if (booleanValue) Grade.TRUE else Grade.FALSE
 
         fun clamped(value: Double): Grade = Grade(value.coerceIn(0.0, 1.0))
 

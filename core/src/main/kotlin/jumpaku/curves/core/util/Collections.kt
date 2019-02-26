@@ -1,7 +1,8 @@
 package jumpaku.curves.core.util
 
-import io.vavr.collection.*
 import io.vavr.collection.Array
+import io.vavr.collection.Seq
+import io.vavr.collection.Traversable
 
 inline val <T: Any> Traversable<T>.lastIndex: Int get() = size() - 1
 

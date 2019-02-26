@@ -1,7 +1,8 @@
 package jumpaku.curves.fsc.test.identify.nquarter
 
+import jumpaku.curves.core.test.matcher
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifyResult
-import org.amshove.kluent.should
+import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(a: NQuarterIdentifyResult, e: NQuarterIdentifyResult, error: Double = 1e-10): Boolean =
     jumpaku.curves.core.test.isCloseTo(a.grade.value, e.grade.value, error) &&
@@ -13,6 +14,8 @@ fun isCloseTo(a: NQuarterIdentifyResult, e: NQuarterIdentifyResult, error: Doubl
             jumpaku.curves.fsc.test.identify.primitive.reference.isCloseTo(a.nQuarter2, e.nQuarter2, error) &&
             jumpaku.curves.fsc.test.identify.primitive.reference.isCloseTo(a.nQuarter3, e.nQuarter3, error)
 
-fun NQuarterIdentifyResult.shouldBeCloseTo(expected: NQuarterIdentifyResult, error: Double = 1.0e-9): NQuarterIdentifyResult = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}
+fun closeTo(expected: NQuarterIdentifyResult, precision: Double = 1.0e-9): TypeSafeMatcher<NQuarterIdentifyResult> =
+        matcher("close to <$expected> with precision $precision") { actual ->
+            isCloseTo(actual, expected, precision)
+        }
+

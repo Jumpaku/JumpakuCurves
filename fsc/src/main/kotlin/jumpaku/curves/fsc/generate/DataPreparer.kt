@@ -1,10 +1,10 @@
 package jumpaku.curves.fsc.generate
 
-import org.apache.commons.math3.util.FastMath
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.fsc.generate.fit.BezierFitter
 import jumpaku.curves.core.curve.transformParams
+import jumpaku.curves.fsc.generate.fit.BezierFitter
+import org.apache.commons.math3.util.FastMath
 
 
 /**

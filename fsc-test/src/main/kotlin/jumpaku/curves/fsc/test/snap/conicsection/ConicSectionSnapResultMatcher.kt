@@ -3,9 +3,10 @@ package jumpaku.curves.fsc.test.snap.conicsection
 import jumpaku.curves.core.test.curve.rationalbezier.isCloseTo
 import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.core.test.isCloseTo
+import jumpaku.curves.core.test.matcher
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.curves.fsc.test.snap.point.isCloseTo
-import org.amshove.kluent.should
+import org.hamcrest.TypeSafeMatcher
 
 
 fun isCloseTo(actual: ConicSectionSnapResult.Candidate, expected: ConicSectionSnapResult.Candidate, error: Double): Boolean =
@@ -27,6 +28,7 @@ fun isCloseTo(actual: ConicSectionSnapResult, expected: ConicSectionSnapResult, 
                     isCloseTo(a.grade.value, e.grade.value) &&
                             isCloseTo(a.candidate, e.candidate, error) }
 
-fun ConicSectionSnapResult.shouldEqualToConicSectionSnapResult(expected: ConicSectionSnapResult, error: Double = 1.0e-9) = this.should("$this should be $expected") {
-    isCloseTo(this, expected, error)
-}
+fun closeTo(expected: ConicSectionSnapResult, precision: Double = 1.0e-9): TypeSafeMatcher<ConicSectionSnapResult> =
+        matcher("close to <$expected> with precision $precision") { actual ->
+            isCloseTo(actual, expected, precision)
+        }

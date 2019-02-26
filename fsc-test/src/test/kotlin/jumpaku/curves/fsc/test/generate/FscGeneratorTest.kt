@@ -7,9 +7,11 @@ import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.generate.LinearFuzzifier
-import org.amshove.kluent.shouldBeGreaterThan
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.greaterThan
+import org.junit.Assert.assertThat
 import org.junit.Test
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import java.time.Duration
 
 class FscGeneratorTest {
@@ -31,7 +33,7 @@ class FscGeneratorTest {
             val e = resourceText("Fsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val a = generator.generate(data)
             a.evaluateAll(100).zip(e.evaluateAll(100)).forEach { (actual, expected) ->
-                actual.isPossible(expected).value.shouldBeGreaterThan(0.85)
+                assertThat(actual.isPossible(expected).value, `is`(greaterThan(0.85)))
             }
         }
     }
@@ -43,7 +45,7 @@ class FscGeneratorTest {
         data.forEach { generator.generate(it) }
         data.forEachIndexed { i, d ->
             val b = System.nanoTime()
-            Assertions.assertTimeoutPreemptively(Duration.ofMillis(300)) {
+            assertTimeoutPreemptively(Duration.ofMillis(300)) {
                 generator.generate(d)
                 println("    $i: ${d.last().param - d.first().param}, ${(System.nanoTime() - b) * 1e-9} [s]")
             }

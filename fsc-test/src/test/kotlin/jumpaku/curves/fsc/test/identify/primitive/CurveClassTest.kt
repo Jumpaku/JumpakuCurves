@@ -1,100 +1,100 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.curves.fsc.identify.primitive.CurveClass
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class CurveClassTest {
     @Test
     fun testIsFreeCurve() {
         println("IsFreeCurve")
-        CurveClass.Point.isFreeCurve.shouldBeFalse()
-        CurveClass.LineSegment.isFreeCurve.shouldBeFalse()
-        CurveClass.Circle.isFreeCurve.shouldBeFalse()
-        CurveClass.CircularArc.isFreeCurve.shouldBeFalse()
-        CurveClass.Ellipse.isFreeCurve.shouldBeFalse()
-        CurveClass.EllipticArc.isFreeCurve.shouldBeFalse()
-        CurveClass.ClosedFreeCurve.isFreeCurve.shouldBeTrue()
-        CurveClass.OpenFreeCurve.isFreeCurve.shouldBeTrue()
+        assertThat(CurveClass.Point.isFreeCurve, `is`(false))
+        assertThat(CurveClass.LineSegment.isFreeCurve, `is`(false))
+        assertThat(CurveClass.Circle.isFreeCurve, `is`(false))
+        assertThat(CurveClass.CircularArc.isFreeCurve, `is`(false))
+        assertThat(CurveClass.Ellipse.isFreeCurve, `is`(false))
+        assertThat(CurveClass.EllipticArc.isFreeCurve, `is`(false))
+        assertThat(CurveClass.ClosedFreeCurve.isFreeCurve, `is`(true))
+        assertThat(CurveClass.OpenFreeCurve.isFreeCurve, `is`(true))
     }
 
     @Test
     fun testIsConicSection() {
         println("IsConicSection")
-        CurveClass.Point.isLinear.shouldBeTrue()
-        CurveClass.LineSegment.isConicSection.shouldBeTrue()
-        CurveClass.Circle.isConicSection.shouldBeTrue()
-        CurveClass.CircularArc.isConicSection.shouldBeTrue()
-        CurveClass.Ellipse.isConicSection.shouldBeTrue()
-        CurveClass.EllipticArc.isConicSection.shouldBeTrue()
-        CurveClass.ClosedFreeCurve.isConicSection.shouldBeFalse()
-        CurveClass.OpenFreeCurve.isConicSection.shouldBeFalse()
+        assertThat(CurveClass.Point.isLinear, `is`(true))
+        assertThat(CurveClass.LineSegment.isConicSection, `is`(true))
+        assertThat(CurveClass.Circle.isConicSection, `is`(true))
+        assertThat(CurveClass.CircularArc.isConicSection, `is`(true))
+        assertThat(CurveClass.Ellipse.isConicSection, `is`(true))
+        assertThat(CurveClass.EllipticArc.isConicSection, `is`(true))
+        assertThat(CurveClass.ClosedFreeCurve.isConicSection, `is`(false))
+        assertThat(CurveClass.OpenFreeCurve.isConicSection, `is`(false))
     }
 
     @Test
     fun testIsOpen() {
         println("IsOpen")
-        CurveClass.Point.isOpen.shouldBeFalse()
-        CurveClass.LineSegment.isOpen.shouldBeTrue()
-        CurveClass.Circle.isOpen.shouldBeFalse()
-        CurveClass.CircularArc.isOpen.shouldBeTrue()
-        CurveClass.Ellipse.isOpen.shouldBeFalse()
-        CurveClass.EllipticArc.isOpen.shouldBeTrue()
-        CurveClass.ClosedFreeCurve.isOpen.shouldBeFalse()
-        CurveClass.OpenFreeCurve.isOpen.shouldBeTrue()
+        assertThat(CurveClass.Point.isOpen, `is`(false))
+        assertThat(CurveClass.LineSegment.isOpen, `is`(true))
+        assertThat(CurveClass.Circle.isOpen, `is`(false))
+        assertThat(CurveClass.CircularArc.isOpen, `is`(true))
+        assertThat(CurveClass.Ellipse.isOpen, `is`(false))
+        assertThat(CurveClass.EllipticArc.isOpen, `is`(true))
+        assertThat(CurveClass.ClosedFreeCurve.isOpen, `is`(false))
+        assertThat(CurveClass.OpenFreeCurve.isOpen, `is`(true))
     }
 
     @Test
     fun testIsClosed() {
         println("IsClosed")
-        CurveClass.Point.isClosed.shouldBeTrue()
-        CurveClass.LineSegment.isClosed.shouldBeFalse()
-        CurveClass.Circle.isClosed.shouldBeTrue()
-        CurveClass.CircularArc.isClosed.shouldBeFalse()
-        CurveClass.Ellipse.isClosed.shouldBeTrue()
-        CurveClass.EllipticArc.isClosed.shouldBeFalse()
-        CurveClass.ClosedFreeCurve.isClosed.shouldBeTrue()
-        CurveClass.OpenFreeCurve.isClosed.shouldBeFalse()
+        assertThat(CurveClass.Point.isClosed, `is`(true))
+        assertThat(CurveClass.LineSegment.isClosed, `is`(false))
+        assertThat(CurveClass.Circle.isClosed, `is`(true))
+        assertThat(CurveClass.CircularArc.isClosed, `is`(false))
+        assertThat(CurveClass.Ellipse.isClosed, `is`(true))
+        assertThat(CurveClass.EllipticArc.isClosed, `is`(false))
+        assertThat(CurveClass.ClosedFreeCurve.isClosed, `is`(true))
+        assertThat(CurveClass.OpenFreeCurve.isClosed, `is`(false))
     }
 
     @Test
     fun testIsElliptic() {
         println("IsElliptic")
-        CurveClass.Point.isElliptic.shouldBeFalse()
-        CurveClass.LineSegment.isElliptic.shouldBeFalse()
-        CurveClass.Circle.isElliptic.shouldBeFalse()
-        CurveClass.CircularArc.isElliptic.shouldBeFalse()
-        CurveClass.Ellipse.isElliptic.shouldBeTrue()
-        CurveClass.EllipticArc.isElliptic.shouldBeTrue()
-        CurveClass.ClosedFreeCurve.isElliptic.shouldBeFalse()
-        CurveClass.OpenFreeCurve.isElliptic.shouldBeFalse()
+        assertThat(CurveClass.Point.isElliptic, `is`(false))
+        assertThat(CurveClass.LineSegment.isElliptic, `is`(false))
+        assertThat(CurveClass.Circle.isElliptic, `is`(false))
+        assertThat(CurveClass.CircularArc.isElliptic, `is`(false))
+        assertThat(CurveClass.Ellipse.isElliptic, `is`(true))
+        assertThat(CurveClass.EllipticArc.isElliptic, `is`(true))
+        assertThat(CurveClass.ClosedFreeCurve.isElliptic, `is`(false))
+        assertThat(CurveClass.OpenFreeCurve.isElliptic, `is`(false))
     }
 
     @Test
     fun testIsCircular() {
         println("IsCircular")
-        CurveClass.Point.isCircular.shouldBeFalse()
-        CurveClass.LineSegment.isCircular.shouldBeFalse()
-        CurveClass.Circle.isCircular.shouldBeTrue()
-        CurveClass.CircularArc.isCircular.shouldBeTrue()
-        CurveClass.Ellipse.isCircular.shouldBeFalse()
-        CurveClass.EllipticArc.isCircular.shouldBeFalse()
-        CurveClass.ClosedFreeCurve.isCircular.shouldBeFalse()
-        CurveClass.OpenFreeCurve.isCircular.shouldBeFalse()
+        assertThat(CurveClass.Point.isCircular, `is`(false))
+        assertThat(CurveClass.LineSegment.isCircular, `is`(false))
+        assertThat(CurveClass.Circle.isCircular, `is`(true))
+        assertThat(CurveClass.CircularArc.isCircular, `is`(true))
+        assertThat(CurveClass.Ellipse.isCircular, `is`(false))
+        assertThat(CurveClass.EllipticArc.isCircular, `is`(false))
+        assertThat(CurveClass.ClosedFreeCurve.isCircular, `is`(false))
+        assertThat(CurveClass.OpenFreeCurve.isCircular, `is`(false))
     }
 
     @Test
     fun testIsLinear() {
         println("IsLinear")
-        CurveClass.Point.isLinear.shouldBeTrue()
-        CurveClass.LineSegment.isLinear.shouldBeTrue()
-        CurveClass.Circle.isLinear.shouldBeFalse()
-        CurveClass.CircularArc.isLinear.shouldBeFalse()
-        CurveClass.Ellipse.isLinear.shouldBeFalse()
-        CurveClass.EllipticArc.isLinear.shouldBeFalse()
-        CurveClass.ClosedFreeCurve.isLinear.shouldBeFalse()
-        CurveClass.OpenFreeCurve.isLinear.shouldBeFalse()
+        assertThat(CurveClass.Point.isLinear, `is`(true))
+        assertThat(CurveClass.LineSegment.isLinear, `is`(true))
+        assertThat(CurveClass.Circle.isLinear, `is`(false))
+        assertThat(CurveClass.CircularArc.isLinear, `is`(false))
+        assertThat(CurveClass.Ellipse.isLinear, `is`(false))
+        assertThat(CurveClass.EllipticArc.isLinear, `is`(false))
+        assertThat(CurveClass.ClosedFreeCurve.isLinear, `is`(false))
+        assertThat(CurveClass.OpenFreeCurve.isLinear, `is`(false))
     }
 
 }

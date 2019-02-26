@@ -1,16 +1,16 @@
 package jumpaku.curves.fsc.generate.fit
 
 import io.vavr.Tuple3
-import org.apache.commons.math3.linear.DiagonalMatrix
-import org.apache.commons.math3.linear.MatrixUtils
-import org.apache.commons.math3.linear.QRDecomposition
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.WeightedParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
+import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2
 import jumpaku.curves.core.util.component3
+import org.apache.commons.math3.linear.DiagonalMatrix
+import org.apache.commons.math3.linear.MatrixUtils
+import org.apache.commons.math3.linear.QRDecomposition
 
 
 class BezierFitter(val degree: Int) : Fitter<Bezier> {

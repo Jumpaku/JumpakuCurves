@@ -1,14 +1,15 @@
 package jumpaku.curves.fsc.test.fragment
 
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.test.shouldBeCloseTo
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.closeTo
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.fragment.chunk
-import org.amshove.kluent.shouldBe
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class ChunkTest {
@@ -28,28 +29,28 @@ class ChunkTest {
     @Test
     fun testChunkCreate() {
         println("ChunkState")
-        c0.state(threshold).shouldBe(Chunk.State.UNKNOWN)
-        c1.state(threshold).shouldBe(Chunk.State.STAY)
-        c2.state(threshold).shouldBe(Chunk.State.UNKNOWN)
-        c3.state(threshold).shouldBe(Chunk.State.MOVE)
+        assertThat(c0.state(threshold), `is`(Chunk.State.UNKNOWN))
+        assertThat(c1.state(threshold), `is`(Chunk.State.STAY))
+        assertThat(c2.state(threshold), `is`(Chunk.State.UNKNOWN))
+        assertThat(c3.state(threshold), `is`(Chunk.State.MOVE))
     }
 
     @Test
     fun testNecessity() {
         println("Necessity")
-        c0.necessity.value.shouldBeCloseTo(0.0)
-        c1.necessity.value.shouldBeCloseTo(2/3.0)
-        c2.necessity.value.shouldBeCloseTo(1/3.0)
-        c3.necessity.value.shouldBeCloseTo(0.0)
+        assertThat(c0.necessity.value, `is`(closeTo(0.0)))
+        assertThat(c1.necessity.value, `is`(closeTo(2/3.0)))
+        assertThat(c2.necessity.value, `is`(closeTo(1/3.0)))
+        assertThat(c3.necessity.value, `is`(closeTo(0.0)))
     }
 
     @Test
     fun testPossibility() {
         println("Possibility")
-        c0.possibility.value.shouldBeCloseTo(2/3.0)
-        c1.possibility.value.shouldBeCloseTo(2/3.0)
-        c2.possibility.value.shouldBeCloseTo(2.5/3)
-        c3.possibility.value.shouldBeCloseTo(0.5)
+        assertThat(c0.possibility.value, `is`(closeTo(2/3.0)))
+        assertThat(c1.possibility.value, `is`(closeTo(2/3.0)))
+        assertThat(c2.possibility.value, `is`(closeTo(2.5/3)))
+        assertThat(c3.possibility.value, `is`(closeTo(0.5)))
     }
 
 }

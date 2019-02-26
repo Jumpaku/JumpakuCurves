@@ -5,7 +5,8 @@ import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.identify.primitive.reference.LinearGenerator
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import jumpaku.curves.fsc.identify.primitive.reparametrize
-import org.amshove.kluent.shouldBeGreaterThan
+import org.hamcrest.Matchers
+import org.junit.Assert
 import org.junit.Test
 
 class LinearTest {
@@ -23,7 +24,7 @@ class LinearTest {
             val e = resourceText("ReferenceLinear$i.json").parseJson().tryMap { Reference.fromJson(it) }.orThrow()
             val s = reparametrize(fsc, 65)
             val a = generator.generate(s, t0 = s.originalCurve.domain.begin, t1 = s.originalCurve.domain.end)
-            a.reparametrized.isPossible(e.reparametrized, 15).value.shouldBeGreaterThan(0.75)
+            Assert.assertThat(a.reparametrized.isPossible(e.reparametrized, 15).value, Matchers.`is`(Matchers.greaterThan(0.75)))
         }
     }
 }

@@ -4,8 +4,27 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.geom.middle
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.divOrDefault
+import jumpaku.curves.core.util.orDefault
+import jumpaku.curves.core.util.tryDiv
 import org.apache.commons.math3.util.FastMath
+import kotlin.collections.Iterable
+import kotlin.collections.List
+import kotlin.collections.all
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.component3
+import kotlin.collections.drop
+import kotlin.collections.first
+import kotlin.collections.forEach
+import kotlin.collections.last
+import kotlin.collections.map
+import kotlin.collections.mutableListOf
+import kotlin.collections.plusAssign
+import kotlin.collections.toList
+import kotlin.collections.zip
+import kotlin.collections.zipWithNext
 
 class Reparametrizer private constructor(
         val originalParams: List<Double>,
@@ -16,6 +35,8 @@ class Reparametrizer private constructor(
         require(originalParams.size > 1) { "originalToArcLength.size() is too small"}
         require(arcLengthParams.size == originalParams.size) { "arcLengthParams.size() != originalParams.size()" }
         require(quadratics.size == originalParams.size - 1) { "quadratics.size() != originalParams.size() - 1" }
+        require(originalParams.all { it.isFinite() }) { "originalParams contains infinite value" }
+        require(arcLengthParams.all { it.isFinite() }) { "arcLengthParams contains infinite value" }
     }
 
     val domain: Interval = Interval(originalParams.first(), originalParams.last())
@@ -60,6 +81,7 @@ class Reparametrizer private constructor(
         }
 
         fun of(curve: Curve, originalParams: Iterable<Double>): Reparametrizer {
+            require(originalParams.all { it.isFinite() }) { "originalParams contains infinite value" }
             val params = originalParams.toList()
             require(params.size > 1) { "originalToArcLength.size() is too small"}
 

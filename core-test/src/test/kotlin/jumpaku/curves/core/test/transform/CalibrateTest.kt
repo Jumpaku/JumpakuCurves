@@ -1,8 +1,10 @@
 package jumpaku.curves.core.test.transform
 
 import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Calibrate
-import jumpaku.curves.core.test.geom.shouldEqualToPoint
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 
 class CalibrateTest {
@@ -20,27 +22,27 @@ class CalibrateTest {
     @Test
     fun testInvoke4() {
         println("Invoke4")
-        t4(p0.first).shouldEqualToPoint(p0.second)
-        t4(p1.first).shouldEqualToPoint(p1.second)
-        t4(p2.first).shouldEqualToPoint(p2.second)
-        t4(p3.first).shouldEqualToPoint(p3.second)
+        assertThat(t4(p0.first), `is`(closeTo(p0.second)))
+        assertThat(t4(p1.first), `is`(closeTo(p1.second)))
+        assertThat(t4(p2.first), `is`(closeTo(p2.second)))
+        assertThat(t4(p3.first), `is`(closeTo(p3.second)))
     }
     @Test
     fun testInvoke3() {
         println("Invoke3")
-        t3(p0.first).shouldEqualToPoint(p0.second)
-        t3(p1.first).shouldEqualToPoint(p1.second)
-        t3(p2.first).shouldEqualToPoint(p2.second)
+        assertThat(t3(p0.first), `is`(closeTo(p0.second)))
+        assertThat(t3(p1.first), `is`(closeTo(p1.second)))
+        assertThat(t3(p2.first), `is`(closeTo(p2.second)))
     }
     @Test
     fun testInvoke2() {
         println("Invoke2")
-        t2(p0.first).shouldEqualToPoint(p0.second)
-        t2(p1.first).shouldEqualToPoint(p1.second)
+        assertThat(t2(p0.first), `is`(closeTo(p0.second)))
+        assertThat(t2(p1.first), `is`(closeTo(p1.second)))
     }
     @Test
     fun testInvoke1() {
         println("Invoke1")
-        t1(p0.first).shouldEqualToPoint(p0.second)
+        assertThat(t1(p0.first), `is`(closeTo(p0.second)))
     }
 }

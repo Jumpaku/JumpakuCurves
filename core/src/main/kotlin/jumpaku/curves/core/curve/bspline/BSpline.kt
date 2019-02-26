@@ -5,7 +5,7 @@ import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.Bezier
-import jumpaku.curves.core.geom.Divisible
+import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.json.ToJson
@@ -123,7 +123,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return BSpline(cp, KnotVector(d, ks))
         }
 
-        tailrec fun <D : Divisible<D>> evaluate(controlPoints: List<D>, knotVector: KnotVector, t: Double): D {
+        tailrec fun <D : Lerpable<D>> evaluate(controlPoints: List<D>, knotVector: KnotVector, t: Double): D {
             val us = knotVector.extractedKnots
             val (b, e) = knotVector.domain
             if (b < e && t == e) return evaluate(controlPoints.reversed(), knotVector.reverse(), b)
@@ -143,7 +143,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return result[l]
         }
 
-        fun <D : Divisible<D>> insertedControlPoints(
+        fun <D : Lerpable<D>> insertedControlPoints(
                 controlPoints: List<D>, knotVector: KnotVector, knotValue: Double, times: Int): List<D> {
             val (b, e) = knotVector.domain
             if(b < e && knotValue == e) return insertedControlPoints(
@@ -166,7 +166,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return cp
         }
 
-        fun <D : Divisible<D>> removedControlPoints(
+        fun <D : Lerpable<D>> removedControlPoints(
                 controlPoints: List<D>, knotVector: KnotVector, knotIndex: Int, times: Int): List<D> {
             if (times == 0) return controlPoints
 
@@ -205,7 +205,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return cp.take(f) + cp.slice(f..ff) + cp.slice(ll..l) + cp.drop(l + 1)
         }
 
-        fun <D : Divisible<D>> subdividedControlPoints(
+        fun <D : Lerpable<D>> subdividedControlPoints(
                 t: Double, controlPoints: List<D>, knotVector: KnotVector): Tuple2<List<D>, List<D>> {
             val p = knotVector.degree
             val s = knotVector.multiplicityOf(t)
@@ -230,7 +230,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return Tuple2(front.toList(), back.toList())
         }
 
-        fun <D : Divisible<D>> segmentedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {
+        fun <D : Lerpable<D>> segmentedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {
             val p = knotVector.degree
             var tmpControlPoints = controlPoints
             var tmpKnots = knotVector
@@ -242,7 +242,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return tmpControlPoints
         }
 
-        fun <D : Divisible<D>> clampedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {
+        fun <D : Lerpable<D>> clampedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {
             val p = knotVector.degree
             var tmpControlPoints = controlPoints
             var tmpKnots = knotVector
@@ -257,7 +257,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             return tmpControlPoints.run { drop(bTimes).take(controlPoints.size) }
         }
 
-        fun <D : Divisible<D>> closedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {
+        fun <D : Lerpable<D>> closedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {
             val cp = clampedControlPoints(controlPoints, knotVector)
             val closeAt = cp.run { first().middle(last()) }
             return cp.asVavr().update(0, closeAt).update(cp.lastIndex, closeAt).asKt()

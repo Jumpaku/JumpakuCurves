@@ -14,7 +14,10 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.Option
+import jumpaku.curves.core.util.optionWhen
+import jumpaku.curves.core.util.orDefault
+import jumpaku.curves.core.util.tryDiv
 import org.apache.commons.math3.util.FastMath
 
 

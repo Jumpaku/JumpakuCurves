@@ -5,7 +5,8 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.Result
+import jumpaku.curves.core.util.result
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.MathArrays
 

@@ -5,9 +5,10 @@ import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import jumpaku.curves.fsc.identify.primitive.reparametrize
-import org.amshove.kluent.shouldEqual
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import java.time.Duration
 
 class Open4IdentifierTest {
@@ -25,7 +26,7 @@ class Open4IdentifierTest {
             val e = CurveClass.LineSegment
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -37,7 +38,7 @@ class Open4IdentifierTest {
             val e = CurveClass.CircularArc
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -49,7 +50,7 @@ class Open4IdentifierTest {
             val e = CurveClass.EllipticArc
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -61,7 +62,7 @@ class Open4IdentifierTest {
             val e = CurveClass.OpenFreeCurve
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -72,7 +73,7 @@ class Open4IdentifierTest {
         val s = reparametrize(fsc, 65)
         repeat(1000) { identifier.identify(s) }
         val b = System.nanoTime()
-        Assertions.assertTimeoutPreemptively(Duration.ofMillis(1500)) {
+        assertTimeoutPreemptively(Duration.ofMillis(1500)) {
             repeat(1000) { identifier.identify(s) }
             println("    ${(System.nanoTime() - b)*1e-9} [s]")
         }

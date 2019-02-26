@@ -11,9 +11,10 @@ import jumpaku.curves.fsc.freecurve.Segmenter
 import jumpaku.curves.fsc.freecurve.Shaper
 import jumpaku.curves.fsc.freecurve.SmoothResult
 import jumpaku.curves.fsc.freecurve.Smoother
-import org.amshove.kluent.shouldEqualTo
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import java.io.File
 import java.time.Duration
 
@@ -45,8 +46,8 @@ class ShaperTest {
             val s = BSpline.fromJson(parseJsonBSpline(name))
             val (_, _, actual) = shaper.shape(s)
             val expected = parseSmoothResult(name)
-            actual.conicSections.size.shouldEqualTo(expected.conicSections.size)
-            actual.cubicBeziers.size.shouldEqualTo(expected.cubicBeziers.size)
+            assertThat(actual.conicSections.size, `is`(expected.conicSections.size))
+            assertThat(actual.cubicBeziers.size, `is`(expected.cubicBeziers.size))
         }
     }
 
@@ -60,7 +61,7 @@ class ShaperTest {
         listOf("swan", "flag", "yacht").forEach { name ->
             val s = BSpline.fromJson(parseJsonBSpline(name))
             val b = System.nanoTime()
-            Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000)) {
+            assertTimeoutPreemptively(Duration.ofMillis(1000)) {
                 shaper.shape(s)
                 println("    $name: ${(System.nanoTime() - b) * 1e-9} [s]")
             }

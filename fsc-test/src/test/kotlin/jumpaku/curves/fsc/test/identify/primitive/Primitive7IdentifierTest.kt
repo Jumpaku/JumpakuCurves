@@ -5,7 +5,8 @@ import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.Primitive7Identifier
 import jumpaku.curves.fsc.identify.primitive.reparametrize
-import org.amshove.kluent.shouldEqual
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class Primitive7IdentifierTest {
@@ -23,7 +24,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.LineSegment
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -35,7 +36,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.Circle
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -47,7 +48,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.CircularArc
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -59,7 +60,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.Ellipse
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -71,7 +72,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.EllipticArc
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -83,7 +84,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.OpenFreeCurve
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 
@@ -95,7 +96,7 @@ class Primitive7IdentifierTest {
             val e = CurveClass.ClosedFreeCurve
             val s = reparametrize(fsc, 65)
             val a = identifier.identify(s)
-            a.curveClass.shouldEqual(e)
+            assertThat(a.curveClass, `is`(e))
         }
     }
 }

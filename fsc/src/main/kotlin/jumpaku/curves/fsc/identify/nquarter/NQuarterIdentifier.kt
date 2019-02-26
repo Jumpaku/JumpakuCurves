@@ -3,9 +3,9 @@ package jumpaku.curves.fsc.identify.nquarter
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterCircular
 import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterElliptic
+import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
 class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) {
 

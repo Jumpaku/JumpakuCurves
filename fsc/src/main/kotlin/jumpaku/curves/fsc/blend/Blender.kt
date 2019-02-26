@@ -5,7 +5,10 @@ import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.Option
+import jumpaku.curves.core.util.none
+import jumpaku.curves.core.util.some
+import jumpaku.curves.core.util.toOption
 import kotlin.math.abs
 
 

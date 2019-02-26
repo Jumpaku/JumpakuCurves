@@ -1,9 +1,9 @@
 package jumpaku.curves.fsc.snap.conicsection
 
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.core.util.orDefault
 import jumpaku.curves.core.util.result
 import jumpaku.curves.core.util.toOption

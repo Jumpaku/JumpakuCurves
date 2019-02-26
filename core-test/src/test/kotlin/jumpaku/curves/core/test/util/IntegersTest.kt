@@ -2,8 +2,8 @@ package jumpaku.curves.core.test.util
 
 import jumpaku.curves.core.util.isEven
 import jumpaku.curves.core.util.isOdd
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class IntegersKtTest {
@@ -11,21 +11,21 @@ class IntegersKtTest {
     @Test
     fun testIsOdd() {
         println("IsOdd")
-        (-2).isOdd().shouldBeFalse()
-        (-1).isOdd().shouldBeTrue()
-        (0).isOdd().shouldBeFalse()
-        (1).isOdd().shouldBeTrue()
-        (2).isOdd().shouldBeFalse()
+        assertThat((-2).isOdd(), `is`(false))
+        assertThat((-1).isOdd(), `is`(true))
+        assertThat((0).isOdd(), `is`(false))
+        assertThat((1).isOdd(), `is`(true))
+        assertThat((2).isOdd(), `is`(false))
     }
 
     @Test
     fun testIsEven() {
         println("IsEven")
-        (-2).isEven().shouldBeTrue()
-        (-1).isEven().shouldBeFalse()
-        (0).isEven().shouldBeTrue()
-        (1).isEven().shouldBeFalse()
-        (2).isEven().shouldBeTrue()
+        assertThat((-2).isEven(), `is`(true))
+        assertThat((-1).isEven(), `is`(false))
+        assertThat((0).isEven(), `is`(true))
+        assertThat((1).isEven(), `is`(false))
+        assertThat((2).isEven(), `is`(true))
     }
 
 }

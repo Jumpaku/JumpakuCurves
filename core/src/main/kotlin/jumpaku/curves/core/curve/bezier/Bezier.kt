@@ -9,12 +9,15 @@ import io.vavr.Tuple2
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.geom.Divisible
+import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.component1
+import jumpaku.curves.core.util.component2
+import jumpaku.curves.core.util.isOdd
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 
@@ -92,13 +95,13 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
             return comb(degree, i) * FastMath.pow(t, i)*FastMath.pow(1 - t, degree - i)
         }
 
-        fun <P : Divisible<P>> decasteljau(t: Double, cps: List<P>): List<P> =
+        fun <P : Lerpable<P>> decasteljau(t: Double, cps: List<P>): List<P> =
                 cps.zipWithNext { p0, p1 -> p0.lerp(t, p1) }
 
-        internal tailrec fun <P : Divisible<P>> createEvaluatedPoint(t: Double, cp: List<P>): P =
+        internal tailrec fun <P : Lerpable<P>> createEvaluatedPoint(t: Double, cp: List<P>): P =
                 if (cp.size == 1) cp.first() else createEvaluatedPoint(t, decasteljau(t, cp))
 
-        internal fun <P : Divisible<P>> createElevatedControlPoints(cp: List<P>): List<P> {
+        internal fun <P : Lerpable<P>> createElevatedControlPoints(cp: List<P>): List<P> {
             val n = cp.size - 1
 
             return (0..(n + 1)).map {
@@ -110,7 +113,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
             }
         }
 
-        internal fun <P : Divisible<P>> createSubdividedControlPoints(t: Double, cp: List<P>): Tuple2<List<P>, List<P>> {
+        internal fun <P : Lerpable<P>> createSubdividedControlPoints(t: Double, cp: List<P>): Tuple2<List<P>, List<P>> {
             var tmp = cp
             val first = mutableListOf(tmp.first())
             val second = mutableListOf(tmp.last())
@@ -124,7 +127,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
             return Tuple2(first, second)
         }
 
-        internal fun <P : Divisible<P>> createReducedControlPoints(cp: List<P>): List<P>  {
+        internal fun <P : Lerpable<P>> createReducedControlPoints(cp: List<P>): List<P>  {
             val m = cp.size
             val n = m - 1
             return when {

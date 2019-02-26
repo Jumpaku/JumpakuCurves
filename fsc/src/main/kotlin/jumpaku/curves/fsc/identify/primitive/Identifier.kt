@@ -7,18 +7,10 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.line
 import jumpaku.curves.core.util.orDefault
 import java.util.*
-import kotlin.collections.List
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.component3
-import kotlin.collections.filter
-import kotlin.collections.flatMap
-import kotlin.collections.forEach
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.plus
 import kotlin.collections.set
-import kotlin.collections.sorted
 
 
 interface Identifier {

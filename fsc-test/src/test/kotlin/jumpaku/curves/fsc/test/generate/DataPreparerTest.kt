@@ -1,18 +1,20 @@
 package jumpaku.curves.fsc.test.generate
 
-import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.fsc.generate.fit.BSplineFitter
-import jumpaku.curves.core.test.curve.shouldEqualToParamPoint
-import jumpaku.curves.core.test.curve.bspline.shouldEqualToBSpline
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.curve.bspline.closeTo
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2
 import jumpaku.curves.fsc.generate.DataPreparer
-import org.amshove.kluent.shouldBe
+import jumpaku.curves.fsc.generate.fit.BSplineFitter
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
+
 
 class DataPreparerTest {
 
@@ -27,7 +29,7 @@ class DataPreparerTest {
                 knots)
         val data = Interval(0.5, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val a = BSplineFitter(2, knots).fit(DataPreparer(0.1, 0.5, 0.5, 2).prepare(data))
-        a.shouldEqualToBSpline(b, 0.2)
+        assertThat(a, `is`(closeTo(b, 0.2)))
 
         val b2 = BSpline(listOf(
                 Point.xy(1.0, 3.0), Point.xy(2.0, 0.0), Point.xy(3.0, 5.0), Point.xy(4.0, 3.0), Point.xy(5.0, 3.0)),
@@ -42,7 +44,7 @@ class DataPreparerTest {
                 Point.xy(4.953430481558565, 2.9928530991891427)),
                 knots)
 
-        a2.shouldEqualToBSpline(e2, 1.0)
+        assertThat(a2, `is`(closeTo(e2, 1.0)))
     }
 
     @Test
@@ -54,16 +56,16 @@ class DataPreparerTest {
                 ParamPoint(Point.xy(2.5, -5.0), 25.0))
         val a = preparer.fill(data)
 
-        a.size.shouldBe(9)
-        a[0].shouldEqualToParamPoint(ParamPoint(Point.xy(1.0, -2.0), 10.0))
-        a[1].shouldEqualToParamPoint(ParamPoint(Point.xy(1 + 0.5 / 3.0, -2 - 1 / 3.0), 10 + 5 / 3.0))
-        a[2].shouldEqualToParamPoint(ParamPoint(Point.xy(1 + 1 / 3.0, -2 - 2 / 3.0), 10 + 10 / 3.0))
-        a[3].shouldEqualToParamPoint(ParamPoint(Point.xy(1.5, -3.0), 15.0))
-        a[4].shouldEqualToParamPoint(ParamPoint(Point.xy(1.7, -3.4), 17.0))
-        a[5].shouldEqualToParamPoint(ParamPoint(Point.xy(1.9, -3.8), 19.0))
-        a[6].shouldEqualToParamPoint(ParamPoint(Point.xy(2.1, -4.2), 21.0))
-        a[7].shouldEqualToParamPoint(ParamPoint(Point.xy(2.3, -4.6), 23.0))
-        a[8].shouldEqualToParamPoint(ParamPoint(Point.xy(2.5, -5.0), 25.0))
+        assertThat(a.size, `is`(9))
+        assertThat(a[0], `is`(closeTo(ParamPoint(Point.xy(1.0, -2.0), 10.0))))
+        assertThat(a[1], `is`(closeTo(ParamPoint(Point.xy(1 + 0.5 / 3.0, -2 - 1 / 3.0), 10 + 5 / 3.0))))
+        assertThat(a[2], `is`(closeTo(ParamPoint(Point.xy(1 + 1 / 3.0, -2 - 2 / 3.0), 10 + 10 / 3.0))))
+        assertThat(a[3], `is`(closeTo(ParamPoint(Point.xy(1.5, -3.0), 15.0))))
+        assertThat(a[4], `is`(closeTo(ParamPoint(Point.xy(1.7, -3.4), 17.0))))
+        assertThat(a[5], `is`(closeTo(ParamPoint(Point.xy(1.9, -3.8), 19.0))))
+        assertThat(a[6], `is`(closeTo(ParamPoint(Point.xy(2.1, -4.2), 21.0))))
+        assertThat(a[7], `is`(closeTo(ParamPoint(Point.xy(2.3, -4.6), 23.0))))
+        assertThat(a[8], `is`(closeTo(ParamPoint(Point.xy(2.5, -5.0), 25.0))))
     }
 
     @Test
@@ -75,8 +77,8 @@ class DataPreparerTest {
         val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(preparer.extendFront(data)).subdivide(1.0)
-        sub1.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow())
-        sub2.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow())
+        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
+        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0)._2().orThrow())))
     }
 
     @Test
@@ -88,7 +90,7 @@ class DataPreparerTest {
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(preparer.extendBack(data)).subdivide(1.0)
-        sub1.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._1().orThrow())
-        sub2.orThrow().shouldEqualToBSpline(b.subdivide(1.0)._2().orThrow())
+        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
+        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0)._2().orThrow())))
     }
 }

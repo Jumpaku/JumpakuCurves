@@ -1,7 +1,9 @@
 package jumpaku.curves.core.test.util
 
-import jumpaku.curves.core.test.shouldBeCloseTo
+import jumpaku.curves.core.test.closeTo
 import jumpaku.curves.core.util.sum
+import org.hamcrest.Matchers.`is`
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 class DoublesTest {
@@ -19,10 +21,9 @@ class DoublesTest {
                 1.0
         )
         val a = sum(doubles)
-        a.shouldBeCloseTo(1.0, 0.0)
+        assertThat(a, `is`(closeTo(1.0, 0.0)))
 
         val b = sum(doubles.toList())
-        b.shouldBeCloseTo(1.0, 0.0)
-
+        assertThat(b, `is`(closeTo(1.0, 0.0)))
     }
 }
