@@ -8,7 +8,6 @@ import jumpaku.curves.core.util.orDefault
 import jumpaku.curves.core.util.result
 import jumpaku.curves.core.util.toOption
 import jumpaku.curves.fsc.identify.primitive.CurveClass
-import jumpaku.curves.fsc.identify.primitive.reference.reparametrize
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.point.PointSnapper

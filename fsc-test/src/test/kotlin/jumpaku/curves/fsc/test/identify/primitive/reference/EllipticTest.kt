@@ -22,7 +22,7 @@ class EllipticTest {
         for (i in 0..2) {
             val fsc = resourceText("FscEA$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = resourceText("ReferenceElliptic$i.json").parseJson().tryMap { Reference.fromJson(it) }.orThrow()
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = generator.generate(s, t0 = s.originalCurve.domain.begin, t1 = s.originalCurve.domain.end)
             Assert.assertThat(a.reparametrized.isPossible(e.reparametrized, 15).value, Matchers.`is`(Matchers.greaterThan(0.75)))
         }

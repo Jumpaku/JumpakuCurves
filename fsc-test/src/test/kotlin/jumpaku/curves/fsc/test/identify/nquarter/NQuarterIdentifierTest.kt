@@ -23,7 +23,7 @@ class NQuarterIdentifierTest {
             val e = resourceText("CircularResult$i.json").parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }
                 .orThrow()
             val a = nQuarter.identifyCircular(reparametrize(s))
-            assertThat(a, `is`(closeTo(e, 1e-6)))
+            assertThat(a.nQuarterClass, `is`(e.nQuarterClass))
         }
     }
 
@@ -35,7 +35,7 @@ class NQuarterIdentifierTest {
             val e = resourceText("EllipticResult$i.json").parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }
                 .orThrow()
             val a = nQuarter.identifyElliptic(reparametrize(s))
-            assertThat(a, `is`(closeTo(e, 1e-6)))
+            assertThat(a.nQuarterClass, `is`(e.nQuarterClass))
         }
     }
 }

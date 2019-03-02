@@ -49,7 +49,7 @@ class ViewIdentify : View() {
 
     fun Group.update(fsc: BSpline){
         children.clear()
-        val s = reparametrize(fsc, 65)
+        val s = reparametrize(fsc)
         val p = Primitive7Identifier(25, 15).identify(s)
         val o = Open4Identifier(25, 15).identify(s)
         //println(p.curveClass == CurveClass.ClosedFreeCurve)

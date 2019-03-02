@@ -30,7 +30,3 @@ interface ReferenceGenerator {
     }
 }
 
-fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> = conicSection.let {
-    val ts = listOf(0.0, 0.3, 0.4, 0.47, 0.49, 0.5, 0.51, 0.53, 0.6, 0.7, 1.0)
-    ReparametrizedCurve.of(it, ts)
-}

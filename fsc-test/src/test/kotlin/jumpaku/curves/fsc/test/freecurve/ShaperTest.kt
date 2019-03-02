@@ -15,14 +15,14 @@ import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
-import java.io.File
 import java.time.Duration
 
 class ShaperTest {
 
-    val parent = "src/test/resources/jumpaku/curves/fsc/test/freecurve"
+    val urlString = "/jumpaku/curves/fsc/test/freecurve/"
+    fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
-    fun parseSmoothResult(name: String): SmoothResult = File(parent, name + "Result.json").parseJson().tryMap { json ->
+    fun parseSmoothResult(name: String): SmoothResult = resourceText(name + "Result.json").parseJson().tryMap { json ->
         SmoothResult(
                 json["conicSections"].array.map { ConicSection.fromJson(it) },
                 json["cubicBeziers"].array.map { Bezier.fromJson(it) })
@@ -33,11 +33,10 @@ class ShaperTest {
             smoother = Smoother(
                     pruningFactor = 2.0,
                     nFitSamples = 33,
-                    fscSampleSpan = 0.02)) {
-        it.domain.sample(0.1)
-    }
+                    fscSampleSpan = 0.02),
+            sampleFsc = { it.domain.sample(50) })
 
-    fun parseJsonBSpline(name: String): JsonElement = File(parent, name + "Fsc.json").parseJson().orThrow()
+    fun parseJsonBSpline(name: String): JsonElement = resourceText(name + "Fsc.json").parseJson().orThrow()
 
     @Test
     fun testShape() {
@@ -46,7 +45,7 @@ class ShaperTest {
             val s = BSpline.fromJson(parseJsonBSpline(name))
             val (_, _, actual) = shaper.shape(s)
             val expected = parseSmoothResult(name)
-            assertThat(actual.conicSections.size, `is`(expected.conicSections.size))
+            assertThat("$name: ", actual.conicSections.size, `is`(expected.conicSections.size))
             assertThat(actual.cubicBeziers.size, `is`(expected.cubicBeziers.size))
         }
     }
@@ -61,7 +60,7 @@ class ShaperTest {
         listOf("swan", "flag", "yacht").forEach { name ->
             val s = BSpline.fromJson(parseJsonBSpline(name))
             val b = System.nanoTime()
-            assertTimeoutPreemptively(Duration.ofMillis(1000)) {
+            assertTimeoutPreemptively(Duration.ofMillis(1200)) {
                 shaper.shape(s)
                 println("    $name: ${(System.nanoTime() - b) * 1e-9} [s]")
             }
