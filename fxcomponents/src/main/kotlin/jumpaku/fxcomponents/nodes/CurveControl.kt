@@ -85,10 +85,10 @@ class CurveControl : Control() {
 
     fun clear() = (skin as CurveControlSkin).inputPolyline.children.clear()
 
-    private val onCurveDoneProperty: ObjectProperty<EventHandler<CurveEvent>> = object : SimpleObjectProperty<EventHandler<CurveEvent>>(
-            this, "onCurveDone", EventHandler { _ -> Unit }) {
-        override fun invalidated() = setEventHandler(CurveEvent.CURVE_DONE, get())
-    }
+    private val onCurveDoneProperty: ObjectProperty<EventHandler<CurveEvent>> =
+            object : SimpleObjectProperty<EventHandler<CurveEvent>>(this, "onCurveDone", EventHandler { }) {
+                override fun invalidated() = setEventHandler(CurveEvent.CURVE_DONE, get())
+            }
     fun onCurveDoneProperty(): ObjectProperty<EventHandler<CurveEvent>> = onCurveDoneProperty
     var onCurveDone: EventHandler<CurveEvent> get() = onCurveDoneProperty().get(); set(h) = onCurveDoneProperty().set(h)
 }

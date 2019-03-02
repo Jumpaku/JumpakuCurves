@@ -147,6 +147,13 @@ project(':fxcomponents') {
     }
 }
 
+project(':graphics') {
+    dependencies {
+        compile project(':core')
+        compile project(':fsc')
+    }
+}
+
 project(':examples'){
     dependencies {
         compile project(':core')
