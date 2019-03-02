@@ -202,7 +202,7 @@ class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
 
         val defaultIdentifier: (BSpline) -> Segment = { s ->
             val identifier = Open4Identifier(nSamples = 25, nFmps = 15)
-            val result = identifier.identify(reparametrize(s, maxSamples = 65))
+            val result = identifier.identify(reparametrize(s))
             val isCs = !result.grades[CurveClass.OpenFreeCurve]!!
             val curve: Curve = when (result.curveClass) {
                 CurveClass.LineSegment -> result.linear.base

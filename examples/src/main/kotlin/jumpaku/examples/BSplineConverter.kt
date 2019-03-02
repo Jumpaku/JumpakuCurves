@@ -37,7 +37,7 @@ object BSplineConverter {
     }
 }
 
-fun main(args: Array<String>) {
+fun main() {
     println(Paths.get(".").toAbsolutePath())
     Paths.get("oldfsc").toFile().walkBottomUp().forEach {
         if (it.isFile && it.extension == "json") {

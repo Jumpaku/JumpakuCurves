@@ -22,7 +22,7 @@ class Primitive7IdentifierTest {
         for (i in 0..1) {
             val fsc = resourceText("FscL$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.LineSegment
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
@@ -34,7 +34,7 @@ class Primitive7IdentifierTest {
         for (i in 0..0) {
             val fsc = resourceText("FscC$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.Circle
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
@@ -46,7 +46,7 @@ class Primitive7IdentifierTest {
         for (i in 0..2) {
             val fsc = resourceText("FscCA$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.CircularArc
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
@@ -58,7 +58,7 @@ class Primitive7IdentifierTest {
         for (i in 0..0) {
             val fsc = resourceText("FscE$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.Ellipse
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
@@ -70,7 +70,7 @@ class Primitive7IdentifierTest {
         for (i in 0..2) {
             val fsc = resourceText("FscEA$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.EllipticArc
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
@@ -82,7 +82,7 @@ class Primitive7IdentifierTest {
         for (i in 0..0) {
             val fsc = resourceText("FscFO$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.OpenFreeCurve
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
@@ -94,7 +94,7 @@ class Primitive7IdentifierTest {
         for (i in 0..0) {
             val fsc = resourceText("FscFC$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = CurveClass.ClosedFreeCurve
-            val s = reparametrize(fsc, 65)
+            val s = reparametrize(fsc)
             val a = identifier.identify(s)
             assertThat(a.curveClass, `is`(e))
         }
