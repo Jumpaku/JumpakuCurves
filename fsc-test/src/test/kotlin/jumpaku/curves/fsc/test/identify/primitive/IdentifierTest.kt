@@ -3,16 +3,13 @@ package jumpaku.curves.fsc.test.identify.primitive
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
-import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.closeTo
-import jumpaku.curves.core.transform.UniformlyScale
 import jumpaku.curves.core.util.sum
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.hamcrest.Matchers.`is`
-import org.junit.Assert
 import org.junit.Assert.assertThat
 import org.junit.Test
 import kotlin.math.sqrt

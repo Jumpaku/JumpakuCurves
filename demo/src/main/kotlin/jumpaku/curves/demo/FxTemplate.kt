@@ -6,7 +6,8 @@ import javafx.stage.Stage
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawPolyline
-import jumpaku.curves.graphics.fx.*
+import jumpaku.curves.graphics.fx.DrawingControl
+import jumpaku.curves.graphics.fx.DrawingEvent
 
 
 fun main(vararg args: String) = Application.launch(FxTemplate::class.java, *args)

@@ -3,8 +3,8 @@ package jumpaku.fxcomponents.nodes
 import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.curve.polyline.Polyline
+import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
 import jumpaku.curves.fsc.snap.conicsection.ConjugateBox

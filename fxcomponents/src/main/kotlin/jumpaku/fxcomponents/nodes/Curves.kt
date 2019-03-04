@@ -2,13 +2,13 @@ package jumpaku.fxcomponents.nodes
 
 import javafx.scene.Parent
 import javafx.scene.paint.Color
-import javafx.scene.shape.*
-import jumpaku.curves.core.geom.Point
+import javafx.scene.shape.Circle
+import javafx.scene.shape.Shape
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
-import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.geom.Point
 import tornadofx.*
 
 fun Parent.fuzzyPoints(points: List<Point>, op: (Circle.() -> Unit)): Unit =
@@ -38,7 +38,7 @@ fun Parent.polyline(polyline: Polyline, op: (Shape.() -> Unit)): Unit = when {
         path {
             val (x, y) = polyline.points.first()
             moveTo(x, y)
-            polyline.points.asVavr().tail().forEach { lineTo(it.x, it.y) }
+            polyline.points.drop(1).forEach { lineTo(it.x, it.y) }
             op()
         }
         Unit

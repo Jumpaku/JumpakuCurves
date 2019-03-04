@@ -18,7 +18,6 @@ import kotlin.math.PI
 import kotlin.math.sqrt
 
 
-
 fun Graphics2D.clearRect(x: Double, y: Double, width: Double, height: Double) =
         clearRect(x.toInt(), y.toInt(), width.toInt(), height.toInt())
 fun Graphics2D.clearRect(rectangle2D: Rectangle2D) =
@@ -112,12 +111,12 @@ private fun makeConicSection(conicSection: ConicSection): Shape {
     if (conicSection.weight >= 1.0) return Line2D.Double(b0.x, b0.y, b2.x, b2.y)
     val w = conicSection.weight
     val extent = FastMath.acos(w)*2
-    val start = (PI - extent)*0.5
-    val arc = Arc2D.Double(-1.0, -1.0, 2.0, 2.0, start, extent, Arc2D.OPEN)
+    val start = (-PI - extent)*0.5
+    val arc = Arc2D.Double(-1.0, -1.0, 2.0, 2.0, start*180 / PI, extent*180 / PI, Arc2D.OPEN)
     val transform = Calibrate(
-            Point.xy(sqrt(1 - w*w), w) to b0,
+            Point.xy(-sqrt(1 - w*w), w) to b0,
             Point.xy(0.0, 1.0) to f,
-            Point.xy(-sqrt(1 - w*w), w) to b2).matrix.run {
+            Point.xy(sqrt(1 - w*w), w) to b2).matrix.run {
         AffineTransform(
                 getEntry(0,0),
                 getEntry(1,0),

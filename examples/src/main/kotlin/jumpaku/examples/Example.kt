@@ -2,12 +2,9 @@ package jumpaku.examples
 
 import javafx.application.Application
 import javafx.scene.layout.Pane
-import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.Reparametrizer
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.geom.middle
-import jumpaku.curves.core.transform.Translate
 import jumpaku.fxcomponents.colors.CudPalette
 import jumpaku.fxcomponents.colors.fx
 import jumpaku.fxcomponents.nodes.*

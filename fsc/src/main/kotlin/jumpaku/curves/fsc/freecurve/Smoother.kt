@@ -106,9 +106,9 @@ class Smoother(
             val s = if (isClosed) fsc.close() else fsc
             return listOf(fitter.fitAllFsc(parametrize(s.evaluateAll(fscSampleSpan))))
         }
-        val p0v0s = rs.map { Tuple2(it(1.0), it.differentiate(1.0)) }.asVavr().init()
-        val p1v1s = rs.map { Tuple2(it(0.0), it.differentiate(0.0)) }.asVavr().tail()
-        val p0v0p1v1s = p0v0s.zipWith(p1v1s) { pv0, pv1 -> Tuple4(pv0._1, pv0._2, pv1._1, pv1._2) }
+        val p0v0s = rs.map { Tuple2(it(1.0), it.differentiate(1.0)) }.dropLast(1)
+        val p1v1s = rs.map { Tuple2(it(0.0), it.differentiate(0.0)) }.drop(1)
+        val p0v0p1v1s = p0v0s.zip(p1v1s) { pv0, pv1 -> Tuple4(pv0._1, pv0._2, pv1._1, pv1._2) }
         val middles = gis.asVavr().slice(1, gis.lastIndex).zip(p0v0p1v1s) { i, p0v0p1v1 ->
             val data = parametrize(fsc.restrict(i).evaluateAll(nFitSamples))
             fitter.fitMiddle(p0v0p1v1._1, p0v0p1v1._2, p0v0p1v1._3, p0v0p1v1._4, data)

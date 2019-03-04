@@ -15,7 +15,10 @@ import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.fxcomponents.nodes.cubicFsc
 import jumpaku.fxcomponents.nodes.curveControl
 import jumpaku.fxcomponents.nodes.onCurveDone
-import tornadofx.*
+import tornadofx.App
+import tornadofx.View
+import tornadofx.group
+import tornadofx.pane
 
 fun main(vararg args: String) = Application.launch(AppBlend::class.java, *args)
 

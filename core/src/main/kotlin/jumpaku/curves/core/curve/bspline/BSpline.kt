@@ -24,7 +24,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
     override val derivative: BSplineDerivative get() {
         val us = knotVector.extractedKnots
         val cvs = controlPoints
-                .zip(controlPoints.asVavr().tail()) { a, b -> b.toCrisp() - a.toCrisp() }
+                .zip(controlPoints.drop(1)) { a, b -> b.toCrisp() - a.toCrisp() }
                 .withIndex().map { (i, v) ->
                     v*basisHelper(degree.toDouble(), 0.0, us[degree + i + 1], us[i + 1])
                 }
