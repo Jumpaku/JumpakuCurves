@@ -10,6 +10,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.snap.Grid
+import jumpaku.curves.fsc.snap.conicsection.ConjugateBox
 import org.apache.commons.math3.util.FastMath
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -83,6 +84,11 @@ fun Graphics2D.drawGrid(
         style: (Graphics2D)->Unit = DrawStyle()) {
     val g = this
     rectangle2D.run { g.drawGrid(grid, resolution, x, y, width, height, style) }
+}
+
+fun Graphics2D.drawConjugateBox(conjugateBox: ConjugateBox, style: (Graphics2D)->Unit = DrawStyle()) {
+    conjugateBox.run { drawPolyline(Polyline.byArcLength(bottomLeft, topLeft, topRight, bottomRight, bottomLeft), style) }
+    conjugateBox.run { drawPolyline(Polyline.byArcLength(left, top, right, bottom, left), style) }
 }
 
 
