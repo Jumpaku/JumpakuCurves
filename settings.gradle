@@ -1,2 +1,2 @@
 rootProject.name = 'JumpakuCurves'
-include 'core', 'core-test', 'fsc', 'fsc-test', 'fxcomponents', 'examples'
+include 'core', 'core-test', 'fsc', 'fsc-test', 'graphics', 'demo'

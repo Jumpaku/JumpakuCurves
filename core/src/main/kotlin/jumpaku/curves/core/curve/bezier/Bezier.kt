@@ -14,7 +14,6 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2
 import jumpaku.curves.core.util.isOdd
@@ -32,7 +31,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
 
     override val derivative: BezierDerivative get() {
         val cp = controlPoints.map(Point::toCrisp)
-        val vs = cp.zip(cp.asVavr().tail()) { pre, post -> (post - pre)*degree.toDouble() }
+        val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre)*degree.toDouble() }
         return BezierDerivative(vs)
     }
 

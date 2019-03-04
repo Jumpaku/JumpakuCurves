@@ -25,6 +25,12 @@ fxcomponents/out/*
 examples/build/*
 examples/classes/*
 examples/out/*
+graphics/build/*
+graphics/classes/*
+graphics/out/*
+demo/build/*
+demo/classes/*
+demo/out/*
 
 # Netbeans
 nbproject/

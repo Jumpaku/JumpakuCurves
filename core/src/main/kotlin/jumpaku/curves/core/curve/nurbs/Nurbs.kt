@@ -13,7 +13,9 @@ import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.geom.times
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.Option
+import jumpaku.curves.core.util.component1
+import jumpaku.curves.core.util.component2
 
 class Nurbs(
         controlPoints: Iterable<Point>,
@@ -34,8 +36,8 @@ class Nurbs(
     override val domain: Interval = knotVector.domain
 
     override val derivative: Derivative get() {
-        val ws = weights.asVavr()
-        val dws = ws.zip(ws.tail()) { a, b -> degree * (b - a) }
+        val ws = weights
+        val dws = ws.zipWithNext { a, b -> degree * (b - a) }
         val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).derivative
 
         return object : Derivative {
@@ -100,11 +102,12 @@ class Nurbs(
         val sb = knotVector.multiplicityOf(b)
         val se = knotVector.multiplicityOf(e)
         return BSpline.segmentedControlPoints(weightedControlPoints, knotVector)
-                .asVavr()
-                .run { slice(degree + 1 - sb, size() - degree - 1 + se) }
-                .sliding(degree + 1, degree + 1)
+                //.asVavr()
+                .run { slice((degree + 1 - sb) until (size - degree - 1 + se)) }
+                .windowed(degree + 1, degree + 1)
+                //.sliding(degree + 1, degree + 1)
                 .map { RationalBezier(it) }
-                .toArray().asKt()
+                //.toArray().asKt()
     }
 
     fun subdivide(t: Double): Tuple2<Option<Nurbs>, Option<Nurbs>> {

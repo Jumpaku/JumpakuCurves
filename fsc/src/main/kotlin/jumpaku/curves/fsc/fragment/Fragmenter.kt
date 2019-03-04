@@ -1,12 +1,9 @@
 package jumpaku.curves.fsc.fragment
 
-import io.vavr.collection.Array
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.util.asKt
-import jumpaku.curves.core.util.asVavr
-import jumpaku.curves.core.util.lastIndex
+import java.util.*
 
 
 class Fragmenter(
@@ -32,23 +29,27 @@ class Fragmenter(
                 .windowed(chunkSize)
                 .map { chunk(fsc, Interval(it.first(), it.last()), chunkSize) }
                 .toList()
-        val states = chunks.asVavr()
+        val states = chunks//.asVavr()
                 .map { it.state(threshold) }
-                .fold(Array.of(Fragmenter.State.STAY)) { l, n -> l.append(l.last().transit(n)) }
-                .tail()
-        val initial = Array.of(Triple(chunks.first().interval.begin, chunks.first().interval.end, states.first()))
-        return chunks.zip(states).fold(initial) { prev, (nChunk, nState) ->
-            val (pBegin, _, pState) = prev.last()
-            when {
-                (pState != nState) -> prev.append(Triple(nChunk.interval.begin, nChunk.interval.end, nState))
-                else -> prev.update(prev.lastIndex, Triple(pBegin, nChunk.interval.end, pState))
-            }
-        }.map { (begin, end, state) ->
-            when (state!!) {  // 型推論がうまくいかない
-                State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
-                State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
-            }
-        }.asKt()
+                .fold(LinkedList(listOf(Fragmenter.State.STAY))) { l, n -> l += l.last().transit(n); l }
+                .drop(1)
+        val initial = Triple(chunks.first().interval.begin, chunks.first().interval.end, states.first())
+        return chunks.zip(states)
+                .fold(LinkedList(listOf(initial))) { prev, (nChunk, nState) ->
+                    val (pBegin, _, pState) = prev.last()
+                    if (pState == nState) {
+                        prev[prev.lastIndex] = Triple(pBegin, nChunk.interval.end, pState)
+                        prev
+                    } else {
+                        prev += (Triple(nChunk.interval.begin, nChunk.interval.end, nState))
+                        prev
+                    }
+                }.map { (begin, end, state) ->
+                    when (state!!) {  // 型推論がうまくいかない
+                        State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
+                        State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
+                    }
+                }
     }
 
     private enum class State {
