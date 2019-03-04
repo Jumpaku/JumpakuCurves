@@ -1,6 +1,6 @@
 
 buildscript {
-    ext.jumpaku_curves_version = '0.11.4'
+    ext.jumpaku_curves_version = '0.11.5'
     ext.kotlin_version = '1.3.21'
     ext.jvm_version = '1.8'
     ext.dokka_version = '0.9.17'
@@ -11,7 +11,8 @@ buildscript {
             'commons_math3': '3.6.1',
             'kotson': '2.5.0',
             'vavr': '0.9.1',
-            'tornadofx': '1.7.12'
+            'tornadofx': '1.7.12',
+            'fxgraphics2d': '1.8'
     ]
 
     repositories {
@@ -151,6 +152,15 @@ project(':graphics') {
     dependencies {
         compile project(':core')
         compile project(':fsc')
+        compile "org.jfree:fxgraphics2d:${dependencyVersions.fxgraphics2d}"
+    }
+}
+
+project(':demo'){
+    dependencies {
+        compile project(':core')
+        compile project(':fsc')
+        compile project(':graphics')
     }
 }
 

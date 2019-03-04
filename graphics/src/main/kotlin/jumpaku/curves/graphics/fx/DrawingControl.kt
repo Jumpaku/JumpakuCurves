@@ -11,7 +11,7 @@ import javafx.scene.control.Control
 import javafx.scene.control.Skin
 import javafx.scene.input.MouseEvent
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.geom.Line
+import jumpaku.curves.core.curve.polyline.LineSegment
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.util.Option
 import jumpaku.curves.core.util.none
@@ -19,15 +19,13 @@ import jumpaku.curves.core.util.result
 import jumpaku.curves.core.util.some
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.graphics.clearRect
-import jumpaku.curves.graphics.drawLine
+import jumpaku.curves.graphics.drawLineSegment
 import org.jfree.fx.FXGraphics2D
 import java.awt.Color
 import java.awt.Graphics2D
 
 
-
-
-private class CurveControlSkin(val control: DrawingControl, val rootNode: Canvas) : Skin<DrawingControl> {
+private class DrawingControlSkin(val control: DrawingControl, val rootNode: Canvas) : Skin<DrawingControl> {
 
     val fxGraphics2D: Graphics2D = FXGraphics2D(rootNode.graphicsContext2D)
 
@@ -37,7 +35,6 @@ private class CurveControlSkin(val control: DrawingControl, val rootNode: Canvas
 
         fun currentData(point: Point) = ParamPoint(point, System.nanoTime()*1e-9)
         with(rootNode) {
-            // controllers
             addEventHandler(MouseEvent.MOUSE_PRESSED) { control.beginCurve(currentData(Point.xy(it.x, it.y))) }
             addEventHandler(MouseEvent.MOUSE_DRAGGED) { control.extendCurve(currentData(Point.xy(it.x, it.y))) }
             addEventHandler(MouseEvent.MOUSE_RELEASED) { control.endCurve(currentData(Point.xy(it.x, it.y))) }
@@ -54,21 +51,25 @@ private class CurveControlSkin(val control: DrawingControl, val rootNode: Canvas
         val points = drawingStroke.paramPoints.map { it.point }
         if (points.size >= 2) result {
             val (p0, p1) = points.takeLast(2)
-            fxGraphics2D.drawLine(Line(p0, p1))
+            fxGraphics2D.drawLineSegment(LineSegment(p0, p1))
         }
     }
 }
 
 
-class CurveEvent(val drawingStroke: DrawingStroke) : Event(CurveEvent.CURVE_DONE) {
+class DrawingEvent(val drawingStroke: DrawingStroke) : Event(DrawingEvent.DRAWING_DONE) {
     companion object {
-        val CURVE_DONE = EventType<CurveEvent>(ANY, "CURVE_DONE")
+        val DRAWING_DONE = EventType<DrawingEvent>(ANY, "DRAWING_DONE")
     }
 }
 
+private typealias DrawingEventHandlerProperty = SimpleObjectProperty<EventHandler<DrawingEvent>>
+
 class DrawingControl(val canvasWidth: Double, val canvasHeight: Double) : Control() {
 
-    private fun updateCurve(drawingStroke: DrawingStroke): Unit = (skin as CurveControlSkin).renderCurve(drawingStroke)
+    override fun createDefaultSkin(): Skin<*> = DrawingControlSkin(this, Canvas(canvasWidth, canvasHeight))
+
+    private fun updateCurve(drawingStroke: DrawingStroke): Unit = (skin as DrawingControlSkin).renderCurve(drawingStroke)
 
     private val lock: Any = Any()
     private var drawingStroke: Option<DrawingStroke> = none()
@@ -94,22 +95,19 @@ class DrawingControl(val canvasWidth: Double, val canvasHeight: Double) : Contro
             drawingStroke = drawingStroke.map { it.extend(point) }
             drawingStroke.forEach {
                 updateCurve(it)
-                fireEvent(CurveEvent(it))
+                fireEvent(DrawingEvent(it))
             }
         }
     }
 
-    fun updateGraphics2D(update: Graphics2D.() -> Unit) = ((skin as CurveControlSkin).fxGraphics2D).update()
+    fun updateGraphics2D(update: Graphics2D.() -> Unit) = ((skin as DrawingControlSkin).fxGraphics2D).update()
 
-    override fun createDefaultSkin(): Skin<*> = CurveControlSkin(this, Canvas(canvasWidth, canvasHeight))
-
-    private val onCurveDoneProperty: ObjectProperty<EventHandler<CurveEvent>> =
-            object : SimpleObjectProperty<EventHandler<CurveEvent>>(this, "onCurveDone", EventHandler {}) {
-                override fun invalidated() = setEventHandler(CurveEvent.CURVE_DONE, get())
+    private val onDrawingDoneProperty: ObjectProperty<EventHandler<DrawingEvent>> =
+            object : DrawingEventHandlerProperty(this, "onDrawingDone", EventHandler {}) {
+                override fun invalidated() = setEventHandler(DrawingEvent.DRAWING_DONE, get())
             }
-    fun onCurveDoneProperty(): ObjectProperty<EventHandler<CurveEvent>> = onCurveDoneProperty
-    var onCurveDone: EventHandler<CurveEvent>
+    fun onCurveDoneProperty(): ObjectProperty<EventHandler<DrawingEvent>> = onDrawingDoneProperty
+    var onDrawingDone: EventHandler<DrawingEvent>
         get() = onCurveDoneProperty().get()
         set(h) = onCurveDoneProperty().set(h)
 }
-
