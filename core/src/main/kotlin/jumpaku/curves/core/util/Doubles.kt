@@ -10,5 +10,6 @@ infix fun Double.tryDiv(divisor: Double): Result<Double> = result {
 
 fun Double.divOrDefault(divisor: Double, default: () -> Double): Double = tryDiv(divisor).value().orDefault(default)
 
-fun sum(doubles: DoubleArray): Double = MathArrays.linearCombination(doubles, DoubleArray(doubles.size) { 1.0 })
+fun sum(doubles: DoubleArray): Double =
+        if (doubles.isEmpty()) 0.0 else MathArrays.linearCombination(doubles, DoubleArray(doubles.size) { 1.0 })
 fun sum(doubles: List<Double>): Double = sum(doubles.toDoubleArray())

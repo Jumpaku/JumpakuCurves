@@ -144,6 +144,6 @@ fun Graphics2D.drawCurve(curve: Curve, nSamples: Int, style: (Graphics2D)->Unit 
     curve is ConicSection -> drawConicSection(curve, style)
     curve is Polyline -> drawPolyline(curve, style)
     curve is LineSegment -> drawLineSegment(curve, style)
-    curve is DrawingStroke -> drawPolyline(Polyline(curve.paramPoints), style)
+    curve is DrawingStroke -> drawPolyline(Polyline(curve.inputData), style)
     else -> drawPolyline(Polyline(curve.sample(nSamples)), style)
 }

@@ -47,7 +47,7 @@ class IdentifyDemo : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    val fsc = IdentifyDemoSettings.generator.generate(it.drawingStroke.paramPoints)
+                    val fsc = IdentifyDemoSettings.generator.generate(it.drawingStroke.inputData)
                     val result = IdentifyDemoSettings.identifier.identify(reparametrize(fsc))
                     println("curveClass: ${result.curveClass}")
                     println("grade: ${result.grade}")

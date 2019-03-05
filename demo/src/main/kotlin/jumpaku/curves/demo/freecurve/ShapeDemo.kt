@@ -52,7 +52,7 @@ class ShapeDemo : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    val fsc = ShapeDemoSettings.generator.generate(it.drawingStroke.paramPoints)
+                    val fsc = ShapeDemoSettings.generator.generate(it.drawingStroke.inputData)
                     val (_, _, smooth) = ShapeDemoSettings.shaper.shape(fsc)
                     drawPoints(fsc.evaluateAll(0.01))
                     smooth.conicSections.forEach { drawConicSection(it, DrawStyle(Color.MAGENTA)) }

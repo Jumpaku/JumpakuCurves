@@ -55,7 +55,7 @@ class NQuarterDemo : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    val fsc = NQuarterDemoSettings.generator.generate(it.drawingStroke.paramPoints)
+                    val fsc = NQuarterDemoSettings.generator.generate(it.drawingStroke.inputData)
                     drawPoints(fsc.evaluateAll(0.01))
                     val s = reparametrize(fsc)
                     val primitive = NQuarterDemoSettings.identifier.identify(s)

@@ -53,7 +53,7 @@ class FragmentDemo : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    val fsc = FragmentDemoSettings.generator.generate(it.drawingStroke.paramPoints)
+                    val fsc = FragmentDemoSettings.generator.generate(it.drawingStroke.inputData)
                     val fragments = FragmentDemoSettings.fragmenter.fragment(fsc)
                     fragments.filter { it.type == Fragment.Type.Move }.map { fsc.restrict(it.interval) }.apply {
                         println(size)

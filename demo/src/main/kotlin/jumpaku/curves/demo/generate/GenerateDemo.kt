@@ -42,7 +42,7 @@ class GenerateDemo : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    val fsc = GenerateDemoSettings.generator.generate(it.drawingStroke.paramPoints)
+                    val fsc = GenerateDemoSettings.generator.generate(it.drawingStroke.inputData)
                     drawCubicBSpline(fsc)
                     drawPoints(fsc.evaluateAll(0.01))
                 }

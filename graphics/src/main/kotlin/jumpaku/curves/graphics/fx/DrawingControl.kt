@@ -48,7 +48,7 @@ private class DrawingControlSkin(val control: DrawingControl, val rootNode: Canv
     override fun getSkinnable(): DrawingControl = control
 
     fun renderCurve(drawingStroke: DrawingStroke) {
-        val points = drawingStroke.paramPoints.map { it.point }
+        val points = drawingStroke.inputData.map { it.point }
         if (points.size >= 2) result {
             val (p0, p1) = points.takeLast(2)
             fxGraphics2D.drawLineSegment(LineSegment(p0, p1))

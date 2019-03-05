@@ -5,6 +5,7 @@ import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
+import jumpaku.curves.fsc.DrawingStroke
 import org.apache.commons.math3.linear.CholeskyDecomposition
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.OpenMapRealMatrix
@@ -17,6 +18,8 @@ class Generator(
         val preparer: DataPreparer = DataPreparer(knotSpan/degree, knotSpan*2, knotSpan*2, 2),
         val fuzzifier: Fuzzifier = LinearFuzzifier(0.025, 0.001)
 ) {
+
+    fun generate(drawingStroke: DrawingStroke): BSpline = generate(drawingStroke.inputData)
 
     fun generate(data: List<ParamPoint>): BSpline {
         val domain = Interval(data.first().param, data.last().param)
