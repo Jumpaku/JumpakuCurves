@@ -98,18 +98,33 @@ class OptionTest {
     }
 
     @Test
-    fun testForEach() {
-        println("ForEach")
+    fun testIfPresent() {
+        println("IfPresent")
         val x0 = arrayOf(1, 2)
-        some.forEach({ x0[0] = 3 }, {x0[1] = -1})
+        some.ifPresent { x0[0] = 3 }
         assertThat(x0[0], `is`(3))
         assertThat(x0[1], `is`(2))
 
         val x1 = arrayOf(1, 2)
-        none.forEach({ x1[0] = 3 }, {x1[1] = -1})
+        none.ifPresent { x1[0] = 3 }
         assertThat(x1[0], `is`(1))
-        assertThat(x1[1], `is`(-1))
+        assertThat(x1[1], `is`(2))
     }
+
+    @Test
+    fun testIfAbsent() {
+        println("IfAbsent")
+        val x0 = arrayOf(1, 2)
+        some.ifAbsent { x0[0] = 3 }
+        assertThat(x0[0], `is`(1))
+        assertThat(x0[1], `is`(2))
+
+        val x1 = arrayOf(1, 2)
+        none.ifAbsent { x1[0] = 3 }
+        assertThat(x1[0], `is`(3))
+        assertThat(x1[1], `is`(2))
+    }
+
     @Test
     fun testIterator() {
         println("Iterator")

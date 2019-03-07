@@ -31,6 +31,10 @@ sealed class Result<V: Any> {
         is Success -> value
         is Failure -> throw error
     }
+
+    fun onSuccess(action: (V) -> Unit): Result<V> = apply { value().forEach(action) }
+
+    fun onFailure(action: (Exception) -> Unit) = apply { error().forEach(action) }
 }
 
 class Success<V: Any>(val value: V) : Result<V>() {

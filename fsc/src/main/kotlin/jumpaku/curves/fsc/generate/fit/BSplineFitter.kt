@@ -11,7 +11,7 @@ import jumpaku.curves.core.util.*
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 
-fun createModelMatrix(sataParams: List<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
+private fun createModelMatrix(sataParams: List<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
     val n = knotVector.extractedKnots.size - degree - 1
     val sparse = OpenMapRealMatrix(sataParams.size, n)
     sataParams.map { t ->
@@ -55,14 +55,14 @@ class BSplineFitter(
         return BSpline(p, knotVector)
     }
 
-    fun createBasisMatrix(sortedDataTimes: List<Double>): RealMatrix =
+    private fun createBasisMatrix(sortedDataTimes: List<Double>): RealMatrix =
             createModelMatrix(sortedDataTimes, degree, knotVector)
 
-    fun createDataMatrix(sortedDataPoints: List<Point>): RealMatrix = sortedDataPoints
+    private fun createDataMatrix(sortedDataPoints: List<Point>): RealMatrix = sortedDataPoints
             .map { doubleArrayOf(it.x, it.y, it.z) }
             .run { MatrixUtils.createRealMatrix(toTypedArray()) }
 
-    fun createWeightMatrix(sortedDataWeights: List<Double>): RealMatrix =
+    private fun createWeightMatrix(sortedDataWeights: List<Double>): RealMatrix =
             DiagonalMatrix(sortedDataWeights.toDoubleArray())
 }
 

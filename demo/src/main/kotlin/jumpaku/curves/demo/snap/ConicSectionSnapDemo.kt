@@ -73,7 +73,7 @@ class SnapDemo : Application() {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
                     drawGrid()
-                    val fsc = SnapDemoSettings.generator.generate(it.drawingStroke.paramPoints)
+                    val fsc = SnapDemoSettings.generator.generate(it.drawingStroke.inputData)
                     drawPoints(fsc.evaluateAll(0.01), DrawStyle(Color.LIGHT_GRAY))
                     val identified = SnapDemoSettings.identifier.identify(reparametrize(fsc))
                     when (identified.curveClass) {

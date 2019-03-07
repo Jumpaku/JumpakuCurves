@@ -164,4 +164,31 @@ class ResultTest {
         assertThat(ff.error().orNull()!!, `is`(instanceOf(Exception::class.java)))
     }
 
+    @Test
+    fun testOnSuccess() {
+        println("OnSuccess")
+        val x0 = arrayOf(1, 2)
+        success.onSuccess { x0[0] = 3 }
+        assertThat(x0[0], `is`(3))
+        assertThat(x0[1], `is`(2))
+
+        val x1 = arrayOf(1, 2)
+        failure.onSuccess { x1[0] = 3 }
+        assertThat(x1[0], `is`(1))
+        assertThat(x1[1], `is`(2))
+    }
+
+    @Test
+    fun testOnFailure() {
+        println("OnFailure")
+        val x0 = arrayOf(1, 2)
+        success.onFailure { x0[0] = 3 }
+        assertThat(x0[0], `is`(1))
+        assertThat(x0[1], `is`(2))
+
+        val x1 = arrayOf(1, 2)
+        failure.onFailure { x1[0] = 3 }
+        assertThat(x1[0], `is`(3))
+        assertThat(x1[1], `is`(2))
+    }
 }

@@ -23,10 +23,9 @@ sealed class Option<out T: Any>: Iterable<T> {
 
     fun filter(test: (T)->Boolean): Option<T> = if (this is Some && test(value)) this else None
 
-    fun forEach(actionIfPresent: (T)->Unit, actionIfAbsent: ()->Unit): Unit = when(this) {
-        is Some -> actionIfPresent(value)
-        is None -> actionIfAbsent()
-    }
+    fun ifPresent(action: (T) -> Unit): Option<T> = apply { forEach(action) }
+
+    fun ifAbsent(action: () -> Unit): Option<T> = apply { if (this is None) action() }
 
     companion object {
 
@@ -91,8 +90,3 @@ fun <T: Any> option(nullable: ()->T?): Option<T> = nullable()?.let(::some) ?: no
 fun <T: Any> T?.toOption(): Option<T> = option { this }
 
 fun <T: Any> optionWhen(condition: Boolean, supply: () -> T): Option<T> = if (condition) some(supply()) else none()
-
-fun <T: Any> Option<T>.asVavr(): io.vavr.control.Option<T> =
-        (this as? Some)?.run { io.vavr.control.Option.some(value) } ?: io.vavr.control.Option.none()
-fun <T: Any> io.vavr.control.Option<T>.toJOpt(): Option<T> = orNull.toOption()
-

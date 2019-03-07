@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.MathArrays
 operator fun Double.times(v: Vector): Vector = v.times(this)
 
 fun linearCombination(vararg terms: Pair<Double, Vector>): Vector {
+    if (terms.isEmpty()) return Vector.Zero
     val cs = terms.map { it.first }.toDoubleArray()
     val xs = terms.map { it.second.x }.toDoubleArray()
     val ys = terms.map { it.second.y }.toDoubleArray()

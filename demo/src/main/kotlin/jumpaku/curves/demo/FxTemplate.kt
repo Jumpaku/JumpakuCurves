@@ -22,7 +22,7 @@ class FxTemplate : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    drawPolyline(Polyline(it.drawingStroke.paramPoints))
+                    drawPolyline(Polyline(it.drawingStroke.inputData))
                 }
             }
         }

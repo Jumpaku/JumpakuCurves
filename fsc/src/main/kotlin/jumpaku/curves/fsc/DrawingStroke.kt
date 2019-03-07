@@ -10,7 +10,7 @@ class DrawingStroke(polyline: Polyline): Curve by polyline, ToJson by polyline {
 
     constructor(paramPoints: Iterable<ParamPoint>): this(Polyline(paramPoints))
 
-    val paramPoints: List<ParamPoint> = polyline.paramPoints
+    val inputData: List<ParamPoint> = polyline.paramPoints
 
     val beginParam: Double = domain.begin
 
@@ -18,7 +18,7 @@ class DrawingStroke(polyline: Polyline): Curve by polyline, ToJson by polyline {
 
     val paramSpan: Double = domain.span
 
-    fun extend(paramPoint: ParamPoint): DrawingStroke = DrawingStroke(paramPoints + paramPoint)
+    fun extend(paramPoint: ParamPoint): DrawingStroke = DrawingStroke(inputData + paramPoint)
 
     override fun toString(): String = toJsonString()
 
