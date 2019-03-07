@@ -14,8 +14,8 @@ class VectorTest {
 
     val dataX = listOf(-1.0, 0.0, 2.0, 0.0, -3.0, 0.0, 4.0)
     val dataY = listOf(3.0, -2.0, 1.0, 5.0, 3.0, -4.0, 0.0)
-    val sX = Vector.Sparse(7, dataX.mapIndexedNotNull { i, v -> v.takeIf { it != 0.0 }?.let { i to v } }.toMap())
-    val sY = Vector.Sparse(7, dataY.mapIndexedNotNull { i, v -> v.takeIf { it != 0.0 }?.let { i to v } }.toMap())
+    val sX = Vector.sparse(7, dataX.mapIndexedNotNull { i, v -> v.takeIf { it != 0.0 }?.let { i to v } }.toMap())
+    val sY = Vector.sparse(7, dataY.mapIndexedNotNull { i, v -> v.takeIf { it != 0.0 }?.let { i to v } }.toMap())
     val aX = Vector.Array(dataX)
     val aY = Vector.Array(dataY)
 
@@ -117,8 +117,6 @@ class VectorTest {
 
     @Test
     fun testDist() {
-        val dataX = listOf(-1.0, 0.0, 2.0, 0.0, -3.0, 0.0, 4.0)
-        val dataY = listOf(3.0, -2.0, 1.0, 5.0, 3.0, -4.0, 0.0)
         val e = sqrt(114.0)
         assertThat(sX.dist(sY), `is`(closeTo(e)))
         assertThat(aX.dist(sY), `is`(closeTo(e)))
@@ -135,14 +133,14 @@ class VectorTest {
 
     @Test
     fun testAsRow() {
-        val e = Matrix.Array2D(listOf(dataX))
+        val e = Matrix.of(listOf(dataX))
         assertThat(sX.asRow(), `is`(closeTo(e)))
         assertThat(aX.asRow(), `is`(closeTo(e)))
     }
 
     @Test
     fun testAsColumn() {
-        val e = Matrix.Array2D(dataX.map(::listOf))
+        val e = Matrix.of(dataX.map(::listOf))
         assertThat(sX.asColumn(), `is`(closeTo(e)))
         assertThat(aX.asColumn(), `is`(closeTo(e)))
     }

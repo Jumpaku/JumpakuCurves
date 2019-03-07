@@ -23,13 +23,13 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
 
     infix operator fun times(a: Double): Vector = when(this) {
         is Array -> map { it * a }
-        is Sparse -> Sparse(size, data.mapValues { it.value * a })
+        is sparse -> sparse(size, data.mapValues { it.value * a })
     }
 
     infix operator fun div(divisor: Double): Result<Vector> = result {
         when (this) {
             is Array -> map { it.tryDiv(divisor).orThrow() }
-            is Sparse -> Sparse(size, data.mapValues { it.value.tryDiv(divisor).orThrow() })
+            is sparse -> sparse(size, data.mapValues { it.value.tryDiv(divisor).orThrow() })
         }
     }
 
@@ -40,7 +40,7 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
     infix operator fun plus(other: Vector): Vector {
         requireSameDimension(this, other)
         return when {
-            this is Sparse && other is Sparse -> Sparse(size) {
+            this is sparse && other is sparse -> sparse(size) {
                 val result = mutableMapOf<Int, Double>()
                 data.forEach { index, value -> result[index] = value }
                 other.data.forEach { index, value -> result[index] = value + (result[index] ?: 0.0) }
@@ -58,7 +58,7 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
     fun dot(other: Vector): Double {
         requireSameDimension(this, other)
         return when{
-            this is Sparse && other is Sparse -> {
+            this is sparse && other is sparse -> {
                 val s = minOf(data, other.data, compareBy { it.size })
                 val l = maxOf(other.data, data, compareBy { it.size })
                 val keys = s.keys.intersect(l.keys).toList()
@@ -66,13 +66,13 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
                         DoubleArray(keys.size) { data.getValue(keys[it]) },
                         DoubleArray(keys.size) { other.data.getValue(keys[it]) })
             }
-            this is Sparse && other is Array -> {
+            this is sparse && other is Array -> {
                 val keys = data.keys.toList()
                 MathArrays.linearCombination(
                         DoubleArray(keys.size) { data.getValue(keys[it]) },
                         DoubleArray(keys.size) { other.data[keys[it]] })
             }
-            this is Array && other is Sparse -> {
+            this is Array && other is sparse -> {
                 val keys = other.data.keys.toList()
                 MathArrays.linearCombination(
                         DoubleArray(keys.size) { data[keys[it]] },
@@ -99,20 +99,20 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
     fun normalize(): Option<Vector> = div(norm()).value()
 
     fun asRow(): Matrix = when(this) {
-        is Sparse -> Matrix.Sparse(1, size, data.mapKeys { (index, _) -> Matrix.Sparse.Key(0, index) })
-        is Array -> Matrix.Array2D(arrayOf(toDoubleArray()))
+        is sparse -> Matrix.sparse(1, size, data.mapKeys { (index, _) -> Matrix.Key(0, index) })
+        is Array -> Matrix.of(arrayOf(toDoubleArray()))
     }
 
     fun asColumn(): Matrix = when(this) {
-        is Sparse -> Matrix.Sparse(size, 1, data.mapKeys { (index, _) -> Matrix.Sparse.Key(index, 0) })
-        is Array -> Matrix.Array2D(Array(size) { doubleArrayOf(get(it)) })
+        is sparse -> Matrix.sparse(size, 1, data.mapKeys { (index, _) -> Matrix.Key(index, 0) })
+        is Array -> Matrix.of(Array(size) { doubleArrayOf(get(it)) })
     }
 
     fun toDoubleArray(): DoubleArray = DoubleArray(size) { get(it) }
 
     override fun toString(): String = toJsonString()
 
-    class Sparse(size: Int, data: Map<Int, Double>): Vector(size) {
+    class sparse(size: Int, data: Map<Int, Double>): Vector(size) {
 
         constructor(size: Int, builder: (size: Int) -> Map<Int, Double>): this(size, builder(size))
 
@@ -121,7 +121,7 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
         override operator fun get(index: Int): Double = data[index] ?: 0.0
 
         override fun toJson(): JsonElement = jsonObject(
-                "type" to "Sparse".toJson(),
+                "type" to "sparse".toJson(),
                 "size" to size.toJson(),
                 "data" to jsonMap(data.map { (k, v) -> k.toJson() to v.toJson() }.toMap()))
     }
@@ -142,12 +142,12 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
     companion object {
 
         fun fromJson(json: JsonElement): Vector = when(json["type"].string) {
-            "Sparse" -> Sparse(json["size"].int, json["data"].map.map { (k, v) -> k.int to v.double }.toMap())
+            "sparse" -> sparse(json["size"].int, json["data"].map.map { (k, v) -> k.int to v.double }.toMap())
             "Array" -> Array(json["data"].array.map { it.double })
             else -> error("invalid vector type")
         }
 
-        fun zeros(size: Int): Vector = Sparse(size, emptyMap())
+        fun zeros(size: Int): Vector = sparse(size, emptyMap())
 
         fun ones(size: Int): Vector = Array(DoubleArray(size) { 1.0 })
     }
