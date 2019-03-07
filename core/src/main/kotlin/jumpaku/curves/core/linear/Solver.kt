@@ -33,9 +33,15 @@ private fun Matrix.toRealMatrix(): RealMatrix = when(this) {
     is Matrix.Array2D -> MatrixUtils.createRealMatrix(toDoubleArrays())
 }
 
-private fun RealMatrix.toSparse(): Matrix.Sparse = Matrix.Sparse(rowDimension, columnDimension) { (i, j) ->
-    1.0.tryDiv(getEntry(i, j)).tryMap { getEntry(i, j) }.value()
-}
+private fun RealMatrix.toSparse(): Matrix.Sparse = Matrix.Sparse(rowDimension, columnDimension, {
+    val m = mutableMapOf<Matrix.Sparse.Key, Double>()
+    for (i in 0 until rowDimension) {
+        for (j in 0 until columnDimension) {
+            getEntry(i, j).let { if (1.0.tryDiv(it).isSuccess) m[Matrix.Sparse.Key(i, j)] = it }
+        }
+    }
+    m
+}())
 
 private fun RealMatrix.toArray2D(): Matrix.Array2D =
         Matrix.Array2D(rowDimension, columnDimension) { i, j -> getEntry(i, j) }

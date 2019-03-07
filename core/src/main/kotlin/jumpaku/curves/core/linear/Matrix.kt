@@ -5,29 +5,51 @@ import com.google.gson.JsonElement
 import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.json.jsonMap
 import jumpaku.curves.core.json.map
-import jumpaku.curves.core.util.Option
-import jumpaku.curves.core.util.optionWhen
 import jumpaku.curves.core.util.sum
-import jumpaku.curves.core.util.toOption
+import org.apache.commons.math3.linear.OpenMapRealMatrix
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
+import kotlin.random.Random
+import kotlin.system.measureNanoTime
 
 
 sealed class Matrix(val rowSize: Int, val columnSize: Int): ToJson {
 
-    operator fun times(other: Matrix): Matrix = multiply(this, other)
+    operator fun times(other: Matrix): Matrix {
+        require(columnSize == other.rowSize) {
+                "Dimension(($rowSize,$columnSize) x (${other.rowSize},${other.columnSize})) mismatched"
+        }
+        return timesImpl(this, other)
+    }
 
     fun transpose(): Matrix = when(this) {
         is Identity, is Diagonal -> this
-        is Sparse -> Sparse(rowSize, columnSize, data.mapKeys { (key, _) -> key.swap() }.toMap())
+        is Sparse -> Sparse(columnSize, rowSize, data.mapKeys { (key, _) -> key.swap() })
         is Array2D -> Array2D(Array(columnSize) { j -> DoubleArray(rowSize) { i -> get(i, j) } })
     }
 
-    fun rows(): List<Vector> = (0 until rowSize).map { i -> Vector((0 until columnSize).map { j -> get(i, j) }) }
+    fun rows(): List<Vector> = when(this) {
+        is Identity, is Diagonal -> (0 until rowSize).map { i -> Vector.Sparse(columnSize, mapOf(i to get(i, i))) }
+        is Array2D -> (0 until rowSize).map { i -> Vector.Array((0 until columnSize).map { j -> get(i, j) }) }
+        is Sparse -> {
+            val tmp = List(rowSize) { LinkedList<Int>() }
+            data.keys.forEach { (i, j) -> tmp[i].add(j) }
+            tmp.mapIndexed { i, l -> Vector.Sparse(columnSize, l.map { j -> j to get(i, j) }.toMap()) }
+        }
+    }
 
-    fun columns(): List<Vector> = (0 until columnSize).map { j -> Vector((0 until rowSize).map { i -> get(i, j) }) }
+    fun columns(): List<Vector> = when(this) {
+        is Identity, is Diagonal -> (0 until columnSize).map { i -> Vector.Sparse(rowSize, mapOf(i to get(i, i))) }
+        is Array2D -> (0 until columnSize).map { j -> Vector.Array((0 until rowSize).map { i -> get(i, j) }) }
+        is Sparse -> {
+            val tmp = List(columnSize) { LinkedList<Int>() }
+            data.keys.forEach { (i, j) -> tmp[j].add(i) }
+            tmp.mapIndexed { j, l -> Vector.Sparse(rowSize, l.map { i -> i to get(i, j) }.toMap()) }
+        }
+    }
 
     abstract operator fun get(i: Int, j: Int): Double
 
@@ -35,13 +57,13 @@ sealed class Matrix(val rowSize: Int, val columnSize: Int): ToJson {
 
     abstract override fun toJson(): JsonElement
 
-    override fun toString(): String = toJsonString()
+    override fun toString(): String = toDoubleArrays().map { it.toList() }.toString()//toJsonString()
 
     class Identity(dimension: Int): Matrix(dimension, dimension) {
 
         override fun get(i: Int, j: Int): Double = if (i == j) 1.0 else 0.0
 
-        override fun toJson(): JsonElement = jsonObject("type" to "Identity", "dimension" to rowSize)
+        override fun toJson(): JsonElement = jsonObject("type" to "Identity", "size" to rowSize)
     }
 
     class Diagonal(data: List<Double>): Matrix(data.size, data.size) {
@@ -57,24 +79,20 @@ sealed class Matrix(val rowSize: Int, val columnSize: Int): ToJson {
         override fun get(i: Int, j: Int): Double = if (i == j) data[i] else 0.0
     }
 
-    class Sparse(rowSize: Int, columnSize: Int, f: (Key) -> Option<Double>): Matrix(rowSize, columnSize) {
+    class Sparse(rowSize: Int, columnSize: Int, data: Map<Key, Double>): Matrix(rowSize, columnSize) {
 
         data class Key(val row: Int, val column: Int) {
 
             fun swap(): Key = Key(column, row)
         }
 
-        constructor(rowSize: Int, columnSize: Int, data: Map<Key, Double>)
-                : this(rowSize, columnSize, { data[it].toOption() })
+        val data: Map<Key, Double> = data.toMap()
 
-        val data: Map<Key, Double> =  (0 until rowSize).flatMap { i ->
-            (0 until columnSize).flatMap { j ->
-                val key = Key(i, j)
-                f(key).map { key to it }
-            }
-        }.toMap()
+        init {
+            require(data.keys.all { (i, j) -> i in 0 until rowSize && j in 0 until columnSize }) { "key out of range" }
+        }
 
-        override fun get(i: Int, j: Int): Double = if (Key(i, j) in data) data[Key(i, j)]!! else 0.0
+        override fun get(i: Int, j: Int): Double = data[Key(i, j)] ?: 0.0
 
         override fun toJson(): JsonElement = jsonObject(
                 "type" to "Sparse".toJson(),
@@ -96,7 +114,7 @@ sealed class Matrix(val rowSize: Int, val columnSize: Int): ToJson {
         override fun get(i: Int, j: Int): Double = data[i][j]
 
         override fun toJson(): JsonElement = jsonObject(
-                "type" to "Sparse".toJson(),
+                "type" to "Array2D".toJson(),
                 "data" to jsonArray(data.map { jsonArray(it.map { it.toJson() }) } ))
     }
 
@@ -117,7 +135,7 @@ sealed class Matrix(val rowSize: Int, val columnSize: Int): ToJson {
     }
 }
 
-private fun multiply(a: Matrix, b: Matrix): Matrix = when {
+private fun timesImpl(a: Matrix, b: Matrix): Matrix = when {
     a is Matrix.Identity -> b
     b is Matrix.Identity -> a
     a is Matrix.Diagonal && b is Matrix.Diagonal -> Matrix.Diagonal(
@@ -125,32 +143,30 @@ private fun multiply(a: Matrix, b: Matrix): Matrix = when {
     a is Matrix.Diagonal && b is Matrix.Sparse -> Matrix.Sparse(
             b.rowSize, b.columnSize, b.data.map { (ij, m_kj) -> ij to m_kj * a.data[ij.row] }.toMap())
     a is Matrix.Diagonal && b is Matrix.Array2D -> Matrix.Array2D(
-            b.data.mapIndexed { i, r -> r.mapIndexed { j, e -> e * a.data[i] }.toDoubleArray() }.toTypedArray())
+            b.data.mapIndexed { i, r -> r.map { e -> e * a.data[i] }.toDoubleArray() }.toTypedArray())
     a is Matrix.Sparse && b is Matrix.Diagonal -> Matrix.Sparse(
-            a.rowSize, a.columnSize, a.data.map { (ij, m_ij) -> ij to m_ij * b.data[ij.column] }.toMap())
+            a.rowSize, a.columnSize, a.data.mapValues { (ij, m_ij) -> m_ij * b.data[ij.column] })
     a is Matrix.Array2D && b is Matrix.Diagonal -> Matrix.Array2D(
-            a.data.mapIndexed { i, r -> r.mapIndexed { j, e -> e * b.data[j] }.toDoubleArray() }.toTypedArray())
+            a.data.map { r -> r.mapIndexed { j, e -> e * b.data[j] }.toDoubleArray() }.toTypedArray())
     a is Matrix.Sparse && b is Matrix.Sparse -> {
         val bKeysOfColumn = b.data.keys.groupBy { (_, j) -> j }.mapValues { it.value.toSet() }
-        val c = mutableMapOf<Matrix.Sparse.Key, LinkedList<Double>>()
+        val c = mutableMapOf<Matrix.Sparse.Key, MutableList<Double>>()
         for ((i, k) in a.data.keys) {
             for ((j, bKey) in bKeysOfColumn) {
                 if (Matrix.Sparse.Key(k, j) in bKey) {
-                    val value_ij = a[i, k] * b[k, j]
-                    val ij = Matrix.Sparse.Key(i, j)
-                    if (ij in c) c[ij]!!.add(value_ij) else c[ij] = LinkedList(listOf(value_ij))
+                    val key = Matrix.Sparse.Key(i, j)
+                    c.compute(key) { _, arr -> (arr ?: ArrayList(a.rowSize)).apply { add(a[i, k] * b[k, j]) } }
                 }
             }
         }
-        Matrix.Sparse(a.rowSize, b.columnSize, c.mapValues { (_, l) -> sum(Vector(l)) })
+        Matrix.Sparse(a.rowSize, b.columnSize, c.mapValues { (_, l) -> sum(l) })
     }
     a is Matrix.Sparse && b is Matrix.Array2D -> {
-        val c = mutableMapOf<Matrix.Sparse.Key, LinkedList<Double>>()
+        val c = mutableMapOf<Matrix.Sparse.Key, MutableList<Double>>()
         for ((i, k) in a.data.keys) {
             for (j in 0 until b.columnSize) {
-                val value_ij = a[i, k]*b[k, j]
-                val ij = Matrix.Sparse.Key(i, j)
-                if (ij in c) c[ij]!!.add(value_ij) else c[ij] = LinkedList(listOf(value_ij))
+                val key = Matrix.Sparse.Key(i, j)
+                c.compute(key) { _, l -> (l ?: ArrayList(a.columnSize)).apply { add(a[i, k]*b[k, j]) } }
             }
         }
         Matrix.Array2D(a.rowSize, b.columnSize) { i, j ->
@@ -158,12 +174,11 @@ private fun multiply(a: Matrix, b: Matrix): Matrix = when {
         }
     }
     a is Matrix.Array2D && b is Matrix.Sparse -> {
-        val c = mutableMapOf<Matrix.Sparse.Key, LinkedList<Double>>()
+        val c = mutableMapOf<Matrix.Sparse.Key, MutableList<Double>>()
         for (i in 0 until a.rowSize) {
             for ((k, j) in b.data.keys) {
-                val value_ij = a[i, k]*b[k, j]
-                val ij = Matrix.Sparse.Key(i, j)
-                if (ij in c) c[ij]!!.add(value_ij) else c[ij] = LinkedList(listOf(value_ij))
+                val key = Matrix.Sparse.Key(i, j)
+                c.compute(key) { _, l -> (l ?: ArrayList(a.columnSize)).apply { add(a[i, k]*b[k, j]) } }
             }
         }
         Matrix.Array2D(a.rowSize, b.columnSize) { i, j ->
@@ -174,5 +189,46 @@ private fun multiply(a: Matrix, b: Matrix): Matrix = when {
         val rows = a.rows()
         val columns = b.columns()
         Matrix.Array2D(a.rowSize, b.columnSize) { i, j -> rows[i].dot(columns[j]) }
+    }
+}
+
+
+
+fun randomSparse(rowSize: Int, columnSize: Int, nElements: Int, seed: Int): Matrix.Sparse {
+    val data = mutableMapOf<Matrix.Sparse.Key, Double>()
+    val r = Random(seed)
+    for (n in 0 until nElements) {
+        var key: Matrix.Sparse.Key
+        do {
+            val i = r.nextInt(rowSize)
+            val j = r.nextInt(columnSize)
+            key = Matrix.Sparse.Key(i, j)
+        } while (key in data)
+        data[key] = r.nextDouble(-1e5, 1e5)
+    }
+    return Matrix.Sparse(rowSize, columnSize, data)
+}
+
+fun main() {
+    System.out.printf("%5s | %7s | %7s | %7s |\n", "row", "time_cc", "time_ss", "ss/cc")
+    for (i in 1..20) {
+        val rs = i * 200
+        val cs = rs / 10
+
+        val s = randomSparse(rs, cs, rs * 4, 283)
+        val c = OpenMapRealMatrix(rs, cs).apply { s.data.forEach { (i, j), v -> setEntry(i, j, v) } }
+
+        repeat(10) {
+            s.transpose() * s
+            c.transpose().multiply(c)
+        }
+        val time_cc = measureNanoTime {
+            repeat(10) { c.transpose().multiply(c) }
+        }
+        val time_ss = measureNanoTime {
+            repeat(10) { s.transpose() * s }
+        }
+
+        System.out.printf("%5d | %2.5f | %2.5f | %2.5f |\n", rs, time_cc * 1e-10, time_ss * 1e-10, time_ss * 1e-10 / (time_cc * 1e-10))
     }
 }
