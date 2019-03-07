@@ -60,9 +60,9 @@ sealed class Vector(override val size: Int) : AbstractList<Double>(), ToJson {
         return when{
             this is Sparse && other is Sparse -> {
                 val s = minOf(data, other.data, compareBy { it.size })
-                val l = maxOf(data, other.data, compareBy { it.size })
+                val l = maxOf(other.data, data, compareBy { it.size })
                 val keys = s.keys.intersect(l.keys).toList()
-                MathArrays.linearCombination(
+                if (keys.isEmpty()) 0.0 else MathArrays.linearCombination(
                         DoubleArray(keys.size) { data.getValue(keys[it]) },
                         DoubleArray(keys.size) { other.data.getValue(keys[it]) })
             }

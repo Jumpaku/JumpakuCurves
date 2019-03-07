@@ -88,6 +88,8 @@ sealed class Matrix(val rowSize: Int, val columnSize: Int): ToJson {
 
         val data: Map<Key, Double> = data.toMap()
 
+        internal val columnKeys: Map<Int, Set<Key>> = data.keys.groupBy { it.column }.mapValues { it.value.toSet() }
+
         init {
             require(data.keys.all { (i, j) -> i in 0 until rowSize && j in 0 until columnSize }) { "key out of range" }
         }
@@ -149,10 +151,10 @@ private fun timesImpl(a: Matrix, b: Matrix): Matrix = when {
     a is Matrix.Array2D && b is Matrix.Diagonal -> Matrix.Array2D(
             a.data.map { r -> r.mapIndexed { j, e -> e * b.data[j] }.toDoubleArray() }.toTypedArray())
     a is Matrix.Sparse && b is Matrix.Sparse -> {
-        val bKeysOfColumn = b.data.keys.groupBy { (_, j) -> j }.mapValues { it.value.toSet() }
         val c = mutableMapOf<Matrix.Sparse.Key, MutableList<Double>>()
+        // */mutableMapOf<Matrix.Sparse.Key, Double>()
         for ((i, k) in a.data.keys) {
-            for ((j, bKey) in bKeysOfColumn) {
+            for ((j, bKey) in b.columnKeys) {
                 if (Matrix.Sparse.Key(k, j) in bKey) {
                     val key = Matrix.Sparse.Key(i, j)
                     c.compute(key) { _, arr -> (arr ?: ArrayList(a.rowSize)).apply { add(a[i, k] * b[k, j]) } }
@@ -211,11 +213,11 @@ fun randomSparse(rowSize: Int, columnSize: Int, nElements: Int, seed: Int): Matr
 
 fun main() {
     System.out.printf("%5s | %7s | %7s | %7s |\n", "row", "time_cc", "time_ss", "ss/cc")
-    for (i in 1..20) {
+    for (i in 1..15) {
         val rs = i * 200
         val cs = rs / 10
 
-        val s = randomSparse(rs, cs, rs * 4, 283)
+        val s = randomSparse(rs, cs, rs * 4, 1089)
         val c = OpenMapRealMatrix(rs, cs).apply { s.data.forEach { (i, j), v -> setEntry(i, j, v) } }
 
         repeat(10) {
