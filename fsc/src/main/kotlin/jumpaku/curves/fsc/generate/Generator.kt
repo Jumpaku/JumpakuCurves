@@ -36,19 +36,19 @@ class Generator(
         return BSpline(fuzzyCp, kv).restrict(domain)
     }
 
-    fun createPointDataMatrix(data: List<ParamPoint>): RealMatrix {
+    private fun createPointDataMatrix(data: List<ParamPoint>): RealMatrix {
         val d = MatrixUtils.createRealMatrix(data.size, 3)
         data.forEachIndexed { i, (point, _) -> d.setRow(i, point.toDoubleArray()) }
         return d
     }
 
-    fun createFuzzinessDataMatrix(data: List<ParamPoint>, crisp: BSpline): RealMatrix {
+    private fun createFuzzinessDataMatrix(data: List<ParamPoint>, crisp: BSpline): RealMatrix {
         val f = MatrixUtils.createRealMatrix(data.size, 1)
         f.setColumn(0, fuzzifier.fuzzify(crisp, data.map { it.param }).toDoubleArray())
         return f
     }
 
-    fun createModelMatrixAndTransposed(data: List<ParamPoint>, knotVector: KnotVector)
+    private fun createModelMatrixAndTransposed(data: List<ParamPoint>, knotVector: KnotVector)
             : Pair<OpenMapRealMatrix, OpenMapRealMatrix> {
         val cpSize = knotVector.extractedKnots.size - knotVector.degree - 1
         val b = OpenMapRealMatrix(data.size, cpSize)

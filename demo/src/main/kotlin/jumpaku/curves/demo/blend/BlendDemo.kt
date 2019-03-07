@@ -64,13 +64,13 @@ class BlendDemo : Application() {
                     existingFscOpt.forEach { drawPoints(it.evaluateAll(0.01)) }
 
                     val overlappingFsc = BlendDemoSettings.generator.generate(it.drawingStroke.inputData)
-                    existingFscOpt.forEach({ existingFsc ->
+                    existingFscOpt.ifPresent { existingFsc ->
                         BlendDemoSettings.blender.blend(existingFsc, overlappingFsc).forEach {
                             existingFscOpt = some(BlendDemoSettings.generator.generate(it))
                         }
-                    }, {
+                    } .ifAbsent {
                         existingFscOpt = some(overlappingFsc)
-                    })
+                    }
 
                     drawCubicBSpline(overlappingFsc, DrawStyle(Color.CYAN))
                     drawPoints(overlappingFsc.evaluateAll(0.01), DrawStyle(Color.CYAN))
