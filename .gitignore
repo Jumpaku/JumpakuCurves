@@ -6,24 +6,31 @@
 
 # gradle
 *.gradle/
-core/build/*
-core/classes/*
-core/out/*
-fsc/build/*
-fsc/classes/*
-fsc/out/*
-core-test/build/*
-core-test/classes/*
-core-test/out/*
-fsc-test/build/*
-fsc-test/classes/*
-fsc-test/out/*
-fxcomponents/build/*
-fxcomponents/classes/*
-fxcomponents/out/*
-examples/build/*
-examples/classes/*
-examples/out/*
+build/*
+jumpaku-curves-core/build/*
+jumpaku-curves-core/classes/*
+jumpaku-curves-core/out/*
+jumpaku-curves-fsc/build/*
+jumpaku-curves-fsc/classes/*
+jumpaku-curves-fsc/out/*
+jumpaku-curves-core-test/build/*
+jumpaku-curves-core-test/classes/*
+jumpaku-curves-core-test/out/*
+jumpaku-curves-fsc-test/build/*
+jumpaku-curves-fsc-test/classes/*
+jumpaku-curves-fsc-test/out/*
+jumpaku-curves-fxcomponents/build/*
+jumpaku-curves-fxcomponents/classes/*
+jumpaku-curves-fxcomponents/out/*
+jumpaku-curves-examples/build/*
+jumpaku-curves-examples/classes/*
+jumpaku-curves-examples/out/*
+jumpaku-curves-graphics/build/*
+jumpaku-curves-graphics/classes/*
+jumpaku-curves-graphics/out/*
+jumpaku-curves-demo/build/*
+jumpaku-curves-demo/classes/*
+jumpaku-curves-demo/out/*
 
 # Netbeans
 nbproject/
