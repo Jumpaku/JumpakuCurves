@@ -31,6 +31,7 @@ class Blender(
         data class DpKey(val i: Int, val j: Int) {
             fun dist(key: DpKey): Int = key.let { abs(i - it.i) + abs(j - it.j) }
         }
+
         class DpValue(val dist: Int, val grade: Grade, val gradeSum: Double, val nodes: List<DpKey>) {
             fun extend(key: DpKey): DpValue {
                 val d = dist + key.dist(nodes.last())
@@ -40,8 +41,9 @@ class Blender(
                 return DpValue(d, mu, sum, l)
             }
         }
-        val compare = compareBy<DpValue> ({ it.dist }, { it.grade }, { it.gradeSum })
-        val dpTable = LinkedHashMap<DpKey, Option<DpValue>>(osm.rowSize*osm.columnSize)
+
+        val compare = compareBy<DpValue>({ it.dist }, { it.grade }, { it.gradeSum })
+        val dpTable = LinkedHashMap<DpKey, Option<DpValue>>(osm.rowSize * osm.columnSize)
         fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
             val (i, j) = key
             val muij = osm[i, j]
@@ -52,20 +54,19 @@ class Blender(
                         .maxWith(compare).toOption()
                 j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key) } + DpValue(0, muij, muij.value, listOf(key)))
                         .maxWith(compare).toOption()
-                else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
+                else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1)).shuffled()
                         .flatMap { dpSearch(it).map { value -> value.extend(key) } }
                         .maxWith(compare).toOption()
             }
         }
+
         val right = (0 until osm.rowSize).map { DpKey(it, osm.columnLastIndex) }
         val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
-        return (right + bottom).flatMap {
-            dpSearch(it).map { value ->
-                val elements = value.nodes.map { e -> e.i to e.j }
-                val type = OverlapType.judgeType(osm.rowSize, osm.columnSize, elements)
-                OverlapPath(type, value.grade, elements)
-            }
-        }
+        return (right + bottom).flatMap { dpSearch(it) }.shuffled().maxWith(compare).toOption().map { value ->
+            val elements = value.nodes.map { e -> e.i to e.j }
+            val type = OverlapType.judgeType(osm.rowSize, osm.columnSize, elements)
+            OverlapPath(type, value.grade, elements)
+        }.toList()
     }
 
     fun resample(existing: List<ParamPoint>, overlapping: List<ParamPoint>, path: OverlapPath): List<ParamPoint> {
@@ -77,13 +78,13 @@ class Blender(
 
         return when(path.type){
             OverlapType.ExistOverlap ->
-                rearrangeParam(existing.take(beginI), path.blendData(existing, overlapping), overlapping.drop(endJ))
+                rearrangeParam(existing.take(beginI), path.blendData(existing, overlapping), overlapping.drop(endJ + 1))
             OverlapType.OverlapExist ->
-                rearrangeParam(overlapping.take(beginJ), path.blendData(existing, overlapping), existing.drop(endI))
+                rearrangeParam(overlapping.take(beginJ), path.blendData(existing, overlapping), existing.drop(endI + 1))
             OverlapType.ExistOverlapExist ->
-                rearrangeParam(existing.take(beginI), path.blendData(existing, overlapping), existing.drop(endI))
+                rearrangeParam(existing.take(beginI), path.blendData(existing, overlapping), existing.drop(endI + 1))
             OverlapType.OverlapExistOverlap ->
-                rearrangeParam(overlapping.take(beginJ), path.blendData(existing, overlapping), overlapping.drop(endJ))
+                rearrangeParam(overlapping.take(beginJ), path.blendData(existing, overlapping), overlapping.drop(endJ + 1))
         }
     }
 
