@@ -3,6 +3,7 @@ package jumpaku.curves.demo.fragment
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
+import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.DataPreparer
@@ -14,6 +15,7 @@ import jumpaku.curves.graphics.drawCubicBSpline
 import jumpaku.curves.graphics.drawPoints
 import jumpaku.curves.graphics.fx.DrawingControl
 import jumpaku.curves.graphics.fx.DrawingEvent
+import java.awt.BasicStroke
 import java.awt.Color
 
 
@@ -27,7 +29,7 @@ object FragmentDemoSettings {
 
     val generator: Generator = Generator(
             degree = 3,
-            knotSpan = 0.05,
+            knotSpan = 0.075,
             preparer = DataPreparer(
                     spanShouldBeFilled = 0.025,
                     extendInnerSpan = 0.075,
@@ -40,10 +42,10 @@ object FragmentDemoSettings {
 
     val fragmenter: Fragmenter = Fragmenter(
             threshold = Fragmenter.Threshold(
-                    necessity = 0.3,
-                    possibility = 0.5),
+                    necessity = 0.35,
+                    possibility = 0.65),
             chunkSize = 4,
-            minStayTime = 0.1)
+            minStayTime = 0.04)
 }
 
 class FragmentDemo : Application() {
@@ -55,11 +57,10 @@ class FragmentDemo : Application() {
                     clearRect(0.0, 0.0, width, height)
                     val fsc = FragmentDemoSettings.generator.generate(it.drawingStroke.inputData)
                     val fragments = FragmentDemoSettings.fragmenter.fragment(fsc)
+                    println(fragments.count { it.type == Fragment.Type.Move })
                     fragments.filter { it.type == Fragment.Type.Move }.map { fsc.restrict(it.interval) }.apply {
-                        println(size)
-                    }.forEach {
-                        drawPoints(it.evaluateAll(0.01))
-                        drawCubicBSpline(it, DrawStyle(Color.MAGENTA))
+                        forEach { drawPoints(it.evaluateAll(0.01)) }
+                        forEach { drawCubicBSpline(it, DrawStyle(Color.MAGENTA, BasicStroke(3f))) }
                     }
                 }
             }
