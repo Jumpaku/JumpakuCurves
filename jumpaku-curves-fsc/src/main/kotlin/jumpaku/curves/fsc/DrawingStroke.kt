@@ -4,7 +4,7 @@ import com.google.gson.JsonElement
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 class DrawingStroke(polyline: Polyline): Curve by polyline, ToJson by polyline {
 

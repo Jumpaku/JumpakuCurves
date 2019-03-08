@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.identify.nquarter
 
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifier
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifyResult
 import jumpaku.curves.fsc.identify.primitive.reparametrize

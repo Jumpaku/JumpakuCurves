@@ -6,7 +6,7 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.curves.core.geom.lerp
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 import org.apache.commons.math3.util.FastMath
 
 

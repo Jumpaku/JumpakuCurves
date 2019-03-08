@@ -7,17 +7,17 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.optionWhen
+import jumpaku.commons.control.orDefault
+import jumpaku.commons.json.ToJson
+import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.*
-import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.Option
-import jumpaku.curves.core.util.optionWhen
-import jumpaku.curves.core.util.orDefault
-import jumpaku.curves.core.util.tryDiv
 import org.apache.commons.math3.util.FastMath
 
 

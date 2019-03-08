@@ -2,6 +2,8 @@ package jumpaku.curves.fsc.freecurve
 
 import io.vavr.Tuple2
 import io.vavr.Tuple4
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.optionWhen
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier

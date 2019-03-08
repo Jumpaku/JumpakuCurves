@@ -9,7 +9,7 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineDerivative
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.test.curve.bezier.closeTo
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.test.geom.closeTo

@@ -1,12 +1,12 @@
 package jumpaku.curves.fsc.identify.primitive
 
+import jumpaku.commons.control.orDefault
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.line
-import jumpaku.curves.core.util.orDefault
 import java.util.*
 import kotlin.collections.component1
 import kotlin.collections.component2

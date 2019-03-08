@@ -6,7 +6,7 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 import org.apache.commons.math3.util.FastMath

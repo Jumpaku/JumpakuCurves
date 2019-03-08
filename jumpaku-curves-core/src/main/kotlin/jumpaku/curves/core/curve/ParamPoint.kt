@@ -8,7 +8,7 @@ import com.google.gson.JsonElement
 import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.lerp
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 data class ParamPoint(val point: Point, val param: Double) : Lerpable<ParamPoint>, ToJson {
 

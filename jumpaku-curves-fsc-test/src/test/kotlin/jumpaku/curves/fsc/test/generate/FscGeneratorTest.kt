@@ -3,7 +3,7 @@ package jumpaku.curves.fsc.test.generate
 import com.github.salomonbrys.kotson.array
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.generate.LinearFuzzifier

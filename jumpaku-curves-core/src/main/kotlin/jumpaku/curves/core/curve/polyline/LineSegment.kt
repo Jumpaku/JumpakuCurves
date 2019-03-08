@@ -7,7 +7,7 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 
 class LineSegment(begin: ParamPoint, end: ParamPoint): Curve by Polyline(listOf(begin, end)), ToJson {

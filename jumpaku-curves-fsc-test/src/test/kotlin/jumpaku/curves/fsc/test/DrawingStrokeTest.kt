@@ -3,7 +3,7 @@ package jumpaku.curves.fsc.test
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.test.closeTo
 import jumpaku.curves.core.test.curve.polyline.closeTo
 import jumpaku.curves.fsc.DrawingStroke

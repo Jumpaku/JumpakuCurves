@@ -3,6 +3,10 @@ package jumpaku.curves.fsc.identify.primitive.reference
 import io.vavr.API
 import io.vavr.Tuple2
 import io.vavr.Tuple3
+import jumpaku.commons.control.orDefault
+import jumpaku.commons.control.result
+import jumpaku.commons.math.divOrDefault
+import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve

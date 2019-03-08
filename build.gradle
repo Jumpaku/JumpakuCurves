@@ -139,6 +139,7 @@ project(':jumpaku-curves-fsc-test') {
         compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
 
         compile project(':jumpaku-curves-core')
+        compile project(':jumpaku-curves-core-test')
         compile project(':jumpaku-curves-fsc')
         compile "jumpaku:jumpaku-commons-test:${dependencyVersions.jumpaku_commons}"
         compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"

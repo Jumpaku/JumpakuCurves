@@ -1,7 +1,7 @@
 package jumpaku.curves.core.test.fuzzy
 
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.test.closeTo
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.Matchers.*

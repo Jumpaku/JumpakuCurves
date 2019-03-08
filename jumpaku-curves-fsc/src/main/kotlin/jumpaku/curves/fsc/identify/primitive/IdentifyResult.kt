@@ -6,9 +6,9 @@ import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.json.jsonMap
-import jumpaku.curves.core.json.map
+import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.jsonMap
+import jumpaku.commons.json.map
 import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2

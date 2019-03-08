@@ -3,9 +3,9 @@ package jumpaku.curves.fsc.snap.point
 import io.vavr.collection.Stream
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.util.Option
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.toOption
 import jumpaku.curves.core.util.asVavr
-import jumpaku.curves.core.util.toOption
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
 import jumpaku.curves.fsc.snap.toWorldPoint

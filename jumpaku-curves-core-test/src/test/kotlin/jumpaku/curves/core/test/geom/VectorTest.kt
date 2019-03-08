@@ -2,7 +2,7 @@ package jumpaku.curves.core.test.geom
 
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.times
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.test.closeTo
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.Matchers.`is`

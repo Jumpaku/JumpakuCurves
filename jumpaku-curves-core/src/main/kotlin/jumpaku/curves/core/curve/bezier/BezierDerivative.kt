@@ -11,7 +11,7 @@ import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {

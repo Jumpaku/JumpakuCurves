@@ -6,7 +6,7 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 

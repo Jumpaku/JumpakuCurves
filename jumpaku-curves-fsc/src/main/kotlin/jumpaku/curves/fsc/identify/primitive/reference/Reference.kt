@@ -8,7 +8,7 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 
 class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE): Curve, ToJson {

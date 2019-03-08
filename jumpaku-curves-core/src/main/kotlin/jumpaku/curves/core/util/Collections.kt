@@ -19,4 +19,3 @@ fun <E: Any> List<E>.asVavr(): Array<E> = Array.ofAll(this)
 fun <E: Any> Array<E>.asKt(): List<E> = asJava()
 
 fun <K: Any, V: Any> Map<K, V>.asVavr(): io.vavr.collection.Map<K, V> = io.vavr.collection.HashMap.ofAll(this)
-fun <K: Any, V: Any> io.vavr.collection.Map<K, V>.asKt(): Map<K, V> = toJavaMap()
