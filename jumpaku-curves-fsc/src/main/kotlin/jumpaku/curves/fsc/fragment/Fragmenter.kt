@@ -7,9 +7,9 @@ import java.util.*
 
 
 class Fragmenter(
-        val threshold: Threshold = Threshold(0.4, 0.6),
+        val threshold: Threshold = Threshold(0.35, 0.65),
         val chunkSize: Int = 4,
-        minStayTime: Double = 0.1
+        minStayTime: Double = 0.04
 ) {
     val samplingSpan: Double
 
@@ -25,17 +25,15 @@ class Fragmenter(
 
     fun fragment(fsc: BSpline): List<Fragment> {
         val chunks = fsc.domain.sample(samplingSpan)
-                .asSequence()
                 .windowed(chunkSize)
                 .map { chunk(fsc, Interval(it.first(), it.last()), chunkSize) }
-                .toList()
-        val states = chunks//.asVavr()
+        val states = chunks
                 .map { it.state(threshold) }
-                .fold(LinkedList(listOf(Fragmenter.State.STAY))) { l, n -> l += l.last().transit(n); l }
+                .fold(mutableListOf(Fragmenter.State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
                 .drop(1)
         val initial = Triple(chunks.first().interval.begin, chunks.first().interval.end, states.first())
         return chunks.zip(states)
-                .fold(LinkedList(listOf(initial))) { prev, (nChunk, nState) ->
+                .fold(mutableListOf(initial)) { prev, (nChunk, nState) ->
                     val (pBegin, _, pState) = prev.last()
                     if (pState == nState) {
                         prev[prev.lastIndex] = Triple(pBegin, nChunk.interval.end, pState)
