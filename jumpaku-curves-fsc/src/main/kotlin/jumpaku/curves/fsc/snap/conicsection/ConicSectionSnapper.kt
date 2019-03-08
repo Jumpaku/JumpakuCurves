@@ -1,12 +1,12 @@
 package jumpaku.curves.fsc.snap.conicsection
 
+import jumpaku.commons.control.orDefault
+import jumpaku.commons.control.result
+import jumpaku.commons.control.toOption
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.transform.Calibrate
-import jumpaku.curves.core.util.orDefault
-import jumpaku.curves.core.util.result
-import jumpaku.curves.core.util.toOption
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import jumpaku.curves.fsc.snap.Grid

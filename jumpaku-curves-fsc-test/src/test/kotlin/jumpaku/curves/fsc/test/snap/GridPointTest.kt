@@ -1,6 +1,6 @@
 package jumpaku.curves.fsc.test.snap
 
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.fsc.snap.GridPoint
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
@@ -14,6 +14,6 @@ class GridPointTest {
     @Test
     fun testToString() {
         println("ToString")
-        assertThat(gp.toString().parseJson().tryFlatMap { GridPoint.fromJson(it) }.orThrow(), `is`(equalTo(gp)))
+        assertThat(gp.toString().parseJson().tryMap { GridPoint.fromJson(it) }.orThrow(), `is`(equalTo(gp)))
     }
 }

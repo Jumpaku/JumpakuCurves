@@ -3,12 +3,12 @@ package jumpaku.curves.core.curve
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.optionWhen
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.lerp
-import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.util.Option
 import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.lastIndex
-import jumpaku.curves.core.util.optionWhen
 
 
 data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {

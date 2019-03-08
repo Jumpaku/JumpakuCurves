@@ -5,9 +5,7 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.util.Result
-import jumpaku.curves.core.util.result
+import jumpaku.commons.json.ToJson
 
 fun Point.weighted(weight: Double = 1.0): WeightedPoint = WeightedPoint(this, weight)
 
@@ -25,9 +23,8 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0): Lerpable<W
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<WeightedPoint> = result {
+        fun fromJson(json: JsonElement): WeightedPoint =
             WeightedPoint(Point.fromJson(json["point"]), json["weight"].double)
-        }
     }
 }
 

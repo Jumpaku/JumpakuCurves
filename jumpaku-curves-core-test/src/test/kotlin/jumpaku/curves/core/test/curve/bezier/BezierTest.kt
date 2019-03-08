@@ -1,10 +1,10 @@
 package jumpaku.curves.core.test.curve.bezier
 
+import jumpaku.commons.json.parseJson
+import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.closeTo
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate

@@ -2,6 +2,8 @@ package jumpaku.curves.fsc.freecurve
 
 import io.vavr.Tuple2
 import io.vavr.Tuple4
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.optionWhen
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
@@ -10,7 +12,9 @@ import jumpaku.curves.core.curve.chordalParametrize
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.component1
+import jumpaku.curves.core.util.component2
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 

@@ -1,8 +1,8 @@
 package jumpaku.curves.core.test.curve
 
+import jumpaku.commons.json.parseJson
+import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.json.parseJson
-import jumpaku.curves.core.test.closeTo
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

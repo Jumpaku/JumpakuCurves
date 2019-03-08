@@ -1,9 +1,9 @@
 package jumpaku.curves.core.test.curve.polyline
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.LineSegment
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.core.test.geom.closeTo
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

@@ -1,10 +1,10 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.IdentifyResult
 import jumpaku.curves.fsc.identify.primitive.reference.Reference

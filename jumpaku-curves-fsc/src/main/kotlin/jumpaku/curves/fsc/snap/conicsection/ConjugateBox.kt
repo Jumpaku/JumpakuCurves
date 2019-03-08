@@ -1,10 +1,10 @@
 package jumpaku.curves.fsc.snap.conicsection
 
+import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.tryDiv
 import org.apache.commons.math3.util.FastMath
 
 

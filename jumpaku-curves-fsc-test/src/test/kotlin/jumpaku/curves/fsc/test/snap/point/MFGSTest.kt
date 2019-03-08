@@ -1,10 +1,10 @@
 package jumpaku.curves.fsc.test.snap.point
 
+import jumpaku.commons.control.orDefault
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
-import jumpaku.curves.core.util.orDefault
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.point.MFGS
 import org.hamcrest.Matchers.`is`

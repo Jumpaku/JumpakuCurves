@@ -6,6 +6,7 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
@@ -13,7 +14,6 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bezier.BezierDerivative
 import jumpaku.curves.core.geom.*
-import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.core.transform.Transform
 
 
@@ -115,6 +115,6 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         }
 
         fun fromJson(json: JsonElement): RationalBezier =
-            RationalBezier(json["weightedControlPoints"].array.flatMap { WeightedPoint.fromJson(it).value() })
+            RationalBezier(json["weightedControlPoints"].array.map { WeightedPoint.fromJson(it) })
     }
 }

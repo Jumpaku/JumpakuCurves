@@ -1,14 +1,14 @@
 package jumpaku.curves.fsc.blend
 
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.none
+import jumpaku.commons.control.some
+import jumpaku.commons.control.toOption
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.util.Option
-import jumpaku.curves.core.util.none
-import jumpaku.curves.core.util.some
-import jumpaku.curves.core.util.toOption
 import kotlin.math.abs
 
 

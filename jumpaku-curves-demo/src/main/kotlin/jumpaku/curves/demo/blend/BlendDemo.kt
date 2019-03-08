@@ -5,11 +5,11 @@ import javafx.scene.Scene
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.stage.Stage
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.none
+import jumpaku.commons.control.some
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.util.Option
-import jumpaku.curves.core.util.none
-import jumpaku.curves.core.util.some
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Generator

@@ -1,9 +1,9 @@
 package jumpaku.curves.core.test.geom
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.geom.weighted
-import jumpaku.curves.core.json.parseJson
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -14,7 +14,7 @@ class WeightedPointTest {
     fun testToString() {
         println("ToString")
         val wp = WeightedPoint(Point.xyzr(1.0, 2.0, 3.0, 4.0), -0.4)
-        assertThat(wp.toString().parseJson().tryFlatMap { WeightedPoint.fromJson(it) }.orThrow(), `is`(closeTo(wp)))
+        assertThat(wp.toString().parseJson().tryMap { WeightedPoint.fromJson(it) }.orThrow(), `is`(closeTo(wp)))
     }
 
     @Test

@@ -5,10 +5,8 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.long
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.ToJson
-import jumpaku.curves.core.util.Result
-import jumpaku.curves.core.util.result
 
 fun Grid.toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
     localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
@@ -25,8 +23,6 @@ data class GridPoint(val x: Long, val y: Long, val z: Long): ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<GridPoint> = result {
-            GridPoint(json["x"].long, json["y"].long, json["z"].long)
-        }
+        fun fromJson(json: JsonElement): GridPoint = GridPoint(json["x"].long, json["y"].long, json["z"].long)
     }
 }

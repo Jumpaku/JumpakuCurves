@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.fragment
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.fsc.fragment.Fragment
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
