@@ -1,6 +1,6 @@
 package jumpaku.curves.fsc.test.snap.conicsection
 
-import jumpaku.curves.core.json.parseJson
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResult
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

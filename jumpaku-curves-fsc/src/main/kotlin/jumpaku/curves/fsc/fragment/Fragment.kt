@@ -5,8 +5,8 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.json.ToJson
 
 data class Fragment(val interval: Interval, val type: Type): ToJson {
 

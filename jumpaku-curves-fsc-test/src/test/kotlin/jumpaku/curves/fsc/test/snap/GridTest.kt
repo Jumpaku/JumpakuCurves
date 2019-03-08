@@ -1,8 +1,8 @@
 package jumpaku.curves.fsc.test.snap
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.snap.Grid

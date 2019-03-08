@@ -1,9 +1,9 @@
 package jumpaku.curves.fsc.test.identify.primitive.reference
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.parseJson
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import org.hamcrest.Matchers.`is`

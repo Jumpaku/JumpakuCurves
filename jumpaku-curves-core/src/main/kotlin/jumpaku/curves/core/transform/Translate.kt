@@ -3,8 +3,8 @@ package jumpaku.curves.core.transform
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.json.ToJson
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 

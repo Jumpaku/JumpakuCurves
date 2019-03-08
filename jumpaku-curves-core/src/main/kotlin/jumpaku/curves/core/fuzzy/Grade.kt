@@ -2,7 +2,7 @@ package jumpaku.curves.core.fuzzy
 
 import com.github.salomonbrys.kotson.double
 import com.google.gson.JsonPrimitive
-import jumpaku.curves.core.json.ToJson
+import jumpaku.commons.json.ToJson
 
 
 data class Grade(val value: Double) : Comparable<Grade>, ToJson {

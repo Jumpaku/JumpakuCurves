@@ -1,13 +1,13 @@
 package jumpaku.curves.core.curve.arclength
 
+import jumpaku.commons.control.orDefault
+import jumpaku.commons.math.divOrDefault
+import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.geom.middle
 import jumpaku.curves.core.util.asVavr
-import jumpaku.curves.core.util.divOrDefault
-import jumpaku.curves.core.util.orDefault
-import jumpaku.curves.core.util.tryDiv
 import org.apache.commons.math3.util.FastMath
 import kotlin.collections.component1
 import kotlin.collections.component2

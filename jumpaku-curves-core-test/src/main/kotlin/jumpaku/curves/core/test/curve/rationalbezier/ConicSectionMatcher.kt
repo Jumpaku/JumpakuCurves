@@ -1,9 +1,9 @@
 package jumpaku.curves.core.test.curve.rationalbezier
 
+import jumpaku.commons.test.matcher
+import jumpaku.commons.test.math.isCloseTo
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.test.geom.isCloseTo
-import jumpaku.curves.core.test.isCloseTo
-import jumpaku.curves.core.test.matcher
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: ConicSection, expected: ConicSection, error: Double = 1.0e-9): Boolean =

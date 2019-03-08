@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.fragment
 
+import jumpaku.commons.test.matcher
 import jumpaku.curves.core.test.curve.isCloseTo
-import jumpaku.curves.core.test.matcher
 import jumpaku.curves.fsc.fragment.Fragment
 import org.hamcrest.TypeSafeMatcher
 

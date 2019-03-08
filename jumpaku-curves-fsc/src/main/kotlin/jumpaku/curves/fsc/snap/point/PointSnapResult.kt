@@ -5,9 +5,9 @@ import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.json.ToJson
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
 import jumpaku.curves.fsc.snap.toWorldPoint
@@ -31,7 +31,7 @@ class PointSnapResult(
 
         fun fromJson(json: JsonElement): PointSnapResult = PointSnapResult(
                 json["resolution"].int,
-                GridPoint.fromJson(json["gridPoint"]).orThrow(),
+                GridPoint.fromJson(json["gridPoint"]),
                 Grade.fromJson(json["grade"].asJsonPrimitive))
     }
 }
