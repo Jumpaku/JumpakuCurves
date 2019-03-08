@@ -22,7 +22,7 @@ class IdentifyResult(
 
     val grades: Map<CurveClass, Grade> = grades.toMap()
 
-    val grade: Grade get() = grades.asVavr().toStream().map { (_ , m) -> m }.max().get()
+    val grade: Grade get() = grades.maxBy { it.value }!!.value
 
     val curveClass: CurveClass get() = grades.maxBy { (_, m) -> m }!!.key
 
