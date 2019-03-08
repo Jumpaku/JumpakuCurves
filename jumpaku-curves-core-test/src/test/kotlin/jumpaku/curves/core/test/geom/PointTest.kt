@@ -5,7 +5,7 @@ import jumpaku.curves.core.geom.Plane
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale

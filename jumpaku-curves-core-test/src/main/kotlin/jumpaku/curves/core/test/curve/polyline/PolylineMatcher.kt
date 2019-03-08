@@ -2,7 +2,7 @@ package jumpaku.curves.core.test.curve.polyline
 
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.test.geom.isCloseTo
-import jumpaku.curves.core.test.matcher
+import jumpaku.commons.test.matcher
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: Polyline, expected: Polyline, error: Double = 1.0e-9): Boolean =

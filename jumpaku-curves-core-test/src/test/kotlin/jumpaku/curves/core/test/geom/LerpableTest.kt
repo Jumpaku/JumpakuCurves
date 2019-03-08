@@ -3,7 +3,7 @@ package jumpaku.curves.core.test.geom
 
 
 import jumpaku.curves.core.geom.lerp
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

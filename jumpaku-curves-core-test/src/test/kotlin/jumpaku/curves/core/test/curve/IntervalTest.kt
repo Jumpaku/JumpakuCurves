@@ -2,7 +2,7 @@ package jumpaku.curves.core.test.curve
 
 import jumpaku.curves.core.curve.Interval
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

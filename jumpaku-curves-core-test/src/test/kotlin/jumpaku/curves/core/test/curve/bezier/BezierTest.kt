@@ -4,7 +4,7 @@ import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate

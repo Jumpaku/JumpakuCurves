@@ -5,7 +5,7 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import jumpaku.curves.fsc.generate.LinearFuzzifier
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

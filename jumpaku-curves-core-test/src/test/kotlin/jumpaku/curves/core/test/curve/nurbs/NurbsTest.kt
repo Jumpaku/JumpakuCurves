@@ -10,7 +10,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.test.curve.rationalbezier.closeTo
 import jumpaku.curves.core.test.geom.closeTo

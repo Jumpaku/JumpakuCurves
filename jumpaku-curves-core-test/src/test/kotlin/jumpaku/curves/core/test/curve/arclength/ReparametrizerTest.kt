@@ -5,7 +5,7 @@ import jumpaku.curves.core.curve.arclength.MonotonicQuadratic
 import jumpaku.curves.core.curve.arclength.Reparametrizer
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.test.curve.closeTo
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.CoreMatchers.`is`

@@ -6,7 +6,7 @@ import jumpaku.curves.core.curve.bezier.BezierDerivative
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.test.closeTo
+import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.test.geom.closeTo
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
