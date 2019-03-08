@@ -6,10 +6,10 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import jumpaku.commons.control.Result
 import jumpaku.commons.control.orDefault
+import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.sum
 import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.transform.Transform
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath

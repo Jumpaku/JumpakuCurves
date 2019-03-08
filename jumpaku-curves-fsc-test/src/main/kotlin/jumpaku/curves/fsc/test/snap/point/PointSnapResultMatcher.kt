@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.snap.point
 
-import jumpaku.commons.test.isCloseTo
 import jumpaku.commons.test.matcher
+import jumpaku.commons.test.math.isCloseTo
 import jumpaku.curves.fsc.snap.point.PointSnapResult
 import org.hamcrest.TypeSafeMatcher
 

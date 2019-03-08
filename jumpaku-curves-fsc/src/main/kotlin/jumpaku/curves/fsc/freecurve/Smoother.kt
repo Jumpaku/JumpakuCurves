@@ -12,7 +12,9 @@ import jumpaku.curves.core.curve.chordalParametrize
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.component1
+import jumpaku.curves.core.util.component2
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 

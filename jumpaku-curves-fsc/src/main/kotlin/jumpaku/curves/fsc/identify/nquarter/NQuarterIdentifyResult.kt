@@ -5,10 +5,10 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.commons.json.ToJson
 import jumpaku.commons.json.jsonMap
 import jumpaku.commons.json.map
+import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
 class NQuarterIdentifyResult(grades: Map<NQuarterClass, Grade>,

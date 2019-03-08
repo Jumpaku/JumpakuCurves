@@ -5,10 +5,10 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.lerp
-import jumpaku.commons.json.ToJson
 
 data class ParamPoint(val point: Point, val param: Double) : Lerpable<ParamPoint>, ToJson {
 

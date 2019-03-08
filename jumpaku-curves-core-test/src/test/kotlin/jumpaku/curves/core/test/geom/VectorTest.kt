@@ -1,9 +1,9 @@
 package jumpaku.curves.core.test.geom
 
+import jumpaku.commons.json.parseJson
+import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.times
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.closeTo
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

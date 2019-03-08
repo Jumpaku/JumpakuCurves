@@ -1,8 +1,8 @@
 package jumpaku.curves.fsc.test.snap
 
-import jumpaku.curves.core.test.geom.isCloseTo
-import jumpaku.commons.test.isCloseTo
 import jumpaku.commons.test.matcher
+import jumpaku.commons.test.math.isCloseTo
+import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.fsc.snap.Grid
 import org.hamcrest.TypeSafeMatcher
 

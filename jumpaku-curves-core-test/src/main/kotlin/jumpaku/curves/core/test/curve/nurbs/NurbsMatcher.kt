@@ -1,10 +1,10 @@
 
 package jumpaku.curves.core.test.curve.nurbs
 
+import jumpaku.commons.test.matcher
 import jumpaku.curves.core.curve.nurbs.Nurbs
 import jumpaku.curves.core.test.curve.isCloseTo
 import jumpaku.curves.core.test.geom.isCloseTo
-import jumpaku.commons.test.matcher
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: Nurbs, expected: Nurbs, error: Double = 1.0e-9): Boolean =

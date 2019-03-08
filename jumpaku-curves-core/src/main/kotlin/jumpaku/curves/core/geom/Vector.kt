@@ -4,8 +4,8 @@ import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import jumpaku.commons.control.result
 import jumpaku.commons.control.Result
+import jumpaku.commons.control.result
 import jumpaku.commons.json.ToJson
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.MathArrays

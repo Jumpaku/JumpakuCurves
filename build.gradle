@@ -5,7 +5,7 @@ buildscript {
     ext.jvm_version = '1.8'
     ext.dokka_version = '0.9.17'
     ext.dependencyVersions = [
-            'jumpaku_commons': '0.2',
+            'jumpaku_commons': '0.5',
             'junit4': '4.12',
             'junit5': '5.1.0',
             'hamcrest': '2.1',

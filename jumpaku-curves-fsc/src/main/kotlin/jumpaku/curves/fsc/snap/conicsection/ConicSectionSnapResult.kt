@@ -5,14 +5,14 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.toJson
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.transform.toMatrixJson
-import jumpaku.commons.control.Option
-import jumpaku.commons.control.toJson
 import jumpaku.curves.fsc.snap.point.PointSnapResult
 
 class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, candidates: Iterable<EvaluatedCandidate>) : ToJson {

@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.identify.primitive.reference
 
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.commons.json.parseJson
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.fsc.identify.primitive.reference.LinearGenerator
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import jumpaku.curves.fsc.identify.primitive.reparametrize

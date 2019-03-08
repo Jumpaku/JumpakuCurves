@@ -6,6 +6,7 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
+import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.isOdd
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Differentiable
@@ -13,7 +14,6 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2

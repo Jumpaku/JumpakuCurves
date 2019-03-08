@@ -1,10 +1,10 @@
 package jumpaku.curves.fsc.test
 
+import jumpaku.commons.json.parseJson
+import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.geom.Point
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.test.curve.polyline.closeTo
 import jumpaku.curves.fsc.DrawingStroke
 import org.hamcrest.Matchers.`is`

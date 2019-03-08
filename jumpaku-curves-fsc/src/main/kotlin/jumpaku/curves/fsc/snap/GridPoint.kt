@@ -5,8 +5,8 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.long
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.curves.core.geom.Point
 import jumpaku.commons.json.ToJson
+import jumpaku.curves.core.geom.Point
 
 fun Grid.toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
     localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))

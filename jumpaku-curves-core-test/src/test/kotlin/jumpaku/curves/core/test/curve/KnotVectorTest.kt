@@ -1,9 +1,9 @@
 package jumpaku.curves.core.test.curve
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2
 import org.hamcrest.CoreMatchers.`is`

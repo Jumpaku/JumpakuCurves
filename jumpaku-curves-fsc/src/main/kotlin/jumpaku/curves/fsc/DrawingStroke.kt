@@ -1,10 +1,10 @@
 package jumpaku.curves.fsc
 
 import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
-import jumpaku.commons.json.ToJson
 
 class DrawingStroke(polyline: Polyline): Curve by polyline, ToJson by polyline {
 

@@ -1,8 +1,8 @@
 package jumpaku.curves.core.test.curve.bezier
 
+import jumpaku.commons.test.matcher
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.test.geom.isCloseTo
-import jumpaku.commons.test.matcher
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: Bezier, expected: Bezier, error: Double = 1.0e-9): Boolean =

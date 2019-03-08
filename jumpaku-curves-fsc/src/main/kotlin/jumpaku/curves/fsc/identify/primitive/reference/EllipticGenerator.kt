@@ -15,7 +15,10 @@ import jumpaku.curves.core.geom.Line
 import jumpaku.curves.core.geom.Plane
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.geom.line
-import jumpaku.curves.core.util.*
+import jumpaku.curves.core.util.asVavr
+import jumpaku.curves.core.util.component1
+import jumpaku.curves.core.util.component2
+import jumpaku.curves.core.util.component3
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 

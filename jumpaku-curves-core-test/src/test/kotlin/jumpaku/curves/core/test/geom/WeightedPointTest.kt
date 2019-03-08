@@ -1,9 +1,9 @@
 package jumpaku.curves.core.test.geom
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.geom.weighted
-import jumpaku.commons.json.parseJson
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

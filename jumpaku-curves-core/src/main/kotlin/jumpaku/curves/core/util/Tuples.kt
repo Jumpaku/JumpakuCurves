@@ -1,6 +1,8 @@
 package jumpaku.curves.core.util
 
-import io.vavr.*
+import io.vavr.Tuple1
+import io.vavr.Tuple2
+import io.vavr.Tuple3
 
 operator fun <T1: Any> Tuple1<T1>.component1(): T1 = _1()
 

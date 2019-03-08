@@ -1,6 +1,8 @@
 package jumpaku.curves.core.test.curve.nurbs
 
 import io.vavr.collection.Array
+import jumpaku.commons.json.parseJson
+import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
@@ -9,8 +11,6 @@ import jumpaku.curves.core.curve.rationalbezier.RationalBezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.closeTo
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.test.curve.rationalbezier.closeTo
 import jumpaku.curves.core.test.geom.closeTo

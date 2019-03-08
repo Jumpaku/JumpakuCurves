@@ -1,7 +1,7 @@
 package jumpaku.curves.core.geom
 
-import jumpaku.commons.control.result
 import jumpaku.commons.control.Result
+import jumpaku.commons.control.result
 
 
 class Line(val p0: Point, val p1: Point) {

@@ -4,9 +4,9 @@ import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.jsonArray
 import com.google.gson.JsonElement
-import jumpaku.curves.core.geom.Point
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
+import jumpaku.curves.core.geom.Point
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.apache.commons.math3.linear.RealMatrix

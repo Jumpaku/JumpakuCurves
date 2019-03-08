@@ -4,6 +4,7 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import io.vavr.Tuple2
 import jumpaku.commons.control.Option
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineDerivative
@@ -12,7 +13,6 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.geom.times
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2

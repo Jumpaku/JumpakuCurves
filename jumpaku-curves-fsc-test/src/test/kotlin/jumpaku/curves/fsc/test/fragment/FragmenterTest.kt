@@ -2,8 +2,8 @@ package jumpaku.curves.fsc.test.fragment
 
 import com.github.salomonbrys.kotson.array
 import io.vavr.collection.Array
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.commons.json.parseJson
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter

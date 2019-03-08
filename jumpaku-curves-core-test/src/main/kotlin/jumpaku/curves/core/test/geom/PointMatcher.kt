@@ -1,8 +1,8 @@
 package jumpaku.curves.core.test.geom
 
-import jumpaku.curves.core.geom.Point
-import jumpaku.commons.test.isCloseTo
 import jumpaku.commons.test.matcher
+import jumpaku.commons.test.math.isCloseTo
+import jumpaku.curves.core.geom.Point
 import org.hamcrest.TypeSafeMatcher
 
 

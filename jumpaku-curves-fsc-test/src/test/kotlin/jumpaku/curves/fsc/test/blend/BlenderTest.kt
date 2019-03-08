@@ -1,12 +1,12 @@
 package jumpaku.curves.fsc.test.blend
 
 import com.github.salomonbrys.kotson.array
+import jumpaku.commons.control.Option
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.test.curve.closeTo
-import jumpaku.commons.control.Option
 import jumpaku.curves.fsc.blend.Blender
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

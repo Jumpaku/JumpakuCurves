@@ -10,13 +10,13 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.control.Control
 import javafx.scene.control.Skin
 import javafx.scene.input.MouseEvent
-import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.polyline.LineSegment
-import jumpaku.curves.core.geom.Point
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.none
 import jumpaku.commons.control.result
 import jumpaku.commons.control.some
+import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.polyline.LineSegment
+import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawLineSegment
