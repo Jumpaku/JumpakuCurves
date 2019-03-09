@@ -82,13 +82,7 @@ class BlendDemo : Application() {
                             it.map { (y, x) -> point(y, x) }.forEach { drawPoint(it, DrawStyle(Color.RED)) }
                             drawPoints(((0 until it.first().first) + ((it.last().first + 1) until existSamples.size)).map { i -> existSamples[i].point.copy(r = 3.0) }, DrawStyle(Color.GREEN))
                             drawPoints(((0 until it.first().second) + ((it.last().second + 1) until overlapSamples.size)).map { j -> overlapSamples[j].point.copy(r = 3.0) }, DrawStyle(Color.GREEN))
-                            drawPoints(it.map { (i, j) -> existSamples[i].lerp(0.5, overlapSamples[j]).point.copy(r = 3.0) }, DrawStyle(Color.BLUE))
-                        }
-                        path.forEach {
-                            val d = BlendDemoSettings.blender.resample(existSamples, overlapSamples, it)
-                            d.windowed(2).forEach { (a, b) ->
-                                println(b.param - a.param)
-                            }
+                            drawPoints(it.map { (i, j) -> existSamples[i].lerp(BlendDemoSettings.blender.blendingRate, overlapSamples[j]).point.copy(r = 3.0) }, DrawStyle(Color.BLUE))
                         }
                     }
 
@@ -97,13 +91,13 @@ class BlendDemo : Application() {
                             existingFscOpt = some(BlendDemoSettings.generator.generate(it))
                         }
                     }.ifAbsent {
-                        existingFscOpt = some(overlappingFsc).map { it.reverse() }
+                        existingFscOpt = some(overlappingFsc)
                     }
 
                     //drawCubicBSpline(overlappingFsc, DrawStyle(Color.CYAN))
                     //drawPoints(overlappingFsc.evaluateAll(0.01), DrawStyle(Color.CYAN))
                     existingFscOpt.forEach { drawCubicBSpline(it, DrawStyle(Color.MAGENTA)) }
-                    //existingFscOpt.forEach { drawPoints(it.evaluateAll(0.01), DrawStyle(Color.MAGENTA)) }
+                    existingFscOpt.forEach { drawPoints(it.evaluateAll(0.01), DrawStyle(Color.MAGENTA)) }
                 }
             }
         }

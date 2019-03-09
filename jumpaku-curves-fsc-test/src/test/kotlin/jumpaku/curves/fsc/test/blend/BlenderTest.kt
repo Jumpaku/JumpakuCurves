@@ -5,6 +5,7 @@ import jumpaku.commons.control.Option
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.weighted
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.blend.Blender
@@ -36,8 +37,8 @@ class BlenderTest {
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual.isDefined) {
                 assertThat(actual.orThrow().size, `is`(expected.orThrow().size))
-                actual.orThrow().zip(expected.orThrow()).forEach { (e, a) ->
-                    assertThat(a, `is`(closeTo(e, 1e-6)))
+                actual.orThrow().zip(expected.orThrow()).forEach { (a, e) ->
+                    assertThat(a, `is`(closeTo(e.weighted(1.0), 1e-6)))
                 }
             }
         }
