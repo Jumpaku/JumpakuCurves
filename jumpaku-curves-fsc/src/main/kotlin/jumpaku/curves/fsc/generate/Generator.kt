@@ -17,7 +17,7 @@ class Generator(
         val degree: Int = 3,
         val knotSpan: Double = 0.075,
         val preparer: DataPreparer = DataPreparer(knotSpan/degree, knotSpan*2, knotSpan*2, 2),
-        val fuzzifier: Fuzzifier = LinearFuzzifier(0.025, 0.001)
+        val fuzzifier: Fuzzifier = Fuzzifier.Linear(0.025, 0.001)
 ) {
 
     fun generate(drawingStroke: DrawingStroke): BSpline = generate(drawingStroke.inputData)

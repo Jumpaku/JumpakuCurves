@@ -5,8 +5,9 @@ import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
+import jumpaku.curves.fsc.generate.Fuzzifier.Linear
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
@@ -23,7 +24,7 @@ class FscGeneratorTest {
             degree = 3,
             knotSpan = 0.1,
             preparer = DataPreparer(0.1 / 3, 0.1, 0.1, 2),
-            fuzzifier = LinearFuzzifier(0.004, 0.003))
+            fuzzifier = Fuzzifier.Linear(0.004, 0.003))
 
     @Test
     fun testGenerate() {

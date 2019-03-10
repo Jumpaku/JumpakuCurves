@@ -3,12 +3,11 @@ package jumpaku.curves.demo.fragment
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
-import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.curves.graphics.DrawStyle
 import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
@@ -35,7 +34,7 @@ object FragmentDemoSettings {
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))

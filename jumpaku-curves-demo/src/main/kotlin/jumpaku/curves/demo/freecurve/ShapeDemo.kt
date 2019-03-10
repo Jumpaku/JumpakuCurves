@@ -7,8 +7,9 @@ import jumpaku.curves.fsc.freecurve.Segmenter
 import jumpaku.curves.fsc.freecurve.Shaper
 import jumpaku.curves.fsc.freecurve.Smoother
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
+import jumpaku.curves.fsc.generate.Fuzzifier.Linear
 import jumpaku.curves.graphics.*
 import jumpaku.curves.graphics.fx.DrawingControl
 import jumpaku.curves.graphics.fx.DrawingEvent
@@ -31,7 +32,7 @@ object ShapeDemoSettings {
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))
