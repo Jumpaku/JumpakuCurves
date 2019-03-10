@@ -43,4 +43,11 @@ class BlenderTest {
             }
         }
     }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = blender.toString().parseJson().tryMap { Blender.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(blender)))
+    }
 }
