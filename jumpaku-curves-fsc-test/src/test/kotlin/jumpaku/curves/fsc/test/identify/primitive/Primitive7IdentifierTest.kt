@@ -3,7 +3,6 @@ package jumpaku.curves.fsc.test.identify.primitive
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.fsc.identify.primitive.CurveClass
-import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import jumpaku.curves.fsc.identify.primitive.Primitive7Identifier
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.hamcrest.Matchers.`is`
