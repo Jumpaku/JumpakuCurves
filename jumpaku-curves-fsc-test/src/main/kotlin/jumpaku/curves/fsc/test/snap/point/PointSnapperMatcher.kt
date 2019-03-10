@@ -12,6 +12,4 @@ fun equals(actual: PointSnapper, expected: PointSnapper): Boolean = when(actual)
 }
 
 fun equalTo(expected: PointSnapper): TypeSafeMatcher<PointSnapper> =
-        matcher("close to <$expected>") { actual ->
-            equals(actual, expected)
-        }
+        matcher("equal to <$expected>") { actual -> equals(actual, expected) }

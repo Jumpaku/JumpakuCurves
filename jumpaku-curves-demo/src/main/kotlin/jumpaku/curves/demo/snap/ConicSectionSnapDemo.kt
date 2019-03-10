@@ -58,11 +58,11 @@ object SnapDemoSettings {
             origin = Point.xy(width/2, height/2),
             rotation = Rotate(Vector.K, 0.0))
 
-    val snapper: ConicSectionSnapper = ConicSectionSnapper(
+    val snapper: ConicSectionSnapper<*> = ConicSectionSnapper(
             pointSnapper = MFGS(
                     minResolution = -5,
                     maxResolution = 6),
-            featurePointsCombinator = ConjugateCombinator())
+            featurePointsCombinator = ConjugateCombinator)
 }
 
 class SnapDemo : Application() {
