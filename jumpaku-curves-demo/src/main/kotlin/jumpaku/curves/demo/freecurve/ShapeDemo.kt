@@ -43,8 +43,7 @@ object ShapeDemoSettings {
                     nFmps = 15)),
             smoother = Smoother(
                     pruningFactor = 2.0,
-                    nFitSamples = 33,
-                    fscSampleSpan = 0.02),
+                    samplingFactor = 33),
             sampleFsc = { fsc -> fsc.domain.sample(100)})
 }
 

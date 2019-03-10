@@ -36,8 +36,7 @@ class ShaperTest {
                             nFmps = 15)),
             smoother = Smoother(
                     pruningFactor = 2.0,
-                    nFitSamples = 33,
-                    fscSampleSpan = 0.02),
+                    samplingFactor = 33),
             sampleFsc = { it.domain.sample(50) })
 
     fun parseJsonBSpline(name: String): JsonElement = resourceText(name + "Fsc.json").parseJson().orThrow()
@@ -77,4 +76,18 @@ class ShaperTest {
         val a = shaper.segmenter.toString().parseJson().tryMap { Segmenter.fromJson(it) }.orThrow()
         assertThat(a, `is`(equalTo(shaper.segmenter)))
     }
+
+    @Test
+    fun testToString_Smoother() {
+        println("ToString_Smoother")
+        val a = shaper.smoother.toString().parseJson().tryMap { Smoother.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(shaper.smoother)))
+    }
+
+    /*@Test
+    fun testToString() {
+        println("ToString")
+        val a = shaper.toString().parseJson().tryMap { Smoother.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(shaper.smoother)))
+    }*/
 }
