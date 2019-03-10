@@ -9,6 +9,7 @@ import jumpaku.curves.fsc.freecurve.Smoother
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import jumpaku.curves.graphics.*
 import jumpaku.curves.graphics.fx.DrawingControl
 import jumpaku.curves.graphics.fx.DrawingEvent
@@ -37,7 +38,9 @@ object ShapeDemoSettings {
             ))
 
     val shaper: Shaper = Shaper(
-            segmenter = Segmenter(Segmenter.defaultIdentifier),
+            segmenter = Segmenter(Open4Identifier(
+                    nSamples = 25,
+                    nFmps = 15)),
             smoother = Smoother(
                     pruningFactor = 2.0,
                     nFitSamples = 33,

@@ -85,5 +85,4 @@ class Open4IdentifierTest {
         val a = identifier.toString().parseJson().tryMap { Open4Identifier.fromJson(it) }.orThrow()
         assertThat(a, `is`(equalTo(identifier)))
     }
-
 }
