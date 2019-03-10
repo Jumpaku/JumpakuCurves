@@ -12,7 +12,7 @@ import org.junit.jupiter.api.assertThrows
 class GradeTest {
 
     @Test
-    fun testConstructorException(){
+    fun testConstructorException() {
         println("ConstructorException")
         assertThrows<IllegalArgumentException> { Grade(-0.5) }
         assertThrows<IllegalArgumentException> { Grade(1.5) }

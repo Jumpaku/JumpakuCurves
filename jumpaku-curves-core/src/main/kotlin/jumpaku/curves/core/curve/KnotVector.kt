@@ -11,7 +11,7 @@ import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.lastIndex
 
 
-data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
+data class Knot(val value: Double, val multiplicity: Int = 1) : ToJson {
 
     init {
         require(value.isFinite()) { "value($value)" }
@@ -28,7 +28,7 @@ data class Knot(val value: Double, val multiplicity: Int = 1): ToJson {
     }
 }
 
-class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
+class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
 
     constructor(degree: Int, vararg knots: Knot) : this(degree, knots.toList())
 
@@ -71,7 +71,7 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
         return when {
             times == 0 -> this
             i >= 0 -> multiply(i, times)
-            else -> KnotVector(degree, knots.asVavr().insert(-i-1, Knot(knotValue, times)))
+            else -> KnotVector(degree, knots.asVavr().insert(-i - 1, Knot(knotValue, times)))
         }
     }
 
@@ -91,10 +91,12 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>): ToJson {
             .asVavr()
             .run {
                 if (head().multiplicity == 1) tail()
-                else update(0) { (v, m) -> Knot(v, m - 1) } }
+                else update(0) { (v, m) -> Knot(v, m - 1) }
+            }
             .run {
                 if (last().multiplicity == 1) init()
-                else update(lastIndex){ (v, m) -> Knot(v, m - 1) } })
+                else update(lastIndex) { (v, m) -> Knot(v, m - 1) }
+            })
 
     fun subdivide(t: Double): Tuple2<Option<KnotVector>, Option<KnotVector>> {
         val s = multiplicityOf(t)

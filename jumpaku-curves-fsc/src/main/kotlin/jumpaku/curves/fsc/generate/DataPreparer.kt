@@ -3,7 +3,10 @@ package jumpaku.curves.fsc.generate
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import jumpaku.commons.json.ToJson
-import jumpaku.curves.core.curve.*
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.core.curve.transformParams
+import jumpaku.curves.core.curve.weighted
 import jumpaku.curves.core.geom.middle
 import jumpaku.curves.fsc.generate.fit.BezierFitter
 import org.apache.commons.math3.util.FastMath
@@ -23,7 +26,7 @@ class DataPreparer(
         val fillSpan: Double,
         val extendInnerSpan: Double,
         val extendOuterSpan: Double,
-        val extendDegree: Int): ToJson {
+        val extendDegree: Int) : ToJson {
 
     init {
         require(extendInnerSpan > 0.0) { "must be extendInnerSpan($extendInnerSpan) > 0" }
@@ -45,7 +48,7 @@ class DataPreparer(
         return sortedData.drop(1).fold(mutableListOf(sortedData.first())) { filled, (nextP, nextW) ->
             val (prevP, prevW) = filled.last()
             val n = FastMath.ceil((nextP.param - prevP.param) / fillSpan)
-            filled += (1..n.toInt()).map { prevP.lerp(it/n, nextP).weighted(prevW.middle(nextW)) }
+            filled += (1..n.toInt()).map { prevP.lerp(it / n, nextP).weighted(prevW.middle(nextW)) }
             filled
         }
     }

@@ -19,12 +19,13 @@ import kotlin.math.abs
 class Blender(
         val samplingSpan: Double = 0.01,
         val blendingRate: Double = 0.65,
-        val possibilityThreshold: Grade = Grade.FALSE): ToJson {
+        val possibilityThreshold: Grade = Grade.FALSE) : ToJson {
 
     init {
         require(samplingSpan > 0.0)
         require(blendingRate in 0.0..1.0)
     }
+
     fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)

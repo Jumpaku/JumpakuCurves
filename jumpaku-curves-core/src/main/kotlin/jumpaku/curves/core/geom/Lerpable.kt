@@ -13,7 +13,7 @@ fun Double.lerp(vararg terms: Pair<Double, Double>): Double {
 
 fun Double.middle(other: Double): Double = this.lerp(0.5, other)
 
-interface Lerpable<P: Lerpable<P>> {
+interface Lerpable<P : Lerpable<P>> {
 
     fun lerp(vararg terms: Pair<Double, P>): P
 

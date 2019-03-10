@@ -12,7 +12,7 @@ import jumpaku.curves.fsc.identify.primitive.reference.EllipticGenerator
 import jumpaku.curves.fsc.identify.primitive.reference.LinearGenerator
 
 
-class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15): Identifier {
+class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15) : Identifier {
 
     override fun <C : Curve> identify(fsc: ReparametrizedCurve<C>): IdentifyResult {
         val refL = LinearGenerator().generateBeginEnd(fsc)

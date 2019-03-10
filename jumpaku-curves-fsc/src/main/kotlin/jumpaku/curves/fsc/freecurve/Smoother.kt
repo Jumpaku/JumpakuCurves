@@ -16,31 +16,13 @@ import jumpaku.curves.core.curve.chordalParametrize
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
-import kotlin.collections.List
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.drop
-import kotlin.collections.dropLast
-import kotlin.collections.find
-import kotlin.collections.findLast
-import kotlin.collections.first
-import kotlin.collections.flatMap
-import kotlin.collections.last
-import kotlin.collections.lastIndex
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.plus
-import kotlin.collections.reversed
-import kotlin.collections.slice
-import kotlin.collections.toMutableList
-import kotlin.collections.withIndex
-import kotlin.collections.zip
-import kotlin.collections.zipWithNext
 
 
 class SmoothResult(val conicSections: List<ConicSection>, val cubicBeziers: List<Bezier>)
 
-class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): ToJson{
+class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) : ToJson {
 
     fun smooth(fsc: BSpline, ts: List<Double>, segmentResult: SegmentResult, isClosed: Boolean = isClosed(fsc)): SmoothResult {
         val pis = segmentResult.segmentParamIndices
@@ -58,7 +40,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): T
         return SmoothResult(rs, bs)
     }
 
-    fun fragmentCs(qs: List<ConicSection>, cs: List<Point>, isClosed: Boolean): List<Option<Interval>>{
+    fun fragmentCs(qs: List<ConicSection>, cs: List<Point>, isClosed: Boolean): List<Option<Interval>> {
         val begins = qs.zip(cs) { q, c ->
             Interval.ZERO_ONE.sample(samplingFactor)
                     .find { q(it).dist(c) > c.r * pruningFactor }.toOption()
@@ -77,17 +59,17 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): T
         return begins.zip(ends) { b, e -> optionWhen(b < e) { Interval(b, e) } }
     }
 
-    fun fragmentFsc(fsc: BSpline, ts: List<Double>, pis: List<Int>, isClosed: Boolean): List<Interval>{
+    fun fragmentFsc(fsc: BSpline, ts: List<Double>, pis: List<Int>, isClosed: Boolean): List<Interval> {
         val (b, e) = fsc.domain
         val sampleSpan = fsc.domain.span / ((ts.size - 1) * samplingFactor)
         fun fragmentFscInterval(t: Double): Interval {
             val c = fsc(t)
             val begin = Interval(b, t).sample(sampleSpan)
-                    .findLast { fsc(it).dist(c) > c.r*pruningFactor }.toOption()
-                    .flatMap { Solver().solve(it..t)  { fsc(it).dist(c) - c.r * pruningFactor }.value() }
+                    .findLast { fsc(it).dist(c) > c.r * pruningFactor }.toOption()
+                    .flatMap { Solver().solve(it..t) { fsc(it).dist(c) - c.r * pruningFactor }.value() }
                     .orDefault(b)
             val end = Interval(t, e).sample(sampleSpan)
-                    .find { fsc(it).dist(c) > c.r*pruningFactor }.toOption()
+                    .find { fsc(it).dist(c) > c.r * pruningFactor }.toOption()
                     .flatMap { Solver().solve(t..it) { fsc(it).dist(c) - c.r * pruningFactor }.value() }
                     .orDefault(e)
             return Interval(begin, end)
@@ -107,7 +89,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): T
             ks.flatMap { cis[it].map { i -> qs[it].restrict(i) } }
 
     fun combineFscInterval(fsc: BSpline, fis: List<Interval>, ks: List<Int>): List<Interval> {
-        if(ks.isEmpty()) return listOf(fsc.domain)
+        if (ks.isEmpty()) return listOf(fsc.domain)
 
         val middles = ks.zipWithNext { prev, next -> Interval(fis[prev + 1].begin, fis[next].end) }
 
@@ -120,7 +102,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): T
     fun fitBezier(fsc: BSpline, gis: List<Interval>, rs: List<ConicSection>, isClosed: Boolean): List<Bezier> {
         val fitter = SmoothBezierFitter()
 
-        if (rs.isEmpty()){
+        if (rs.isEmpty()) {
             val s = if (isClosed) fsc.close() else fsc
             return listOf(fitter.fitAllFsc(parametrize(s.evaluateAll(samplingFactor))))
         }
@@ -148,8 +130,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): T
         return if (isClosed) {
             val data = parametrize(backPoints + frontPoints.reversed())
             middles + fitter.fitMiddle(p0, v0, p1, v1, data)
-        }
-        else {
+        } else {
             val frontData = parametrize(frontPoints)
             val backData = parametrize(backPoints)
             listOf(fitter.fitFront(p1, v1, frontData)) + middles + listOf(fitter.fitBack(p0, v0, backData))

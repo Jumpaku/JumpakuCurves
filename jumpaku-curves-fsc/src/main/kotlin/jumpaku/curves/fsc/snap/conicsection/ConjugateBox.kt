@@ -40,7 +40,8 @@ class ConjugateBox(val transform: Transform) {
                         Point.xy(-1.0, 0.0) to deepConicSection(t.orThrow()),
                         Point.xy(1.0, 0.0) to deepConicSection(1 - t.orThrow()))
             }
-            val transform = when{
+
+            val transform = when {
                 conicSection.center().isDefined -> transform(
                         if (conicSection.weight <= conicSection.complement().weight) conicSection
                         else conicSection.complement())

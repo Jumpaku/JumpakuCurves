@@ -31,8 +31,8 @@ interface Transform {
         }
 
         fun fromMatrixJson(json: JsonElement): Transform =
-            json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
-                    .let { ofMatrix(MatrixUtils.createRealMatrix(it)) }
+                json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
+                        .let { ofMatrix(MatrixUtils.createRealMatrix(it)) }
 
         val Identity = ofMatrix(MatrixUtils.createRealIdentityMatrix(4))
     }

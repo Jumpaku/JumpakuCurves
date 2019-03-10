@@ -46,13 +46,13 @@ class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, cand
         companion object {
 
             fun fromJson(json: JsonElement): Candidate =
-                Candidate(
-                        json["featurePoints"].array.map { SnappedPoint.fromJson(it) },
-                        Transform.fromMatrixJson(json["transform"]))
+                    Candidate(
+                            json["featurePoints"].array.map { SnappedPoint.fromJson(it) },
+                            Transform.fromMatrixJson(json["transform"]))
         }
     }
 
-    data class EvaluatedCandidate(val grade: Grade, val candidate: Candidate): ToJson {
+    data class EvaluatedCandidate(val grade: Grade, val candidate: Candidate) : ToJson {
 
         override fun toString(): String = toJsonString()
 

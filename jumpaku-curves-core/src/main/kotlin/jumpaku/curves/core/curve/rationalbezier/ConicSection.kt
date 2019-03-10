@@ -33,10 +33,11 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative get() = object : Derivative {
-        override val domain: Interval = this@ConicSection.domain
-        override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
-    }
+    override val derivative: Derivative
+        get() = object : Derivative {
+            override val domain: Interval = this@ConicSection.domain
+            override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+        }
 
     fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.tryDiv(weight).isSuccess) {
         RationalBezier(listOf(
@@ -49,12 +50,12 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
     override fun differentiate(t: Double): Vector {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        val g = (1 - t)*(1 - 2*t)*begin.toVector() + 2*t*(1 - t)*(1 + weight)*far.toVector() + t*(2*t - 1)*end.toVector()
-        val dg_dt = (4*t - 3)*begin.toVector() + 2*(1 - 2*t)*(1 + weight)*far.toVector() + (4*t - 1)*end.toVector()
+        val g = (1 - t) * (1 - 2 * t) * begin.toVector() + 2 * t * (1 - t) * (1 + weight) * far.toVector() + t * (2 * t - 1) * end.toVector()
+        val dg_dt = (4 * t - 3) * begin.toVector() + 2 * (1 - 2 * t) * (1 + weight) * far.toVector() + (4 * t - 1) * end.toVector()
         val f = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
-        val df_dt = 2*(weight - 1)*(1 - 2*t)
+        val df_dt = 2 * (weight - 1) * (1 - 2 * t)
 
-        return ((dg_dt*f - g*df_dt)/(f*f)).orThrow()
+        return ((dg_dt * f - g * df_dt) / (f * f)).orThrow()
     }
 
     override fun evaluate(t: Double): Point {
@@ -96,20 +97,20 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
         val begin0 = begin
         val end0 = evaluate(t)
-        val weight0 = (1 - t + t*w)/rootwt
-        val far0P = ((begin0.toVector() + end0.toVector()) * rootwt *0.5 + (1 - t) * p0 + t * ((1 + w) * p1 - m.toVector())) / (rootwt + 1 - t + t * w)
-        val far0R = FastMath.abs(0.5*(2 - 3*t + rootwt*(2*t*t - 3*t + 2))/(rootwt + 1 - t + t*w))*begin.r +
-                FastMath.abs((t*(1 + w)*(1 + (1 - t)/rootwt))/(rootwt + 1 - t + t*w))*far.r +
-                FastMath.abs(0.5*(-t + t*(2*t - 1)/rootwt)/(rootwt + 1 - t + t*w))*end.r
+        val weight0 = (1 - t + t * w) / rootwt
+        val far0P = ((begin0.toVector() + end0.toVector()) * rootwt * 0.5 + (1 - t) * p0 + t * ((1 + w) * p1 - m.toVector())) / (rootwt + 1 - t + t * w)
+        val far0R = FastMath.abs(0.5 * (2 - 3 * t + rootwt * (2 * t * t - 3 * t + 2)) / (rootwt + 1 - t + t * w)) * begin.r +
+                FastMath.abs((t * (1 + w) * (1 + (1 - t) / rootwt)) / (rootwt + 1 - t + t * w)) * far.r +
+                FastMath.abs(0.5 * (-t + t * (2 * t - 1) / rootwt) / (rootwt + 1 - t + t * w)) * end.r
         val far0 = Point(far0P.orThrow(), far0R)
 
         val begin1 = end0
         val end1 = end
-        val weight1 = ((1 - t)*w + t)/rootwt
-        val far1P = ((begin1.toVector() + end1.toVector()) * rootwt *0.5 + (1 - t) * ((1 + w) * p1 - m.toVector()) + t * p2) / (rootwt + (1 - t) * w + t)
-        val far1R = FastMath.abs(0.5*(3*t - 1 + rootwt*(2*t*t -t + 1))/(rootwt + (1 - t)*w + t))*begin.r +
-                FastMath.abs(((1 - t)*(1 + w)*(1 + t/rootwt))/(rootwt + (1 - t)*w + t))*far.r +
-                FastMath.abs(0.5*((1 - t)*((1 - 2*t)/rootwt - 1))/(rootwt + (1 - t)*w + t))*end.r
+        val weight1 = ((1 - t) * w + t) / rootwt
+        val far1P = ((begin1.toVector() + end1.toVector()) * rootwt * 0.5 + (1 - t) * ((1 + w) * p1 - m.toVector()) + t * p2) / (rootwt + (1 - t) * w + t)
+        val far1R = FastMath.abs(0.5 * (3 * t - 1 + rootwt * (2 * t * t - t + 1)) / (rootwt + (1 - t) * w + t)) * begin.r +
+                FastMath.abs(((1 - t) * (1 + w) * (1 + t / rootwt)) / (rootwt + (1 - t) * w + t)) * far.r +
+                FastMath.abs(0.5 * ((1 - t) * ((1 - 2 * t) / rootwt - 1)) / (rootwt + (1 - t) * w + t)) * end.r
         val far1 = Point(far1P.orThrow(), far1R)
 
         return Tuple2(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
@@ -118,9 +119,9 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
     fun restrict(interval: Interval): ConicSection = restrict(interval.begin, interval.end)
 
     fun restrict(begin: Double, end: Double): ConicSection {
-        val t = begin/end
+        val t = begin / end
         val a = FastMath.sqrt(RationalBezier.bezier1D(end, listOf(1.0, weight, 1.0)))
-        return subdivide(end)._1().subdivide(a*t/(t*(a - 1) + 1))._2()
+        return subdivide(end)._1().subdivide(a * t / (t * (a - 1) + 1))._2()
     }
 
     companion object {
@@ -132,17 +133,17 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
          */
         fun shearedCircularArc(begin: Point, far: Point, end: Point): ConicSection {
             val hh = line(begin, end).tryMap { far.distSquare(it) }.value().orDefault { begin.distSquare(far) }
-            val ll = (begin - end).square()/4
+            val ll = (begin - end).square() / 4
             return ConicSection(begin, far, end, ((ll - hh) / (ll + hh)).coerceIn(-0.999, 0.999))
         }
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
         fun fromJson(json: JsonElement): ConicSection =
-            ConicSection(
-                    Point.fromJson(json["begin"]),
-                    Point.fromJson(json["far"]),
-                    Point.fromJson(json["end"]),
-                    json["weight"].double)
+                ConicSection(
+                        Point.fromJson(json["begin"]),
+                        Point.fromJson(json["far"]),
+                        Point.fromJson(json["end"]),
+                        json["weight"].double)
     }
 }

@@ -17,6 +17,7 @@ class IntervalTest {
         println("ConstructorException")
         assertThrows<IllegalArgumentException> { Interval(4.0, -3.0) }
     }
+
     @Test
     fun testProperties() {
         println("Properties")
@@ -29,21 +30,21 @@ class IntervalTest {
         val i0 = Interval(-0.1, 0.5).sample(7)
         assertThat(i0.size, `is`(7))
         assertThat(i0[0], `is`(closeTo(-0.1)))
-        assertThat(i0[1], `is`(closeTo( 0.0)))
-        assertThat(i0[2], `is`(closeTo( 0.1)))
-        assertThat(i0[3], `is`(closeTo( 0.2)))
-        assertThat(i0[4], `is`(closeTo( 0.3)))
-        assertThat(i0[5], `is`(closeTo( 0.4)))
-        assertThat(i0[6], `is`(closeTo( 0.5)))
+        assertThat(i0[1], `is`(closeTo(0.0)))
+        assertThat(i0[2], `is`(closeTo(0.1)))
+        assertThat(i0[3], `is`(closeTo(0.2)))
+        assertThat(i0[4], `is`(closeTo(0.3)))
+        assertThat(i0[5], `is`(closeTo(0.4)))
+        assertThat(i0[6], `is`(closeTo(0.5)))
         val i1 = Interval(-0.1, 0.5).sample(0.11)
         assertThat(i1.size, `is`(7))
         assertThat(i1[0], `is`(closeTo(-0.1)))
-        assertThat(i1[1], `is`(closeTo( 0.0)))
-        assertThat(i1[2], `is`(closeTo( 0.1)))
-        assertThat(i1[3], `is`(closeTo( 0.2)))
-        assertThat(i1[4], `is`(closeTo( 0.3)))
-        assertThat(i1[5], `is`(closeTo( 0.4)))
-        assertThat(i1[6], `is`(closeTo( 0.5)))
+        assertThat(i1[1], `is`(closeTo(0.0)))
+        assertThat(i1[2], `is`(closeTo(0.1)))
+        assertThat(i1[3], `is`(closeTo(0.2)))
+        assertThat(i1[4], `is`(closeTo(0.3)))
+        assertThat(i1[5], `is`(closeTo(0.4)))
+        assertThat(i1[6], `is`(closeTo(0.5)))
     }
 
     @Test

@@ -27,6 +27,7 @@ class CalibrateTest {
         assertThat(t4(p2.first), `is`(closeTo(p2.second)))
         assertThat(t4(p3.first), `is`(closeTo(p3.second)))
     }
+
     @Test
     fun testInvoke3() {
         println("Invoke3")
@@ -34,12 +35,14 @@ class CalibrateTest {
         assertThat(t3(p1.first), `is`(closeTo(p1.second)))
         assertThat(t3(p2.first), `is`(closeTo(p2.second)))
     }
+
     @Test
     fun testInvoke2() {
         println("Invoke2")
         assertThat(t2(p0.first), `is`(closeTo(p0.second)))
         assertThat(t2(p1.first), `is`(closeTo(p1.second)))
     }
+
     @Test
     fun testInvoke1() {
         println("Invoke1")

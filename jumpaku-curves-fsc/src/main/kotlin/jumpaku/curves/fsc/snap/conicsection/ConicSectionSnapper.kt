@@ -19,10 +19,10 @@ import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.point.PointSnapper
 
 
-class ConicSectionSnapper<C: FeaturePointsCombinator>(
+class ConicSectionSnapper<C : FeaturePointsCombinator>(
         val pointSnapper: PointSnapper,
         val featurePointsCombinator: C
-): ToJson {
+) : ToJson {
 
     fun snap(
             grid: Grid,

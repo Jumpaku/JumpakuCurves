@@ -13,9 +13,9 @@ import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterCircular
 import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterElliptic
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
-class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15): ToJson {
+class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) : ToJson {
 
-    private fun <C: Curve> evaluate(
+    private fun <C : Curve> evaluate(
             reference1: Reference, reference2: Reference, reference3: Reference, fsc: ReparametrizedCurve<C>
     ): Map<NQuarterClass, Grade> {
         val (pq1, pq2, pq3) = listOf(reference1, reference2, reference3).map { fsc.isPossible(it.reparametrized, nFmps) }

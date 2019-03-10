@@ -2,7 +2,7 @@ package jumpaku.curves.core.curve
 
 import jumpaku.curves.core.geom.Point
 
-interface Curve : (Double)->Point {
+interface Curve : (Double) -> Point {
 
     val domain: Interval
 

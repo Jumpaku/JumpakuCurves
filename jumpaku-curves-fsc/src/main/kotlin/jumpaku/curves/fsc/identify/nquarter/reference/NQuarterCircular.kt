@@ -9,7 +9,7 @@ import org.apache.commons.math3.util.FastMath
 
 class NQuarterCircular : NQuarterGenerator {
 
-    override fun <C: Curve> generate(n: Int, fsc: ReparametrizedCurve<C>): Reference {
+    override fun <C : Curve> generate(n: Int, fsc: ReparametrizedCurve<C>): Reference {
         val nQuarterWeight = nQuarterWeight(n)
         val s = fsc.originalCurve
         val (t0, t1) = s.domain
@@ -17,10 +17,10 @@ class NQuarterCircular : NQuarterGenerator {
         val b0 = s(t0)
         val b2 = s(t1)
         val m = b0.middle(b2)
-        val l = b0.dist(b2)/2
+        val l = b0.dist(b2) / 2
         val h = m.dist(f)
-        val qh = l* FastMath.sqrt((1 - nQuarterWeight) / (1 + nQuarterWeight))
-        val qf = m.lerp(qh/h, f).copy(r = f.r)
+        val qh = l * FastMath.sqrt((1 - nQuarterWeight) / (1 + nQuarterWeight))
+        val qf = m.lerp(qh / h, f).copy(r = f.r)
         return Reference(ConicSection(b0, qf, b2, nQuarterWeight))
     }
 }

@@ -24,9 +24,9 @@ class PolylineTest {
     fun testProperties() {
         println("Properties")
         assertThat(pl.points[0], `is`(closeTo(Point.xyr(-1.0, 1.0, 2.0))))
-        assertThat(pl.points[1], `is`(closeTo(Point.xyr( 1.0, 1.0, 1.0))))
-        assertThat(pl.points[2], `is`(closeTo(Point.xyr( 1.0,-3.0, 3.0))))
-        assertThat(pl.points[3], `is`(closeTo(Point.xyzr( 1.0,-3.0, 1.5, 2.0))))
+        assertThat(pl.points[1], `is`(closeTo(Point.xyr(1.0, 1.0, 1.0))))
+        assertThat(pl.points[2], `is`(closeTo(Point.xyr(1.0, -3.0, 3.0))))
+        assertThat(pl.points[3], `is`(closeTo(Point.xyzr(1.0, -3.0, 1.5, 2.0))))
         assertThat(pl.domain.begin, `is`(closeTo(0.0)))
         assertThat(pl.domain.end, `is`(closeTo(7.5)))
     }
@@ -42,11 +42,11 @@ class PolylineTest {
     fun testEvaluate() {
         println("Evaluate")
         val p = Polyline.byArcLength(Point.xyr(1.0, 1.0, 2.0), Point.xyr(-1.0, -1.0, 1.0), Point.xyzr(-1.0, -1.0, 1.0, 0.0))
-        assertThat(p.evaluate(0.0), `is`(closeTo(Point.xyzr( 1.0, 1.0, 0.0, 2.0))))
-        assertThat(p.evaluate(Math.sqrt(2.0)), `is`(closeTo(Point.xyzr( 0.0, 0.0, 0.0, 1.5))))
-        assertThat(p.evaluate(2 * Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(-1.0,-1.0, 0.0, 1.0))))
-        assertThat(p.evaluate(2 * Math.sqrt(2.0) + 0.5), `is`(closeTo(Point.xyzr(-1.0,-1.0, 0.5, 0.5))))
-        assertThat(p.evaluate(2 * Math.sqrt(2.0) + 1), `is`(closeTo(Point.xyzr(-1.0,-1.0, 1.0, 0.0))))
+        assertThat(p.evaluate(0.0), `is`(closeTo(Point.xyzr(1.0, 1.0, 0.0, 2.0))))
+        assertThat(p.evaluate(Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(0.0, 0.0, 0.0, 1.5))))
+        assertThat(p.evaluate(2 * Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(-1.0, -1.0, 0.0, 1.0))))
+        assertThat(p.evaluate(2 * Math.sqrt(2.0) + 0.5), `is`(closeTo(Point.xyzr(-1.0, -1.0, 0.5, 0.5))))
+        assertThat(p.evaluate(2 * Math.sqrt(2.0) + 1), `is`(closeTo(Point.xyzr(-1.0, -1.0, 1.0, 0.0))))
     }
 
     @Test
@@ -54,12 +54,12 @@ class PolylineTest {
         println("EvaluateAll")
         val ps = pl.evaluateAll(6)
         assertThat(ps.size, `is`(6))
-        assertThat(ps[0], `is`(closeTo(Point.xyzr(-1.0, 1.0, 0.0, 2.0 ))))
-        assertThat(ps[1], `is`(closeTo(Point.xyzr( 0.5, 1.0, 0.0, 1.25))))
-        assertThat(ps[2], `is`(closeTo(Point.xyzr( 1.0, 0.0, 0.0, 1.5 ))))
-        assertThat(ps[3], `is`(closeTo(Point.xyzr( 1.0,-1.5, 0.0, 2.25))))
-        assertThat(ps[4], `is`(closeTo(Point.xyzr( 1.0,-3.0, 0.0, 3.0 ))))
-        assertThat(ps[5], `is`(closeTo(Point.xyzr( 1.0,-3.0, 1.5, 2.0 ))))
+        assertThat(ps[0], `is`(closeTo(Point.xyzr(-1.0, 1.0, 0.0, 2.0))))
+        assertThat(ps[1], `is`(closeTo(Point.xyzr(0.5, 1.0, 0.0, 1.25))))
+        assertThat(ps[2], `is`(closeTo(Point.xyzr(1.0, 0.0, 0.0, 1.5))))
+        assertThat(ps[3], `is`(closeTo(Point.xyzr(1.0, -1.5, 0.0, 2.25))))
+        assertThat(ps[4], `is`(closeTo(Point.xyzr(1.0, -3.0, 0.0, 3.0))))
+        assertThat(ps[5], `is`(closeTo(Point.xyzr(1.0, -3.0, 1.5, 2.0))))
     }
 
     @Test

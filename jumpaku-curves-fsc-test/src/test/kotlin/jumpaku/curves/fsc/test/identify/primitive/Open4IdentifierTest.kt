@@ -75,7 +75,7 @@ class Open4IdentifierTest {
         val b = System.nanoTime()
         assertTimeoutPreemptively(Duration.ofMillis(1500)) {
             repeat(1000) { identifier.identify(s) }
-            println("    ${(System.nanoTime() - b)*1e-9} [s]")
+            println("    ${(System.nanoTime() - b) * 1e-9} [s]")
         }
     }
 

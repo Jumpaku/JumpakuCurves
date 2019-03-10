@@ -27,7 +27,7 @@ class BezierFitter(val degree: Int) : Fitter<Bezier> {
         val (ds, ts, ws) = data.asVavr().unzip3 { (pt, w) -> Tuple3(pt.point, pt.param, w) }
 
         val distinct = data.distinctBy(WeightedParamPoint::param)
-        if(distinct.size <= degree){
+        if (distinct.size <= degree) {
             return BezierFitter(degree - 1).fit(data).elevate()
         }
 

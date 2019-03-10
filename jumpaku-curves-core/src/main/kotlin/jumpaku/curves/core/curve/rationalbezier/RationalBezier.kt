@@ -5,7 +5,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Derivative
@@ -40,26 +39,27 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative get() {
-        val ws = weights
-        val dws = ws.zipWithNext { a, b -> degree * (b - a) }
-        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
+    override val derivative: Derivative
+        get() {
+            val ws = weights
+            val dws = ws.zipWithNext { a, b -> degree * (b - a) }
+            val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
 
-        return object : Derivative {
-            override fun evaluate(t: Double): Vector {
-                require(t in domain) { "t($t) is out of domain($domain)" }
+            return object : Derivative {
+                override fun evaluate(t: Double): Vector {
+                    require(t in domain) { "t($t) is out of domain($domain)" }
 
-                val wt = bezier1D(t, ws)
-                val dwt = bezier1D(t, dws)
-                val dpt = dp.evaluate(t)
-                val rt = this@RationalBezier.evaluate(t).toVector()
+                    val wt = bezier1D(t, ws)
+                    val dwt = bezier1D(t, dws)
+                    val dpt = dp.evaluate(t)
+                    val rt = this@RationalBezier.evaluate(t).toVector()
 
-                return ((dpt - dwt * rt) / wt).orThrow()
+                    return ((dpt - dwt * rt) / wt).orThrow()
+                }
+
+                override val domain: Interval = Interval.ZERO_ONE
             }
-
-            override val domain: Interval = Interval.ZERO_ONE
         }
-    }
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -84,7 +84,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
     fun restrict(begin: Double, end: Double): RationalBezier {
         require(Interval(begin, end) in domain) { "Interval($begin, $end) is out of domain($domain)" }
 
-        return subdivide(end)._1().subdivide(begin / end)._2()
+        return subdivide(end).first.subdivide(begin / end).second
     }
 
     fun reverse(): RationalBezier = RationalBezier(weightedControlPoints.reversed())
@@ -97,11 +97,11 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         return RationalBezier(Bezier.createReducedControlPoints(weightedControlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<RationalBezier, RationalBezier> {
+    fun subdivide(t: Double): Pair<RationalBezier, RationalBezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         return Bezier.createSubdividedControlPoints(t, weightedControlPoints)
-                .map(::RationalBezier, ::RationalBezier)
+                .run { Pair(RationalBezier(first), RationalBezier(second)) }
     }
 
     companion object {
@@ -115,6 +115,6 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         }
 
         fun fromJson(json: JsonElement): RationalBezier =
-            RationalBezier(json["weightedControlPoints"].array.map { WeightedPoint.fromJson(it) })
+                RationalBezier(json["weightedControlPoints"].array.map { WeightedPoint.fromJson(it) })
     }
 }

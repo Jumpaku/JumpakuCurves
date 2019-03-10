@@ -6,9 +6,9 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
 
-class DrawingStroke(polyline: Polyline): Curve by polyline, ToJson by polyline {
+class DrawingStroke(polyline: Polyline) : Curve by polyline, ToJson by polyline {
 
-    constructor(paramPoints: Iterable<ParamPoint>): this(Polyline(paramPoints))
+    constructor(paramPoints: Iterable<ParamPoint>) : this(Polyline(paramPoints))
 
     val inputData: List<ParamPoint> = polyline.paramPoints
 

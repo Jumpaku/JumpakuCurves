@@ -10,9 +10,9 @@ import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point
 
 
-class LineSegment(begin: ParamPoint, end: ParamPoint): Curve by Polyline(listOf(begin, end)), ToJson {
+class LineSegment(begin: ParamPoint, end: ParamPoint) : Curve by Polyline(listOf(begin, end)), ToJson {
 
-    constructor(begin: Point, end: Point, domain: Interval = Interval.ZERO_ONE):
+    constructor(begin: Point, end: Point, domain: Interval = Interval.ZERO_ONE) :
             this(ParamPoint(begin, domain.begin), ParamPoint(end, domain.end))
 
     init {

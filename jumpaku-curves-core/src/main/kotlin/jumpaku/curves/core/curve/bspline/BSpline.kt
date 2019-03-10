@@ -27,16 +27,17 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
 
     override val domain: Interval = knotVector.domain
 
-    override val derivative: BSplineDerivative get() {
-        val us = knotVector.extractedKnots
-        val cvs = controlPoints
-                .zip(controlPoints.drop(1)) { a, b -> b.toCrisp() - a.toCrisp() }
-                .withIndex().map { (i, v) ->
-                    v*basisHelper(degree.toDouble(), 0.0, us[degree + i + 1], us[i + 1])
-                }
+    override val derivative: BSplineDerivative
+        get() {
+            val us = knotVector.extractedKnots
+            val cvs = controlPoints
+                    .zip(controlPoints.drop(1)) { a, b -> b.toCrisp() - a.toCrisp() }
+                    .withIndex().map { (i, v) ->
+                        v * basisHelper(degree.toDouble(), 0.0, us[degree + i + 1], us[i + 1])
+                    }
 
-        return BSplineDerivative(cvs, knotVector.derivativeKnotVector())
-    }
+            return BSplineDerivative(cvs, knotVector.derivativeKnotVector())
+        }
 
     init {
         val us = knotVector.extractedKnots
@@ -152,7 +153,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
         fun <D : Lerpable<D>> insertedControlPoints(
                 controlPoints: List<D>, knotVector: KnotVector, knotValue: Double, times: Int): List<D> {
             val (b, e) = knotVector.domain
-            if(b < e && knotValue == e) return insertedControlPoints(
+            if (b < e && knotValue == e) return insertedControlPoints(
                     controlPoints.reversed(), knotVector.reverse(), b, times).reversed()
             val us = knotVector.extractedKnots
             val p = knotVector.degree
@@ -196,17 +197,17 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
                 var j = k - s + t - 1
                 while (j - i >= t) {
                     val ai = basisHelper(u, us[i], us[i + p + t], us[i])
-                    cp[i] = cp[i].lerp((ai - 1)/ai, cp[i - 1])
+                    cp[i] = cp[i].lerp((ai - 1) / ai, cp[i - 1])
                     ++i
                     val aj = basisHelper(u, us[j - t + 1], us[j + p + 1], us[j - t + 1])
-                    cp[j] = cp[j].lerp(aj/(aj - 1), cp[j + 1])
+                    cp[j] = cp[j].lerp(aj / (aj - 1), cp[j + 1])
                     --j
                 }
             }
             val f = k - p - times + 1
-            val ff = (2*k - p - s - times)/2
+            val ff = (2 * k - p - s - times) / 2
             val l = k - s + times - 1
-            val ll = (2*k - p - s + times + 2)/2
+            val ll = (2 * k - p - s + times + 2) / 2
 
             return cp.take(f) + cp.slice(f..ff) + cp.slice(ll..l) + cp.drop(l + 1)
         }
@@ -278,7 +279,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
             if (t == e) return if (i == us.size - p - 2) 1.0 else 0.0
 
             val l = knotVector.searchLastExtractedLessThanOrEqualTo(t)
-            val ns = (0..p).map { index -> if ( index == l - i ) 1.0 else 0.0}.toMutableList()
+            val ns = (0..p).map { index -> if (index == l - i) 1.0 else 0.0 }.toMutableList()
 
             for (j in 1..(ns.lastIndex)) {
                 for (k in 0..(ns.lastIndex - j)) {

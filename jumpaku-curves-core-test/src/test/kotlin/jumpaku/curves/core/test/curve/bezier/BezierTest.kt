@@ -23,9 +23,9 @@ class BezierTest {
         println("Properties")
         assertThat(bc.controlPoints[0], `is`(closeTo(Point.xyr(-2.0, 0.0, 1.0))))
         assertThat(bc.controlPoints[1], `is`(closeTo(Point.xyr(-1.0, 0.0, 2.0))))
-        assertThat(bc.controlPoints[2], `is`(closeTo(Point.xyr( 0.0, 2.0, 0.0))))
-        assertThat(bc.controlPoints[3], `is`(closeTo(Point.xyr( 1.0, 0.0, 2.0))))
-        assertThat(bc.controlPoints[4], `is`(closeTo(Point.xyr( 2.0, 0.0, 1.0))))
+        assertThat(bc.controlPoints[2], `is`(closeTo(Point.xyr(0.0, 2.0, 0.0))))
+        assertThat(bc.controlPoints[3], `is`(closeTo(Point.xyr(1.0, 0.0, 2.0))))
+        assertThat(bc.controlPoints[4], `is`(closeTo(Point.xyr(2.0, 0.0, 1.0))))
         assertThat(bc.controlPoints.size, `is`(5))
         assertThat(bc.degree, `is`(4))
         assertThat(bc.domain.begin, `is`(closeTo(0.0)))
@@ -42,11 +42,11 @@ class BezierTest {
     @Test
     fun testEvaluate() {
         println("Evaluate")
-        assertThat(bc.evaluate(0.0), `is`(closeTo(Point.xyr(-2.0, 0.0      , 1.0        ))))
+        assertThat(bc.evaluate(0.0), `is`(closeTo(Point.xyr(-2.0, 0.0, 1.0))))
         assertThat(bc.evaluate(0.25), `is`(closeTo(Point.xyr(-1.0, 27 / 64.0, 161.0 / 128))))
-        assertThat(bc.evaluate(0.5), `is`(closeTo(Point.xyr( 0.0, 0.75     , 9.0 / 8    ))))
-        assertThat(bc.evaluate(0.75), `is`(closeTo(Point.xyr( 1.0, 27 / 64.0, 161.0 / 128))))
-        assertThat(bc.evaluate(1.0), `is`(closeTo(Point.xyr( 2.0, 0.0      , 1.0        ))))
+        assertThat(bc.evaluate(0.5), `is`(closeTo(Point.xyr(0.0, 0.75, 9.0 / 8))))
+        assertThat(bc.evaluate(0.75), `is`(closeTo(Point.xyr(1.0, 27 / 64.0, 161.0 / 128))))
+        assertThat(bc.evaluate(1.0), `is`(closeTo(Point.xyr(2.0, 0.0, 1.0))))
     }
 
     @Test
@@ -135,12 +135,12 @@ class BezierTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val bs = Bezier(
+        val (a0, a1) = Bezier(
                 Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-1.0, 0.0, 2.0), Point.xy(0.0, 2.0), Point.xyr(1.0, 0.0, 2.0), Point.xyr(2.0, 0.0, 1.0))
                 .subdivide(0.25)
-        assertThat(bs._1(), `is`(closeTo(Bezier(
+        assertThat(a0, `is`(closeTo(Bezier(
                 Point.xyr(-2.0, 0.0, 1.0), Point.xyr(-7 / 4.0, 0.0, 5 / 4.0), Point.xyr(-3 / 2.0, 1 / 8.0, 21 / 16.0), Point.xyr(-5 / 4.0, 9 / 32.0, 83 / 64.0), Point.xyr(-1.0, 27 / 64.0, 161 / 128.0)))))
-        assertThat(bs._2(), `is`(closeTo(Bezier(
+        assertThat(a1, `is`(closeTo(Bezier(
                 Point.xyr(-1.0, 27 / 64.0, 322 / 256.0), Point.xyr(-1 / 4.0, 27 / 32.0, 73 / 64.0), Point.xyr(1 / 2.0, 9 / 8.0, 13 / 16.0), Point.xyr(5 / 4.0, 0.0, 7 / 4.0), Point.xyr(2.0, 0.0, 1.0)))))
     }
 
@@ -155,14 +155,14 @@ class BezierTest {
 
         val extendFront = Bezier(
                 Point.xyr(-1.0, 27 / 64.0, 322 / 256.0), Point.xyr(-1 / 4.0, 27 / 32.0, 73 / 64.0), Point.xyr(1 / 2.0, 9 / 8.0, 13 / 16.0), Point.xyr(5 / 4.0, 0.0, 7 / 4.0), Point.xyr(2.0, 0.0, 1.0))
-                .extend(-1/3.0)
+                .extend(-1 / 3.0)
         assertThat(extendFront, `is`(closeTo(Bezier(
                 Point.xyr(-2.0, 0.0, 721 / 81.0), Point.xyr(-1.0, 0.0, 134 / 27.0), Point.xyr(0.0, 2.0, 28 / 9.0), Point.xyr(1.0, 0.0, 8 / 3.0), Point.xyr(2.0, 0.0, 1.0)))))
 
     }
 
     @Test
-    fun testDecasteljau(){
+    fun testDecasteljau() {
         println("Decasteljau")
         val result = Bezier.decasteljau(0.25,
                 listOf(Point.xyzr(1.0, 0.0, -2.0, 1.0), Point.xyzr(0.0, 3.0, 4.0, 0.0), Point.xyzr(-1.0, -1.0, 0.0, 2.0)))
@@ -172,22 +172,22 @@ class BezierTest {
     }
 
     @Test
-    fun test_Basis(){
+    fun test_Basis() {
         print("Basis")
-        assertThat(Bezier.basis(2, 0, 0.0 ), `is`(closeTo(1.0)))
-        assertThat(Bezier.basis(2, 1, 0.0 ), `is`(closeTo(0.0)))
-        assertThat(Bezier.basis(2, 2, 0.0 ), `is`(closeTo(0.0)))
+        assertThat(Bezier.basis(2, 0, 0.0), `is`(closeTo(1.0)))
+        assertThat(Bezier.basis(2, 1, 0.0), `is`(closeTo(0.0)))
+        assertThat(Bezier.basis(2, 2, 0.0), `is`(closeTo(0.0)))
         assertThat(Bezier.basis(2, 0, 0.25), `is`(closeTo(9 / 16.0)))
         assertThat(Bezier.basis(2, 1, 0.25), `is`(closeTo(6 / 16.0)))
         assertThat(Bezier.basis(2, 2, 0.25), `is`(closeTo(1 / 16.0)))
-        assertThat(Bezier.basis(2, 0, 0.5 ), `is`(closeTo(0.25)))
-        assertThat(Bezier.basis(2, 1, 0.5 ), `is`(closeTo(0.5)))
-        assertThat(Bezier.basis(2, 2, 0.5 ), `is`(closeTo(0.25)))
+        assertThat(Bezier.basis(2, 0, 0.5), `is`(closeTo(0.25)))
+        assertThat(Bezier.basis(2, 1, 0.5), `is`(closeTo(0.5)))
+        assertThat(Bezier.basis(2, 2, 0.5), `is`(closeTo(0.25)))
         assertThat(Bezier.basis(2, 0, 0.75), `is`(closeTo(1 / 16.0)))
         assertThat(Bezier.basis(2, 1, 0.75), `is`(closeTo(6 / 16.0)))
         assertThat(Bezier.basis(2, 2, 0.75), `is`(closeTo(9 / 16.0)))
-        assertThat(Bezier.basis(2, 0, 1.0 ), `is`(closeTo(0.0)))
-        assertThat(Bezier.basis(2, 1, 1.0 ), `is`(closeTo(0.0)))
-        assertThat(Bezier.basis(2, 2, 1.0 ), `is`(closeTo(1.0)))
+        assertThat(Bezier.basis(2, 0, 1.0), `is`(closeTo(0.0)))
+        assertThat(Bezier.basis(2, 1, 1.0), `is`(closeTo(0.0)))
+        assertThat(Bezier.basis(2, 2, 1.0), `is`(closeTo(1.0)))
     }
 }

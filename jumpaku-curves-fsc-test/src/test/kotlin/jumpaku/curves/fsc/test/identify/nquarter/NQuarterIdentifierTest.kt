@@ -21,7 +21,7 @@ class NQuarterIdentifierTest {
         for (i in 0..6) {
             val s = resourceText("FscCircular$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = resourceText("CircularResult$i.json").parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }
-                .orThrow()
+                    .orThrow()
             val a = identifier.identifyCircular(reparametrize(s))
             assertThat(a.nQuarterClass, `is`(e.nQuarterClass))
         }
@@ -33,7 +33,7 @@ class NQuarterIdentifierTest {
         for (i in 0..12) {
             val s = resourceText("FscElliptic$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = resourceText("EllipticResult$i.json").parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }
-                .orThrow()
+                    .orThrow()
             val a = identifier.identifyElliptic(reparametrize(s))
             assertThat(a.nQuarterClass, `is`(e.nQuarterClass))
         }
