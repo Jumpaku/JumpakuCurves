@@ -30,7 +30,7 @@ object FragmentDemoSettings {
             degree = 3,
             knotSpan = 0.075,
             preparer = DataPreparer(
-                    spanShouldBeFilled = 0.025,
+                    fillSpan = 0.025,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),

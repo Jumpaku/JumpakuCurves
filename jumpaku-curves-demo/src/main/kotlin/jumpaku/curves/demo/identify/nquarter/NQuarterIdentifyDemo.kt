@@ -9,7 +9,6 @@ import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.Fuzzifier.Linear
 import jumpaku.curves.fsc.identify.nquarter.NQuarterClass
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifier
 import jumpaku.curves.fsc.identify.primitive.CurveClass
@@ -35,7 +34,7 @@ object NQuarterDemoSettings {
             degree = 3,
             knotSpan = 0.075,
             preparer = DataPreparer(
-                    spanShouldBeFilled = 0.0375,
+                    fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),

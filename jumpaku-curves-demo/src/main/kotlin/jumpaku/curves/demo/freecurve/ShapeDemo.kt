@@ -9,7 +9,6 @@ import jumpaku.curves.fsc.freecurve.Smoother
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.Fuzzifier.Linear
 import jumpaku.curves.graphics.*
 import jumpaku.curves.graphics.fx.DrawingControl
 import jumpaku.curves.graphics.fx.DrawingEvent
@@ -28,7 +27,7 @@ object ShapeDemoSettings {
             degree = 3,
             knotSpan = 0.075,
             preparer = DataPreparer(
-                    spanShouldBeFilled = 0.0375,
+                    fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
