@@ -13,7 +13,7 @@ class Fragmenter(
                 necessity = Grade(0.35),
                 possibility = Grade(0.65)),
         val chunkSize: Int = 4,
-        val minStayTimeSpan: Double = 0.04): ToJson {
+        val minStayTimeSpan: Double = 0.04) : ToJson {
 
     private enum class State {
 

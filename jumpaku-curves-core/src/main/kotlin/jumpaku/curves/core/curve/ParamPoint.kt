@@ -15,6 +15,7 @@ data class ParamPoint(val point: Point, val param: Double) : Lerpable<ParamPoint
     init {
         require(param.isFinite()) { "param($param)" }
     }
+
     override fun lerp(vararg terms: Pair<Double, ParamPoint>): ParamPoint = ParamPoint(
             point.lerp(*terms.map { (c, p) -> c to p.point }.toTypedArray()),
             param.lerp(*terms.map { (c, p) -> c to p.param }.toTypedArray()))
@@ -23,7 +24,7 @@ data class ParamPoint(val point: Point, val param: Double) : Lerpable<ParamPoint
 
     override fun toJson(): JsonElement = jsonObject("point" to point.toJson(), "param" to param.toJson())
 
-    companion object{
+    companion object {
 
         fun now(point: Point): ParamPoint = ParamPoint(point, System.nanoTime() * 1.0e-9)
 

@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.identify.primitive
 
 
-enum class CurveClass{
+enum class CurveClass {
     Point,
     LineSegment,
     Circle,
@@ -9,7 +9,7 @@ enum class CurveClass{
     Ellipse,
     EllipticArc,
     ClosedFreeCurve,
-    OpenFreeCurve,;
+    OpenFreeCurve, ;
 
     val isFreeCurve: Boolean get() = this == ClosedFreeCurve || this == OpenFreeCurve
     val isConicSection: Boolean get() = !isFreeCurve

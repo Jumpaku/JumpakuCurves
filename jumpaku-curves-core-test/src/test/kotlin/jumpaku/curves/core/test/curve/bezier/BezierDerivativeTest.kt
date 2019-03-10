@@ -84,6 +84,7 @@ class BezierDerivativeTest {
         assertThat(r.toBezier(), `is`(closeTo(Bezier(
                 Point.xy(2.0, 0.0), Point.xy(1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(-1.0, 0.0), Point.xy(-2.0, 0.0)))))
     }
+
     @Test
     fun testElevate() {
         println("Elevate")
@@ -121,14 +122,15 @@ class BezierDerivativeTest {
         val e5 = Bezier(Point.xy(-1.0, 0.0), Point.xy(-0.5, 1.0), Point.xy(0.0, 4 / 3.0), Point.xy(0.5, 1.0), Point.xy(1.0, 0.0))
         assertThat(b5.toBezier(), `is`(closeTo(e5)))
     }
+
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val bs = BezierDerivative(Vector(1.0, -2.0, 0.0), Vector(2.0, -1.0, 0.0), Vector(0.0, 0.0, 2.0), Vector(2.0, 1.0, 0.0), Vector(1.0, 2.0, 0.0))
+        val (a0, a1) = BezierDerivative(Vector(1.0, -2.0, 0.0), Vector(2.0, -1.0, 0.0), Vector(0.0, 0.0, 2.0), Vector(2.0, 1.0, 0.0), Vector(1.0, 2.0, 0.0))
                 .subdivide(0.25)
-        assertThat(bs._1().toBezier(),
+        assertThat(a0.toBezier(),
                 `is`(closeTo(Bezier(Point.xyz(1.0, -2.0, 0.0), Point.xyz(5 / 4.0, -7 / 4.0, 0.0), Point.xyz(21 / 16.0, -3 / 2.0, 1 / 8.0), Point.xyz(83 / 64.0, -5 / 4.0, 9 / 32.0), Point.xyz(322 / 256.0, -1.0, 27 / 64.0)))))
-        assertThat(bs._2().toBezier(),
+        assertThat(a1.toBezier(),
                 `is`(closeTo(Bezier(Point.xyz(322 / 256.0, -1.0, 27 / 64.0), Point.xyz(73 / 64.0, -1 / 4.0, 27 / 32.0), Point.xyz(13 / 16.0, 1 / 2.0, 9 / 8.0), Point.xyz(7 / 4.0, 5 / 4.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))))
     }
 
@@ -143,7 +145,7 @@ class BezierDerivativeTest {
 
         val extendFront = BezierDerivative(
                 Vector(-1.0, 27 / 64.0), Vector(-1 / 4.0, 27 / 32.0), Vector(1 / 2.0, 9 / 8.0), Vector(5 / 4.0, 0.0), Vector(2.0, 0.0))
-                .extend(-1/3.0)
+                .extend(-1 / 3.0)
         assertThat(extendFront.toBezier(),
                 `is`(closeTo(Bezier(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))))
     }

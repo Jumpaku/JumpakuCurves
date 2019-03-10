@@ -9,25 +9,25 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
 
-interface Identifier: ToJson {
+interface Identifier : ToJson {
 
     val nFmps: Int
 
     fun isClosed(fsc: Curve): Grade = fsc.evaluateAll(2).run { first().isPossible(last()) }
 
-    fun <C: Curve> ReparametrizedCurve<C>.isPossible(reference: Reference): Grade =
+    fun <C : Curve> ReparametrizedCurve<C>.isPossible(reference: Reference): Grade =
             isPossible(reference.reparametrized, nFmps)
 
-    fun <C: Curve> identify(fsc: ReparametrizedCurve<C>): IdentifyResult
+    fun <C : Curve> identify(fsc: ReparametrizedCurve<C>): IdentifyResult
 }
 
 fun reparametrize(fsc: BSpline): ReparametrizedCurve<BSpline> = fsc.run {
-    val nSamples = knotVector.knots.count { it.value in domain }*fsc.degree*2
+    val nSamples = knotVector.knots.count { it.value in domain } * fsc.degree * 2
     val ts = fsc.domain.sample(nSamples)
     ReparametrizedCurve.of(fsc, ts)//if (ts.size <= maxSamples) ts else approximateParams(maxSamples))
 }
 
-fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection>  {
+fun reparametrize(conicSection: ConicSection): ReparametrizedCurve<ConicSection> {
     val tsFirstHalf = listOf(
             0.0,
             0.1,

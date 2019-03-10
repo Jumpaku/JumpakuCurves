@@ -10,7 +10,7 @@ import jumpaku.curves.core.geom.Point
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 
-data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1.0): ToJson {
+data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1.0) : ToJson {
 
     constructor(point: Point, param: Double, weight: Double = 1.0) : this(ParamPoint(point, param), weight)
 

@@ -189,12 +189,12 @@ class BSplineTest {
         assertThat(s31.isDefined, `is`(false))
         assertThat(s32.orThrow(), `is`(closeTo(BSpline(
                 Array.of(Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
-                KnotVector(2, Knot(3.0, 3), Knot(10/3.0), Knot(11/3.0), Knot(4.0), Knot(13/3.0), Knot(14/3.0))))))
+                KnotVector(2, Knot(3.0, 3), Knot(10 / 3.0), Knot(11 / 3.0), Knot(4.0), Knot(13 / 3.0), Knot(14 / 3.0))))))
 
         val (s41, s42) = uniform.subdivide(4.0)
         assertThat(s41.orThrow(), `is`(closeTo(BSpline(
                 Array.of(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.5, 0.0)),
-                KnotVector(2, Knot(7/3.0), Knot(8/3.0), Knot(3.0), Knot(10/3.0), Knot(11/3.0), Knot(4.0, 3))))))
+                KnotVector(2, Knot(7 / 3.0), Knot(8 / 3.0), Knot(3.0), Knot(10 / 3.0), Knot(11 / 3.0), Knot(4.0, 3))))))
         assertThat(s42.isDefined, `is`(false))
     }
 

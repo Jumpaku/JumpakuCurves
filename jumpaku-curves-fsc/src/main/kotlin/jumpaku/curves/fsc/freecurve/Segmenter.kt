@@ -18,11 +18,12 @@ class SegmentResult(val isConicSections: Grade, val segmentParamIndices: List<In
 sealed class Segment {
     abstract val isConicSection: Grade
     abstract val curveClass: CurveClass
+
     class CS(override val isConicSection: Grade, override val curveClass: CurveClass, val conicSection: ConicSection) : Segment()
     class FO(override val isConicSection: Grade, override val curveClass: CurveClass, val freeCurve: BSpline) : Segment()
 }
 
-class Segmenter(val identifier: Open4Identifier): ToJson {
+class Segmenter(val identifier: Open4Identifier) : ToJson {
 
     fun identify(fsc: BSpline): Segment {
         val result = identifier.identify(reparametrize(fsc))
@@ -39,7 +40,7 @@ class Segmenter(val identifier: Open4Identifier): ToJson {
 
     class Answer(val isConicSection: Grade, val segmentIndices: List<Int>)
 
-    data class NarrowedInterval(val begin: Int, val end: Int): ClosedRange<Int> {
+    data class NarrowedInterval(val begin: Int, val end: Int) : ClosedRange<Int> {
 
         override val start: Int = begin
 

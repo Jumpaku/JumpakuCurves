@@ -5,7 +5,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
@@ -16,9 +15,9 @@ import jumpaku.curves.core.geom.Vector
 
 class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {
 
-    constructor(controlVectors: Iterable<Vector>): this(Bezier(controlVectors.map { Point(it) }))
+    constructor(controlVectors: Iterable<Vector>) : this(Bezier(controlVectors.map { Point(it) }))
 
-    constructor(vararg controlVectors: Vector): this(controlVectors.asIterable())
+    constructor(vararg controlVectors: Vector) : this(controlVectors.asIterable())
 
     override val derivative: BezierDerivative get() = toBezier().derivative
 
@@ -49,8 +48,8 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     fun reduce(): BezierDerivative = BezierDerivative(toBezier().reduce())
 
-    fun subdivide(t: Double): Tuple2<BezierDerivative, BezierDerivative> = toBezier()
-            .subdivide(t).map(::BezierDerivative, ::BezierDerivative)
+    fun subdivide(t: Double): Pair<BezierDerivative, BezierDerivative> = toBezier()
+            .subdivide(t).run { Pair(BezierDerivative(first), BezierDerivative(second)) }
 
     fun extend(t: Double): BezierDerivative = BezierDerivative(toBezier().extend(t))
 

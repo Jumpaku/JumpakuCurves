@@ -4,7 +4,6 @@ import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.fragment.Chunk
@@ -16,8 +15,8 @@ class ChunkTest {
 
     val th = Chunk.Threshold(0.4, 0.6)
 
-    val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it*3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
-    val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it)*3) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
+    val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it * 3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
+    val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it) * 3) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
     val s2 = BSpline((0..3).map { Point.xr(it.toDouble(), 9.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
     val s3 = BSpline((0..3).map { Point.xr(it.toDouble(), 3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
 
@@ -42,17 +41,17 @@ class ChunkTest {
     fun testNecessity() {
         println("Necessity")
         assertThat(c0.necessity.value, `is`(closeTo(0.0)))
-        assertThat(c1.necessity.value, `is`(closeTo(2/3.0)))
-        assertThat(c2.necessity.value, `is`(closeTo(1/3.0)))
+        assertThat(c1.necessity.value, `is`(closeTo(2 / 3.0)))
+        assertThat(c2.necessity.value, `is`(closeTo(1 / 3.0)))
         assertThat(c3.necessity.value, `is`(closeTo(0.0)))
     }
 
     @Test
     fun testPossibility() {
         println("Possibility")
-        assertThat(c0.possibility.value, `is`(closeTo(2/3.0)))
-        assertThat(c1.possibility.value, `is`(closeTo(2/3.0)))
-        assertThat(c2.possibility.value, `is`(closeTo(2.5/3)))
+        assertThat(c0.possibility.value, `is`(closeTo(2 / 3.0)))
+        assertThat(c1.possibility.value, `is`(closeTo(2 / 3.0)))
+        assertThat(c2.possibility.value, `is`(closeTo(2.5 / 3)))
         assertThat(c3.possibility.value, `is`(closeTo(0.5)))
     }
 

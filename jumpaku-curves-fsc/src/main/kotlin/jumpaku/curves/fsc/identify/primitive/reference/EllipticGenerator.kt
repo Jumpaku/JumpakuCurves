@@ -25,7 +25,7 @@ import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
-    override fun <C: Curve> generate(fsc: ReparametrizedCurve<C>, t0: Double, t1: Double): Reference {
+    override fun <C : Curve> generate(fsc: ReparametrizedCurve<C>, t0: Double, t1: Double): Reference {
         val s = fsc.originalCurve
         val tf = computeEllipticFar(s, t0, t1, nSamples)
         val w = computeEllipticWeight(s, t0, t1, tf, s.domain, nSamples)
@@ -37,12 +37,12 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         return Reference(base.originalCurve, domain)
     }
 
-    fun <C: Curve> generateScattered(fsc: ReparametrizedCurve<C>): Reference {
+    fun <C : Curve> generateScattered(fsc: ReparametrizedCurve<C>): Reference {
         val (t0, _, t1) = scatteredEllipticParams(fsc.originalCurve, nSamples)
         return generate(fsc, t0, t1)
     }
 
-    fun <C: Curve> generateBeginEnd(fsc: ReparametrizedCurve<C>): Reference {
+    fun <C : Curve> generateBeginEnd(fsc: ReparametrizedCurve<C>): Reference {
         val s = fsc.originalCurve
         val (t0, t1) = s.domain
         val tf = computeEllipticFar(s, t0, t1, nSamples)

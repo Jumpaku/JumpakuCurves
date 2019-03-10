@@ -20,7 +20,7 @@ class Calibrate(
 
     constructor() : this(makePairs(Point.origin to Point.origin))
 
-    private constructor(pairs4: List<Pair<Point, Point>>): this(pairs4[0], pairs4[1], pairs4[2], pairs4[3])
+    private constructor(pairs4: List<Pair<Point, Point>>) : this(pairs4[0], pairs4[1], pairs4[2], pairs4[3])
 
     override val matrix: RealMatrix by lazy {
         val from = arrayOf(pair0, pair1, pair2, pair3)
@@ -49,7 +49,7 @@ class Calibrate(
                 val (s, t) = solver.solve(ArrayRealVector(doubleArrayOf(
                         it.dot(u),
                         it.dot(v)))).toArray()
-                (fromO + it) to Point((1-s-t)*toO.toVector() + s * toA.toVector() + t * toB.toVector())
+                (fromO + it) to Point((1 - s - t) * toO.toVector() + s * toA.toVector() + t * toB.toVector())
             }
         }
 
@@ -58,7 +58,7 @@ class Calibrate(
             val (fromP, toP) = pair1
             val v = fromP - fromO
             return listOf(Vector.Zero, Vector.I, Vector.J, Vector.K)
-                    .map { fromO + it to toO.lerp(v.dot(it)/v.square(), toP) }
+                    .map { fromO + it to toO.lerp(v.dot(it) / v.square(), toP) }
         }
 
         private fun makePairs(pair0: Pair<Point, Point>): List<Pair<Point, Point>> {

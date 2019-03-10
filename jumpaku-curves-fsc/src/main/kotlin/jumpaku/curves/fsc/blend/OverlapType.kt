@@ -22,4 +22,5 @@ enum class OverlapType {
                 else -> error("")
             }
         }
-    }}
+    }
+}

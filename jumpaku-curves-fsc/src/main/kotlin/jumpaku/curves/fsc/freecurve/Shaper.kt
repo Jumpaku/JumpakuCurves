@@ -9,13 +9,13 @@ import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 
 class Shaper(val segmenter: Segmenter = Segmenter(identifier = Open4Identifier(nSamples = 25, nFmps = 15)),
              val smoother: Smoother = Smoother(pruningFactor = 2.0, samplingFactor = 33),
-             val sampleMethod: SampleMethod): ToJson {
+             val sampleMethod: SampleMethod) : ToJson {
 
-    sealed class SampleMethod: ToJson {
+    sealed class SampleMethod : ToJson {
 
         abstract operator fun invoke(domain: Interval): List<Double>
 
-        override fun toJson(): JsonElement = when(this) {
+        override fun toJson(): JsonElement = when (this) {
             is ByFixedNumber ->
                 jsonObject("type" to "ByFixedNumber".toJson(), "nSamples" to nSamples.toJson())
             is ByEqualInterval ->
@@ -26,19 +26,19 @@ class Shaper(val segmenter: Segmenter = Segmenter(identifier = Open4Identifier(n
 
         companion object {
 
-            fun fromJson(json: JsonElement): SampleMethod = when(json["type"].string) {
+            fun fromJson(json: JsonElement): SampleMethod = when (json["type"].string) {
                 "ByFixedNumber" -> ByFixedNumber(json["nSamples"].int)
                 "ByEqualInterval" -> ByEqualInterval(json["samplingSpan"].double)
                 else -> error("invalid type ${json["type"].string}")
             }
         }
 
-        class ByFixedNumber(val nSamples: Int): SampleMethod() {
+        class ByFixedNumber(val nSamples: Int) : SampleMethod() {
 
             override fun invoke(domain: Interval): List<Double> = domain.sample(nSamples)
         }
 
-        class ByEqualInterval(val samplingSpan: Double): SampleMethod() {
+        class ByEqualInterval(val samplingSpan: Double) : SampleMethod() {
 
             override fun invoke(domain: Interval): List<Double> = domain.sample(samplingSpan)
         }

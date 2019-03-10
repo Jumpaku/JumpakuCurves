@@ -25,8 +25,8 @@ class PointSnapResultTest {
     @Test
     fun testToString() {
         println("ToString")
-        val r = 1/4.0
-        val e = snapper.snap(baseGrid, Point.xr( 7/32.0, r))
+        val r = 1 / 4.0
+        val e = snapper.snap(baseGrid, Point.xr(7 / 32.0, r))
         assertThat(e.isDefined, `is`(true))
         assertThat(e.orThrow().toString().parseJson().tryMap { PointSnapResult.fromJson(it) }.orThrow(), `is`(closeTo(e.orThrow())))
     }

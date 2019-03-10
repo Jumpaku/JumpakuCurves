@@ -55,7 +55,7 @@ object SnapDemoSettings {
             baseSpacing = 64.0,
             baseFuzziness = 8.0,
             magnification = 2,
-            origin = Point.xy(width/2, height/2),
+            origin = Point.xy(width / 2, height / 2),
             rotation = Rotate(Vector.K, 0.0))
 
     val snapper: ConicSectionSnapper<*> = ConicSectionSnapper(

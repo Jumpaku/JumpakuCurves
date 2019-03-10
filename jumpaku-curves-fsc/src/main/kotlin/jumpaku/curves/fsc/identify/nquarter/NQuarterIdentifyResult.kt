@@ -14,7 +14,7 @@ import jumpaku.curves.fsc.identify.primitive.reference.Reference
 class NQuarterIdentifyResult(grades: Map<NQuarterClass, Grade>,
                              val nQuarter1: Reference,
                              val nQuarter2: Reference,
-                             val nQuarter3: Reference): ToJson {
+                             val nQuarter3: Reference) : ToJson {
 
     init {
         require(grades.isNotEmpty()) { "empty grades" }

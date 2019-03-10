@@ -25,6 +25,7 @@ class BSplineDerivativeTest {
     val b = BSplineDerivative(BSpline(
             Array.of(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
             KnotVector.clamped(Interval(3.0, 4.0), 3, 9)))
+
     @Test
     fun testProperties() {
         println("Properties")
@@ -45,7 +46,7 @@ class BSplineDerivativeTest {
     fun testToString() {
         println("ToString")
         val a = b.toString().parseJson().tryMap { BSplineDerivative.fromJson(it) }.orThrow()
-        assertThat(a.toBSpline(), `is`(closeTo(b.toBSpline())))       
+        assertThat(a.toBSpline(), `is`(closeTo(b.toBSpline())))
     }
 
     @Test

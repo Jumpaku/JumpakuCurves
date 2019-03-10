@@ -18,7 +18,7 @@ open class Grid(
         val baseFuzziness: Double = 0.0,
         val magnification: Int = 2,
         val origin: Point = Point(0.0, 0.0, 0.0, 0.0),
-        val rotation: Rotate = Rotate(Vector.K, 0.0)): ToJson {
+        val rotation: Rotate = Rotate(Vector.K, 0.0)) : ToJson {
 
     open fun spacing(resolution: Int): Double = baseSpacing * FastMath.pow(magnification.toDouble(), -resolution)
 
@@ -48,12 +48,13 @@ open class Grid(
 
     companion object {
 
-        fun fromJson(json: JsonElement): Result<Grid> = result { Grid(
-                baseSpacing = json["baseSpacing"].double,
-                magnification = json["magnification"].int,
-                origin = Point.fromJson(json["origin"]),
-                rotation = Rotate.fromJson(json["rotation"]),
-                baseFuzziness = json["baseFuzziness"].double)
+        fun fromJson(json: JsonElement): Result<Grid> = result {
+            Grid(
+                    baseSpacing = json["baseSpacing"].double,
+                    magnification = json["magnification"].int,
+                    origin = Point.fromJson(json["origin"]),
+                    rotation = Rotate.fromJson(json["rotation"]),
+                    baseFuzziness = json["baseFuzziness"].double)
         }
     }
 }

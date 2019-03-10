@@ -8,13 +8,13 @@ import com.google.gson.JsonElement
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.bspline.BSpline
 
-sealed class Fuzzifier: ToJson {
+sealed class Fuzzifier : ToJson {
 
     abstract fun fuzzify(crisp: BSpline, ts: List<Double>): List<Double>
 
     override fun toString(): String = toJsonString()
 
-    class Linear(val velocityCoefficient: Double, val accelerationCoefficient: Double): Fuzzifier() {
+    class Linear(val velocityCoefficient: Double, val accelerationCoefficient: Double) : Fuzzifier() {
 
         override fun fuzzify(crisp: BSpline, ts: List<Double>): List<Double> {
             val d1 = crisp.derivative
@@ -30,7 +30,7 @@ sealed class Fuzzifier: ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): Fuzzifier = when(json["type"].string) {
+        fun fromJson(json: JsonElement): Fuzzifier = when (json["type"].string) {
             "Linear" -> Linear(json["velocityCoefficient"].double, json["accelerationCoefficient"].double)
             else -> error("invalid fuzzifier type: ${json["type"].string}")
         }

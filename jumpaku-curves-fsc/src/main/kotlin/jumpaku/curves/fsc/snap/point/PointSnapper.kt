@@ -11,11 +11,11 @@ import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
 import jumpaku.curves.fsc.snap.toWorldPoint
 
-sealed class PointSnapper: ToJson {
+sealed class PointSnapper : ToJson {
 
     abstract fun snap(grid: Grid, cursor: Point): Option<PointSnapResult>
 
-    override fun toJson(): JsonElement = when(this) {
+    override fun toJson(): JsonElement = when (this) {
         is MFGS -> jsonObject(
                 "type" to "MFGS",
                 "minResolution" to minResolution.toJson(),
@@ -26,14 +26,14 @@ sealed class PointSnapper: ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): PointSnapper = when(json["type"].string) {
+        fun fromJson(json: JsonElement): PointSnapper = when (json["type"].string) {
             "MFGS" -> MFGS(json["minResolution"].int, json["maxResolution"].int)
             else -> error("invalid PointSnapper type ${json["type"].string}")
         }
     }
 }
 
-class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0): PointSnapper() {
+class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0) : PointSnapper() {
 
     init {
         require(minResolution <= maxResolution) { "minResolution($minResolution) > maxResolution($maxResolution)" }

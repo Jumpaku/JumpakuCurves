@@ -28,7 +28,7 @@ class ParametrizationTest {
                 .orThrow()
         assertThat(data.size, `is`(3))
         assertThat(data[0], `is`(closeTo(ParamPoint(Point.xyr(-1.0, 2.0, 3.0), 0.0))))
-        assertThat(data[1], `is`(closeTo(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 5/9.0))))
+        assertThat(data[1], `is`(closeTo(ParamPoint(Point.xyr(2.0, -2.0, 2.0), 5 / 9.0))))
         assertThat(data[2], `is`(closeTo(ParamPoint(Point.xyr(2.0, 2.0, 1.0), 1.0))))
     }
 

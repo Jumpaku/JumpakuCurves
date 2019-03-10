@@ -1,4 +1,3 @@
-
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.commons.test.matcher
@@ -12,8 +11,8 @@ fun isCloseTo(actual: IdentifyResult, expected: IdentifyResult, error: Double = 
         actual.grades.size == expected.grades.size
                 && actual.grades.keys == expected.grades.keys
                 && actual.grades.keys.all {
-                    isCloseTo(actual.grades[it]!!.value, expected.grades[it]!!.value, error)
-                }
+            isCloseTo(actual.grades[it]!!.value, expected.grades[it]!!.value, error)
+        }
                 && isCloseTo(actual.linear, expected.linear, error)
                 && isCloseTo(actual.circular, expected.circular, error)
                 && isCloseTo(actual.elliptic, expected.elliptic, error)

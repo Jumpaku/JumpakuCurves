@@ -42,9 +42,9 @@ object NQuarterDemoSettings {
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))
-    
+
     val identifier: Identifier = Open4Identifier(nSamples = 25, nFmps = 15)
-    
+
     val nQuarterIdentifier: NQuarterIdentifier = NQuarterIdentifier(nSamples = 25, nFmps = 15)
 }
 
@@ -59,12 +59,12 @@ class NQuarterDemo : Application() {
                     drawPoints(fsc.evaluateAll(0.01))
                     val s = reparametrize(fsc)
                     val primitive = NQuarterDemoSettings.identifier.identify(s)
-                    val curve: Curve = when(primitive.curveClass) {
+                    val curve: Curve = when (primitive.curveClass) {
                         CurveClass.OpenFreeCurve -> fsc
                         CurveClass.LineSegment -> primitive.linear.base
                         CurveClass.CircularArc -> {
                             val nQuarter = NQuarterDemoSettings.nQuarterIdentifier.identifyCircular(s)
-                            when(nQuarter.nQuarterClass) {
+                            when (nQuarter.nQuarterClass) {
                                 NQuarterClass.Quarter1 -> nQuarter.nQuarter1.base
                                 NQuarterClass.Quarter2 -> nQuarter.nQuarter2.base
                                 NQuarterClass.Quarter3 -> nQuarter.nQuarter3.base
@@ -73,7 +73,7 @@ class NQuarterDemo : Application() {
                         }
                         CurveClass.EllipticArc -> {
                             val nQuarter = NQuarterDemoSettings.nQuarterIdentifier.identifyElliptic(s)
-                            when(nQuarter.nQuarterClass) {
+                            when (nQuarter.nQuarterClass) {
                                 NQuarterClass.Quarter1 -> nQuarter.nQuarter1.base
                                 NQuarterClass.Quarter2 -> nQuarter.nQuarter2.base
                                 NQuarterClass.Quarter3 -> nQuarter.nQuarter3.base
@@ -82,7 +82,7 @@ class NQuarterDemo : Application() {
                         }
                         else -> error("")
                     }
-                    when(curve) {
+                    when (curve) {
                         is BSpline -> drawCubicBSpline(curve, DrawStyle(Color.MAGENTA))
                         is ConicSection -> {
                             drawConjugateBox(ConjugateBox.ofConicSection(curve), DrawStyle(Color.CYAN))

@@ -35,26 +35,27 @@ class Nurbs(
 
     override val domain: Interval = knotVector.domain
 
-    override val derivative: Derivative get() {
-        val ws = weights
-        val dws = ws.zipWithNext { a, b -> degree * (b - a) }
-        val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).derivative
+    override val derivative: Derivative
+        get() {
+            val ws = weights
+            val dws = ws.zipWithNext { a, b -> degree * (b - a) }
+            val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).derivative
 
-        return object : Derivative {
-            override fun evaluate(t: Double): Vector {
-                require(t in domain) { "t($t) is out of domain($domain)" }
+            return object : Derivative {
+                override fun evaluate(t: Double): Vector {
+                    require(t in domain) { "t($t) is out of domain($domain)" }
 
-                val wt = BSpline(weights.map { Point.x(it) }, knotVector).evaluate(t).x
-                val dwt = BSpline(dws.map { Point.x(it) }, knotVector.derivativeKnotVector()).evaluate(t).x
-                val dpt = dp.evaluate(t)
-                val rt = this@Nurbs.evaluate(t).toVector()
+                    val wt = BSpline(weights.map { Point.x(it) }, knotVector).evaluate(t).x
+                    val dwt = BSpline(dws.map { Point.x(it) }, knotVector.derivativeKnotVector()).evaluate(t).x
+                    val dpt = dp.evaluate(t)
+                    val rt = this@Nurbs.evaluate(t).toVector()
 
-                return ((dpt - dwt * rt) / wt).orThrow()
+                    return ((dpt - dwt * rt) / wt).orThrow()
+                }
+
+                override val domain: Interval get() = this@Nurbs.domain
             }
-
-            override val domain: Interval get() = this@Nurbs.domain
         }
-    }
 
     init {
         val us = knotVector.extractedKnots
@@ -102,12 +103,9 @@ class Nurbs(
         val sb = knotVector.multiplicityOf(b)
         val se = knotVector.multiplicityOf(e)
         return BSpline.segmentedControlPoints(weightedControlPoints, knotVector)
-                //.asVavr()
                 .run { slice((degree + 1 - sb) until (size - degree - 1 + se)) }
                 .windowed(degree + 1, degree + 1)
-                //.sliding(degree + 1, degree + 1)
                 .map { RationalBezier(it) }
-                //.toArray().asKt()
     }
 
     fun subdivide(t: Double): Tuple2<Option<Nurbs>, Option<Nurbs>> {

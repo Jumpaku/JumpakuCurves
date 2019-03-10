@@ -21,10 +21,10 @@ import kotlin.math.abs
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
         Lerpable<Point>, ToJson {
 
-    constructor(v: Vector, r: Double = 0.0): this(v.x, v.y, v.z, r)
+    constructor(v: Vector, r: Double = 0.0) : this(v.x, v.y, v.z, r)
 
     init {
-        require(r >= -0.0) { "r($r) must be positive"}
+        require(r >= -0.0) { "r($r) must be positive" }
         require(x.isFinite() && y.isFinite() && z.isFinite()) { "($x, $y, $z) must be finite" }
     }
 
@@ -65,7 +65,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z, "r" to r)
 
     private fun isCloseTo(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean =
-            Precision.equals(p1.distSquare(p2), 0.0, eps*eps)
+            Precision.equals(p1.distSquare(p2), 0.0, eps * eps)
 
     /**
      * @param v

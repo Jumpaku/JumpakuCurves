@@ -34,7 +34,7 @@ class IdentifierTest {
         val ds = Interval(0.0, 1.0).sample(15).zipWithNext { s0, s1 ->
             approximateArcLength(b, 1000, Interval(r.toOriginal(s0), r.toOriginal(s1)))
         }
-        val e = sum(ds)/ds.size
+        val e = sum(ds) / ds.size
         ds.forEachIndexed { index, d ->
             assertThat("index: $index", d, `is`(closeTo(e, 1.0)))
         }
@@ -46,15 +46,15 @@ class IdentifierTest {
         val R2 = sqrt(2.0)
         val cs = ConicSection(
                 Point.xy(200.0, 400.0),
-                Point.xy(200.0*(1 - R2/2), 200.0*(1 - R2/2)),
+                Point.xy(200.0 * (1 - R2 / 2), 200.0 * (1 - R2 / 2)),
                 Point.xy(400.0, 200.0),
-                -R2/2)
+                -R2 / 2)
         val c = reparametrize(cs)
         val r = c.reparametrizer
         val ds = Interval(0.0, 1.0).sample(15).zipWithNext { s0, s1 ->
             approximateArcLength(cs, 1000, Interval(r.toOriginal(s0), r.toOriginal(s1)))
         }
-        val e = sum(ds)/ds.size
+        val e = sum(ds) / ds.size
         ds.forEachIndexed { index, d ->
             assertThat("index: $index", d, `is`(closeTo(e, 1.0)))
         }

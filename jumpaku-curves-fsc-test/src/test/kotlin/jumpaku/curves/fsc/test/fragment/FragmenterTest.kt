@@ -1,7 +1,6 @@
 package jumpaku.curves.fsc.test.fragment
 
 import com.github.salomonbrys.kotson.array
-import io.vavr.collection.Array
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.test.curve.closeTo

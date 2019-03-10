@@ -15,7 +15,6 @@ fun equalTo(expected: Segmenter): TypeSafeMatcher<Segmenter> =
         matcher("equal to <$expected>") { actual -> equals(actual, expected) }
 
 
-
 fun isCloseTo(actual: Smoother, expected: Smoother, error: Double = 1.0e-9): Boolean =
         actual.samplingFactor == expected.samplingFactor &&
                 isCloseTo(actual.pruningFactor, expected.pruningFactor, error)
@@ -24,7 +23,6 @@ fun closeTo(expected: Smoother, precision: Double = 1.0e-9): TypeSafeMatcher<Smo
         matcher("close to <$expected> with precision $precision") { actual ->
             isCloseTo(actual, expected, precision)
         }
-
 
 
 fun isCloseTo(actual: Shaper, expected: Shaper, error: Double = 1.0e-9): Boolean =
