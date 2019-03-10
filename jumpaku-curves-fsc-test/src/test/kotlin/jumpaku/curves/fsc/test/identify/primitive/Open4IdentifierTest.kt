@@ -78,4 +78,12 @@ class Open4IdentifierTest {
             println("    ${(System.nanoTime() - b)*1e-9} [s]")
         }
     }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = identifier.toString().parseJson().tryMap { Open4Identifier.fromJson(it) }.orThrow()
+        assertThat(a, `is`(equalTo(identifier)))
+    }
+
 }

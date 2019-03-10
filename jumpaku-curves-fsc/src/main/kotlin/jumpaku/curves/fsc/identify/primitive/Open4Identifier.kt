@@ -1,10 +1,16 @@
 package jumpaku.curves.fsc.identify.primitive
 
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.int
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.fsc.identify.primitive.reference.CircularGenerator
 import jumpaku.curves.fsc.identify.primitive.reference.EllipticGenerator
 import jumpaku.curves.fsc.identify.primitive.reference.LinearGenerator
+
 
 class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15): Identifier {
 
@@ -12,12 +18,23 @@ class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15): Ide
         val refL = LinearGenerator().generateBeginEnd(fsc)
         val refC = CircularGenerator(nSamples).generateBeginEnd(fsc)
         val refE = EllipticGenerator(nSamples).generateBeginEnd(fsc)
-        val (pL, pC, pE) = listOf(refL, refC, refE).map { fsc.isPossible(it.reparametrized, nFmps) }
+        val (pL, pC, pE) = listOf(refL, refC, refE).map { fsc.isPossible(it) }
         val grades = hashMapOf(
                 CurveClass.LineSegment to (pL),
                 CurveClass.CircularArc to (!pL and pC),
                 CurveClass.EllipticArc to (!pL and !pC and pE),
                 CurveClass.OpenFreeCurve to (!pL and !pC and !pE))
         return IdentifyResult(grades, refL, refC, refE)
+    }
+
+    override fun toJson(): JsonElement = jsonObject(
+            "nSamples" to nSamples.toJson(),
+            "nFmps" to nFmps.toJson())
+
+    override fun toString(): String = toJsonString()
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Open4Identifier = Open4Identifier(json["nSamples"].int, json["nFmps"].int)
     }
 }
