@@ -45,10 +45,9 @@ object BlendDemoSettings {
             ))
 
     val blender: Blender = Blender(
-            samplingSpan = 0.025,
-            blendingRate = 0.5,
-            minPossibility = Grade(1e-10),
-            evaluatePath = { path, osm -> path.grade.value })
+            samplingSpan = 0.01,
+            blendingRate = 0.65,
+            possibilityThreshold = Grade(1e-10))
 }
 
 class BlendDemo : Application() {
@@ -64,11 +63,12 @@ class BlendDemo : Application() {
                     existingFscOpt.forEach { drawPoints(it.evaluateAll(0.01)) }
 
                     val overlappingFsc = BlendDemoSettings.generator.generate(it.drawingStroke.inputData)
+
                     existingFscOpt.ifPresent { existingFsc ->
                         BlendDemoSettings.blender.blend(existingFsc, overlappingFsc).forEach {
                             existingFscOpt = some(BlendDemoSettings.generator.generate(it))
                         }
-                    } .ifAbsent {
+                    }.ifAbsent {
                         existingFscOpt = some(overlappingFsc)
                     }
 
@@ -81,7 +81,7 @@ class BlendDemo : Application() {
         }
         val scene = Scene(curveControl).apply {
             addEventHandler(KeyEvent.KEY_PRESSED) {
-                if (it.code == KeyCode.C) {
+                if (it.code == KeyCode.C) {//clear
                     curveControl.updateGraphics2D { clearRect(0.0, 0.0, width, height) }
                     existingFscOpt = none()
                 }
