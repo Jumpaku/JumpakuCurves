@@ -3,6 +3,7 @@ package jumpaku.curves.demo.fragment
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
+import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.DataPreparer
@@ -40,11 +41,11 @@ object FragmentDemoSettings {
             ))
 
     val fragmenter: Fragmenter = Fragmenter(
-            threshold = Fragmenter.Threshold(
+            threshold = Chunk.Threshold(
                     necessity = 0.35,
                     possibility = 0.65),
             chunkSize = 4,
-            minStayTime = 0.04)
+            minStayTimeSpan = 0.04)
 }
 
 class FragmentDemo : Application() {

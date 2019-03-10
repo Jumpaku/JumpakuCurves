@@ -4,35 +4,38 @@ import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.fragment.Chunk
-import jumpaku.curves.fsc.fragment.Fragmenter
-import jumpaku.curves.fsc.fragment.chunk
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
 class ChunkTest {
 
-    private val threshold = Fragmenter.Threshold(0.4, 0.6)
+    val th = Chunk.Threshold(0.4, 0.6)
 
     val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it*3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
     val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it)*3) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
     val s2 = BSpline((0..3).map { Point.xr(it.toDouble(), 9.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
     val s3 = BSpline((0..3).map { Point.xr(it.toDouble(), 3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
 
-    val c0 = chunk(s0, s0.domain, 4)
-    val c1 = chunk(s1, s1.domain, 4)
-    val c2 = chunk(s2, s2.domain, 4)
-    val c3 = chunk(s3, s3.domain, 4)
+
+    fun chunk(fsc: BSpline, n: Int): Chunk = Chunk(fsc.restrict(fsc.domain).sample(n))
+
+    val c0 = chunk(s0, 4)
+    val c1 = chunk(s1, 4)
+    val c2 = chunk(s2, 4)
+    val c3 = chunk(s3, 4)
 
     @Test
-    fun testChunkCreate() {
+    fun testChunkState() {
         println("ChunkState")
-        assertThat(c0.state(threshold), `is`(Chunk.State.UNKNOWN))
-        assertThat(c1.state(threshold), `is`(Chunk.State.STAY))
-        assertThat(c2.state(threshold), `is`(Chunk.State.UNKNOWN))
-        assertThat(c3.state(threshold), `is`(Chunk.State.MOVE))
+        assertThat(c0.label(th), `is`(Chunk.Label.UNKNOWN))
+        assertThat(c1.label(th), `is`(Chunk.Label.STAY))
+        assertThat(c2.label(th), `is`(Chunk.Label.UNKNOWN))
+        assertThat(c3.label(th), `is`(Chunk.Label.MOVE))
     }
 
     @Test
@@ -53,4 +56,30 @@ class ChunkTest {
         assertThat(c3.possibility.value, `is`(closeTo(0.5)))
     }
 
+    @Test
+    fun testBeginParam() {
+        println("Necessity")
+        assertThat(c0.beginParam, `is`(closeTo(0.0)))
+        assertThat(c1.beginParam, `is`(closeTo(0.0)))
+        assertThat(c2.beginParam, `is`(closeTo(0.0)))
+        assertThat(c3.beginParam, `is`(closeTo(0.0)))
+    }
+
+    @Test
+    fun testEndParam() {
+        println("Possibility")
+        assertThat(c0.endParam, `is`(closeTo(1.0)))
+        assertThat(c1.endParam, `is`(closeTo(1.0)))
+        assertThat(c2.endParam, `is`(closeTo(1.0)))
+        assertThat(c3.endParam, `is`(closeTo(1.0)))
+    }
+
+    @Test
+    fun testInterval() {
+        println("Interval")
+        assertThat(c0.interval, `is`(closeTo(Interval.ZERO_ONE)))
+        assertThat(c1.interval, `is`(closeTo(Interval.ZERO_ONE)))
+        assertThat(c2.interval, `is`(closeTo(Interval.ZERO_ONE)))
+        assertThat(c3.interval, `is`(closeTo(Interval.ZERO_ONE)))
+    }
 }
