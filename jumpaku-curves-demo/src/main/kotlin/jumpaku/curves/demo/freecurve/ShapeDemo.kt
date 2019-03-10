@@ -44,7 +44,7 @@ object ShapeDemoSettings {
             smoother = Smoother(
                     pruningFactor = 2.0,
                     samplingFactor = 33),
-            sampleFsc = { fsc -> fsc.domain.sample(100)})
+            sampleMethod = Shaper.SampleMethod.ByFixedNumber(100))
 }
 
 class ShapeDemo : Application() {
