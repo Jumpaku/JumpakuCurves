@@ -43,9 +43,8 @@ object BlendDemoSettings {
 
     val blender: Blender = Blender(
             samplingSpan = 0.01,
-            blendingRate = 0.5,
-            minPossibility = Grade(1e-10),
-            evaluatePath = { path, osm -> path.grade.value })
+            blendingRate = 0.65,
+            possibilityThreshold = Grade(1e-10))
 }
 
 class BlendDemo : Application() {
@@ -68,13 +67,12 @@ class BlendDemo : Application() {
                         val existSamples = existing.sample(samplingSpan)
                         val overlapSamples = overlappingFsc.sample(samplingSpan)
                         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-                        val paths = BlendDemoSettings.blender.findPaths(osm, BlendDemoSettings.blender.minPossibility)
-                        val path = paths.maxBy { BlendDemoSettings.blender.evaluatePath(it, osm) }.toOption()
+                        val path = BlendDemoSettings.blender.findPath(osm)
                         fun point(i: Int, j: Int): Point = Point.xyr(i*5.0, j*5.0, 1.0)
                         for (y in 0..osm.rowLastIndex) {
                             for (x in 0..osm.columnLastIndex) {
                                 drawPoint(point(y, x), DrawStyle(
-                                        color = if (osm[y, x] >= BlendDemoSettings.blender.minPossibility) Color.BLUE
+                                        color = if (osm[y, x] >= BlendDemoSettings.blender.possibilityThreshold) Color.BLUE
                                         else Color.LIGHT_GRAY))
                             }
                         }

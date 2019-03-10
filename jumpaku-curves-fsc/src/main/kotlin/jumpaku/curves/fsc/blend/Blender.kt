@@ -13,19 +13,16 @@ import kotlin.math.abs
 class Blender(
         val samplingSpan: Double = 0.025,
         val blendingRate: Double = 0.5,
-        val minPossibility: Grade = Grade(1e-10),
-        val evaluatePath: (path: OverlapPath, osm: OverlapMatrix) -> Double = { path, _ -> path.grade.value }) {
+        val possibilityThreshold: Grade = Grade(1e-10)) {
 
     fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-        val paths = findPaths(osm, minPossibility)
-        val path = paths.maxBy { evaluatePath(it, osm) }.toOption()
-        return path.map { resample(existSamples, overlapSamples, it, osm) }
+        return findPath(osm).map { resample(existSamples, overlapSamples, it, osm) }
     }
 
-    fun findPaths(osm: OverlapMatrix, possibilityThreshold: Grade): List<OverlapPath> {
+    fun findPath(osm: OverlapMatrix): Option<OverlapPath> {
         data class DpKey(val i: Int, val j: Int) {
             fun dist(key: DpKey): Int = key.let { abs(i - it.i) + abs(j - it.j) }
         }
@@ -52,7 +49,7 @@ class Blender(
                         .maxWith(compare).toOption()
                 j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key) } + DpValue(0, muij, muij.value, listOf(key)))
                         .maxWith(compare).toOption()
-                else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1)).shuffled()
+                else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
                         .flatMap { dpSearch(it).map { value -> value.extend(key) } }
                         .maxWith(compare).toOption()
             }
@@ -60,11 +57,11 @@ class Blender(
 
         val right = (0 until osm.rowSize).map { DpKey(it, osm.columnLastIndex) }
         val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
-        return (right + bottom).flatMap { dpSearch(it) }.shuffled().maxWith(compare).toOption().map { value ->
+        return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption().map { value ->
             val elements = value.nodes.map { e -> e.i to e.j }
             val type = OverlapType.judgeType(osm.rowSize, osm.columnSize, elements)
             OverlapPath(type, value.grade, elements)
-        }.toList()
+        }
     }
 
     fun resample(
@@ -76,7 +73,7 @@ class Blender(
         val (beginI, beginJ) = path.first()
         val (endI, endJ) = path.last()
 
-        val blendedData = path.map { (i, j) -> existing[i].lerp(blendingRate, overlapping[j]).weighted(1.0)}//osm[i, j].value) }
+        val blendedData = path.map { (i, j) -> existing[i].lerp(blendingRate, overlapping[j]).weighted(osm[i, j].value) }
         val (blendedBegin, blendedEnd) = blendedData.run { Interval(first().param, last().param) }
 
         fun List<ParamPoint>.weightedAll() = map { it.weighted(1.0) }
@@ -90,22 +87,21 @@ class Blender(
         }
     }
 
-    fun rearrangeFront(front: List<ParamPoint>, blendedBeginParam: Double): List<ParamPoint> = when {
-        front.size <= 1 -> front.map { ParamPoint(it.point, blendedBeginParam - samplingSpan) }
-        else -> {
-            val fEnd = blendedBeginParam - samplingSpan
-            val span = front.run { last().param - first().param }
-            val fBegin = (fEnd - span).coerceAtMost(fEnd)
-            transformParams(front, range = Interval(fBegin, fEnd))
-        }
-    }
-    fun rearrangeBack(back: List<ParamPoint>, blendedEndParam: Double): List<ParamPoint> = when {
-        back.size <= 1 -> back.map { ParamPoint(it.point, blendedEndParam + samplingSpan) }
-        else -> {
-            val bBegin = blendedEndParam + samplingSpan
-            val span = back.run { last().param - first().param }
-            val bEnd = (bBegin + span).coerceAtLeast(bBegin)
-            transformParams(back, range = Interval(bBegin, bEnd))
-        }
-    }
+    fun rearrangeFront(front: List<ParamPoint>, blendedBeginParam: Double): List<ParamPoint> =
+            if (front.size <= 1) front.map { ParamPoint(it.point, blendedBeginParam - samplingSpan) }
+            else {
+                val fEnd = blendedBeginParam - samplingSpan
+                val span = front.run { last().param - first().param }
+                val fBegin = (fEnd - span).coerceAtMost(fEnd)
+                transformParams(front, range = Interval(fBegin, fEnd))
+            }
+
+    fun rearrangeBack(back: List<ParamPoint>, blendedEndParam: Double): List<ParamPoint> =
+            if (back.size <= 1) back.map { ParamPoint(it.point, blendedEndParam + samplingSpan) }
+            else {
+                val bBegin = blendedEndParam + samplingSpan
+                val span = back.run { last().param - first().param }
+                val bEnd = (bBegin + span).coerceAtLeast(bBegin)
+                transformParams(back, range = Interval(bBegin, bEnd))
+            }
 }
