@@ -24,7 +24,7 @@ object GenerateDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            preparer = DataPreparer(
+            dataPreparer = DataPreparer(
                     fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,

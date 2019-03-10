@@ -7,7 +7,6 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.Fuzzifier.Linear
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
@@ -23,7 +22,7 @@ class FscGeneratorTest {
     val generator = Generator(
             degree = 3,
             knotSpan = 0.1,
-            preparer = DataPreparer(0.1 / 3, 0.1, 0.1, 2),
+            dataPreparer = DataPreparer(0.1 / 3, 0.1, 0.1, 2),
             fuzzifier = Fuzzifier.Linear(0.004, 0.003))
 
     @Test
@@ -53,4 +52,10 @@ class FscGeneratorTest {
         }
     }
 
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = generator.toString().parseJson().tryMap { Generator.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(generator)))
+    }
 }

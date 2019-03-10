@@ -1,5 +1,8 @@
 package jumpaku.curves.fsc.generate
 
+import com.github.salomonbrys.kotson.*
+import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
@@ -16,9 +19,9 @@ import org.apache.commons.math3.linear.RealMatrix
 class Generator(
         val degree: Int = 3,
         val knotSpan: Double = 0.075,
-        val preparer: DataPreparer = DataPreparer(knotSpan/degree, knotSpan*2, knotSpan*2, 2),
+        val dataPreparer: DataPreparer = DataPreparer(knotSpan/degree, knotSpan*2, knotSpan*2, 2),
         val fuzzifier: Fuzzifier = Fuzzifier.Linear(0.025, 0.001)
-) {
+): ToJson {
 
     fun generate(drawingStroke: DrawingStroke): BSpline = generate(drawingStroke.inputData)
 
@@ -27,7 +30,7 @@ class Generator(
 
     fun generate(data: List<WeightedParamPoint>): BSpline {
         val domain = Interval(data.first().param, data.last().param)
-        val prepared = preparer.prepare(data)
+        val prepared = dataPreparer.prepare(data)
         val domainExtended = Interval(prepared.first().param, prepared.last().param)
         val kv = KnotVector.clamped(domainExtended, degree, domainExtended.sample(knotSpan).size + degree * 2)
         val d = createPointDataMatrix(prepared)
@@ -74,5 +77,22 @@ class Generator(
             }
         }
         return b to wbt
+    }
+
+    override fun toString(): String = toJsonString()
+
+    override fun toJson(): JsonElement = jsonObject(
+            "degree" to degree.toJson(),
+            "knotSpan" to knotSpan.toJson(),
+            "dataPreparer" to dataPreparer.toJson(),
+            "fuzzifier" to fuzzifier.toJson())
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Generator = Generator(
+                json["degree"].int,
+                json["knotSpan"].double,
+                DataPreparer.fromJson(json["dataPreparer"]),
+                Fuzzifier.fromJson(json["fuzzifier"]))
     }
 }
