@@ -27,13 +27,13 @@ class ConicSectionSnapperTest {
     val grid = Grid(
             baseSpacing = 64.0,
             magnification = 2,
-            origin = Point.xy(w/2, h/2),
+            origin = Point.xy(w / 2, h / 2),
             rotation = Rotate(Vector.K, 0.0),
             baseFuzziness = 16.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
-            MFGS(minResolution = -5, maxResolution = 5),
-            ConjugateCombinator())
+            pointSnapper = MFGS(minResolution = -5, maxResolution = 5),
+            featurePointsCombinator = ConjugateCombinator)
 
     @Test
     fun testSnap_L() {
@@ -66,5 +66,12 @@ class ConicSectionSnapperTest {
             val a = conicSectionSnapper.snap(grid, cs, CurveClass.EllipticArc, evaluator = ConicSectionSnapper.evaluateWithReference(cs))
             assertThat(a.snappedConicSection.orThrow(), `is`(closeTo(e)))
         }
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = conicSectionSnapper.toString().parseJson().tryMap { ConicSectionSnapper.fromJson(it) }.orThrow()
+        assertThat(a, `is`(equalTo(conicSectionSnapper)))
     }
 }

@@ -22,13 +22,14 @@ class ReferenceTest {
     val linear = Reference(
             ConicSection.lineSegment(Point.x(-1.0), Point.x(1.0)),
             Interval(-0.25, 1.25))
+
     @Test
     fun testEvaluate() {
         println("Evaluate")
         assertThat(circular(-0.5), `is`(closeTo(Point.xy(0.0, -1.0))))
-        assertThat(circular(0.0), `is`(closeTo(Point.xy(-r2/2, -r2/2))))
+        assertThat(circular(0.0), `is`(closeTo(Point.xy(-r2 / 2, -r2 / 2))))
         assertThat(circular(0.5), `is`(closeTo(Point.xy(0.0, 1.0))))
-        assertThat(circular(1.0), `is`(closeTo(Point.xy(r2/2, -r2/2))))
+        assertThat(circular(1.0), `is`(closeTo(Point.xy(r2 / 2, -r2 / 2))))
         assertThat(circular(1.5), `is`(closeTo(Point.xy(0.0, -1.0))))
 
         assertThat(linear(-0.25), `is`(closeTo(Point.x(-2.0))))

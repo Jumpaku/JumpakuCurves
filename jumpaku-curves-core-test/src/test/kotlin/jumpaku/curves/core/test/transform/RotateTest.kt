@@ -19,13 +19,13 @@ class RotateTest {
     @Test
     fun testInvoke() {
         println("Invoke")
-        assertThat(t(p), `is`(closeTo(Point(0.0, r2*2, 2.0))))
+        assertThat(t(p), `is`(closeTo(Point(0.0, r2 * 2, 2.0))))
     }
 
     @Test
     fun testToString() {
         println("ToString")
         val a = t.toString().parseJson().tryMap { Rotate.fromJson(it) }.orThrow()
-        assertThat(a(p), `is`(closeTo(Point(0.0, r2*2, 2.0))))
+        assertThat(a(p), `is`(closeTo(Point(0.0, r2 * 2, 2.0))))
     }
 }

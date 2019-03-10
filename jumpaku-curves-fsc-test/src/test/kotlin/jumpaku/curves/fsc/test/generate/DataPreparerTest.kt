@@ -1,9 +1,11 @@
 package jumpaku.curves.fsc.test.generate
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.weighted
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.curve.bspline.closeTo
 import jumpaku.curves.core.test.curve.closeTo
@@ -27,14 +29,14 @@ class DataPreparerTest {
         val b = BSpline(listOf(
                 Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)),
                 knots)
-        val data = Interval(0.5, 2.5).sample(100).map { ParamPoint(b(it), it) }
+        val data = Interval(0.5, 2.5).sample(100).map { ParamPoint(b(it), it).weighted(2.0) }
         val a = BSplineFitter(2, knots).fit(DataPreparer(0.1, 0.5, 0.5, 2).prepare(data))
         assertThat(a, `is`(closeTo(b, 0.2)))
 
         val b2 = BSpline(listOf(
                 Point.xy(1.0, 3.0), Point.xy(2.0, 0.0), Point.xy(3.0, 5.0), Point.xy(4.0, 3.0), Point.xy(5.0, 3.0)),
                 KnotVector.clamped(Interval(0.0, 3.0), 2, 8))
-        val data2 = Interval(0.2, 2.8).sample(50).map { ParamPoint(b2(it), it) }
+        val data2 = Interval(0.2, 2.8).sample(50).map { ParamPoint(b2(it), it).weighted(2.0) }
         val a2 = BSplineFitter(2, KnotVector.clamped(Interval(0.0, 3.0), 2, 8)).fit(DataPreparer(0.1, 0.2, 0.2, 2).prepare(data2))
         val e2 = BSpline(listOf(
                 Point.xy(1.1157219672319155, 2.7493678060976845),
@@ -53,8 +55,8 @@ class DataPreparerTest {
         val data = listOf(
                 ParamPoint(Point.xy(1.0, -2.0), 10.0),
                 ParamPoint(Point.xy(1.5, -3.0), 15.0),
-                ParamPoint(Point.xy(2.5, -5.0), 25.0))
-        val a = preparer.fill(data)
+                ParamPoint(Point.xy(2.5, -5.0), 25.0)).map { it.weighted(2.0) }
+        val a = preparer.fill(data).map { it.paramPoint }
 
         assertThat(a.size, `is`(9))
         assertThat(a[0], `is`(closeTo(ParamPoint(Point.xy(1.0, -2.0), 10.0))))
@@ -74,7 +76,7 @@ class DataPreparerTest {
         val knots = KnotVector.clamped(Interval(0.0, 3.0), 2, 8)
         val b = BSpline(
                 listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
-        val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it) }
+        val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it).weighted(2.0) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(preparer.extendFront(data)).subdivide(1.0)
         assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
@@ -87,10 +89,17 @@ class DataPreparerTest {
         val knots = KnotVector.clamped(Interval(0.0, 3.0), 2, 8)
         val b = BSpline(
                 listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
-        val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it) }
+        val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it).weighted(2.0) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(preparer.extendBack(data)).subdivide(1.0)
         assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
         assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0)._2().orThrow())))
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = preparer.toString().parseJson().tryMap { DataPreparer.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(preparer)))
     }
 }

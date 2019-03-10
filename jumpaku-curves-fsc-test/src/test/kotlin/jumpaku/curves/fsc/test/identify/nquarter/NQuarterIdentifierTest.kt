@@ -13,7 +13,7 @@ class NQuarterIdentifierTest {
 
     val urlString = "/jumpaku/curves/fsc/test/identify/nquarter/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
-    val nQuarter = NQuarterIdentifier(25, 15)
+    val identifier = NQuarterIdentifier(25, 15)
 
     @Test
     fun testIdentifyCircular() {
@@ -21,8 +21,8 @@ class NQuarterIdentifierTest {
         for (i in 0..6) {
             val s = resourceText("FscCircular$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = resourceText("CircularResult$i.json").parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }
-                .orThrow()
-            val a = nQuarter.identifyCircular(reparametrize(s))
+                    .orThrow()
+            val a = identifier.identifyCircular(reparametrize(s))
             assertThat(a.nQuarterClass, `is`(e.nQuarterClass))
         }
     }
@@ -33,9 +33,16 @@ class NQuarterIdentifierTest {
         for (i in 0..12) {
             val s = resourceText("FscElliptic$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val e = resourceText("EllipticResult$i.json").parseJson().tryMap { NQuarterIdentifyResult.fromJson(it) }
-                .orThrow()
-            val a = nQuarter.identifyElliptic(reparametrize(s))
+                    .orThrow()
+            val a = identifier.identifyElliptic(reparametrize(s))
             assertThat(a.nQuarterClass, `is`(e.nQuarterClass))
         }
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = identifier.toString().parseJson().tryMap { NQuarterIdentifier.fromJson(it) }.orThrow()
+        assertThat(a, `is`(equalTo(identifier)))
     }
 }

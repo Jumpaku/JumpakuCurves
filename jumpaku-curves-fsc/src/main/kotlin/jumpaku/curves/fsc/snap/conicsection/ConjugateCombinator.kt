@@ -5,7 +5,7 @@ import jumpaku.curves.core.geom.Point
 import org.apache.commons.math3.util.FastMath
 
 
-class ConjugateCombinator : FeaturePointsCombinator {
+object ConjugateCombinator : FeaturePointsCombinator {
 
     enum class FeaturePosition {
         B0, B2, D0, D1, D2, D3, E0, E1, E2, E3
@@ -28,7 +28,7 @@ class ConjugateCombinator : FeaturePointsCombinator {
         }
     }
 
-    override fun linearCombinations(conicSection: ConicSection, isOpen: Boolean): List<LinearFeaturePoints> = when{
+    override fun linearCombinations(conicSection: ConicSection, isOpen: Boolean): List<LinearFeaturePoints> = when {
         isOpen -> listOf(LinearFeaturePoints(conicSection.begin, conicSection.end))
         else -> listOf(LinearFeaturePoints(conicSection.far, conicSection.far))
     }
@@ -42,7 +42,7 @@ class ConjugateCombinator : FeaturePointsCombinator {
                 Triple(FeaturePosition.B0, FeaturePosition.B2, FeaturePosition.D1),
                 Triple(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D1),
                 Triple(FeaturePosition.E0, FeaturePosition.E2, FeaturePosition.D1)
-         )
+        )
         else -> listOf(
                 Triple(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D1),
                 Triple(FeaturePosition.D0, FeaturePosition.D2, FeaturePosition.D3),
@@ -53,7 +53,7 @@ class ConjugateCombinator : FeaturePointsCombinator {
                 Triple(FeaturePosition.E1, FeaturePosition.E3, FeaturePosition.D0),
                 Triple(FeaturePosition.E1, FeaturePosition.E3, FeaturePosition.D2)
         )
-    } .map { (p0, p1, pn) -> CircularFeaturePoints(conicSection[p0], conicSection[p1], conicSection[pn])}
+    }.map { (p0, p1, pn) -> CircularFeaturePoints(conicSection[p0], conicSection[p1], conicSection[pn]) }
 
     override fun ellipticCombinations(conicSection: ConicSection, isOpen: Boolean): List<EllipticFeaturePoints> = when {
         conicSection.weight > 0.0 -> listOf(

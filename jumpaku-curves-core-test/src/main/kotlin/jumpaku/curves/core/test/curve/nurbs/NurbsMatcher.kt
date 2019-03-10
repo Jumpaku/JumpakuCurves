@@ -1,4 +1,3 @@
-
 package jumpaku.curves.core.test.curve.nurbs
 
 import jumpaku.commons.test.matcher

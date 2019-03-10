@@ -99,4 +99,11 @@ class Primitive7IdentifierTest {
             assertThat(a.curveClass, `is`(e))
         }
     }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = identifier.toString().parseJson().tryMap { Primitive7Identifier.fromJson(it) }.orThrow()
+        assertThat(a, `is`(equalTo(identifier)))
+    }
 }

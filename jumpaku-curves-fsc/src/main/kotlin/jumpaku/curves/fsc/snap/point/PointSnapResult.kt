@@ -16,7 +16,7 @@ import jumpaku.curves.fsc.snap.toWorldPoint
 class PointSnapResult(
         val resolution: Int,
         val gridPoint: GridPoint,
-        val grade: Grade): ToJson {
+        val grade: Grade) : ToJson {
 
     override fun toString(): String = toJsonString()
 

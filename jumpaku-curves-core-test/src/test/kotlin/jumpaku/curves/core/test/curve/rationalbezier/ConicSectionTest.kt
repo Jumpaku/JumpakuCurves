@@ -28,14 +28,14 @@ class ConicSectionTest {
         println("Properties")
         val i = cs
         assertThat(i.begin, `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
-        assertThat(i.far, `is`(closeTo(Point.xyr(R2/2, R2/2, 2.0))))
+        assertThat(i.far, `is`(closeTo(Point.xyr(R2 / 2, R2 / 2, 2.0))))
         assertThat(i.end, `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
-        assertThat(i.weight, `is`(closeTo(R2/2)))
+        assertThat(i.weight, `is`(closeTo(R2 / 2)))
         assertThat(i.degree, `is`(2))
         assertThat(i.domain.begin, `is`(closeTo(0.0)))
         assertThat(i.domain.end, `is`(closeTo(1.0)))
         assertThat(i.representPoints[0], `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
-        assertThat(i.representPoints[1], `is`(closeTo(Point.xyr(R2/2, R2/2, 2.0))))
+        assertThat(i.representPoints[1], `is`(closeTo(Point.xyr(R2 / 2, R2 / 2, 2.0))))
         assertThat(i.representPoints[2], `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
     }
 
@@ -83,9 +83,9 @@ class ConicSectionTest {
         val i = cs
 
         assertThat(i.evaluate(0.0), `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
-        assertThat(i.evaluate(0.25), `is`(closeTo(Point.xyr((3*R2+1)/(3*R2+10), (3*R2+9)/(3*R2+10), (24+6*R2)/(10+3*R2)))))
-        assertThat(i.evaluate(0.5), `is`(closeTo(Point.xyr(1/R2, 1/R2, 2.0))))
-        assertThat(i.evaluate(0.75), `is`(closeTo(Point.xyr((3*R2+9)/(3*R2+10), (3*R2+1)/(3*R2+10), (32+6*R2)/(10+3*R2)))))
+        assertThat(i.evaluate(0.25), `is`(closeTo(Point.xyr((3 * R2 + 1) / (3 * R2 + 10), (3 * R2 + 9) / (3 * R2 + 10), (24 + 6 * R2) / (10 + 3 * R2)))))
+        assertThat(i.evaluate(0.5), `is`(closeTo(Point.xyr(1 / R2, 1 / R2, 2.0))))
+        assertThat(i.evaluate(0.75), `is`(closeTo(Point.xyr((3 * R2 + 9) / (3 * R2 + 10), (3 * R2 + 1) / (3 * R2 + 10), (32 + 6 * R2) / (10 + 3 * R2)))))
         assertThat(i.evaluate(1.0), `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
     }
 
@@ -128,7 +128,7 @@ class ConicSectionTest {
     fun testCenter() {
         println("Center")
         val i = cs.center()
-        assertThat(i.orThrow(), `is`(closeTo(Point.xyr(0.0, 0.0, 4*R2 + 6))))
+        assertThat(i.orThrow(), `is`(closeTo(Point.xyr(0.0, 0.0, 4 * R2 + 6))))
     }
 
     @Test
@@ -148,7 +148,7 @@ class ConicSectionTest {
     }
 
     @Test
-    fun testRestrict(){
+    fun testRestrict() {
         println("Restrict")
         val r0 = cs.restrict(Interval(0.0, 0.5))
         assertThat(r0, `is`(closeTo(ConicSection(

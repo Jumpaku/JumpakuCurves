@@ -38,16 +38,16 @@ class RationalBezierTest {
 
         val cp = rb.controlPoints
         assertThat(cp.size, `is`(4))
-        assertThat(cp[0], `is`(closeTo(Point.xyr( 0.0,  1.0,  1.0))))
-        assertThat(cp[1], `is`(closeTo(Point.xyr(2-R2,  1.0, 3-R2))))
-        assertThat(cp[2], `is`(closeTo(Point.xyr( 1.0, 2-R2, 1+R2))))
+        assertThat(cp[0], `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
+        assertThat(cp[1], `is`(closeTo(Point.xyr(2 - R2, 1.0, 3 - R2))))
+        assertThat(cp[2], `is`(closeTo(Point.xyr(1.0, 2 - R2, 1 + R2))))
         assertThat(cp[3], `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
 
         val w = rb.weights
         assertThat(w.size, `is`(4))
         assertThat(w[0], `is`(closeTo(1.0)))
-        assertThat(w[1], `is`(closeTo((1+R2)/3)))
-        assertThat(w[2], `is`(closeTo((1+R2)/3)))
+        assertThat(w[1], `is`(closeTo((1 + R2) / 3)))
+        assertThat(w[2], `is`(closeTo((1 + R2) / 3)))
         assertThat(w[3], `is`(closeTo(1.0)))
 
         assertThat(rb.degree, `is`(3))
@@ -61,9 +61,9 @@ class RationalBezierTest {
     fun testEvaluate() {
         println("Evaluate")
         assertThat(rb.evaluate(0.0), `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
-        assertThat(rb.evaluate(0.25), `is`(closeTo(Point.xyr((3*R2 + 1)/(3*R2 + 10), (3*R2 + 9)/(3*R2 + 10), (12 + 6*R2)/(10 + 3*R2)))))
-        assertThat(rb.evaluate(0.5), `is`(closeTo(Point.xyr(1/R2, 1/R2, 2.0))))
-        assertThat(rb.evaluate(0.75), `is`(closeTo(Point.xyr((3*R2 + 9)/(3*R2 + 10), (3*R2 + 1)/(3*R2 + 10), (28 + 6*R2)/(10 + 3*R2)))))
+        assertThat(rb.evaluate(0.25), `is`(closeTo(Point.xyr((3 * R2 + 1) / (3 * R2 + 10), (3 * R2 + 9) / (3 * R2 + 10), (12 + 6 * R2) / (10 + 3 * R2)))))
+        assertThat(rb.evaluate(0.5), `is`(closeTo(Point.xyr(1 / R2, 1 / R2, 2.0))))
+        assertThat(rb.evaluate(0.75), `is`(closeTo(Point.xyr((3 * R2 + 9) / (3 * R2 + 10), (3 * R2 + 1) / (3 * R2 + 10), (28 + 6 * R2) / (10 + 3 * R2)))))
         assertThat(rb.evaluate(1.0), `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
     }
 
@@ -250,16 +250,16 @@ class RationalBezierTest {
     @Test
     fun testSubdivide() {
         println("Subdivide")
-        val rs = RationalBezier(
+        val (a0, a1) = RationalBezier(
                 WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
                 WeightedPoint(Point.xyr(1.0, 1.0, 2.0), 1 / R2),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
                 .subdivide(0.5)
-        assertThat(rs._1(), `is`(closeTo(RationalBezier(
+        assertThat(a0, `is`(closeTo(RationalBezier(
                 WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
                 WeightedPoint(Point.xyr(R2 - 1, 1.0, R2), (2 + R2) / 4),
                 WeightedPoint(Point.xyr(R2 / 2, R2 / 2, 2.0), (2 + R2) / 4)))))
-        assertThat(rs._2(), `is`(closeTo(RationalBezier(
+        assertThat(a1, `is`(closeTo(RationalBezier(
                 WeightedPoint(Point.xyr(R2 / 2, R2 / 2, 2.0), (2 + R2) / 4),
                 WeightedPoint(Point.xyr(1.0, R2 - 1, 4 - R2), (2 + R2) / 4),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0)))))

@@ -30,7 +30,7 @@ class ConjugateCombinatorTest {
 
     val e2 = ConicSection(Point.xy(-r2, -r2 / 2), Point.xy(0.0, 1.0), Point.xy(r2, -r2 / 2), -r2 / 2)
 
-    val conjugateCombinator = ConjugateCombinator()
+    val conjugateCombinator = ConjugateCombinator
 
     @Test
     fun testLinearCombinations() {
@@ -61,7 +61,7 @@ class ConjugateCombinatorTest {
         val aopen0 = conjugateCombinator.circularCombinations(c0, true)
         val eopen0 = listOf(
                 CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2), Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, 1.0)),
-                CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2),Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, r2))
+                CircularFeaturePoints(Point.xy(-r2 / 2, r2 / 2), Point.xy(r2 / 2, r2 / 2), Point.xy(0.0, r2))
         )
         assertThat(aopen0.size, `is`(eopen0.size))
         for ((a, e) in aopen0.zip(eopen0)) {

@@ -11,6 +11,7 @@ import jumpaku.curves.fsc.freecurve.Segmenter
 import jumpaku.curves.fsc.freecurve.Shaper
 import jumpaku.curves.fsc.freecurve.SmoothResult
 import jumpaku.curves.fsc.freecurve.Smoother
+import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -29,12 +30,14 @@ class ShaperTest {
     }.orThrow()
 
     val shaper = Shaper(
-            segmenter = Segmenter(Segmenter.defaultIdentifier),
+            segmenter = Segmenter(
+                    identifier = Open4Identifier(
+                            nSamples = 25,
+                            nFmps = 15)),
             smoother = Smoother(
                     pruningFactor = 2.0,
-                    nFitSamples = 33,
-                    fscSampleSpan = 0.02),
-            sampleFsc = { it.domain.sample(50) })
+                    samplingFactor = 33),
+            sampleMethod = Shaper.SampleMethod.ByFixedNumber(50))
 
     fun parseJsonBSpline(name: String): JsonElement = resourceText(name + "Fsc.json").parseJson().orThrow()
 
@@ -65,5 +68,26 @@ class ShaperTest {
                 println("    $name: ${(System.nanoTime() - b) * 1e-9} [s]")
             }
         }
+    }
+
+    @Test
+    fun testToString_Segmenter() {
+        println("ToString_Segmenter")
+        val a = shaper.segmenter.toString().parseJson().tryMap { Segmenter.fromJson(it) }.orThrow()
+        assertThat(a, `is`(equalTo(shaper.segmenter)))
+    }
+
+    @Test
+    fun testToString_Smoother() {
+        println("ToString_Smoother")
+        val a = shaper.smoother.toString().parseJson().tryMap { Smoother.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(shaper.smoother)))
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = shaper.toString().parseJson().tryMap { Shaper.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(shaper)))
     }
 }

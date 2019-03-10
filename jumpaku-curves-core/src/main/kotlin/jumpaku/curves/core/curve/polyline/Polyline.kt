@@ -22,7 +22,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
     val points: List<Point> = paramPoints.map(ParamPoint::point)
 
     init {
-        require(points.size == parameters.size){ "points.size() != parameters.size()" }
+        require(points.size == parameters.size) { "points.size() != parameters.size()" }
     }
 
     override val domain: Interval = Interval(parameters.first(), parameters.last())
@@ -35,25 +35,25 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
         require(t in domain) { "t=$t is out of $domain" }
 
         val i = parameters.asVavr().search(t)
-        return if(i >= 0) points[i] else evaluateInSpan(t, -2 - i)
+        return if (i >= 0) points[i] else evaluateInSpan(t, -2 - i)
     }
 
     override fun evaluateAll(n: Int): List<Point> {
         if (points.size == 1) return List(n) { points.first() }
 
         val evaluated = ArrayList<Point>(n)
-        val ts = domain.sample(n).asVavr().subSequence(1, n-1)
+        val ts = domain.sample(n).asVavr().subSequence(1, n - 1)
         var index = 0
         ts.forEach { t ->
             index = parameters.asVavr().indexWhere({ t < it }, index)
-            evaluated += evaluateInSpan(t, index-1)
+            evaluated += evaluateInSpan(t, index - 1)
         }
 
         return listOf(points.first()) + evaluated + listOf(points.last())
     }
 
     private fun evaluateInSpan(t: Double, index: Int): Point =
-            points[index].lerp((t - parameters[index]) / (parameters[index+1] - parameters[index]), points[index+1])
+            points[index].lerp((t - parameters[index]) / (parameters[index + 1] - parameters[index]), points[index + 1])
 
     fun transform(a: Transform): Polyline = byArcLength(points.map(a::invoke))
 
@@ -70,7 +70,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val index = parameters.asVavr().search(t)
-        return when{
+        return when {
             index >= 0 -> Tuple2(Polyline(paramPoints.take(index + 1)), Polyline(paramPoints.drop(index)))
             else -> {
                 val p = evaluate(t)

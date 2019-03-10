@@ -25,7 +25,7 @@ fun linearCombination(vararg terms: Pair<Double, Vector>): Vector {
     return Vector(x, y, z)
 }
 
-data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0): ToJson {
+data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) : ToJson {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
 
@@ -36,12 +36,12 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
     private val vector: Vector3D = Vector3D(x, y, z)
 
     operator fun plus(v: Vector): Vector = Vector(vector.add(v.vector))
-    
+
     operator fun minus(v: Vector): Vector = Vector(vector.subtract(v.vector))
 
     operator fun times(s: Double): Vector = Vector(vector.scalarMultiply(s))
 
-    private fun isDivisibleBy(divisor: Double): Boolean = toDoubleArray().all { (it/divisor).isFinite() }
+    private fun isDivisibleBy(divisor: Double): Boolean = toDoubleArray().all { (it / divisor).isFinite() }
 
     operator fun div(divisor: Double): Result<Vector> = result {
         if (isDivisibleBy(divisor)) Vector(vector.scalarMultiply(1 / divisor))
@@ -50,7 +50,7 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z : Double = 0.0
 
     operator fun unaryPlus(): Vector = this
 
-    operator fun unaryMinus(): Vector = -1.0*this
+    operator fun unaryMinus(): Vector = -1.0 * this
 
     override fun toString(): String = toJsonString()
 

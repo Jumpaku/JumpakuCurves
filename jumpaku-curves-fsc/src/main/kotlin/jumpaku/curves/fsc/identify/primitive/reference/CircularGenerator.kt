@@ -16,7 +16,7 @@ import org.apache.commons.math3.analysis.solvers.BrentSolver
 
 class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
 
-    override fun <C: Curve> generate(fsc: ReparametrizedCurve<C>, t0: Double, t1: Double): Reference {
+    override fun <C : Curve> generate(fsc: ReparametrizedCurve<C>, t0: Double, t1: Double): Reference {
         val s = fsc.originalCurve
         val tf = computeCircularFar(s, t0, t1)
         val base = reparametrize(ConicSection.shearedCircularArc(s(t0), s(tf), s(t1)))
@@ -27,14 +27,14 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         return Reference(base.originalCurve, domain)
     }
 
-    fun <C: Curve> generateScattered(fsc: ReparametrizedCurve<C>): Reference {
+    fun <C : Curve> generateScattered(fsc: ReparametrizedCurve<C>): Reference {
         val s = fsc.originalCurve
         val (t0, _, t1) = scatteredCircularParams(s, nSamples)
         return generate(fsc, t0, t1)
     }
 
-    fun <C: Curve> generateBeginEnd(fsc: ReparametrizedCurve<C>): Reference {
-         val s = fsc.originalCurve
+    fun <C : Curve> generateBeginEnd(fsc: ReparametrizedCurve<C>): Reference {
+        val s = fsc.originalCurve
         val (t0, t1) = s.domain
         val tf = computeCircularFar(s, t0, t1)
         val base = ConicSection.shearedCircularArc(s(t0), s(tf), s(t1))

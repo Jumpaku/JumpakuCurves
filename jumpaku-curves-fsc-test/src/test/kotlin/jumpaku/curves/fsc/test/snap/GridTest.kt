@@ -16,7 +16,7 @@ import org.junit.Test
 
 class GridTest {
 
-    val p2 = FastMath.PI/2
+    val p2 = FastMath.PI / 2
 
     val baseGrid = Grid(
             baseSpacing = 4.0,
@@ -46,9 +46,9 @@ class GridTest {
         println("SnapToNearestGrid")
         assertThat(baseGrid.snapToNearestGrid(Point.xy(0.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 1, 0))))
         assertThat(baseGrid.snapToNearestGrid(Point.xy(1.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 1, 0))))
-        assertThat(baseGrid.snapToNearestGrid(Point.xy(2.0, 0.0), 0), `is`(equalTo(GridPoint( -1, 1, 0))))
-        assertThat(baseGrid.snapToNearestGrid(Point.xy(3.0, 0.0), 0), `is`(equalTo(GridPoint( -1, 0, 0))))
-        assertThat(baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0), 0), `is`(equalTo(GridPoint( -1, 0, 0))))
+        assertThat(baseGrid.snapToNearestGrid(Point.xy(2.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 1, 0))))
+        assertThat(baseGrid.snapToNearestGrid(Point.xy(3.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 0, 0))))
+        assertThat(baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 0, 0))))
     }
 
     @Test

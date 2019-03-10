@@ -1,5 +1,9 @@
 package jumpaku.curves.fsc.freecurve
 
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
@@ -14,16 +18,34 @@ class SegmentResult(val isConicSections: Grade, val segmentParamIndices: List<In
 sealed class Segment {
     abstract val isConicSection: Grade
     abstract val curveClass: CurveClass
+
     class CS(override val isConicSection: Grade, override val curveClass: CurveClass, val conicSection: ConicSection) : Segment()
     class FO(override val isConicSection: Grade, override val curveClass: CurveClass, val freeCurve: BSpline) : Segment()
 }
 
+class Segmenter(val identifier: Open4Identifier) : ToJson {
 
-class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
+    fun identify(fsc: BSpline): Segment {
+        val result = identifier.identify(reparametrize(fsc))
+        val isCs = !result.grades[CurveClass.OpenFreeCurve]!!
+        val curve: Curve = when (result.curveClass) {
+            CurveClass.LineSegment -> result.linear.base
+            CurveClass.CircularArc -> result.circular.base
+            CurveClass.EllipticArc -> result.elliptic.base
+            else -> fsc
+        }
+        return if (result.curveClass.isConicSection) Segment.CS(isCs, result.curveClass, curve as ConicSection)
+        else (Segment.FO(isCs, result.curveClass, curve as BSpline))
+    }
 
     class Answer(val isConicSection: Grade, val segmentIndices: List<Int>)
 
-    data class NarrowedInterval(val begin: Int, val end: Int)
+    data class NarrowedInterval(val begin: Int, val end: Int) : ClosedRange<Int> {
+
+        override val start: Int = begin
+
+        override val endInclusive: Int = end
+    }
 
     class MemoizedIdentifier(val fsc: BSpline, val ts: List<Double>, val identify: (BSpline) -> Segment) {
 
@@ -31,7 +53,6 @@ class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
 
         operator fun invoke(i: Int, j: Int): Segment {
             require(i <= j)
-            if (i == j) println("Segmenter.MemoizedIdentifier.invoke(Int, Int) i == j")
             return cache.getOrPut(i to j) {
                 if (i == j) Segment.CS(Grade.TRUE, CurveClass.LineSegment, fsc(ts[i]).let { p ->
                     ConicSection(p, p, p, 1.0)
@@ -42,7 +63,7 @@ class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
     }
 
     fun segment(fsc: BSpline, ts: List<Double>): SegmentResult {
-        val identifier = MemoizedIdentifier(fsc, ts, identify)
+        val identifier = MemoizedIdentifier(fsc, ts, this::identify)
         val (mu, ps) = segment(fsc, ts, identifier)
         val qs = ps.zipWithNext { a, b -> identifier(a, b) as Segment.CS }
         return SegmentResult(mu, ps, qs)
@@ -61,27 +82,9 @@ class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
         val narrowedIntervals = narrow(n, identifier)
 
         val answerTable = mutableMapOf(0 to Answer(Grade.TRUE, emptyList()))
-        var indexNarrowed = 0
-        (1 until n).forEach { j ->
-            if (narrowedIntervals[indexNarrowed + 1].begin == j) {
-                ++indexNarrowed
-            }
-
-            if (j <= narrowedIntervals[indexNarrowed].end) {
-                val k = argMaxBisection(
-                        narrowedIntervals[indexNarrowed - 1].begin,
-                        narrowedIntervals[indexNarrowed - 1].end,
-                        j,
-                        answerTable,
-                        identifier
-                )
-                if (k < narrowedIntervals[indexNarrowed - 1].begin || narrowedIntervals[indexNarrowed - 1].end < k) {
-                    throw IllegalStateException(
-                            "k($k) is out of [${narrowedIntervals[indexNarrowed - 1].begin},  + ${narrowedIntervals.get(
-                                    indexNarrowed - 1
-                            ).end}]"
-                    )
-                }
+        for ((prev, current) in narrowedIntervals.zipWithNext()) {
+            for (j in current.begin..current.end) {
+                val k = argMax(prev, j, answerTable, identifier)
                 val answerK = answerTable[k]!!
                 val mu = answerK.isConicSection and identifier(k, j).isConicSection
                 val p = listOf(k) + answerK.segmentIndices
@@ -90,42 +93,23 @@ class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
         }
 
         return Pair(
-                answerTable[n - 1]!!.isConicSection,
-                (listOf(n - 1) + answerTable[n - 1]!!.segmentIndices).reversed()
-        )
+                answerTable[n - 1]!!.isConicSection, (listOf(n - 1) + answerTable[n - 1]!!.segmentIndices).reversed())
     }
 
-    fun argMaxBisection(
-            plFirst: Int,
-            plLast: Int,
-            j: Int,
-            answerTable: Map<Int, Answer>,
-            identifier: MemoizedIdentifier
-    ): Int {
-        val calcMuj = { k: Int ->
-            when {
-                (k < plFirst) || (plLast < k) -> 0.0
-                identifier(k, j) is Segment.CS ->
-                    (identifier(k, j).isConicSection and answerTable[k]!!.isConicSection).value
-                else -> Double.NEGATIVE_INFINITY
-            }
+    fun argMax(interval: NarrowedInterval, j: Int, answer: Map<Int, Answer>, identifier: MemoizedIdentifier): Int {
+        fun calcMuj(k: Int): Grade = when {
+            k !in interval || identifier(k, j) !is Segment.CS -> Grade.FALSE
+            else -> identifier(k, j).isConicSection and answer[k]!!.isConicSection
         }
 
-        var a = plFirst
-        var b = plLast
+        var (a, b) = interval
         while (true) {
-            if (a == b) {
-                return a
-            }
             val k = a + Math.ceil(((b - a) / 2.0)).toInt()
             when {
                 identifier(k, j) is Segment.FO -> a = k + 1
                 calcMuj(k) < calcMuj(k + 1) -> a = k + 1
                 calcMuj(k) <= calcMuj(k - 1) -> b = k - 1
-                else -> {
-                    b = k
-                    a = b
-                }
+                else -> return k
             }
         }
     }
@@ -198,20 +182,13 @@ class Segmenter(val identify: (BSpline) -> Segment = defaultIdentifier) {
         return if (ss1.size < ss2.size) ss1 else ss2
     }
 
+
+    override fun toJson(): JsonElement = jsonObject("identifier" to identifier.toJson())
+
+    override fun toString(): String = toJsonString()
+
     companion object {
 
-        val defaultIdentifier: (BSpline) -> Segment = { s ->
-            val identifier = Open4Identifier(nSamples = 25, nFmps = 15)
-            val result = identifier.identify(reparametrize(s))
-            val isCs = !result.grades[CurveClass.OpenFreeCurve]!!
-            val curve: Curve = when (result.curveClass) {
-                CurveClass.LineSegment -> result.linear.base
-                CurveClass.CircularArc -> result.circular.base
-                CurveClass.EllipticArc -> result.elliptic.base
-                else -> s
-            }
-            if (result.curveClass.isConicSection) Segment.CS(isCs, result.curveClass, curve as ConicSection)
-            else (Segment.FO(isCs, result.curveClass, curve as BSpline))
-        }
+        fun fromJson(json: JsonElement): Segmenter = Segmenter(Open4Identifier.fromJson(json["identifier"]))
     }
 }

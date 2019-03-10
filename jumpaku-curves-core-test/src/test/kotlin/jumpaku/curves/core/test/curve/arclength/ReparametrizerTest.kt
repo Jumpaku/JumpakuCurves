@@ -17,7 +17,7 @@ class ReparametrizerTest {
 
     val R2 = FastMath.sqrt(2.0)
 
-    val cs = ConicSection(Point.xy(0.0, 100.0), Point.xy(-R2*50, -R2*50), Point.xy(100.0, 0.0), -R2 / 2)
+    val cs = ConicSection(Point.xy(0.0, 100.0), Point.xy(-R2 * 50, -R2 * 50), Point.xy(100.0, 0.0), -R2 / 2)
 
     val r = Reparametrizer.of(cs, cs.domain.sample(100))
 

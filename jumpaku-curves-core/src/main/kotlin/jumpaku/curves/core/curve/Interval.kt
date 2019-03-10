@@ -10,11 +10,11 @@ import jumpaku.curves.core.geom.lerp
 import org.apache.commons.math3.util.FastMath
 
 
-data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Double> {
+data class Interval(val begin: Double, val end: Double) : ToJson, ClosedRange<Double> {
 
     init {
-        require(begin.isFinite() && end.isFinite()){ "[$begin, $end]" }
-        require(begin <= end){ "begin($begin) > end($end)" }
+        require(begin.isFinite() && end.isFinite()) { "[$begin, $end]" }
+        require(begin <= end) { "begin($begin) > end($end)" }
     }
 
     val span: Double = end - begin
@@ -25,7 +25,7 @@ data class Interval(val begin: Double, val end: Double): ToJson, ClosedRange<Dou
 
     fun sample(samplesCount: Int): List<Double> {
         require(samplesCount >= 2) { "samplesCount($samplesCount) < 2" }
-        return (0 until  samplesCount)
+        return (0 until samplesCount)
                 .map { begin.lerp(it / (samplesCount - 1.0), end).coerceIn(this) }
     }
 

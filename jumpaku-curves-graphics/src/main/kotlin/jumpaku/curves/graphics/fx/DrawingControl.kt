@@ -33,7 +33,7 @@ private class DrawingControlSkin(val control: DrawingControl, val rootNode: Canv
         fxGraphics2D.background = Color.WHITE
         fxGraphics2D.clearRect(0.0, 0.0, rootNode.width, rootNode.height)
 
-        fun currentData(point: Point) = ParamPoint(point, System.nanoTime()*1e-9)
+        fun currentData(point: Point) = ParamPoint(point, System.nanoTime() * 1e-9)
         with(rootNode) {
             addEventHandler(MouseEvent.MOUSE_PRESSED) { control.beginCurve(currentData(Point.xy(it.x, it.y))) }
             addEventHandler(MouseEvent.MOUSE_DRAGGED) { control.extendCurve(currentData(Point.xy(it.x, it.y))) }
@@ -106,6 +106,7 @@ class DrawingControl(val canvasWidth: Double, val canvasHeight: Double) : Contro
             object : DrawingEventHandlerProperty(this, "onDrawingDone", EventHandler {}) {
                 override fun invalidated() = setEventHandler(DrawingEvent.DRAWING_DONE, get())
             }
+
     fun onCurveDoneProperty(): ObjectProperty<EventHandler<DrawingEvent>> = onDrawingDoneProperty
     var onDrawingDone: EventHandler<DrawingEvent>
         get() = onCurveDoneProperty().get()

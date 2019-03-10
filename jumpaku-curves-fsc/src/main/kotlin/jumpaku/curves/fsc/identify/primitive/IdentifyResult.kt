@@ -10,19 +10,14 @@ import jumpaku.commons.json.jsonMap
 import jumpaku.commons.json.map
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
-import kotlin.collections.Map
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.isNotEmpty
-import kotlin.collections.map
-import kotlin.collections.maxBy
-import kotlin.collections.toMap
 
 class IdentifyResult(
         grades: Map<CurveClass, Grade>,
         val linear: Reference,
         val circular: Reference,
-        val elliptic: Reference): ToJson {
+        val elliptic: Reference) : ToJson {
 
     val grades: Map<CurveClass, Grade> = grades.toMap()
 

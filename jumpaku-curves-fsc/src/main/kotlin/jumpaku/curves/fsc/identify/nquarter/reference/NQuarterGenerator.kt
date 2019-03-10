@@ -12,5 +12,5 @@ interface NQuarterGenerator {
 
 fun nQuarterWeight(n: Int): Double {
     require(n in 1..3) { "n($n) must be in [1, 2, 3]" }
-    return FastMath.cos(0.25*n* FastMath.PI)
+    return FastMath.cos(0.25 * n * FastMath.PI)
 }

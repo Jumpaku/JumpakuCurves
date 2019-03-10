@@ -4,8 +4,8 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
 import jumpaku.curves.graphics.drawPoints
@@ -24,12 +24,12 @@ object GenerateDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            preparer = DataPreparer(
-                    spanShouldBeFilled = 0.0375,
+            dataPreparer = DataPreparer(
+                    fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))

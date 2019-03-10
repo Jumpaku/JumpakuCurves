@@ -31,7 +31,7 @@ class BSplineFitter(
         val knotVector: KnotVector) : Fitter<BSpline> {
 
     constructor(degree: Int, domain: Interval, delta: Double) : this(
-            degree, KnotVector.clamped(domain, degree, domain.sample(delta).size + degree*2))
+            degree, KnotVector.clamped(domain, degree, domain.sample(delta).size + degree * 2))
 
     override fun fit(data: List<WeightedParamPoint>): BSpline {
         require(data.size >= 2) { "data.size == ${data.size}, too few data" }

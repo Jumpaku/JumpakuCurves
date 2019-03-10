@@ -5,7 +5,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.isOdd
 import jumpaku.curves.core.curve.Curve
@@ -15,25 +14,24 @@ import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.component1
-import jumpaku.curves.core.util.component2
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 
 
 class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
 
-    constructor(vararg controlPoints: Point): this(controlPoints.asIterable())
+    constructor(vararg controlPoints: Point) : this(controlPoints.asIterable())
 
     val controlPoints: List<Point> = controlPoints.toList()
 
     override val domain: Interval get() = Interval.ZERO_ONE
 
-    override val derivative: BezierDerivative get() {
-        val cp = controlPoints.map(Point::toCrisp)
-        val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre)*degree.toDouble() }
-        return BezierDerivative(vs)
-    }
+    override val derivative: BezierDerivative
+        get() {
+            val cp = controlPoints.map(Point::toCrisp)
+            val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre) * degree.toDouble() }
+            return BezierDerivative(vs)
+        }
 
     val degree: Int get() = controlPoints.size - 1
 
@@ -59,7 +57,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
     fun restrict(begin: Double, end: Double): Bezier {
         require(Interval(begin, end) in domain) { "Interval($domain) is out of domain($domain)" }
 
-        return subdivide(end)._1().subdivide(begin / end)._2()
+        return subdivide(end).first.subdivide(begin / end).second
     }
 
     fun reverse(): Bezier = Bezier(controlPoints.reversed())
@@ -72,17 +70,17 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
         return Bezier(createReducedControlPoints(controlPoints))
     }
 
-    fun subdivide(t: Double): Tuple2<Bezier, Bezier> {
+    fun subdivide(t: Double): Pair<Bezier, Bezier> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        return createSubdividedControlPoints(t, controlPoints).map(::Bezier, ::Bezier)
+        return createSubdividedControlPoints(t, controlPoints).run { Pair(Bezier(first), Bezier(second)) }
     }
 
     fun extend(t: Double): Bezier {
         require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
 
         return createSubdividedControlPoints(t, controlPoints)
-                .let { (a, b) -> Bezier(if(t <= domain.begin) b else a) }
+                .let { (a, b) -> Bezier(if (t <= domain.begin) b else a) }
     }
 
     companion object {
@@ -91,7 +89,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
 
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
-            return comb(degree, i) * FastMath.pow(t, i)*FastMath.pow(1 - t, degree - i)
+            return comb(degree, i) * FastMath.pow(t, i) * FastMath.pow(1 - t, degree - i)
         }
 
         fun <P : Lerpable<P>> decasteljau(t: Double, cps: List<P>): List<P> =
@@ -112,7 +110,7 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
             }
         }
 
-        internal fun <P : Lerpable<P>> createSubdividedControlPoints(t: Double, cp: List<P>): Tuple2<List<P>, List<P>> {
+        internal fun <P : Lerpable<P>> createSubdividedControlPoints(t: Double, cp: List<P>): Pair<List<P>, List<P>> {
             var tmp = cp
             val first = mutableListOf(tmp.first())
             val second = mutableListOf(tmp.last())
@@ -123,36 +121,36 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
                 second.add(0, tmp.last())
             }
 
-            return Tuple2(first, second)
+            return Pair(first, second)
         }
 
-        internal fun <P : Lerpable<P>> createReducedControlPoints(cp: List<P>): List<P>  {
+        internal fun <P : Lerpable<P>> createReducedControlPoints(cp: List<P>): List<P> {
             val m = cp.size
             val n = m - 1
             return when {
                 m == 2 -> listOf(cp[0].middle(cp[1]))
                 m.isOdd() -> {
                     val r = (m - 3) / 2
-                    val first = generateSequence(Tuple2(cp.first(), 1)) {
-                        (qi, i) -> Tuple2(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
+                    val first = generateSequence(Pair(cp.first(), 1)) { (qi, i) ->
+                        Pair(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
                     }.asIterable()
                             .take(r + 1)
-                    val second = generateSequence(Tuple2(cp.last(), n - 2)) {
-                        (qi, i) -> Tuple2(cp[i+1].lerp((i + 1 - n)/(i + 1.0), qi), i - 1)
+                    val second = generateSequence(Pair(cp.last(), n - 2)) { (qi, i) ->
+                        Pair(cp[i + 1].lerp((i + 1 - n) / (i + 1.0), qi), i - 1)
                     }.asIterable()
                             .take(r + 1)
-                    (first + second.reversed()).map { it._1() }
+                    (first + second.reversed()).map { it.first }
                 }
                 else -> {
                     val r = (m - 2) / 2
-                    val first = generateSequence(Tuple2(cp.first(), 1)) {
-                        (qi, i) -> Tuple2(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
+                    val first = generateSequence(Pair(cp.first(), 1)) { (qi, i) ->
+                        Pair(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
                     }.asIterable()
-                            .take(r).map { it._1() }
-                    val second = generateSequence(Tuple2(cp.last(), n - 2)) {
-                        (qi, i) -> Tuple2(cp[i+1].lerp((i + 1 - n)/(i + 1.0), qi), i - 1)
+                            .take(r).map { it.first }
+                    val second = generateSequence(Pair(cp.last(), n - 2)) { (qi, i) ->
+                        Pair(cp[i + 1].lerp((i + 1 - n) / (i + 1.0), qi), i - 1)
                     }.asIterable()
-                            .take(r).map { it._1() }
+                            .take(r).map { it.first }
                     val pl = cp[r].lerp(r / (r - n).toDouble(), first.last())
                     val pr = cp[r + 1].lerp((r + 1 - n) / (r + 1.0), second.last())
                     (first + listOf(pl.middle(pr)) + second.reversed())

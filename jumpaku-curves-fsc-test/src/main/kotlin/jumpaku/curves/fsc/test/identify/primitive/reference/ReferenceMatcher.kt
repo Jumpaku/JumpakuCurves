@@ -8,7 +8,7 @@ import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: Reference, expected: Reference, error: Double = 1.0e-9): Boolean =
         isCloseTo(actual.base, expected.base, error)
-        && isCloseTo(actual.domain, expected.domain, error)
+                && isCloseTo(actual.domain, expected.domain, error)
 
 fun closeTo(expected: Reference, precision: Double = 1.0e-9): TypeSafeMatcher<Reference> =
         matcher("close to <$expected> with precision $precision") { actual ->

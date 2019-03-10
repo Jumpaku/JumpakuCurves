@@ -1,5 +1,11 @@
 package jumpaku.curves.fsc.identify.nquarter
 
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.int
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.fuzzy.Grade
@@ -7,9 +13,9 @@ import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterCircular
 import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterElliptic
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
-class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) {
+class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) : ToJson {
 
-    private fun <C: Curve> evaluate(
+    private fun <C : Curve> evaluate(
             reference1: Reference, reference2: Reference, reference3: Reference, fsc: ReparametrizedCurve<C>
     ): Map<NQuarterClass, Grade> {
         val (pq1, pq2, pq3) = listOf(reference1, reference2, reference3).map { fsc.isPossible(it.reparametrized, nFmps) }
@@ -31,5 +37,16 @@ class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) {
         val (q1, q2, q3) = (1..3).map { NQuarterElliptic(nSamples).generate(it, fsc) }
         val grades = evaluate(q1, q2, q3, fsc)
         return NQuarterIdentifyResult(grades, q1, q2, q3)
+    }
+
+    override fun toJson(): JsonElement = jsonObject(
+            "nSamples" to nSamples.toJson(),
+            "nFmps" to nFmps.toJson())
+
+    override fun toString(): String = toJsonString()
+
+    companion object {
+
+        fun fromJson(json: JsonElement): NQuarterIdentifier = NQuarterIdentifier(json["nSamples"].int, json["nFmps"].int)
     }
 }
