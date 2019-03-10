@@ -1,9 +1,13 @@
 package jumpaku.curves.fsc.freecurve
 
-import io.vavr.Tuple2
-import io.vavr.Tuple4
+import com.github.salomonbrys.kotson.*
+import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
+import jumpaku.commons.control.orDefault
+import jumpaku.commons.control.toOption
+import jumpaku.commons.json.ToJson
+import jumpaku.commons.math.Solver
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
@@ -12,18 +16,31 @@ import jumpaku.curves.core.curve.chordalParametrize
 import jumpaku.curves.core.curve.rationalbezier.ConicSection
 import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.util.asVavr
-import jumpaku.curves.core.util.component1
-import jumpaku.curves.core.util.component2
-import org.apache.commons.math3.analysis.solvers.BrentSolver
+import kotlin.collections.List
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.drop
+import kotlin.collections.dropLast
+import kotlin.collections.find
+import kotlin.collections.findLast
+import kotlin.collections.first
+import kotlin.collections.flatMap
+import kotlin.collections.last
+import kotlin.collections.lastIndex
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.plus
+import kotlin.collections.reversed
+import kotlin.collections.slice
+import kotlin.collections.toMutableList
+import kotlin.collections.withIndex
+import kotlin.collections.zip
+import kotlin.collections.zipWithNext
 
 
 class SmoothResult(val conicSections: List<ConicSection>, val cubicBeziers: List<Bezier>)
 
-class Smoother(
-        val pruningFactor: Double = 1.0,
-        val nFitSamples: Int = 17,
-        val fscSampleSpan: Double = 0.02){
+class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33): ToJson{
 
     fun smooth(fsc: BSpline, ts: List<Double>, segmentResult: SegmentResult, isClosed: Boolean = isClosed(fsc)): SmoothResult {
         val pis = segmentResult.segmentParamIndices
@@ -43,39 +60,36 @@ class Smoother(
 
     fun fragmentCs(qs: List<ConicSection>, cs: List<Point>, isClosed: Boolean): List<Option<Interval>>{
         val begins = qs.zip(cs) { q, c ->
-            Interval.ZERO_ONE.sample(nFitSamples)
-                    .find { q(it).dist(c) > c.r * pruningFactor }
-                    ?.let { BrentSolver().solve(50, { q(it).dist(c) - c.r * pruningFactor }, 0.0, it) } ?: 1.0
-        }.let {
-            if (isClosed) it else it.asVavr().update(0, 0.0)
-        }
+            Interval.ZERO_ONE.sample(samplingFactor)
+                    .find { q(it).dist(c) > c.r * pruningFactor }.toOption()
+                    .flatMap { Solver().solve(0.0..it) { q(it).dist(c) - c.r * pruningFactor }.value() }
+                    .orDefault(1.0)
+        }.toMutableList().apply { if (isClosed) set(0, 0.0) }
 
         val ends = qs.zip(cs.drop(1)) { q, c ->
-            Interval.ZERO_ONE.sample(nFitSamples)
-                    .findLast { q(it).dist(c) > c.r * pruningFactor }
-                    ?.let { BrentSolver().solve(50, { q(it).dist(c) - c.r * pruningFactor }, it, 1.0) } ?: 0.0
-        }.let {
-            if (isClosed) it else it.asVavr().update(it.lastIndex, 1.0)
-        }
+            Interval.ZERO_ONE.sample(samplingFactor)
+                    .findLast { q(it).dist(c) > c.r * pruningFactor }.toOption()
+                    .flatMap { Solver().solve(it..1.0) { q(it).dist(c) - c.r * pruningFactor }.value() }
+                    .orDefault(0.0)
+
+        }.toMutableList().apply { if (isClosed) set(lastIndex, 1.0) }
 
         return begins.zip(ends) { b, e -> optionWhen(b < e) { Interval(b, e) } }
     }
 
     fun fragmentFsc(fsc: BSpline, ts: List<Double>, pis: List<Int>, isClosed: Boolean): List<Interval>{
         val (b, e) = fsc.domain
+        val sampleSpan = fsc.domain.span / ((ts.size - 1) * samplingFactor)
         fun fragmentFscInterval(t: Double): Interval {
             val c = fsc(t)
-
-            val samples0 = Interval(b, t).sample(fscSampleSpan)
-            val begin = samples0
-                    .findLast { fsc(it).dist(c) > c.r*pruningFactor }
-                    ?.let { BrentSolver().solve(50, { fsc(it).dist(c) - c.r * pruningFactor }, it, t) } ?: b
-
-            val samples1 = Interval(t, e).sample(fscSampleSpan)
-            val end = samples1
-                    .find { fsc(it).dist(c) > c.r*pruningFactor }
-                    ?.let { BrentSolver().solve(50, { fsc(it).dist(c) - c.r * pruningFactor }, t, it) } ?: e
-
+            val begin = Interval(b, t).sample(sampleSpan)
+                    .findLast { fsc(it).dist(c) > c.r*pruningFactor }.toOption()
+                    .flatMap { Solver().solve(it..t)  { fsc(it).dist(c) - c.r * pruningFactor }.value() }
+                    .orDefault(b)
+            val end = Interval(t, e).sample(sampleSpan)
+                    .find { fsc(it).dist(c) > c.r*pruningFactor }.toOption()
+                    .flatMap { Solver().solve(t..it) { fsc(it).dist(c) - c.r * pruningFactor }.value() }
+                    .orDefault(e)
             return Interval(begin, end)
         }
         return pis.map { i ->
@@ -108,27 +122,27 @@ class Smoother(
 
         if (rs.isEmpty()){
             val s = if (isClosed) fsc.close() else fsc
-            return listOf(fitter.fitAllFsc(parametrize(s.evaluateAll(fscSampleSpan))))
+            return listOf(fitter.fitAllFsc(parametrize(s.evaluateAll(samplingFactor))))
         }
-        val p0v0s = rs.map { Tuple2(it(1.0), it.differentiate(1.0)) }.dropLast(1)
-        val p1v1s = rs.map { Tuple2(it(0.0), it.differentiate(0.0)) }.drop(1)
-        val p0v0p1v1s = p0v0s.zip(p1v1s) { pv0, pv1 -> Tuple4(pv0._1, pv0._2, pv1._1, pv1._2) }
-        val middles = gis.asVavr().slice(1, gis.lastIndex).zip(p0v0p1v1s) { i, p0v0p1v1 ->
-            val data = parametrize(fsc.restrict(i).evaluateAll(nFitSamples))
-            fitter.fitMiddle(p0v0p1v1._1, p0v0p1v1._2, p0v0p1v1._3, p0v0p1v1._4, data)
+        val p0v0s = rs.map { Pair(it(1.0), it.differentiate(1.0)) }.dropLast(1)
+        val p1v1s = rs.map { Pair(it(0.0), it.differentiate(0.0)) }.drop(1)
+        val p0v0p1v1s = p0v0s.zip(p1v1s)// { pv0, pv1 -> Tuple4(pv0._1, pv0._2, pv1._1, pv1._2) }
+        val middles = gis.slice(1 until gis.lastIndex).zip(p0v0p1v1s) { i, (p0v0, p1v1) ->
+            val data = parametrize(fsc.restrict(i).evaluateAll(samplingFactor))
+            fitter.fitMiddle(p0v0.first, p0v0.second, p1v1.first, p1v1.second, data)
         }
 
 
         val (p1, v1) = rs.first().let { Pair(it(0.0), it.differentiate(0.0)) }
         val frontPoints = gis.first().run {
-            if (begin == end) List(nFitSamples) { fsc(begin) }
-            else fsc.restrict(this).evaluateAll(nFitSamples)
+            if (begin == end) List(samplingFactor) { fsc(begin) }
+            else fsc.restrict(this).evaluateAll(samplingFactor)
         }
 
-        val (p0, v0) = rs.last().let { Tuple2(it(1.0), it.differentiate(1.0)) }
+        val (p0, v0) = rs.last().let { Pair(it(1.0), it.differentiate(1.0)) }
         val backPoints = gis.last().run {
-            if (begin == end) List(nFitSamples) { fsc(end) }
-            else fsc.restrict(this).evaluateAll(nFitSamples)
+            if (begin == end) List(samplingFactor) { fsc(end) }
+            else fsc.restrict(this).evaluateAll(samplingFactor)
         }
 
         return if (isClosed) {
@@ -147,4 +161,16 @@ class Smoother(
     fun parametrize(points: List<Point>): List<ParamPoint> =
             chordalParametrize(points, range = Interval.ZERO_ONE)
                     .tryRecover { uniformParametrize(points, range = Interval.ZERO_ONE) }.value().orThrow()
+
+    override fun toJson(): JsonElement = jsonObject(
+            "pruningFactor" to pruningFactor.toJson(),
+            "samplingFactor" to samplingFactor.toJson())
+
+    override fun toString(): String = toJsonString()
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Smoother = Smoother(json["pruningFactor"].double, json["samplingFactor"].int)
+    }
+
 }

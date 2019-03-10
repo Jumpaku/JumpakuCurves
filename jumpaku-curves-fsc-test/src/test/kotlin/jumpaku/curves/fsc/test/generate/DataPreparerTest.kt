@@ -1,5 +1,6 @@
 package jumpaku.curves.fsc.test.generate
 
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
@@ -93,5 +94,12 @@ class DataPreparerTest {
                 .fit(preparer.extendBack(data)).subdivide(1.0)
         assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
         assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0)._2().orThrow())))
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = preparer.toString().parseJson().tryMap { DataPreparer.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(preparer)))
     }
 }

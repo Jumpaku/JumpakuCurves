@@ -8,8 +8,8 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.Identifier
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
@@ -39,12 +39,12 @@ object SnapDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            preparer = DataPreparer(
-                    spanShouldBeFilled = 0.0375,
+            dataPreparer = DataPreparer(
+                    fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))
@@ -58,11 +58,11 @@ object SnapDemoSettings {
             origin = Point.xy(width/2, height/2),
             rotation = Rotate(Vector.K, 0.0))
 
-    val snapper: ConicSectionSnapper = ConicSectionSnapper(
+    val snapper: ConicSectionSnapper<*> = ConicSectionSnapper(
             pointSnapper = MFGS(
                     minResolution = -5,
                     maxResolution = 6),
-            featurePointsCombinator = ConjugateCombinator())
+            featurePointsCombinator = ConjugateCombinator)
 }
 
 class SnapDemo : Application() {

@@ -12,8 +12,8 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.curves.graphics.DrawStyle
 import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
@@ -34,12 +34,12 @@ object BlendDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            preparer = DataPreparer(
-                    spanShouldBeFilled = 0.0375,
+            dataPreparer = DataPreparer(
+                    fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))

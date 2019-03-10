@@ -3,12 +3,12 @@ package jumpaku.curves.demo.fragment
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
-import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
 import jumpaku.curves.graphics.DrawStyle
 import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
@@ -30,22 +30,22 @@ object FragmentDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            preparer = DataPreparer(
-                    spanShouldBeFilled = 0.025,
+            dataPreparer = DataPreparer(
+                    fillSpan = 0.025,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))
 
     val fragmenter: Fragmenter = Fragmenter(
-            threshold = Fragmenter.Threshold(
+            threshold = Chunk.Threshold(
                     necessity = 0.35,
                     possibility = 0.65),
             chunkSize = 4,
-            minStayTime = 0.04)
+            minStayTimeSpan = 0.04)
 }
 
 class FragmentDemo : Application() {

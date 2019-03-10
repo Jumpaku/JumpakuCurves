@@ -1,8 +1,10 @@
 package jumpaku.curves.fsc.generate
 
+import com.github.salomonbrys.kotson.*
+import com.google.gson.JsonElement
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.middle
-import jumpaku.curves.core.geom.weighted
 import jumpaku.curves.fsc.generate.fit.BezierFitter
 import org.apache.commons.math3.util.FastMath
 
@@ -18,10 +20,10 @@ import org.apache.commons.math3.util.FastMath
  * And data points around beginning point and end point should be extended by quadratic bezier fitting.
  */
 class DataPreparer(
-        val spanShouldBeFilled: Double,
+        val fillSpan: Double,
         val extendInnerSpan: Double,
         val extendOuterSpan: Double,
-        val extendDegree: Int) {
+        val extendDegree: Int): ToJson {
 
     init {
         require(extendInnerSpan > 0.0) { "must be extendInnerSpan($extendInnerSpan) > 0" }
@@ -42,7 +44,7 @@ class DataPreparer(
 
         return sortedData.drop(1).fold(mutableListOf(sortedData.first())) { filled, (nextP, nextW) ->
             val (prevP, prevW) = filled.last()
-            val n = FastMath.ceil((nextP.param - prevP.param) / spanShouldBeFilled)
+            val n = FastMath.ceil((nextP.param - prevP.param) / fillSpan)
             filled += (1..n.toInt()).map { prevP.lerp(it/n, nextP).weighted(prevW.middle(nextW)) }
             filled
         }
@@ -85,5 +87,22 @@ class DataPreparer(
         val bezier = BezierFitter(extendDegree).fit(innerData).restrict(outerBezier)
         val points = bezier.sample(Math.ceil(innerData.size * extendOuterSpan / extendInnerSpan).toInt())
         return transformParams(points, range = outerBSpline).map { it.weighted(weight) }
+    }
+
+    override fun toString(): String = toJsonString()
+
+    override fun toJson(): JsonElement = jsonObject(
+            "fillSpan" to fillSpan.toJson(),
+            "extendInnerSpan" to extendInnerSpan.toJson(),
+            "extendOuterSpan" to extendOuterSpan.toJson(),
+            "extendDegree" to extendDegree)
+
+    companion object {
+
+        fun fromJson(json: JsonElement): DataPreparer = DataPreparer(
+                json["fillSpan"].double,
+                json["extendInnerSpan"].double,
+                json["extendOuterSpan"].double,
+                json["extendDegree"].int)
     }
 }

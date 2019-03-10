@@ -13,7 +13,8 @@ import org.junit.Test
 
 class DrawingStrokeTest {
 
-    val s = DrawingStroke(listOf(ParamPoint(Point.xy(1.0, -1.0), 0.0),
+    val s = DrawingStroke(listOf(
+            ParamPoint(Point.xy(1.0, -1.0), 0.0),
             ParamPoint(Point.xy(3.0, -2.0), 1.0),
             ParamPoint(Point.xy(5.0, -8.0), 2.0)))
     @Test

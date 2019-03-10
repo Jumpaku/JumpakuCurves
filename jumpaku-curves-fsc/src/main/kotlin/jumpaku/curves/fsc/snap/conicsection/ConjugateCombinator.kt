@@ -5,7 +5,7 @@ import jumpaku.curves.core.geom.Point
 import org.apache.commons.math3.util.FastMath
 
 
-class ConjugateCombinator : FeaturePointsCombinator {
+object ConjugateCombinator : FeaturePointsCombinator {
 
     enum class FeaturePosition {
         B0, B2, D0, D1, D2, D3, E0, E1, E2, E3

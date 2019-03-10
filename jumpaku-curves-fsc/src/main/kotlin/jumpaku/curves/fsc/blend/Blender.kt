@@ -1,9 +1,15 @@
 package jumpaku.curves.fsc.blend
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.none
 import jumpaku.commons.control.some
 import jumpaku.commons.control.toOption
+import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
@@ -11,10 +17,14 @@ import kotlin.math.abs
 
 
 class Blender(
-        val samplingSpan: Double = 0.025,
-        val blendingRate: Double = 0.5,
-        val possibilityThreshold: Grade = Grade(1e-10)) {
+        val samplingSpan: Double = 0.01,
+        val blendingRate: Double = 0.65,
+        val possibilityThreshold: Grade = Grade.FALSE): ToJson {
 
+    init {
+        require(samplingSpan > 0.0)
+        require(blendingRate in 0.0..1.0)
+    }
     fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
@@ -43,7 +53,7 @@ class Blender(
             val (i, j) = key
             val muij = osm[i, j]
             when {
-                muij < possibilityThreshold -> none()
+                muij <= possibilityThreshold -> none()
                 i == 0 && j == 0 -> some(DpValue(0, muij, muij.value, listOf(key)))
                 i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key) } + DpValue(0, muij, muij.value, listOf(key)))
                         .maxWith(compare).toOption()
@@ -104,4 +114,19 @@ class Blender(
                 val bEnd = (bBegin + span).coerceAtLeast(bBegin)
                 transformParams(back, range = Interval(bBegin, bEnd))
             }
+
+    override fun toJson(): JsonElement = jsonObject(
+            "samplingSpan" to samplingSpan.toJson(),
+            "blendingRate" to blendingRate.toJson(),
+            "possibilityThreshold" to possibilityThreshold.toJson())
+
+    override fun toString(): String = toJsonString()
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Blender = Blender(
+                json["samplingSpan"].double,
+                json["blendingRate"].double,
+                Grade.fromJson(json["possibilityThreshold"].asJsonPrimitive))
+    }
 }

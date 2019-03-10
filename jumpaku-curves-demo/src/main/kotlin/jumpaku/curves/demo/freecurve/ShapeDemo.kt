@@ -7,8 +7,9 @@ import jumpaku.curves.fsc.freecurve.Segmenter
 import jumpaku.curves.fsc.freecurve.Shaper
 import jumpaku.curves.fsc.freecurve.Smoother
 import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.LinearFuzzifier
+import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import jumpaku.curves.graphics.*
 import jumpaku.curves.graphics.fx.DrawingControl
 import jumpaku.curves.graphics.fx.DrawingEvent
@@ -26,23 +27,24 @@ object ShapeDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            preparer = DataPreparer(
-                    spanShouldBeFilled = 0.0375,
+            dataPreparer = DataPreparer(
+                    fillSpan = 0.0375,
                     extendInnerSpan = 0.075,
                     extendOuterSpan = 0.075,
                     extendDegree = 2),
-            fuzzifier = LinearFuzzifier(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))
 
     val shaper: Shaper = Shaper(
-            segmenter = Segmenter(Segmenter.defaultIdentifier),
+            segmenter = Segmenter(Open4Identifier(
+                    nSamples = 25,
+                    nFmps = 15)),
             smoother = Smoother(
                     pruningFactor = 2.0,
-                    nFitSamples = 33,
-                    fscSampleSpan = 0.02),
-            sampleFsc = { fsc -> fsc.domain.sample(100)})
+                    samplingFactor = 33),
+            sampleMethod = Shaper.SampleMethod.ByFixedNumber(100))
 }
 
 class ShapeDemo : Application() {

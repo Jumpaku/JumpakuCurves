@@ -30,7 +30,7 @@ class ConjugateCombinatorTest {
 
     val e2 = ConicSection(Point.xy(-r2, -r2 / 2), Point.xy(0.0, 1.0), Point.xy(r2, -r2 / 2), -r2 / 2)
 
-    val conjugateCombinator = ConjugateCombinator()
+    val conjugateCombinator = ConjugateCombinator
 
     @Test
     fun testLinearCombinations() {
