@@ -98,20 +98,20 @@ class PolylineTest {
     fun testSubdivide() {
         println("Subdivide")
         val ps0 = pl.subdivide(4.5)
-        assertThat(ps0._1(), `is`(closeTo(Polyline.byArcLength(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -1.5, 2.25)))))
-        assertThat(ps0._2(), `is`(closeTo(Polyline.byArcLength(Point.xyr(1.0, -1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))))
+        assertThat(ps0.first, `is`(closeTo(Polyline.byArcLength(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -1.5, 2.25)))))
+        assertThat(ps0.second, `is`(closeTo(Polyline.byArcLength(Point.xyr(1.0, -1.5, 2.25), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0)))))
 
         val ps1 = pl.subdivide(0.0)
-        assertThat(ps1._1(), `is`(closeTo(Polyline.byArcLength(Point.xyr(-1.0, 1.0, 2.0)))))
-        assertThat(ps1._2(), `is`(closeTo(pl)))
+        assertThat(ps1.first, `is`(closeTo(Polyline.byArcLength(Point.xyr(-1.0, 1.0, 2.0)))))
+        assertThat(ps1.second, `is`(closeTo(pl)))
 
         val ps2 = pl.subdivide(7.5)
-        assertThat(ps2._1(), `is`(closeTo(pl)))
-        assertThat(ps2._2(), `is`(closeTo(Polyline(listOf(ParamPoint(Point.xyzr(1.0, -3.0, 1.5, 2.0), 7.5))))))
+        assertThat(ps2.first, `is`(closeTo(pl)))
+        assertThat(ps2.second, `is`(closeTo(Polyline(listOf(ParamPoint(Point.xyzr(1.0, -3.0, 1.5, 2.0), 7.5))))))
 
         val ps3 = pl.subdivide(2.0)
-        assertThat(ps3._1(), `is`(closeTo(Polyline.byArcLength(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0)))))
-        assertThat(ps3._2(), `is`(closeTo(Polyline(listOf(
+        assertThat(ps3.first, `is`(closeTo(Polyline.byArcLength(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0)))))
+        assertThat(ps3.second, `is`(closeTo(Polyline(listOf(
                 ParamPoint(Point.xyr(1.0, 1.0, 1.0), 2.0),
                 ParamPoint(Point.xyr(1.0, -3.0, 3.0), 6.0),
                 ParamPoint(Point.xyzr(1.0, -3.0, 1.5, 2.0), 7.5))))))

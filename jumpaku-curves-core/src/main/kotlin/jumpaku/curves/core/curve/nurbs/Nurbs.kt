@@ -2,7 +2,6 @@ package jumpaku.curves.core.curve.nurbs
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.control.Option
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
@@ -14,8 +13,6 @@ import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.geom.times
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.component1
-import jumpaku.curves.core.util.component2
 
 class Nurbs(
         controlPoints: Iterable<Point>,
@@ -83,7 +80,7 @@ class Nurbs(
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin)._2().orThrow().subdivide(end)._1().orThrow()
+        return subdivide(begin).second.orThrow().subdivide(end).first.orThrow()
     }
 
     fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
@@ -108,11 +105,11 @@ class Nurbs(
                 .map { RationalBezier(it) }
     }
 
-    fun subdivide(t: Double): Tuple2<Option<Nurbs>, Option<Nurbs>> {
+    fun subdivide(t: Double): Pair<Option<Nurbs>, Option<Nurbs>> {
         require(t in domain) { "t($t) is out of domain($domain)" }
         val (cp0, cp1) = BSpline.subdividedControlPoints(t, weightedControlPoints, knotVector)
         val (kv0, kv1) = knotVector.subdivide(t)
-        return Tuple2(kv0.map { Nurbs(cp0, it) }, kv1.map { Nurbs(cp1, it) })
+        return Pair(kv0.map { Nurbs(cp0, it) }, kv1.map { Nurbs(cp1, it) })
     }
 
     fun insertKnot(t: Double, times: Int = 1): Nurbs {

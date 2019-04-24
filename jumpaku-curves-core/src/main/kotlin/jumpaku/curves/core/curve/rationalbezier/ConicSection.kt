@@ -6,7 +6,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
 import jumpaku.commons.control.orDefault
@@ -87,7 +86,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
     /**
      * Subdivides this at t into 2 conic sections
      */
-    fun subdivide(t: Double): Tuple2<ConicSection, ConicSection> {
+    fun subdivide(t: Double): Pair<ConicSection, ConicSection> {
         val w = weight
         val p0 = begin.toVector()
         val p1 = far.toVector()
@@ -113,16 +112,17 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
                 FastMath.abs(0.5 * ((1 - t) * ((1 - 2 * t) / rootwt - 1)) / (rootwt + (1 - t) * w + t)) * end.r
         val far1 = Point(far1P.orThrow(), far1R)
 
-        return Tuple2(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
+        return Pair(ConicSection(begin0, far0, end0, weight0), ConicSection(begin1, far1, end1, weight1))
     }
 
     fun restrict(interval: Interval): ConicSection = restrict(interval.begin, interval.end)
 
-    fun restrict(begin: Double, end: Double): ConicSection {
-        val t = begin / end
+    fun restrict(begin: Double, end: Double): ConicSection = begin.tryDiv(end).tryMap { t ->
         val a = FastMath.sqrt(RationalBezier.bezier1D(end, listOf(1.0, weight, 1.0)))
-        return subdivide(end)._1().subdivide(a * t / (t * (a - 1) + 1))._2()
-    }
+        subdivide(end).first.subdivide(a * t / (t * (a - 1) + 1)).second
+    }.tryRecover {
+        ConicSection(this.begin, this.begin, this.begin, 1.0)
+    }.orThrow()
 
     companion object {
 
