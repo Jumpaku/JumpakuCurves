@@ -2,7 +2,6 @@ package jumpaku.curves.core.curve.bspline
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.json.ToJson
@@ -15,8 +14,6 @@ import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.util.asKt
 import jumpaku.curves.core.util.asVavr
-import jumpaku.curves.core.util.component1
-import jumpaku.curves.core.util.component2
 
 
 class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curve, Differentiable, ToJson {
@@ -69,7 +66,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
         require(begin < end) { "must be begin($begin) < end($end)" }
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
 
-        return subdivide(begin)._2().orThrow().subdivide(end)._1().orThrow()
+        return subdivide(begin).second.orThrow().subdivide(end).first.orThrow()
     }
 
     fun restrict(i: Interval): BSpline = restrict(i.begin, i.end)
@@ -97,11 +94,11 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
                 .chunked(degree + 1) { Bezier(it) }
     }
 
-    fun subdivide(t: Double): Tuple2<Option<BSpline>, Option<BSpline>> {
+    fun subdivide(t: Double): Pair<Option<BSpline>, Option<BSpline>> {
         require(t in domain) { "t($t) is out of domain($domain)" }
         val (cp0, cp1) = subdividedControlPoints(t, controlPoints, knotVector)
         val (kv0, kv1) = knotVector.subdivide(t)
-        return Tuple2(kv0.map { BSpline(cp0, it) }, kv1.map { BSpline(cp1, it) })
+        return Pair(kv0.map { BSpline(cp0, it) }, kv1.map { BSpline(cp1, it) })
     }
 
     fun insertKnot(t: Double, times: Int = 1): BSpline {
@@ -213,14 +210,14 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
         }
 
         fun <D : Lerpable<D>> subdividedControlPoints(
-                t: Double, controlPoints: List<D>, knotVector: KnotVector): Tuple2<List<D>, List<D>> {
+                t: Double, controlPoints: List<D>, knotVector: KnotVector): Pair<List<D>, List<D>> {
             val p = knotVector.degree
             val s = knotVector.multiplicityOf(t)
             val times = p + 1 - s
             val (b, e) = knotVector.domain
             if (b < e && t == e)
                 return subdividedControlPoints(b, controlPoints.reversed(), knotVector.reverse())
-                        .let { (x, y) -> Tuple2(y.reversed(), x.reversed()) }
+                        .let { (x, y) -> Pair(y.reversed(), x.reversed()) }
 
             val k = knotVector.searchLastExtractedLessThanOrEqualTo(t)
             val cp = insertedControlPoints(controlPoints, knotVector, t, times)
@@ -234,7 +231,7 @@ class BSpline(controlPoints: Iterable<Point>, val knotVector: KnotVector) : Curv
                 b < e && t == e -> List(s) { cp[cp.lastIndex - times] } + cp.takeLast(times)
                 else -> cp.drop(i)
             }
-            return Tuple2(front.toList(), back.toList())
+            return Pair(front.toList(), back.toList())
         }
 
         fun <D : Lerpable<D>> segmentedControlPoints(controlPoints: List<D>, knotVector: KnotVector): List<D> {

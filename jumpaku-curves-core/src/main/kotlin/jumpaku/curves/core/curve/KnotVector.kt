@@ -2,7 +2,6 @@ package jumpaku.curves.core.curve
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
 import jumpaku.commons.json.ToJson
@@ -98,7 +97,7 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
                 else update(lastIndex) { (v, m) -> Knot(v, m - 1) }
             })
 
-    fun subdivide(t: Double): Tuple2<Option<KnotVector>, Option<KnotVector>> {
+    fun subdivide(t: Double): Pair<Option<KnotVector>, Option<KnotVector>> {
         val s = multiplicityOf(t)
         val p = degree
         val times = p + 1 - s
@@ -108,7 +107,7 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
         val kv = inserted.knots.asVavr()
         val front = if (t == b) kv.take(i + 1).insert(i, Knot(t, s)) else kv.take(i + 1)
         val back = if (t == e) kv.drop(i).insert(1, Knot(t, s)) else kv.drop(i)
-        return Tuple2(
+        return Pair(
                 optionWhen(t > b) { KnotVector(p, front) },
                 optionWhen(t < e) { KnotVector(p, back) })
     }

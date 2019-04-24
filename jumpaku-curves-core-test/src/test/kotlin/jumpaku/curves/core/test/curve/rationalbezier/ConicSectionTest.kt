@@ -137,11 +137,11 @@ class ConicSectionTest {
         val rs = ConicSection(
                 Point.xyr(0.0, 1.0, 1.0), Point.xyr(R2 / 2, R2 / 2, 2.0), Point.xyr(1.0, 0.0, 3.0), R2 / 2)
                 .subdivide(0.5)
-        assertThat(rs._1(), `is`(closeTo(ConicSection(
+        assertThat(rs.first, `is`(closeTo(ConicSection(
                 Point.xyr(0.0, 1.0, 1.0),
                 Point.xyr((3 * R2 + 1) / (10 + 3 * R2), (3 * R2 + 9) / (10 + 3 * R2), 2.3027176028699587),
                 Point.xyr(R2 / 2, R2 / 2, 2.0), Math.sqrt(2 + R2) / 2), 0.1)))
-        assertThat(rs._2(), `is`(closeTo(ConicSection(
+        assertThat(rs.second, `is`(closeTo(ConicSection(
                 Point.xyr(R2 / 2, R2 / 2, 2.0),
                 Point.xyr((3 * R2 + 9) / (10 + 3 * R2), (3 * R2 + 1) / (10 + 3 * R2), 2.3027176028699587),
                 Point.xyr(1.0, 0.0, 3.0), Math.sqrt(2 + R2) / 2), 0.1)))

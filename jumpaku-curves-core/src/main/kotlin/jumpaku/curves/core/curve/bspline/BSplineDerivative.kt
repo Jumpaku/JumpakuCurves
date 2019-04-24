@@ -2,7 +2,6 @@ package jumpaku.curves.core.curve.bspline
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.control.Option
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
@@ -55,8 +54,8 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun toBeziers(): List<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
 
-    fun subdivide(t: Double): Tuple2<Option<BSplineDerivative>, Option<BSplineDerivative>> =
-            toBSpline().subdivide(t).map({ it.map { BSplineDerivative(it) } }, { it.map { BSplineDerivative(it) } })
+    fun subdivide(t: Double): Pair<Option<BSplineDerivative>, Option<BSplineDerivative>> = toBSpline().subdivide(t)
+            .run { Pair(first.map { BSplineDerivative(it) }, second.map { BSplineDerivative(it) }) }
 
     companion object {
 

@@ -79,8 +79,8 @@ class DataPreparerTest {
         val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it).weighted(2.0) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(preparer.extendFront(data)).subdivide(1.0)
-        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
-        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0)._2().orThrow())))
+        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0).first.orThrow())))
+        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0).second.orThrow())))
     }
 
     @Test
@@ -92,8 +92,8 @@ class DataPreparerTest {
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it).weighted(2.0) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(preparer.extendBack(data)).subdivide(1.0)
-        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0)._1().orThrow())))
-        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0)._2().orThrow())))
+        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0).first.orThrow())))
+        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0).second.orThrow())))
     }
 
     @Test
