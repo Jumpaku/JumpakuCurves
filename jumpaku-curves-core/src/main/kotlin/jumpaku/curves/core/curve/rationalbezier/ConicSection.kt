@@ -117,12 +117,15 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     fun restrict(interval: Interval): ConicSection = restrict(interval.begin, interval.end)
 
-    fun restrict(begin: Double, end: Double): ConicSection = begin.tryDiv(end).tryMap { t ->
-        val a = FastMath.sqrt(RationalBezier.bezier1D(end, listOf(1.0, weight, 1.0)))
-        subdivide(end).first.subdivide(a * t / (t * (a - 1) + 1)).second
-    }.tryRecover {
-        ConicSection(this.begin, this.begin, this.begin, 1.0)
-    }.orThrow()
+    fun restrict(begin: Double, end: Double): ConicSection {
+        require(begin <= end && begin in domain && end in domain) { "begin <= end && begin in domain && end in domain" }
+        return begin.tryDiv(end).tryMap { t ->
+            val a = FastMath.sqrt(RationalBezier.bezier1D(end, listOf(1.0, weight, 1.0)))
+            subdivide(end).first.subdivide(a * t / (t * (a - 1) + 1)).second
+        }.tryRecover {
+            ConicSection(this.begin, this.begin, this.begin, 1.0)
+        }.orThrow()
+    }
 
     companion object {
 

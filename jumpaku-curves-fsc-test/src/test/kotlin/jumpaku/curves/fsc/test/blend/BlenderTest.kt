@@ -36,7 +36,7 @@ class BlenderTest {
             if (actual.isDefined) {
                 assertThat(actual.orThrow().size, `is`(expected.orThrow().size))
                 actual.orThrow().zip(expected.orThrow()).forEach { (a, e) ->
-                    assertThat(a, `is`(closeTo(e, 1e-6)))
+                    assertThat(a, `is`(closeTo(e, 1e-3)))
                 }
             }
         }

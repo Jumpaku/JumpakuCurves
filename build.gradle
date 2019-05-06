@@ -1,10 +1,11 @@
 buildscript {
     ext.jumpaku_curves_version = '1.0.1'
-    ext.kotlin_version = '1.3.21'
+    ext.kotlin_version = '1.3.31'
     ext.jvm_version = '1.8'
-    ext.dokka_version = '0.9.17'
+    ext.dokka_version = '0.9.18'
+    ext.javafxplugin_version = '0.0.7'
     ext.dependencyVersions = [
-            'jumpaku_commons': '0.5',
+            'jumpaku_commons': '1.0.0',
             'junit4'         : '4.12',
             'junit5'         : '5.1.0',
             'hamcrest'       : '2.1',
@@ -13,18 +14,14 @@ buildscript {
             'vavr'           : '0.9.1',
             'fxgraphics2d'   : '1.8'
     ]
-
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-    }
 }
-
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.3.31" apply false
+    id 'maven'
+    id 'java'
+    id "org.jetbrains.dokka" version "0.9.18" apply false
+    id 'org.openjfx.javafxplugin' version "0.0.7" apply false
+}
 // Common configuration
 subprojects {
 
@@ -149,6 +146,12 @@ project(':jumpaku-curves-fsc-test') {
 }
 
 project(':jumpaku-curves-graphics') {
+
+    apply plugin: "org.openjfx.javafxplugin"
+    javafx {
+        version = "12.0.1"
+        modules = [ 'javafx.controls' ]
+    }
     dependencies {
         compile project(':jumpaku-curves-core')
         compile project(':jumpaku-curves-fsc')
@@ -157,6 +160,12 @@ project(':jumpaku-curves-graphics') {
 }
 
 project(':jumpaku-curves-demo') {
+
+    apply plugin: "org.openjfx.javafxplugin"
+    javafx {
+        version = "12.0.1"
+        modules = [ 'javafx.controls' ]
+    }
     dependencies {
         compile project(':jumpaku-curves-core')
         compile project(':jumpaku-curves-fsc')
