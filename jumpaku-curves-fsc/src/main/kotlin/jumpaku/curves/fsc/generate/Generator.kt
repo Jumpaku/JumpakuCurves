@@ -58,14 +58,14 @@ class Generator(
         val cpSize = knotVector.extractedKnots.size - knotVector.degree - 1
         val b = OpenMapRealMatrix(data.size, cpSize)
         val wbt = OpenMapRealMatrix(cpSize, data.size)
-        val paramCountMap = data.groupBy { it.param }.mapValues { it.value.size }
+        /*val paramCountMap = data.groupBy { it.param }.mapValues { it.value.size }
         val paramWeightMap = data.distinctBy { it.param }.mapIndexed { i, d ->
             d.param to when (i) {
                 0 -> data[i + 1].param - d.param
                 data.lastIndex -> d.param - data[i - 1].param
                 else -> (data[i + 1].param - data[i - 1].param) / 2
             }
-        }.toMap()
+        }.toMap()*/
         data.forEachIndexed { i, d ->
             val l = if (d.param >= knotVector.domain.end) (cpSize - 1)
             else knotVector.searchLastExtractedLessThanOrEqualTo(d.param)
@@ -73,7 +73,7 @@ class Generator(
             ((l - degree)..l).forEach { j ->
                 val value = BSpline.basis(d.param, j, knotVector)
                 b.setEntry(i, j, value)
-                wbt.setEntry(j, i, value * d.weight * paramWeightMap.getValue(d.param) / paramCountMap.getValue(d.param))
+                wbt.setEntry(j, i, value * d.weight/* * paramWeightMap.getValue(d.param) / paramCountMap.getValue(d.param)*/)
             }
         }
         return b to wbt

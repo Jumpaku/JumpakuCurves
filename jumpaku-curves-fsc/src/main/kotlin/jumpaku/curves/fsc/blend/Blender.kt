@@ -83,10 +83,15 @@ class Blender(
     ): List<WeightedParamPoint> {
         val blendedData = path.map { (i, j) -> existing[i].lerp(blendingRate, overlapping[j]).weighted(osm[i, j].value) }
         val rearranged = rearrangeParams(path.first(), path.last(), existing, overlapping)
-        return (rearranged.flatMap { it.map { it.weighted(1.0) } } + blendedData).sortedBy { it.param }
+        return (rearranged.map { it.weighted(1.0) } + blendedData).sortedBy { it.param }
     }
 
-    private fun rearrangeParams(pathBegin: Pair<Int, Int>, pathEnd: Pair<Int, Int>, existing: List<ParamPoint>, overlapping: List<ParamPoint>): List<List<ParamPoint>> {
+    fun rearrangeParams(
+            pathBegin: Pair<Int, Int>,
+            pathEnd: Pair<Int, Int>,
+            existing: List<ParamPoint>,
+            overlapping: List<ParamPoint>
+    ): List<ParamPoint> {
         val (beginI, beginJ) = pathBegin
         val (endI, endJ) = pathEnd
         val eBegin = existing[beginI].param
@@ -97,7 +102,7 @@ class Blender(
         val eBack = existing.drop(endI + 1).map { it.copy(param = it.param + blendingRate * (oEnd - eEnd)) }
         val oFront = overlapping.take(beginJ).map { it.copy(param = it.param - (1 - blendingRate) * (oBegin - eBegin)) }
         val oBack = overlapping.drop(endJ + 1).map { it.copy(param = it.param - (1 - blendingRate) * (oEnd - eEnd)) }
-        return listOf(eFront, eBack, oFront, oBack)
+        return listOf(eFront, eBack, oFront, oBack).flatten()
     }
 
     override fun toJson(): JsonElement = jsonObject(
@@ -116,48 +121,3 @@ class Blender(
     }
 }
 
-/*class Blender2(val blender: Blender) {
-
-    fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
-        val existSamples = existing.sample(blender.samplingSpan)
-        val overlapSamples = overlapping.sample(blender.samplingSpan)
-        val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-        val path = blender.findPath(osm).orNull() ?: return none()
-        val pairs = collectPairs(osm, path)
-        return some(resample(existSamples, overlapSamples, pairs, osm))
-    }
-
-    fun collectPairs(osm: OverlapMatrix, path: OverlapPath): OverlapPairList {
-        val q = mutableSetOf<Pair<Int, Int>>()
-        path.forEach { (i, j) ->
-            q += (i downTo 0).takeWhile { osm[it, j] > blender.possibilityThreshold }.map { it to j }
-            q += (i..osm.rowLastIndex).takeWhile { osm[it, j] > blender.possibilityThreshold }.map { it to j }
-            q += (j downTo 0).takeWhile { osm[i, it] > blender.possibilityThreshold }.map { i to it }
-            q += (j..osm.columnLastIndex).takeWhile { osm[i, it] > blender.possibilityThreshold }.map { i to it }
-        }
-        return OverlapPairList(path, q.sortedBy { it.first + it.second })
-    }
-
-    fun resample(
-            existing: List<ParamPoint>,
-            overlapping: List<ParamPoint>,
-            pairs: OverlapPairList,
-            osm: OverlapMatrix
-    ): List<WeightedParamPoint> {
-
-        val blendedData = pairs.map { (i, j) -> existing[i].lerp(blender.blendingRate, overlapping[j]).weighted(osm[i, j].value) }
-        val (blendedBegin, blendedEnd) = blendedData.run { Interval(first().param, last().param) }
-
-        fun List<ParamPoint>.weightedAll() = map { it.weighted(1.0) }
-        fun front(data: List<ParamPoint>, nTake: Int) = blender.rearrangeFront(data.take(nTake), blendedBegin).weightedAll()
-        fun back(data: List<ParamPoint>, nDrop: Int) = blender.rearrangeBack(data.drop(nDrop), blendedEnd).weightedAll()
-        val (beginI, beginJ) = pairs.path.first()
-        val (endI, endJ) = pairs.path.last()
-        return when (pairs.path.type) {
-            OverlapType.ExistOverlap -> front(existing, beginI) + blendedData + back(overlapping, endJ + 1)
-            OverlapType.OverlapExist -> front(overlapping, beginJ) + blendedData + back(existing, endI + 1)
-            OverlapType.ExistOverlapExist -> front(existing, beginI) + blendedData + back(existing, endI + 1)
-            OverlapType.OverlapExistOverlap -> front(overlapping, beginJ) + blendedData + back(overlapping, endJ + 1)
-        }
-    }
-}*/

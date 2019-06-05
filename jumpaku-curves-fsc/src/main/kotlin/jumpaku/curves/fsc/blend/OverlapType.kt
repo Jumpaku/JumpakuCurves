@@ -19,7 +19,7 @@ enum class OverlapType {
                 beginI == 0 && endJ == overlappingLast -> OverlapType.OverlapExist
                 beginJ == 0 && endI == existingLast -> OverlapType.ExistOverlap
                 beginJ == 0 && endJ == overlappingLast -> OverlapType.ExistOverlapExist
-                else -> error("")
+                else -> error("no overlap")
             }
         }
     }
