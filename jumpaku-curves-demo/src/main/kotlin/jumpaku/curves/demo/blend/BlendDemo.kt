@@ -10,8 +10,12 @@ import javafx.stage.Stage
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.none
 import jumpaku.commons.control.some
+import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.polyline.LineSegment
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.demo.blend.BlendDemoSettings.blender
 import jumpaku.curves.demo.blend.BlendDemoSettings.generator
 import jumpaku.curves.demo.blend.BlendDemoSettings.height
@@ -28,6 +32,7 @@ import jumpaku.curves.graphics.fx.DrawingEvent
 import org.jfree.fx.FXGraphics2D
 import java.awt.Color
 import java.awt.Graphics2D
+import kotlin.math.pow
 
 
 fun main(vararg args: String) = Application.launch(BlendDemo::class.java, *args)
@@ -42,18 +47,18 @@ object BlendDemoSettings {
             degree = 3,
             knotSpan = 0.1,
             dataPreparer = DataPreparer(
-                    fillSpan = 0.0375,
-                    extendInnerSpan = 0.075,
-                    extendOuterSpan = 0.075,
+                    fillSpan = 0.1,
+                    extendInnerSpan = 0.1,
+                    extendOuterSpan = 0.1,
                     extendDegree = 2),
             fuzzifier = Fuzzifier.Linear(
-                    velocityCoefficient = 0.016,
-                    accelerationCoefficient = 0.005
+                    velocityCoefficient = 0.008,
+                    accelerationCoefficient = 0.007
             ))
 
     val blender: Blender = Blender(
             samplingSpan = 0.01,
-            blendingRate = 0.6,
+            blendingRate = 0.5,
             possibilityThreshold = Grade(1e-10))
 }
 
@@ -74,26 +79,26 @@ class BlendDemo : Application() {
                 }
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    existingFscOpt.forEach { drawFsc(it, DrawStyle()) }
+                    //existingFscOpt.forEach { drawFsc(it, DrawStyle()) }
 
                     val overlappingFsc = BlendDemoSettings.generator.generate(event.drawingStroke.inputData)
 
                     existingFscOpt.ifPresent { existingFsc ->
-                        Blender2(blender).apply {
+                        Blender2(samplingSpan = blender.samplingSpan, blendingRate = blender.blendingRate, possibilityThreshold = blender.possibilityThreshold, bandWidth = blender.samplingSpan*3) .apply {
                             val existSamples = existingFsc.sample(blender.samplingSpan)
                             val overlapSamples = overlappingFsc.sample(blender.samplingSpan)
                             val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
                             val overlap = detectOverlap(osm)
                             for (i in 0 until osm.rowSize) { for (j in 0 until osm.columnSize) {
-                                color = Color.getHSBColor(240f/360, overlap.osm[i, j].value.toFloat(), 1f)
+                                color = Color.getHSBColor(240f/360, overlap.osm[i, j].value.toFloat().pow(2), 1f)
                                 fillOval(j*2, i*2, 2, 2)
                             } }
                             overlap.pairs.forEach { (i, j) ->
-                                color = Color.getHSBColor(120f/360, overlap.osm[i, j].value.toFloat(), 1f)
+                                color = Color.getHSBColor(120f/360, overlap.osm[i, j].value.toFloat().pow(2), 1f)
                                 fillOval(j*2, i*2, 2, 2)
                             }
                             overlap.path.forEach { (i, j) ->
-                                color = Color.getHSBColor(0f, overlap.osm[i, j].value.toFloat(), 1f)
+                                color = Color.getHSBColor(0f, overlap.osm[i, j].value.toFloat().pow(2), 1f)
                                 fillOval(j*2, i*2, 2, 2)
                             }
                             val (beginI, beginJ) = overlap.path.first()
@@ -105,24 +110,47 @@ class BlendDemo : Application() {
                             val q = overlap.pairs
                             val eFront = (0 until beginI)
                                     .takeWhile { it to 0 !in q }
-                                    .map { existSamples[it].run { copy(param = param + blender.blendingRate * (oBegin - eBegin)) } }
+                                    .forEach {
+                                        color = Color.ORANGE
+                                        fillOval(0, it*2, 2, 2)
+                                    }
+                                    //.map { existSamples[it].run { copy(param = param + blender.blendingRate * (oBegin - eBegin)) } }
                             val eBack = (existSamples.lastIndex downTo (endI + 1))
                                     .takeWhile { it to overlapSamples.lastIndex !in q }
-                                    .map { existSamples[it].run { copy(param = param + blender.blendingRate * (oEnd - eEnd)) } }
+                                    .forEach {
+                                        color = Color.ORANGE
+                                        fillOval(overlapSamples.lastIndex*2, it*2, 2, 2)
+                                    }
+                                    //.map { existSamples[it].run { copy(param = param + blender.blendingRate * (oEnd - eEnd)) } }
                             val oFront = (0 until beginJ)
                                     .takeWhile { 0 to it !in q }
-                                    .map { overlapSamples[it].run { copy(param = param - (1 - blender.blendingRate) * (oBegin - eBegin)) } }
+                                    .forEach {
+                                        color = Color.ORANGE
+                                        fillOval(it*2, 0, 2, 2)
+                                    }
+                                    //.map { overlapSamples[it].run { copy(param = param - (1 - blender.blendingRate) * (oBegin - eBegin)) } }
                             val oBack = (overlapSamples.lastIndex downTo (endJ + 1))
                                     .takeWhile { existSamples.lastIndex to it !in q }
-                                    .map { overlapSamples[it].run { copy(param = param - (1 - blender.blendingRate) * (oEnd - eEnd)) } }
-                            fillPoints(eFront.map { it.point }, FillStyle(Color.RED))
-                            fillPoints(eBack.map { it.point }, FillStyle(Color.ORANGE))
-                            fillPoints(oFront.map { it.point }, FillStyle(Color.BLUE))
-                            fillPoints(oBack.map { it.point }, FillStyle(Color.GREEN))
+                                    .forEach {
+                                        color = Color.ORANGE
+                                        fillOval(it*2, existSamples.lastIndex*2, 2, 2)
+                                    }
+                                    //.map { overlapSamples[it].run { copy(param = param - (1 - blender.blendingRate) * (oEnd - eEnd)) } }
+                            //fillPoints(eFront.map { it.point }, FillStyle(Color.RED))
+                            //fillPoints(eBack.map { it.point }, FillStyle(Color.ORANGE))
+                            //fillPoints(oFront.map { it.point }, FillStyle(Color.BLUE))
+                            //fillPoints(oBack.map { it.point }, FillStyle(Color.GREEN))
                         }.blend(existingFsc, overlappingFsc).forEach {
+                            val a = it.first().param
+                            val b = it.last().param
+                            val maxW = it.maxBy { it.weight }!!.weight
+                            fillPoints(it.mapIndexed { i, (tp, w) -> Point.xyr(50.0.lerp((tp.param - a)/(b - a), width - 50), height - 50 -100*w/maxW, 3.0) }, FillStyle(Color.BLACK))
+                            drawLineSegment(LineSegment(Point.xy(50.0, height-50), Point.xy(width-50, height-50)))
+                            drawLineSegment(LineSegment(Point.xy(50.0, height-150), Point.xy(width-50, height-150)))
+                            it.forEach { fillPoint(it.point.copy(r = 1.0), FillStyle(color = Color.getHSBColor(0f, ((it.weight).toFloat()/2+.5f).coerceIn(0f..1f), 0f))) }
                             existingFscOpt = some(BlendDemoSettings.generator.generate(it))
                         }
-                        blender.blend(existingFsc, overlappingFsc).ifPresent {
+                        Blender2(samplingSpan = blender.samplingSpan, blendingRate = blender.blendingRate, possibilityThreshold = blender.possibilityThreshold, bandWidth = 1e-10).blend(existingFsc, overlappingFsc).ifPresent {
                             gOld.clearRect(0.0, 0.0, width, height)
                             gOld.drawFsc(generator.generate(it), DrawStyle(Color.MAGENTA))
                         }
@@ -130,7 +158,7 @@ class BlendDemo : Application() {
                         existingFscOpt = some(overlappingFsc)
                     }
 
-                    drawFsc(overlappingFsc, DrawStyle(Color.CYAN))
+                    //drawFsc(overlappingFsc, DrawStyle(Color.CYAN))
                     existingFscOpt.forEach {
                         drawFsc(it, DrawStyle(Color.MAGENTA))
                         gNew.clearRect(0.0, 0.0, width, height)

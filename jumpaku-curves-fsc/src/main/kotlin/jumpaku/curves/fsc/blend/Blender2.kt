@@ -1,13 +1,22 @@
 package jumpaku.curves.fsc.blend
 
+import com.github.salomonbrys.kotson.double
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import jumpaku.commons.control.*
+import jumpaku.commons.json.ToJson
+import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.WeightedParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.weighted
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.lerp
+import jumpaku.curves.core.geom.middle
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 
 
 class Overlap(
@@ -19,11 +28,15 @@ class Overlap(
     fun isEmpty(): Boolean = path.isEmpty() && pairs.isEmpty()
 }
 
-class Blender2(val blender: Blender) {
+class Blender2(
+        val samplingSpan: Double = 0.01,
+        val blendingRate: Double = 0.65,
+        val possibilityThreshold: Grade = Grade.FALSE,
+        val bandWidth: Double = samplingSpan*1.5) : ToJson {
 
     fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
-        val existSamples = existing.sample(blender.samplingSpan)
-        val overlapSamples = overlapping.sample(blender.samplingSpan)
+        val existSamples = existing.sample(samplingSpan)
+        val overlapSamples = overlapping.sample(samplingSpan)
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
         val overlap = detectOverlap(osm)
         return optionWhen(!overlap.isEmpty()) { resample(existSamples, overlapSamples, overlap) }
@@ -79,10 +92,43 @@ class Blender2(val blender: Blender) {
             val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
             return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption()
         }
+
+        fun findLeftBottom(osm: OverlapMatrix, path: List<Pair<Int, Int>>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
+            if (path.isEmpty()) return none()
+            fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
+                val (i, j) = key
+                when {
+                    !isAvailable(i, j) -> none()
+                    key.asPair() == path.first() -> some(DpValue(osm[i, j], 0, listOf(key)))
+                    i == 0 -> dpSearch(DpKey(i, j - 1)).map { it.extend(key, osm[i, j]) }
+                    j == 0 -> none()
+                    else -> listOf(DpKey(i - 1, j), DpKey(i - 1, j - 1), DpKey(i, j - 1))
+                            .flatMap { dpSearch(it).map { value -> value.extend(key, osm[i, j]) } }
+                            .firstOrNull().toOption()
+                }
+            }
+            return path.last().let { (i, j) -> dpSearch(DpKey(i, j)) }
+        }
+        fun findRightAbove(osm: OverlapMatrix, path: List<Pair<Int, Int>>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
+            if (path.isEmpty()) return none()
+            fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
+                val (i, j) = key
+                when {
+                    !isAvailable(i, j) -> none()
+                    key.asPair() == path.first() -> some(DpValue(osm[i, j], 0, listOf(key)))
+                    i == 0 -> none()
+                    j == 0 -> dpSearch(DpKey(i, j - 1)).map { it.extend(key, osm[i, j]) }
+                    else -> listOf( DpKey(i, j - 1), DpKey(i - 1, j - 1), DpKey(i - 1, j))
+                            .flatMap { dpSearch(it).map { value -> value.extend(key, osm[i, j]) } }
+                            .firstOrNull().toOption()
+                }
+            }
+            return path.last().let { (i, j) -> dpSearch(DpKey(i, j)) }
+        }
     }
 
     fun detectOverlap(osm: OverlapMatrix): Overlap {
-        val threshold = blender.possibilityThreshold
+        val threshold = possibilityThreshold
         val distMaxPath = PathFinder()
                 .find(osm, compareBy({ it.dist }, { it.grade })) { i, j -> osm[i, j] > threshold }
                 .map { it.subPath.map { it.asPair() } }
@@ -102,12 +148,14 @@ class Blender2(val blender: Blender) {
             overlapInfo: Overlap
     ): List<WeightedParamPoint> {
         val blendedData = overlapInfo.pairs.map { (i, j) ->
-            existing[i].lerp(blender.blendingRate, overlapping[j]).weighted(overlapInfo.osm[i, j].value)
-        }
+            existing[i].lerp(blendingRate, overlapping[j]).weighted(overlapInfo.osm[i, j].value)
+        }.sortedBy { it.param }
+        println("bd : ${blendedData.first().param} ${blendedData.last().param}")
         val rearranged = rearrangeParams(
                 overlapInfo.path.first(), overlapInfo.path.last(), existing, overlapping, overlapInfo)
 
         return (rearranged.flatMap { it.map { it.weighted(1.0) } } + blendedData).sortedBy { it.param }
+                //.let { kernelDensityEstimate(it) }
     }
 
     fun rearrangeParams(
@@ -126,18 +174,46 @@ class Blender2(val blender: Blender) {
         val q = overlapInfo.pairs
         val eFront = (0 until beginI)
                 .takeWhile { it to 0 !in q }
-                .map { existing[it].run { copy(param = param + blender.blendingRate * (oBegin - eBegin)) } }
+                .map { existing[it].run { copy(param = param + blendingRate * (oBegin - eBegin)) } }
         val eBack = (existing.lastIndex downTo (endI + 1))
                 .takeWhile { it to overlapping.lastIndex !in q }
-                .map { existing[it].run { copy(param = param + blender.blendingRate * (oEnd - eEnd)) } }
+                .reversed()
+                .map { existing[it].run { copy(param = param + blendingRate * (oEnd - eEnd)) } }
         val oFront = (0 until beginJ)
                 .takeWhile { 0 to it !in q }
-                .map { overlapping[it].run { copy(param = param - (1 - blender.blendingRate) * (oBegin - eBegin)) } }
+                .map { overlapping[it].run { copy(param = param - (1 - blendingRate) * (oBegin - eBegin)) } }
         val oBack = (overlapping.lastIndex downTo (endJ + 1))
                 .takeWhile { existing.lastIndex to it !in q }
-                .map { overlapping[it].run { copy(param = param - (1 - blender.blendingRate) * (oEnd - eEnd)) } }
+                .reversed()
+                .map { overlapping[it].run { copy(param = param - (1 - blendingRate) * (oEnd - eEnd)) } }
+        if (eFront.isNotEmpty()) println("${eFront.first().param} ${eFront.last().param}")
+        if (oFront.isNotEmpty()) println("${oFront.first().param} ${oFront.last().param}")
+        println("--${eBegin.lerp(blendingRate, oBegin)} ${eEnd.lerp(blendingRate, oEnd)}")
+        if (eBack.isNotEmpty()) println("${eBack.first().param} ${eBack.last().param}")
+        if (oBack.isNotEmpty()) println("${oBack.first().param} ${oBack.last().param}")
+        println()
         return listOf(eFront, eBack, oFront, oBack)
     }
 
-    fun kernelDensityWeight(){}
+    /*fun kernelDensityEstimate(paramPoints: List<WeightedParamPoint>): List<WeightedParamPoint> {
+        val n = paramPoints.size
+        fun kernel(t: Double): Double = if (abs(t) > 1) 0.0 else 15*(1-t*t)*(1-t*t)/16
+        fun density(t: Double): Double = paramPoints.sumByDouble { kernel((t - it.param)/bandWidth) }/n
+        return paramPoints.map { it.run { copy(weight = weight/density(it.param)) } }
+    }*/
+
+    override fun toJson(): JsonElement = jsonObject(
+            "samplingSpan" to samplingSpan.toJson(),
+            "blendingRate" to blendingRate.toJson(),
+            "possibilityThreshold" to possibilityThreshold.toJson())
+
+    override fun toString(): String = toJsonString()
+
+    companion object {
+
+        fun fromJson(json: JsonElement): Blender = Blender(
+                json["samplingSpan"].double,
+                json["blendingRate"].double,
+                Grade.fromJson(json["possibilityThreshold"].asJsonPrimitive))
+    }
 }

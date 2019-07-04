@@ -37,14 +37,13 @@ class DataPreparer(
         require(crispData.size >= 2) { "data.size == ${crispData.size}, too few data" }
 
         return crispData.sortedBy(WeightedParamPoint::param)
-                .let { fill(it) }
+                //.let { fill(it) }
                 .let { extendFront(it) }
                 .let { extendBack(it) }
     }
 
     fun fill(sortedData: List<WeightedParamPoint>): List<WeightedParamPoint> {
         require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
-
         return sortedData.drop(1).fold(mutableListOf(sortedData.first())) { filled, (nextP, nextW) ->
             val (prevP, prevW) = filled.last()
             val n = FastMath.ceil((nextP.param - prevP.param) / fillSpan)
