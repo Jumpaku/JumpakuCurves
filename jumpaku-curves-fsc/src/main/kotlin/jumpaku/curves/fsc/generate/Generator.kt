@@ -33,27 +33,31 @@ class Generator(
         val prepared = dataPreparer.prepare(data)
         val domainExtended = Interval(prepared.first().param, prepared.last().param)
         val kv = KnotVector.clamped(domainExtended, degree, domainExtended.sample(knotSpan).size + degree * 2)
-        val d = createPointDataMatrix(prepared)
-        val (b, wbt) = createModelMatrixAndWeightedTransposed(prepared, kv)
-        val solver = CholeskyDecomposition(wbt.multiply(b), 1e-10, 1e-10).solver
-        val crispCp = solver.solve(wbt.multiply(d)).let { it.data.map { Point.xyz(it[0], it[1], it[2]) } }
-        val f = createFuzzinessDataMatrix(prepared, BSpline(crispCp, kv))
-        val fuzziness = solver.solve(wbt.multiply(f)).let { it.data.map { it[0].coerceAtLeast(0.0) } }
-        val fuzzyCp = crispCp.zip(fuzziness) { p, r -> p.copy(r = r) }
-        return BSpline(fuzzyCp, kv).restrict(domain)
+        return generate(prepared, kv).restrict(domain)
     }
 
-    private fun createPointDataMatrix(data: List<WeightedParamPoint>): RealMatrix =
+    fun generate(data: List<WeightedParamPoint>, knotVector: KnotVector): BSpline {
+        val d = createPointDataMatrix(data)
+        val (b, wbt) = createModelMatrixAndWeightedTransposed(data, knotVector)
+        val solver = CholeskyDecomposition(wbt.multiply(b), 1e-10, 1e-10).solver
+        val crispCp = solver.solve(wbt.multiply(d)).let { it.data.map { Point.xyz(it[0], it[1], it[2]) } }
+        val f = createFuzzinessDataMatrix(data, BSpline(crispCp, knotVector))
+        val fuzziness = solver.solve(wbt.multiply(f)).let { it.data.map { it[0].coerceAtLeast(0.0) } }
+        val fuzzyCp = crispCp.zip(fuzziness) { p, r -> p.copy(r = r) }
+        return BSpline(fuzzyCp, knotVector)
+    }
+
+    internal fun createPointDataMatrix(data: List<WeightedParamPoint>): RealMatrix =
             MatrixUtils.createRealMatrix(data.size, 3).apply {
                 data.forEachIndexed { i, d -> d.run { setRow(i, point.toDoubleArray()) } }
             }
 
-    private fun createFuzzinessDataMatrix(data: List<WeightedParamPoint>, crisp: BSpline): RealMatrix =
+    internal fun createFuzzinessDataMatrix(data: List<WeightedParamPoint>, crisp: BSpline): RealMatrix =
             MatrixUtils.createRealMatrix(data.size, 1).apply {
                 setColumn(0, fuzzifier.fuzzify(crisp, data.map { it.param }).toDoubleArray())
             }
 
-    private fun createModelMatrixAndWeightedTransposed(data: List<WeightedParamPoint>, knotVector: KnotVector)
+    internal fun createModelMatrixAndWeightedTransposed(data: List<WeightedParamPoint>, knotVector: KnotVector)
             : Pair<OpenMapRealMatrix, OpenMapRealMatrix> {
         val cpSize = knotVector.extractedKnots.size - knotVector.degree - 1
         val b = OpenMapRealMatrix(data.size, cpSize)

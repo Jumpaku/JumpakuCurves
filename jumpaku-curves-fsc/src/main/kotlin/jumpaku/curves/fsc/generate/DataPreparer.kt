@@ -37,7 +37,7 @@ class DataPreparer(
         require(crispData.size >= 2) { "data.size == ${crispData.size}, too few data" }
 
         return crispData.sortedBy(WeightedParamPoint::param)
-                //.let { fill(it) }
+                .let { fill(it) }
                 .let { extendFront(it) }
                 .let { extendBack(it) }
     }
