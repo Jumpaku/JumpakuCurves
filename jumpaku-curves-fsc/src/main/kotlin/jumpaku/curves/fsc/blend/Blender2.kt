@@ -61,7 +61,10 @@ class BlendGenerator(
         val data = blendData.data()
         val domain = Interval(data.first().param, data.last().param)
         val extended = dataPreparer.run {
-            data.let { extendFront(it) }.let { extendBack(it) }.let { kernelDensityEstimate(it, samplingSpan) }
+            data
+                    .let { extendFront(it) }
+                    .let { extendBack(it) }
+                    .let { kernelDensityEstimate(it, samplingSpan) }
         }
         val extendedDomain = Interval(extended.first().param, extended.last().param)
         val removedKnots = LinkedList<Knot>()
@@ -82,7 +85,7 @@ class BlendGenerator(
         }
         val s = generator.generate(extended, knotVector)
                 .run { restrict(domain) }
-        //.let { s -> removedKnots.fold(s) { inserted, (v, m) -> inserted.insertKnot(v, m) } }
+                .let { s -> removedKnots.fold(s) { inserted, (v, m) -> inserted.insertKnot(v, m) } }
         return s
     }
 }
@@ -106,19 +109,6 @@ class Blender2(
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
         val overlap = detectOverlap(osm)
         return optionWhen(!overlap.isEmpty()) { resample(existSamples, overlapSamples, overlap) }
-    }
-
-    fun collectPairs(osm: OverlapMatrix, path: List<Pair<Int, Int>>, possibilityThreshold: Grade): Set<Pair<Int, Int>> {
-        if (path.isEmpty()) return emptySet()
-
-        val q = mutableSetOf<Pair<Int, Int>>()
-        path.forEach { (i, j) ->
-            q += (i downTo 0).takeWhile { osm[it, j] > possibilityThreshold }.map { it to j }
-            q += (i..osm.rowLastIndex).takeWhile { osm[it, j] > possibilityThreshold }.map { it to j }
-            q += (j downTo 0).takeWhile { osm[i, it] > possibilityThreshold }.map { i to it }
-            q += (j..osm.columnLastIndex).takeWhile { osm[i, it] > possibilityThreshold }.map { i to it }
-        }
-        return q
     }
 
     fun collectPairs2(osm: OverlapMatrix, path: List<Pair<Int, Int>>, possibilityThreshold: Grade): Set<Pair<Int, Int>> {
@@ -165,12 +155,11 @@ class Blender2(
             }
         }
 
-        val ret = (0..osm.rowLastIndex).flatMap { i ->
+        return (0..osm.rowLastIndex).flatMap { i ->
             (0..osm.columnLastIndex).mapNotNull { j ->
                 (i to j).takeIf { isAvailableLB(it) || isAvailableRA(it) }
             }
         }.toSet()
-        return ret
     }
 
     class PathFinder {
@@ -227,7 +216,7 @@ class Blender2(
                     .find(osm, compareBy { it.dist }) { i, j -> osm[i, j] >= grade && i to j in available }
                     .map { it.subPath.map { it.asPair() } }
         }.orDefault(emptyList())
-        val pairs = collectPairs(osm, gradeMaxPath, threshold)
+        val pairs = collectPairs2(osm, gradeMaxPath, threshold)
         return Overlap(osm, gradeOpt.orDefault(Grade.FALSE), gradeMaxPath, pairs)
     }
 
