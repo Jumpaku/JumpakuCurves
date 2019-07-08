@@ -121,6 +121,58 @@ class Blender2(
         return q
     }
 
+    fun collectPairs2(osm: OverlapMatrix, path: List<Pair<Int, Int>>, possibilityThreshold: Grade): Set<Pair<Int, Int>> {
+        if (path.isEmpty()) return emptySet()
+        val th = possibilityThreshold
+
+        val frontLB = path.first().let { (i, j) ->
+            ((j - 1) downTo 0).takeWhile { osm[i, it] > th }.map { i to it }
+        }
+        val backLB = path.last().let { (i, j) ->
+            ((i + 1)..osm.rowLastIndex).takeWhile { osm[it, j] > th }.map { it to j }
+        }
+        val pLB = (frontLB + path + backLB).toSet()
+        val dpTableLB = HashMap<Pair<Int, Int>, Boolean>()
+        fun isAvailableLB(key: Pair<Int, Int>): Boolean = dpTableLB.getOrPut(key) {
+            val (i, j) = key
+            when {
+                (key in pLB) -> true
+                i > 0 && j < osm.columnLastIndex && osm[i, j] > th ->
+                    setOf((i - 1) to j, i to (j + 1), (i - 1) to (j + 1)).run {
+                        all { isAvailableLB(it) } || any { it in pLB }
+                    }
+                else -> false
+            }
+        }
+
+        val dpTableRA = HashMap<Pair<Int, Int>, Boolean>()
+        val frontRA = path.first().let { (i, j) ->
+            ((i - 1) downTo 0).takeWhile { osm[it, j] > th }.map { it to j }
+        }
+        val backRA = path.last().let { (i, j) ->
+            ((j + 1)..osm.columnLastIndex).takeWhile { osm[i, it] > th }.map { i to it }
+        }
+        val pRA = (frontRA + path + backRA).toSet()
+        fun isAvailableRA(key: Pair<Int, Int>): Boolean = dpTableRA.getOrPut(key) {
+            val (i, j) = key
+            when {
+                (key in pRA) -> true
+                i < osm.rowLastIndex && j > 0 && osm[i, j] > th ->
+                    setOf((i + 1) to j, i to (j - 1), (i + 1) to (j - 1)).run {
+                        all { isAvailableRA(it) } || any { it in pRA }
+                    }
+                else -> false
+            }
+        }
+
+        val ret = (0..osm.rowLastIndex).flatMap { i ->
+            (0..osm.columnLastIndex).mapNotNull { j ->
+                (i to j).takeIf { isAvailableLB(it) || isAvailableRA(it) }
+            }
+        }.toSet()
+        return ret
+    }
+
     class PathFinder {
 
         data class DpKey(val i: Int, val j: Int) {
@@ -136,9 +188,8 @@ class Blender2(
             }
         }
 
-        val dpTable = LinkedHashMap<DpKey, Option<DpValue>>()
-
         fun find(osm: OverlapMatrix, compare: Comparator<DpValue>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
+            val dpTable = LinkedHashMap<DpKey, Option<DpValue>>()
             fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
                 val (i, j) = key
                 val muij = osm[i, j]
@@ -159,44 +210,6 @@ class Blender2(
             val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
             return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption()
         }
-
-        fun findLeftBottom(osm: OverlapMatrix, path: List<Pair<Int, Int>>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
-            if (path.isEmpty()) return none()
-            val start = path.first()
-            val goal = path.last()
-            fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
-                val (i, j) = key
-                when {
-                    !isAvailable(i, j) -> none()
-                    key.asPair() == start -> some(DpValue(osm[i, j], 0, listOf(key)))
-                    i == 0 -> dpSearch(DpKey(i, j - 1)).map { it.extend(key, osm[i, j]) }
-                    j == 0 -> none()
-                    else -> listOf(DpKey(i - 1, j), DpKey(i - 1, j - 1), DpKey(i, j - 1))
-                            .flatMap { dpSearch(it).map { value -> value.extend(key, osm[i, j]) } }
-                            .firstOrNull().toOption()
-                }
-            }
-            return goal.let { (i, j) -> dpSearch(DpKey(i, j)) }
-        }
-
-        fun findRightAbove(osm: OverlapMatrix, path: List<Pair<Int, Int>>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
-            if (path.isEmpty()) return none()
-            val start = path.first()
-            val goal = path.last()
-            fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
-                val (i, j) = key
-                when {
-                    !isAvailable(i, j) -> none()
-                    key.asPair() == start -> some(DpValue(osm[i, j], 0, listOf(key)))
-                    i == 0 -> none()
-                    j == 0 -> dpSearch(DpKey(i - 1, j)).map { it.extend(key, osm[i, j]) }
-                    else -> listOf(DpKey(i, j - 1), DpKey(i - 1, j - 1), DpKey(i - 1, j))
-                            .flatMap { dpSearch(it).map { value -> value.extend(key, osm[i, j]) } }
-                            .firstOrNull().toOption()
-                }
-            }
-            return goal.let { (i, j) -> dpSearch(DpKey(i, j)) }
-        }
     }
 
     fun detectOverlap(osm: OverlapMatrix): Overlap {
@@ -205,7 +218,7 @@ class Blender2(
                 .find(osm, compareBy({ it.dist }, { it.grade })) { i, j -> osm[i, j] > threshold }
                 .map { it.subPath.map { it.asPair() } }
                 .orDefault(emptyList())
-        val available = collectPairs(osm, distMaxPath, threshold)
+        val available = collectPairs2(osm, distMaxPath, threshold)
         val gradeOpt = PathFinder()
                 .find(osm, compareBy({ it.grade }, { it.dist })) { i, j -> osm[i, j] > threshold && i to j in available }
                 .map { it.grade }
