@@ -7,16 +7,15 @@ import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.commons.control.*
 import jumpaku.commons.json.ToJson
-import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.weighted
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.geom.lerp
-import jumpaku.curves.core.geom.middle
+import jumpaku.curves.fsc.generate.DataPreparer
+import jumpaku.curves.fsc.generate.Fuzzifier
+import jumpaku.curves.fsc.generate.Generator
+import java.util.*
+import kotlin.collections.LinkedHashMap
 import kotlin.math.abs
-import kotlin.math.absoluteValue
 
 
 class Overlap(
@@ -28,13 +27,80 @@ class Overlap(
     fun isEmpty(): Boolean = path.isEmpty() && pairs.isEmpty()
 }
 
+class BlendData(
+        val existFront: List<ParamPoint>,
+        val existBack: List<ParamPoint>,
+        val overlapFront: List<ParamPoint>,
+        val overlapBack: List<ParamPoint>,
+        val blended: List<WeightedParamPoint>) {
+
+    fun data(): List<WeightedParamPoint> {
+        return ((existFront + existBack + overlapFront + overlapBack).map { it.weighted(1.0) } + blended)
+                .sortedBy { it.param }
+    }
+
+}
+
+class BlendGenerator(
+        val degree: Int = 3,
+        val knotSpan: Double = 0.1,
+        val dataPreparer: DataPreparer = DataPreparer(knotSpan / degree, knotSpan * 2, knotSpan * 2, 2),
+        val fuzzifier: Fuzzifier = Fuzzifier.Linear(0.86, 0.77)
+) {
+
+    fun kernelDensityEstimate(paramPoints: List<WeightedParamPoint>, bandWidth: Double): List<WeightedParamPoint> {
+        val n = paramPoints.size
+        fun kernel(t: Double): Double = if (abs(t) > 1) 0.0 else 15 * (1 - t * t) * (1 - t * t) / 16
+        fun density(t: Double): Double = paramPoints.sumByDouble { kernel((t - it.param) / bandWidth) } / n
+        return paramPoints.map { it.run { copy(weight = weight / density(it.param)) } }
+    }
+
+    fun generate(blendData: BlendData): BSpline {
+        val generator = Generator(degree, knotSpan, dataPreparer, fuzzifier)
+        val samplingSpan = 0.01
+        val data = blendData.data()
+        val domain = Interval(data.first().param, data.last().param)
+        val extended = dataPreparer.run {
+            data.let { extendFront(it) }.let { extendBack(it) }.let { kernelDensityEstimate(it, samplingSpan) }
+        }
+        val extendedDomain = Interval(extended.first().param, extended.last().param)
+        val removedKnots = LinkedList<Knot>()
+        val knotVector = KnotVector.clamped(extendedDomain, degree, knotSpan).run {
+            val front = blendData.existFront + blendData.overlapFront
+            val back = blendData.existBack + blendData.overlapBack
+            val blendBegin = blendData.blended.first().param
+            val blendEnd = blendData.blended.last().param
+            val remainedKnots = LinkedList<Knot>()
+            fun shouldRemove(knot: Knot): Boolean =
+                    (front.lastOrNull()?.let { knot.value in it.param..blendBegin } ?: false) ||
+                            (back.firstOrNull()?.let { knot.value in blendEnd..it.param } ?: false)
+            knots.forEach { knot ->
+                if (shouldRemove(knot)) removedKnots.add(knot)
+                else remainedKnots.add(knot)
+            }
+            KnotVector(degree, remainedKnots)
+        }
+        val s = generator.generate(extended, knotVector)
+                .run { restrict(domain) }
+        //.let { s -> removedKnots.fold(s) { inserted, (v, m) -> inserted.insertKnot(v, m) } }
+        return s
+    }
+}
+
 class Blender2(
         val samplingSpan: Double = 0.01,
         val blendingRate: Double = 0.65,
-        val possibilityThreshold: Grade = Grade.FALSE,
-        val bandWidth: Double = samplingSpan*1.5) : ToJson {
+        val possibilityThreshold: Grade = Grade.FALSE) : ToJson {
 
     fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
+        val existSamples = existing.sample(samplingSpan)
+        val overlapSamples = overlapping.sample(samplingSpan)
+        val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
+        val overlap = detectOverlap(osm)
+        return optionWhen(!overlap.isEmpty()) { resample(existSamples, overlapSamples, overlap).data() }
+    }
+
+    fun blend2(existing: BSpline, overlapping: BSpline): Option<BlendData> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
@@ -79,15 +145,16 @@ class Blender2(
                 when {
                     !isAvailable(i, j) -> none()
                     i == 0 && j == 0 -> some(DpValue(muij, 0, listOf(key)))
-                    i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key, osm[i, j]) } + DpValue(muij, 0, listOf(key)))
+                    i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
                             .maxWith(compare).toOption()
-                    j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key, osm[i, j]) } + DpValue(muij, 0, listOf(key)))
+                    j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
                             .maxWith(compare).toOption()
                     else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
-                            .flatMap { dpSearch(it).map { value -> value.extend(key, osm[i, j]) } }
+                            .flatMap { dpSearch(it).map { value -> value.extend(key, muij) } }
                             .maxWith(compare).toOption()
                 }
             }
+
             val right = (0 until osm.rowSize).map { DpKey(it, osm.columnLastIndex) }
             val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
             return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption()
@@ -95,11 +162,13 @@ class Blender2(
 
         fun findLeftBottom(osm: OverlapMatrix, path: List<Pair<Int, Int>>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
             if (path.isEmpty()) return none()
+            val start = path.first()
+            val goal = path.last()
             fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
                 val (i, j) = key
                 when {
                     !isAvailable(i, j) -> none()
-                    key.asPair() == path.first() -> some(DpValue(osm[i, j], 0, listOf(key)))
+                    key.asPair() == start -> some(DpValue(osm[i, j], 0, listOf(key)))
                     i == 0 -> dpSearch(DpKey(i, j - 1)).map { it.extend(key, osm[i, j]) }
                     j == 0 -> none()
                     else -> listOf(DpKey(i - 1, j), DpKey(i - 1, j - 1), DpKey(i, j - 1))
@@ -107,23 +176,26 @@ class Blender2(
                             .firstOrNull().toOption()
                 }
             }
-            return path.last().let { (i, j) -> dpSearch(DpKey(i, j)) }
+            return goal.let { (i, j) -> dpSearch(DpKey(i, j)) }
         }
+
         fun findRightAbove(osm: OverlapMatrix, path: List<Pair<Int, Int>>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
             if (path.isEmpty()) return none()
+            val start = path.first()
+            val goal = path.last()
             fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
                 val (i, j) = key
                 when {
                     !isAvailable(i, j) -> none()
-                    key.asPair() == path.first() -> some(DpValue(osm[i, j], 0, listOf(key)))
+                    key.asPair() == start -> some(DpValue(osm[i, j], 0, listOf(key)))
                     i == 0 -> none()
-                    j == 0 -> dpSearch(DpKey(i, j - 1)).map { it.extend(key, osm[i, j]) }
-                    else -> listOf( DpKey(i, j - 1), DpKey(i - 1, j - 1), DpKey(i - 1, j))
+                    j == 0 -> dpSearch(DpKey(i - 1, j)).map { it.extend(key, osm[i, j]) }
+                    else -> listOf(DpKey(i, j - 1), DpKey(i - 1, j - 1), DpKey(i - 1, j))
                             .flatMap { dpSearch(it).map { value -> value.extend(key, osm[i, j]) } }
                             .firstOrNull().toOption()
                 }
             }
-            return path.last().let { (i, j) -> dpSearch(DpKey(i, j)) }
+            return goal.let { (i, j) -> dpSearch(DpKey(i, j)) }
         }
     }
 
@@ -134,73 +206,47 @@ class Blender2(
                 .map { it.subPath.map { it.asPair() } }
                 .orDefault(emptyList())
         val available = collectPairs(osm, distMaxPath, threshold)
-        val (grade, gradeMaxPath) = PathFinder()
+        val gradeOpt = PathFinder()
                 .find(osm, compareBy({ it.grade }, { it.dist })) { i, j -> osm[i, j] > threshold && i to j in available }
-                .map { it.grade to it.subPath.map { it.asPair() } }
-                .orDefault(Grade.FALSE to emptyList())
+                .map { it.grade }
+        val gradeMaxPath = gradeOpt.flatMap { grade ->
+            PathFinder()
+                    .find(osm, compareBy { it.dist }) { i, j -> osm[i, j] >= grade && i to j in available }
+                    .map { it.subPath.map { it.asPair() } }
+        }.orDefault(emptyList())
         val pairs = collectPairs(osm, gradeMaxPath, threshold)
-        return Overlap(osm, grade, gradeMaxPath, pairs)
+        return Overlap(osm, gradeOpt.orDefault(Grade.FALSE), gradeMaxPath, pairs)
     }
 
     fun resample(
             existing: List<ParamPoint>,
             overlapping: List<ParamPoint>,
             overlapInfo: Overlap
-    ): List<WeightedParamPoint> {
+    ): BlendData {
         val blendedData = overlapInfo.pairs.map { (i, j) ->
             existing[i].lerp(blendingRate, overlapping[j]).weighted(overlapInfo.osm[i, j].value)
         }.sortedBy { it.param }
-        println("bd : ${blendedData.first().param} ${blendedData.last().param}")
-        val rearranged = rearrangeParams(
-                overlapInfo.path.first(), overlapInfo.path.last(), existing, overlapping, overlapInfo)
-
-        return (rearranged.flatMap { it.map { it.weighted(1.0) } } + blendedData).sortedBy { it.param }
-                //.let { kernelDensityEstimate(it) }
+        val (pathBeginI, pathBeginJ) = overlapInfo.path.first()
+        val (pathEndI, pathEndJ) = overlapInfo.path.last()
+        val pathBeginExist = existing[pathBeginI].param
+        val pathBeginOverlap = overlapping[pathBeginJ].param
+        val pathEndExist = existing[pathEndI].param
+        val pathEndOverlap = overlapping[pathEndJ].param
+        val frontExistCount = (0 until pathBeginI).takeWhile { (it to 0) !in overlapInfo.pairs }.size
+        val eFront = existing.take(frontExistCount)
+                .map { it.run { copy(param = param + blendingRate * (pathBeginOverlap - pathBeginExist)) } }
+        val backExistCount = (existing.lastIndex downTo (pathEndI + 1)).takeWhile { (it to overlapping.lastIndex) !in overlapInfo.pairs }.size
+        val eBack = existing.takeLast(backExistCount)
+                .map { it.run { copy(param = param + blendingRate * (pathEndOverlap - pathEndExist)) } }
+        val frontOverlapCount = (0 until pathBeginJ).takeWhile { (0 to it) !in overlapInfo.pairs }.size
+        val oFront = overlapping.take(frontOverlapCount)
+                .map { it.run { copy(param = param - (1 - blendingRate) * (pathBeginOverlap - pathBeginExist)) } }
+        val backOverlapCount = (overlapping.lastIndex downTo (pathEndJ + 1)).takeWhile { (existing.lastIndex to it) !in overlapInfo.pairs }.size
+        val oBack = overlapping.takeLast(backOverlapCount)
+                .map { it.run { copy(param = param - (1 - blendingRate) * (pathEndOverlap - pathEndExist)) } }
+        return BlendData(eFront, eBack, oFront, oBack, blendedData)
     }
 
-    fun rearrangeParams(
-            pathBegin: Pair<Int, Int>,
-            pathEnd: Pair<Int, Int>,
-            existing: List<ParamPoint>,
-            overlapping: List<ParamPoint>,
-            overlapInfo: Overlap
-    ): List<List<ParamPoint>> {
-        val (beginI, beginJ) = pathBegin
-        val (endI, endJ) = pathEnd
-        val eBegin = existing[beginI].param
-        val eEnd = existing[endI].param
-        val oBegin = overlapping[beginJ].param
-        val oEnd = overlapping[endJ].param
-        val q = overlapInfo.pairs
-        val eFront = (0 until beginI)
-                .takeWhile { it to 0 !in q }
-                .map { existing[it].run { copy(param = param + blendingRate * (oBegin - eBegin)) } }
-        val eBack = (existing.lastIndex downTo (endI + 1))
-                .takeWhile { it to overlapping.lastIndex !in q }
-                .reversed()
-                .map { existing[it].run { copy(param = param + blendingRate * (oEnd - eEnd)) } }
-        val oFront = (0 until beginJ)
-                .takeWhile { 0 to it !in q }
-                .map { overlapping[it].run { copy(param = param - (1 - blendingRate) * (oBegin - eBegin)) } }
-        val oBack = (overlapping.lastIndex downTo (endJ + 1))
-                .takeWhile { existing.lastIndex to it !in q }
-                .reversed()
-                .map { overlapping[it].run { copy(param = param - (1 - blendingRate) * (oEnd - eEnd)) } }
-        if (eFront.isNotEmpty()) println("${eFront.first().param} ${eFront.last().param}")
-        if (oFront.isNotEmpty()) println("${oFront.first().param} ${oFront.last().param}")
-        println("--${eBegin.lerp(blendingRate, oBegin)} ${eEnd.lerp(blendingRate, oEnd)}")
-        if (eBack.isNotEmpty()) println("${eBack.first().param} ${eBack.last().param}")
-        if (oBack.isNotEmpty()) println("${oBack.first().param} ${oBack.last().param}")
-        println()
-        return listOf(eFront, eBack, oFront, oBack)
-    }
-
-    /*fun kernelDensityEstimate(paramPoints: List<WeightedParamPoint>): List<WeightedParamPoint> {
-        val n = paramPoints.size
-        fun kernel(t: Double): Double = if (abs(t) > 1) 0.0 else 15*(1-t*t)*(1-t*t)/16
-        fun density(t: Double): Double = paramPoints.sumByDouble { kernel((t - it.param)/bandWidth) }/n
-        return paramPoints.map { it.run { copy(weight = weight/density(it.param)) } }
-    }*/
 
     override fun toJson(): JsonElement = jsonObject(
             "samplingSpan" to samplingSpan.toJson(),
