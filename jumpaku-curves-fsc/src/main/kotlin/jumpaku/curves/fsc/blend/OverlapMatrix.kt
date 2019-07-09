@@ -7,7 +7,7 @@ import jumpaku.curves.core.geom.Point
 class OverlapMatrix private constructor(grades: List<List<Grade>>) {
 
     init {
-        require(grades.map { it.size }.distinct().size == 1) { "grades rows must have equivalent sizes" }
+        require(grades.distinctBy { it.size }.size == 1) { "grades rows must have equivalent sizes" }
     }
 
     private val grades: List<List<Grade>> = grades.map { it.toList() }
@@ -21,6 +21,8 @@ class OverlapMatrix private constructor(grades: List<List<Grade>>) {
     val columnLastIndex: Int = columnSize - 1
 
     operator fun get(i: Int, j: Int): Grade = grades[i][j]
+
+    operator fun get(key: Pair<Int, Int>): Grade = get(key.first, key.second)
 
     companion object {
 

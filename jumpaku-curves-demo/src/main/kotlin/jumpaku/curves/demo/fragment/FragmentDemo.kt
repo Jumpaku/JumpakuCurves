@@ -6,7 +6,6 @@ import javafx.stage.Stage
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
-import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.graphics.DrawStyle
@@ -30,11 +29,10 @@ object FragmentDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            dataPreparer = DataPreparer(
-                    fillSpan = 0.025,
-                    extendInnerSpan = 0.075,
-                    extendOuterSpan = 0.075,
-                    extendDegree = 2),
+            fillSpan = 0.025,
+            extendInnerSpan = 0.075,
+            extendOuterSpan = 0.075,
+            extendDegree = 2,
             fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001

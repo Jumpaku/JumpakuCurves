@@ -7,7 +7,6 @@ import javafx.stage.WindowEvent
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
-import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.identify.primitive.CurveClass
@@ -39,11 +38,10 @@ object SnapDemoSettings {
     val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
-            dataPreparer = DataPreparer(
-                    fillSpan = 0.0375,
-                    extendInnerSpan = 0.075,
-                    extendOuterSpan = 0.075,
-                    extendDegree = 2),
+            fillSpan = 0.0375,
+            extendInnerSpan = 0.075,
+            extendOuterSpan = 0.075,
+            extendDegree = 2,
             fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001

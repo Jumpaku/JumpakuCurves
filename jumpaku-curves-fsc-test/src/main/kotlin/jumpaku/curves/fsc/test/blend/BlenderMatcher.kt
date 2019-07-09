@@ -8,7 +8,7 @@ import org.hamcrest.TypeSafeMatcher
 fun isCloseTo(actual: Blender, expected: Blender, error: Double = 1.0e-9): Boolean =
         isCloseTo(actual.samplingSpan, expected.samplingSpan, error) &&
                 isCloseTo(actual.blendingRate, expected.blendingRate, error) &&
-                isCloseTo(actual.possibilityThreshold.value, expected.possibilityThreshold.value, error)
+                isCloseTo(actual.threshold.value, expected.threshold.value, error)
 
 fun closeTo(expected: Blender, precision: Double = 1.0e-9): TypeSafeMatcher<Blender> =
         matcher("close to <$expected> with precision $precision") { actual ->

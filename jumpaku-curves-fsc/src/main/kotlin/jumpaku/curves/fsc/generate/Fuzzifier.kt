@@ -16,6 +16,10 @@ sealed class Fuzzifier : ToJson {
 
     class Linear(val velocityCoefficient: Double, val accelerationCoefficient: Double) : Fuzzifier() {
 
+        init {
+            require(velocityCoefficient >= 0.0)
+            require(accelerationCoefficient >= 0.0)
+        }
         override fun fuzzify(crisp: BSpline, ts: List<Double>): List<Double> {
             val d1 = crisp.derivative
             val d2 = d1.derivative

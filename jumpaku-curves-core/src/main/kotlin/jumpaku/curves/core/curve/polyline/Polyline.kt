@@ -5,7 +5,6 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import io.vavr.Tuple2
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
@@ -64,17 +63,17 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
 
-    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin)._2().subdivide(end)._1()
+    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin).second.subdivide(end).first
 
-    fun subdivide(t: Double): Tuple2<Polyline, Polyline> {
+    fun subdivide(t: Double): Pair<Polyline, Polyline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
         val index = parameters.asVavr().search(t)
         return when {
-            index >= 0 -> Tuple2(Polyline(paramPoints.take(index + 1)), Polyline(paramPoints.drop(index)))
+            index >= 0 -> Pair(Polyline(paramPoints.take(index + 1)), Polyline(paramPoints.drop(index)))
             else -> {
                 val p = evaluate(t)
-                Tuple2(Polyline(paramPoints.take(-1 - index) + listOf(ParamPoint(p, t))),
+                Pair(Polyline(paramPoints.take(-1 - index) + listOf(ParamPoint(p, t))),
                         Polyline((listOf(ParamPoint(p, t)) + paramPoints.drop(-1 - index))))
             }
         }
