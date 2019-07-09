@@ -17,7 +17,6 @@ import jumpaku.curves.demo.blend.BlendDemoSettings.height
 import jumpaku.curves.demo.blend.BlendDemoSettings.width
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
-import jumpaku.curves.fsc.generate.DataPreparer
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.graphics.DrawStyle
@@ -41,11 +40,10 @@ object BlendDemoSettings {
     val generator: Generator = Generator(
             degree = 4,
             knotSpan = 0.1,
-            dataPreparer = DataPreparer(
-                    fillSpan = 0.1 / 3,
-                    extendInnerSpan = 0.15,
-                    extendOuterSpan = 0.1,
-                    extendDegree = 2),
+            fillSpan = 0.1 / 3,
+            extendInnerSpan = 0.15,
+            extendOuterSpan = 0.1,
+            extendDegree = 2,
             fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.008,
                     accelerationCoefficient = 0.007

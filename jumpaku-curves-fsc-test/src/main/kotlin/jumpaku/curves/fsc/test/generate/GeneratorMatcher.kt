@@ -8,7 +8,10 @@ import org.hamcrest.TypeSafeMatcher
 fun isCloseTo(actual: Generator, expected: Generator, error: Double = 1.0e-9): Boolean =
         actual.degree == expected.degree &&
                 isCloseTo(actual.knotSpan, expected.knotSpan, error) &&
-                isCloseTo(actual.dataPreparer, expected.dataPreparer, error) &&
+                isCloseTo(actual.fillSpan, expected.fillSpan, error) &&
+                isCloseTo(actual.extendInnerSpan, expected.extendInnerSpan, error) &&
+                isCloseTo(actual.extendOuterSpan, expected.extendOuterSpan, error) &&
+                actual.extendDegree == expected.extendDegree &&
                 isCloseTo(actual.fuzzifier, expected.fuzzifier, error)
 
 fun closeTo(expected: Generator, precision: Double = 1.0e-9): TypeSafeMatcher<Generator> =
