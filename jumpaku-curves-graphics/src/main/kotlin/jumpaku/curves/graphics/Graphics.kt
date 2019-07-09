@@ -108,8 +108,8 @@ fun Graphics2D.drawCubicBezier(bezier: Bezier, style: (Graphics2D) -> Unit = Dra
 }
 
 fun Graphics2D.drawCubicBSpline(bSpline: BSpline, style: (Graphics2D) -> Unit = DrawStyle()) {
-    require(bSpline.degree <= 3) { "drawCubicBSpline degree(${bSpline.degree})" }
-    bSpline.toBeziers().forEach { drawCubicBezier(it, style) }
+    require(bSpline.degree >= 3) { "drawCubicBSpline degree(${bSpline.degree})" }
+    bSpline.toBeziers().map { (1..(it.degree - 3)).fold(it) { r, _ -> r.reduce() } }.forEach { drawCubicBezier(it, style) }
 }
 
 

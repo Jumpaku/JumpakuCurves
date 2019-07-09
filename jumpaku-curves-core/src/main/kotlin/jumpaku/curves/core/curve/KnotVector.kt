@@ -8,6 +8,7 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.lastIndex
+import kotlin.math.ceil
 
 
 data class Knot(val value: Double, val multiplicity: Int = 1) : ToJson {
@@ -143,6 +144,13 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
                     (0 until knotSize).map { Knot(domain.begin.lerp((it.toDouble() - h) / (l - h), domain.end)) })
         }
 
+        fun uniform(domain: Interval, degree: Int, knotSpan: Double): KnotVector {
+            require(degree >= 0) { "degree($degree)" }
+            require(knotSpan > 0.0) { "knotSpan($knotSpan)" }
+            val knotSize = ceil(domain.span / knotSpan).toInt() + 1 + 2 * degree
+            return uniform(domain, degree, knotSize)
+        }
+
         fun clamped(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             require(degree >= 0) { "degree($degree)" }
             require(knotSize > 1) { "knotSize($knotSize)" }
@@ -151,6 +159,13 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
             val middle = (1 until nSpans).map { Knot(b.lerp(it / nSpans.toDouble(), e)) }
             return KnotVector(degree,
                     listOf(Knot(b, degree + 1)) + middle + listOf(Knot(e, degree + 1)))
+        }
+
+        fun clamped(domain: Interval, degree: Int, knotSpan: Double): KnotVector {
+            require(degree >= 0) { "degree($degree)" }
+            require(knotSpan > 0.0) { "knotSpan($knotSpan)" }
+            val knotSize = ceil(domain.span / knotSpan).toInt() + 1 + 2 * degree
+            return clamped(domain, degree, knotSize)
         }
     }
 }
