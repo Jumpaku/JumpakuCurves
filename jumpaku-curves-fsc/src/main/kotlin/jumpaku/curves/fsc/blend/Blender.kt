@@ -5,119 +5,179 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.commons.control.Option
-import jumpaku.commons.control.none
-import jumpaku.commons.control.some
-import jumpaku.commons.control.toOption
+import jumpaku.commons.control.*
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
+import java.util.*
+import kotlin.collections.LinkedHashMap
 import kotlin.math.abs
 
 
 class Blender(
         val samplingSpan: Double = 0.01,
-        val blendingRate: Double = 0.65,
-        val possibilityThreshold: Grade = Grade.FALSE) : ToJson {
+        val blendingRate: Double = 0.5,
+        val threshold: Grade = Grade.FALSE) : ToJson {
 
     init {
         require(samplingSpan > 0.0)
         require(blendingRate in 0.0..1.0)
     }
 
-    fun blend(existing: BSpline, overlapping: BSpline): Option<List<WeightedParamPoint>> {
+    fun blend(existing: BSpline, overlapping: BSpline): Option<BlendData> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-        return findPath(osm).map { resample(existSamples, overlapSamples, it, osm) }
+        val overlap = detectOverlap(osm)
+        return optionWhen(!overlap.isEmpty()) { resample(existSamples, overlapSamples, overlap) }
     }
 
-    fun findPath(osm: OverlapMatrix): Option<OverlapPath> {
-        data class DpKey(val i: Int, val j: Int) {
-            fun dist(key: DpKey): Int = key.let { abs(i - it.i) + abs(j - it.j) }
-        }
-
-        class DpValue(val dist: Int, val grade: Grade, val gradeSum: Double, val nodes: List<DpKey>) {
-            fun extend(key: DpKey): DpValue {
-                val d = dist + key.dist(nodes.last())
-                val mu = grade and key.run { osm[i, j] }
-                val sum = gradeSum + key.run { osm[i, j] }.value
-                val l = nodes + key
-                return DpValue(d, mu, sum, l)
-            }
-        }
-
-        val compare = compareBy<DpValue>({ it.dist }, { it.grade }, { it.gradeSum })
-        val dpTable = LinkedHashMap<DpKey, Option<DpValue>>(osm.rowSize * osm.columnSize)
-        fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
-            val (i, j) = key
-            val muij = osm[i, j]
-            when {
-                muij <= possibilityThreshold -> none()
-                i == 0 && j == 0 -> some(DpValue(0, muij, muij.value, listOf(key)))
-                i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key) } + DpValue(0, muij, muij.value, listOf(key)))
-                        .maxWith(compare).toOption()
-                j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key) } + DpValue(0, muij, muij.value, listOf(key)))
-                        .maxWith(compare).toOption()
-                else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
-                        .flatMap { dpSearch(it).map { value -> value.extend(key) } }
-                        .maxWith(compare).toOption()
-            }
-        }
-
-        val right = (0 until osm.rowSize).map { DpKey(it, osm.columnLastIndex) }
-        val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
-        return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption().map { value ->
-            val elements = value.nodes.map { e -> e.i to e.j }
-            val type = OverlapType.judgeType(osm.rowSize, osm.columnSize, elements)
-            OverlapPath(type, value.grade, elements)
-        }
+    fun detectOverlap(osm: OverlapMatrix): OverlapState {
+        val distMaxRidge = find(osm, compareBy({ it.dist }, { it.grade })) { i, j -> osm[i, j] > threshold }
+                .map { it.subRidge.map { it.asPair() } }
+                .orDefault(emptyList())
+        val available = collectRange(osm, distMaxRidge, threshold)
+        val gradeOpt =
+                find(osm, compareBy({ it.grade }, { it.dist })) { i, j -> osm[i, j] > threshold && i to j in available }
+                        .map { it.grade }
+        val gradeMaxRidge = gradeOpt.flatMap { grade ->
+            find(osm, compareBy { it.dist }) { i, j -> osm[i, j] >= grade && i to j in available }
+                    .map { it.subRidge.map { it.asPair() } }
+        }.orDefault(emptyList())
+        val range = collectRange(osm, gradeMaxRidge, threshold)
+        return OverlapState(osm, gradeOpt.orDefault(Grade.FALSE), gradeMaxRidge, range)
     }
 
-    fun resample(
-            existing: List<ParamPoint>,
-            overlapping: List<ParamPoint>,
-            path: OverlapPath,
-            osm: OverlapMatrix
-    ): List<WeightedParamPoint> {
-        val blendedData = path.map { (i, j) -> existing[i].lerp(blendingRate, overlapping[j]).weighted(osm[i, j].value) }
-        val rearranged = rearrangeParams(path.first(), path.last(), existing, overlapping)
-        return (rearranged.map { it.weighted(1.0) } + blendedData).sortedBy { it.param }
+    fun resample(existing: List<ParamPoint>, overlapping: List<ParamPoint>, overlapState: OverlapState): BlendData {
+        val blendedData = overlapState.range
+                .map { (i, j) -> existing[i].lerp(blendingRate, overlapping[j]).weighted(overlapState.osm[i, j].value) }
+                .sortedBy { it.param }
+
+        val (ridgeBeginI, ridgeBeginJ) = overlapState.ridge.first()
+        val ridgeBeginExist = existing[ridgeBeginI].param
+        val ridgeBeginOverlap = overlapping[ridgeBeginJ].param
+        val frontExistCount = (0 until ridgeBeginI)
+                .takeWhile { (it to 0) !in overlapState.range }.size
+        val eFront = existing.take(frontExistCount)
+                .map { it.run { copy(param = param + blendingRate * (ridgeBeginOverlap - ridgeBeginExist)) } }
+        val frontOverlapCount = (0 until ridgeBeginJ)
+                .takeWhile { (0 to it) !in overlapState.range }.size
+        val oFront = overlapping.take(frontOverlapCount)
+                .map { it.run { copy(param = param - (1 - blendingRate) * (ridgeBeginOverlap - ridgeBeginExist)) } }
+
+        val (ridgeEndI, ridgeEndJ) = overlapState.ridge.last()
+        val ridgeEndExist = existing[ridgeEndI].param
+        val ridgeEndOverlap = overlapping[ridgeEndJ].param
+        val backExistCount = (existing.lastIndex downTo (ridgeEndI + 1))
+                .takeWhile { (it to overlapping.lastIndex) !in overlapState.range }.size
+        val eBack = existing.takeLast(backExistCount)
+                .map { it.run { copy(param = param + blendingRate * (ridgeEndOverlap - ridgeEndExist)) } }
+        val backOverlapCount = (overlapping.lastIndex downTo (ridgeEndJ + 1))
+                .takeWhile { (existing.lastIndex to it) !in overlapState.range }.size
+        val oBack = overlapping.takeLast(backOverlapCount)
+                .map { it.run { copy(param = param - (1 - blendingRate) * (ridgeEndOverlap - ridgeEndExist)) } }
+
+        return BlendData(eFront + oFront, eBack + oBack, blendedData)
     }
 
-    fun rearrangeParams(
-            pathBegin: Pair<Int, Int>,
-            pathEnd: Pair<Int, Int>,
-            existing: List<ParamPoint>,
-            overlapping: List<ParamPoint>
-    ): List<ParamPoint> {
-        val (beginI, beginJ) = pathBegin
-        val (endI, endJ) = pathEnd
-        val eBegin = existing[beginI].param
-        val eEnd = existing[endI].param
-        val oBegin = overlapping[beginJ].param
-        val oEnd = overlapping[endJ].param
-        val eFront = existing.take(beginI).map { it.copy(param = it.param + blendingRate * (oBegin - eBegin)) }
-        val eBack = existing.drop(endI + 1).map { it.copy(param = it.param + blendingRate * (oEnd - eEnd)) }
-        val oFront = overlapping.take(beginJ).map { it.copy(param = it.param - (1 - blendingRate) * (oBegin - eBegin)) }
-        val oBack = overlapping.drop(endJ + 1).map { it.copy(param = it.param - (1 - blendingRate) * (oEnd - eEnd)) }
-        return listOf(eFront, eBack, oFront, oBack).flatten()
-    }
 
     override fun toJson(): JsonElement = jsonObject(
             "samplingSpan" to samplingSpan.toJson(),
             "blendingRate" to blendingRate.toJson(),
-            "possibilityThreshold" to possibilityThreshold.toJson())
+            "threshold" to threshold.toJson())
 
     override fun toString(): String = toJsonString()
 
     companion object {
 
+        data class DpKey(val i: Int, val j: Int) {
+            fun asPair(): Pair<Int, Int> = i to j
+        }
+
+        class DpValue(val grade: Grade, val dist: Int, val subRidge: List<DpKey>) {
+            fun extend(key: DpKey, keyGrade: Grade): DpValue {
+                val extended = subRidge + key
+                val (fi, fj) = extended.first()
+                val (li, lj) = extended.last()
+                return DpValue(grade and keyGrade, abs(li - fi) + abs(lj - fj), extended)
+            }
+        }
+
+        fun find(osm: OverlapMatrix, compare: Comparator<DpValue>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
+            val dpTable = LinkedHashMap<DpKey, Option<DpValue>>()
+            fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
+                val (i, j) = key
+                val muij = osm[i, j]
+                when {
+                    !isAvailable(i, j) -> none()
+                    i == 0 && j == 0 -> some(DpValue(muij, 0, listOf(key)))
+                    i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
+                            .maxWith(compare).toOption()
+                    j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
+                            .maxWith(compare).toOption()
+                    else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
+                            .flatMap { dpSearch(it).map { value -> value.extend(key, muij) } }
+                            .maxWith(compare).toOption()
+                }
+            }
+
+            val right = (0 until osm.rowSize).map { DpKey(it, osm.columnLastIndex) }
+            val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
+            return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption()
+        }
+
+
+        fun collectRange(osm: OverlapMatrix, ridge: List<Pair<Int, Int>>, threshold: Grade): Set<Pair<Int, Int>> {
+            if (ridge.isEmpty()) return emptySet()
+            val th = threshold
+
+            // Left Bottom
+            val frontLB = ridge.first()
+                    .let { (i, j) -> ((j - 1) downTo 0).takeWhile { osm[i, it] > th }.map { i to it } }
+            val backLB = ridge.last()
+                    .let { (i, j) -> ((i + 1)..osm.rowLastIndex).takeWhile { osm[it, j] > th }.map { it to j } }
+            val pLB = (frontLB + ridge + backLB).toSet()
+            val dpTableLB = HashMap<Pair<Int, Int>, Boolean>()
+            fun isAvailableLB(key: Pair<Int, Int>): Boolean = dpTableLB.getOrPut(key) {
+                val (i, j) = key
+                when {
+                    (key in pLB) -> true
+                    i > 0 && j < osm.columnLastIndex && osm[i, j] > th ->
+                        setOf((i - 1) to j, i to (j + 1), (i - 1) to (j + 1))
+                                .run { all { isAvailableLB(it) } || any { it in pLB } }
+                    else -> false
+                }
+            }
+
+            // Right Above
+            val dpTableRA = HashMap<Pair<Int, Int>, Boolean>()
+            val frontRA = ridge.first()
+                    .let { (i, j) -> ((i - 1) downTo 0).takeWhile { osm[it, j] > th }.map { it to j } }
+            val backRA = ridge.last()
+                    .let { (i, j) -> ((j + 1)..osm.columnLastIndex).takeWhile { osm[i, it] > th }.map { i to it } }
+            val pRA = (frontRA + ridge + backRA).toSet()
+            fun isAvailableRA(key: Pair<Int, Int>): Boolean = dpTableRA.getOrPut(key) {
+                val (i, j) = key
+                when {
+                    (key in pRA) -> true
+                    i < osm.rowLastIndex && j > 0 && osm[i, j] > th ->
+                        setOf((i + 1) to j, i to (j - 1), (i + 1) to (j - 1))
+                                .run { all { isAvailableRA(it) } || any { it in pRA } }
+                    else -> false
+                }
+            }
+
+            return (0..osm.rowLastIndex).flatMap { i ->
+                (0..osm.columnLastIndex).mapNotNull { j ->
+                    (i to j).takeIf { isAvailableLB(it) || isAvailableRA(it) }
+                }
+            }.toSet()
+        }
+
         fun fromJson(json: JsonElement): Blender = Blender(
                 json["samplingSpan"].double,
                 json["blendingRate"].double,
-                Grade.fromJson(json["possibilityThreshold"].asJsonPrimitive))
+                Grade.fromJson(json["threshold"].asJsonPrimitive))
     }
 }
-
