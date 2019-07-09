@@ -1,11 +1,11 @@
 buildscript {
-    ext.jumpaku_curves_version = '1.0.1'
+    ext.jumpaku_curves_version = '2.0.0'
     ext.kotlin_version = '1.3.31'
     ext.jvm_version = '1.8'
     ext.dokka_version = '0.9.18'
     ext.javafxplugin_version = '0.0.7'
     ext.dependencyVersions = [
-            'jumpaku_commons': '1.0.0',
+            'jumpaku_commons': '1.1.0',
             'junit4'         : '4.12',
             'junit5'         : '5.1.0',
             'hamcrest'       : '2.1',
