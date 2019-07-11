@@ -1,42 +1,9 @@
 package jumpaku.curves.experimental.fsc.edit
 
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
 import jumpaku.commons.control.*
-import jumpaku.commons.json.ToJson
-import jumpaku.commons.json.jsonMap
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.fragment.Fragment
-
-
-/*class FscComponent(val graph: Component) : Map<Id, Element> by graph, ToJson {
-
-    fun connectors(): List<Element.Connector> = graph.mapNotNull { it.value as? Element.Connector }
-
-    fun fragments(): List<Element.Target> = graph.mapNotNull { it.value as? Element.Target }
-
-    data class FragmentWithConnectors(
-            val fragment: BSpline,
-            val front: Option<Point>,
-            val back: Option<Point>
-    )
-
-    fun fragmentsWithConnectors(): List<FragmentWithConnectors> = graph
-            .filterValues { it is Element.Target }
-            .map { (id, element) ->
-                val f = element as Element.Target
-                val (front, back) = listOf(graph.prevOf(id), graph.nextOf(id)).map {
-                    it.map { (graph.getValue(it) as Element.Connector).body }
-                }
-                FragmentWithConnectors(f.fragment, front, back)
-            }
-
-    override fun toJson(): JsonElement = jsonObject(
-            "graph" to jsonMap(graph.map { (k, v) -> k.elementId.toJson() to v.toJson() }.toMap()))
-}*/
 
 
 class Editor(
@@ -45,8 +12,8 @@ class Editor(
         val blender: (BSpline, BSpline) -> Option<BSpline>,
         val fragmenter: (BSpline) -> List<Fragment>) {
 
-    fun edit(overlapFsc: BSpline, fscComponents: List<Component>): List<Component> {
-        val (merged, decomposed) = merge(overlapFsc, FscGraph.compose(fscComponents))
+    fun edit(overlapFsc: BSpline, fscPaths: List<FscPath>): List<FscPath> {
+        val (merged, decomposed) = merge(overlapFsc, FscGraph.compose(fscPaths))
         val fragmented = fragment(merged)
         val resolved = resolveConnectivity(decomposed, fragmented)
         return cleanupConnector(resolved)
@@ -68,11 +35,11 @@ class Editor(
         return Pair(merged, graph.remove(removed))
     }
 
-    fun fragment(merged: BSpline): Component {
+    fun fragment(merged: BSpline): FscPath {
         val fragments = fragmenter(merged)
         val elements = fragments.mapIndexed { index, (interval, type) ->
             val (id, e) = when (type) {
-                Fragment.Type.Move -> Element.identified(merged.restrict(interval))
+                Fragment.Type.Move -> Element.target(merged.restrict(interval))
                 Fragment.Type.Stay -> {
                     val ps = interval.sample(nConnectorSamples).map(merged)
                     val body = ps.minBy { it.r }!!.copy(r = ps.map { it.r }.average())
@@ -81,12 +48,12 @@ class Editor(
                     Element.connector(body, first, last)
                 }
             }
-            id to Component.OrderedElement(index, e)
+            id to e
         }
-        return Component(elements.toMap(), false)
+        return FscPath.openPath(elements)
     }
 
-    fun resolveConnectivity(decomposed: FscGraph, fragmented: Component): List<Component> {
+    fun resolveConnectivity(decomposed: FscGraph, fragmented: FscPath): List<FscPath> {
         val (first, _) = fragmented.first.orThrow()
         val (last, _) = fragmented.last.orThrow()
         var g = decomposed.compose(fragmented)
@@ -97,7 +64,7 @@ class Editor(
         return g.decompose()
     }
 
-    fun cleanupConnector(resolved: List<Component>): List<Component> =
+    fun cleanupConnector(resolved: List<FscPath>): List<FscPath> =
             resolved.flatMap { component ->
                 var g: FscGraph = component
                 g = component.first.map { (id, e) ->

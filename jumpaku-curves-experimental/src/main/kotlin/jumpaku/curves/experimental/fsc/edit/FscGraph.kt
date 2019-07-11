@@ -21,9 +21,9 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
 
     constructor(elements: Map<Id, Element>,
                 outgoing: Map<Id, Option<Id>>,
-                incoming: Map<Id, Option<Id>>) : this(elements.map { (id, v) ->
+                incoming: Map<Id, Option<Id>>) : this(elements.map { (id, e) ->
         id to Vertex(
-                elements.getValue(id),
+                element = e,
                 incoming = incoming.getValue(id).map { Edge(it, id) },
                 outgoing = outgoing.getValue(id).map { Edge(id, it) })
     }.toMap())
@@ -110,8 +110,8 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
         return FscGraph(g)
     }
 
-    fun decompose(): List<Component> {
-        val components = mutableListOf<Component>()
+    fun decompose(): List<FscPath> {
+        val components = mutableListOf<FscPath>()
         val vs = keys.toMutableSet()
         while (vs.isNotEmpty()) {
             val origin = vs.first()
@@ -121,9 +121,9 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
             val back = Stream.iterate(some(origin)) {
                 it.flatMap { cur -> nextOf(cur).filter { next -> next != origin } }
             }.takeWhile { it.isDefined }.toList().flatten().drop(1)
-            val component = Component(
+            val component = FscPath(
                     ((front + origin + (back - front)).mapIndexed { index, it ->
-                        it to Component.OrderedElement(index, getValue(it))
+                        it to FscPath.OrderedElement(index, getValue(it))
                     }.toMap()),
                     (nextOf(origin) + prevOf(origin)).isNotEmpty() && front == back
             )

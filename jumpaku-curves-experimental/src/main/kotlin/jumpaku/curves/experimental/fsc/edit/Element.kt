@@ -46,7 +46,7 @@ sealed class Element : ToJson {
         fun connector(body: Point, first: Option<Point>, last: Option<Point>): Pair<Id, Connector> =
                 randomId() to Connector(body, first, last)
 
-        fun identified(fragment: BSpline): Pair<Id, Target> = randomId() to Target(fragment)
+        fun target(fragment: BSpline): Pair<Id, Target> = randomId() to Target(fragment)
 
         fun fromJson(json: JsonElement): Element = when(json["elementClass"].string) {
             "Connector" -> Connector(

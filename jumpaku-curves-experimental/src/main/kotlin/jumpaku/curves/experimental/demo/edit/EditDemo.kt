@@ -1,7 +1,6 @@
 package jumpaku.curves.experimental.demo.edit
 
 
-import com.github.salomonbrys.kotson.toJsonArray
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
@@ -9,11 +8,10 @@ import javafx.scene.input.KeyEvent
 import javafx.stage.Stage
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.history.History
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.experimental.fsc.edit.Component
+import jumpaku.curves.experimental.fsc.edit.FscPath
 import jumpaku.curves.experimental.fsc.edit.Editor
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
@@ -27,7 +25,6 @@ import jumpaku.curves.graphics.fx.DrawingEvent
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
-import java.nio.file.Paths
 
 fun main(vararg args: String) = Application.launch(EditDemo::class.java, *args)
 
@@ -72,11 +69,11 @@ class EditDemo : Application() {
         drawPoints(s.evaluateAll(0.01), style)
     }
 
-    fun Graphics2D.drawFscComponents(components: List<Component>) {
-        components.flatMap { it.fragments().map { it.fragment } }.forEach {
+    fun Graphics2D.drawFscComponents(paths: List<FscPath>) {
+        paths.flatMap { it.fragments().map { it.fragment } }.forEach {
             drawFsc(it, DrawStyle())
         }
-        components.flatMap { it.connectors() }.forEach {
+        paths.flatMap { it.connectors() }.forEach {
             drawPoints(it.front + it.body + it.back, DrawStyle(Color.RED, BasicStroke(3f)))
             drawPolyline(Polyline.of(it.front + it.body + it.back), DrawStyle(Color.RED, BasicStroke(3f)))
         }
@@ -85,9 +82,9 @@ class EditDemo : Application() {
 
 object EditDemoModel {
 
-    private var history: History<List<Component>> = History<List<Component>>().run { exec { emptyList() } }
+    private var history: History<List<FscPath>> = History<List<FscPath>>().run { exec { emptyList() } }
 
-    fun update(fsc: BSpline): List<Component> {
+    fun update(fsc: BSpline): List<FscPath> {
         history = history.exec {
             it.map { Settings.editor.edit(fsc, it) }.orDefault { emptyList() }
         }
@@ -95,7 +92,7 @@ object EditDemoModel {
     }
 
     fun initialize() {
-        history = History<List<Component>>().run { exec { emptyList() } }
+        history = History<List<FscPath>>().run { exec { emptyList() } }
     }
 }
 
