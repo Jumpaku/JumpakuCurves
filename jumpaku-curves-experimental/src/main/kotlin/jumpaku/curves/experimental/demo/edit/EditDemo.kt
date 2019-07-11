@@ -1,6 +1,7 @@
 package jumpaku.curves.experimental.demo.edit
 
 
+import com.github.salomonbrys.kotson.toJsonArray
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
@@ -8,11 +9,12 @@ import javafx.scene.input.KeyEvent
 import javafx.stage.Stage
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.history.History
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.experimental.fsc.edit.Component
 import jumpaku.curves.experimental.fsc.edit.Editor
-import jumpaku.curves.experimental.fsc.edit.FscComponent
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.fragment.Chunk
@@ -42,9 +44,9 @@ class EditDemo : Application() {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
                     val s = Settings.generator.generate(it.drawingStroke)
-                    val path = Paths.get("./jumpaku-curves-experimental/src/test/resources/jumpaku/curves/experimental/fsc/test/edit")
+                    //val path = Paths.get("./jumpaku-curves-experimental/src/test/resources/jumpaku/curves/experimental/fsc/test/edit")
                     //println(Paths.get("./jumpaku-curves-experimental/src/test/resources/jumpaku/curves/experimental").toAbsolutePath().toFile().exists())
-                    path.resolve("EditingFsc${i++}.json").toFile().writeText(s.toJsonString())
+                    //path.resolve("EditingFsc${i++}.json").toFile().writeText(s.toJsonString())
                     val updated = EditDemoModel.update(s)
                     drawFscComponents(updated)
                 }
@@ -53,7 +55,7 @@ class EditDemo : Application() {
         primaryStage.apply {
             scene = Scene(curveControl).apply {
                 addEventHandler(KeyEvent.KEY_PRESSED) {
-                    when(it.code) {
+                    when (it.code) {
                         KeyCode.C -> curveControl.updateGraphics2D {
                             clearRect(0.0, 0.0, width, height)
                             EditDemoModel.initialize()
@@ -64,11 +66,13 @@ class EditDemo : Application() {
             show()
         }
     }
+
     fun Graphics2D.drawFsc(s: BSpline, style: DrawStyle) {
         drawCubicBSpline(s, style)
         drawPoints(s.evaluateAll(0.01), style)
     }
-    fun Graphics2D.drawFscComponents(components: List<FscComponent>) {
+
+    fun Graphics2D.drawFscComponents(components: List<Component>) {
         components.flatMap { it.fragments().map { it.fragment } }.forEach {
             drawFsc(it, DrawStyle())
         }
@@ -81,16 +85,17 @@ class EditDemo : Application() {
 
 object EditDemoModel {
 
-    private var history: History<List<FscComponent>> = History<List<FscComponent>>().run { exec { emptyList() } }
+    private var history: History<List<Component>> = History<List<Component>>().run { exec { emptyList() } }
 
-    fun update(fsc: BSpline): List<FscComponent> {
+    fun update(fsc: BSpline): List<Component> {
         history = history.exec {
             it.map { Settings.editor.edit(fsc, it) }.orDefault { emptyList() }
         }
         return history.current.orThrow()
     }
+
     fun initialize() {
-        history = History<List<FscComponent>>().run { exec { emptyList() } }
+        history = History<List<Component>>().run { exec { emptyList() } }
     }
 }
 
@@ -123,8 +128,8 @@ object Settings {
             fuzzifier = generator.fuzzifier)
     val fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
-                    necessity = 0.4,
-                    possibility = 0.7),
+                    necessity = 0.5,
+                    possibility = 0.8),
             chunkSize = 8,
             minStayTimeSpan = 0.05)
     val editor: Editor = Editor(

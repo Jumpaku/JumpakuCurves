@@ -1,34 +1,62 @@
 package jumpaku.curves.experimental.fsc.edit
 
 
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJson
+import com.google.gson.JsonElement
 import jumpaku.commons.control.None
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.Some
 import jumpaku.commons.control.optionWhen
+import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.jsonMap
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.geom.Point
 
 
-open class Component<K : Any, V : Any>(elements: Map<K, OrderedElement<V>>, val isClosed: Boolean)
-    : Graph<K, V>(constructGraph(elements, isClosed)) {
+open class Component(elements: Map<Id, OrderedElement>, val isClosed: Boolean)
+    : FscGraph(constructGraph(elements, isClosed)) {
 
-    class OrderedElement<V>(val order: Int, val element: V)
+    class OrderedElement(val order: Int, val element: Element)
 
-    private val orderedVertices: List<K> = elements.toList().sortedBy { it.second.order }.map { it.first }
+    private val orderedVertices: List<Id> = elements.toList().sortedBy { it.second.order }.map { it.first }
 
-    val first: Option<Pair<K, V>> = optionWhen(!isClosed) {
+    val first: Option<Pair<Id, Element>> = optionWhen(!isClosed) {
         orderedVertices.first() to getValue(orderedVertices.first())
     }
 
-    val last: Option<Pair<K, V>> = optionWhen(!isClosed) {
+    val last: Option<Pair<Id, Element>> = optionWhen(!isClosed) {
         orderedVertices.last() to getValue(orderedVertices.last())
     }
 
+
+    fun connectors(): List<Element.Connector> = mapNotNull { it.value as? Element.Connector }
+
+    fun fragments(): List<Element.Target> = mapNotNull { it.value as? Element.Target }
+
+    data class FragmentWithConnectors(
+            val fragment: BSpline,
+            val front: Option<Point>,
+            val back: Option<Point>
+    )
+
+    fun fragmentsWithConnectors(): List<FragmentWithConnectors> =
+            filterValues { it is Element.Target }
+                    .map { (id, element) ->
+                        val f = element as Element.Target
+                        val (front, back) = listOf(prevOf(id), nextOf(id)).map {
+                            it.map { (getValue(it) as Element.Connector).body }
+                        }
+                        FragmentWithConnectors(f.fragment, front, back)
+                    }
+
     companion object {
 
-        fun <K : Any, V : Any> constructGraph(
-                elements: Map<K, OrderedElement<V>>,
+        private fun constructGraph(
+                elements: Map<Id, OrderedElement>,
                 isClosed: Boolean
-        ): Map<K, Vertex<K, V>> {
-            val g = elements.mapValues { Vertex<K, V>(it.value.element, None, None) }.toMutableMap()
+        ): Map<Id, Vertex> {
+            val g = elements.mapValues { Vertex(it.value.element, None, None) }.toMutableMap()
             val l = elements.entries.sortedBy { it.value.order }
             (l + if (isClosed) listOf(l.first()) else listOf())
                     .zipWithNext { e0, e1 -> Edge(e0.key, e1.key) }

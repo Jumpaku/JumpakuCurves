@@ -27,7 +27,7 @@ fun isCloseTo(actual: Element, expected: Element, error: Double = 1.0e-9): Boole
                     (if (actual.front.isDefined)isCloseTo(actual.front.orThrow(), expected.front.orThrow(), error) else true) &&
                     actual.back.isDefined == expected.back.isDefined &&
                     (if (actual.back.isDefined)isCloseTo(actual.back.orThrow(), expected.back.orThrow(), error) else true)
-            is Element.Identified -> expected is Element.Identified &&
+            is Element.Target -> expected is Element.Target &&
                     isCloseTo(actual.fragment, expected.fragment, error)
         }
 
@@ -43,7 +43,7 @@ class ElementTest {
             Some(Point.xyr(4.0, 5.0, 6.0)),
             None)
 
-    val target = Element.Identified(BSpline(
+    val target = Element.Target(BSpline(
             listOf(Point.x(1.0), Point.x(2.0), Point.x(3.0), Point.x(4.0)),
             KnotVector.clamped(Interval(5.0, 6.0), 3, 8)))
 
@@ -57,7 +57,7 @@ class ElementTest {
 
     @Test
     fun testIdentified() {
-        println("Identified")
+        println("Target")
         assertThat(target.fragment, `is`(closeTo(BSpline(
                 listOf(Point.x(1.0), Point.x(2.0), Point.x(3.0), Point.x(4.0)),
                 KnotVector.clamped(Interval(5.0, 6.0), 3, 8)))))

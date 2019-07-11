@@ -2,22 +2,21 @@ package jumpaku.curves.experimental.fsc.edit
 
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
-import com.github.salomonbrys.kotson.toJsonArray
 import com.google.gson.JsonElement
 import jumpaku.commons.control.*
 import jumpaku.commons.json.ToJson
-import jumpaku.curves.core.curve.Interval
+import jumpaku.commons.json.jsonMap
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.fragment.Fragment
 
 
-class FscComponent(val graph: Component<Element.Id, Element>) : Map<Element.Id, Element> by graph, ToJson {
+/*class FscComponent(val graph: Component) : Map<Id, Element> by graph, ToJson {
 
     fun connectors(): List<Element.Connector> = graph.mapNotNull { it.value as? Element.Connector }
 
-    fun fragments(): List<Element.Identified> = graph.mapNotNull { it.value as? Element.Identified }
+    fun fragments(): List<Element.Target> = graph.mapNotNull { it.value as? Element.Target }
 
     data class FragmentWithConnectors(
             val fragment: BSpline,
@@ -26,9 +25,9 @@ class FscComponent(val graph: Component<Element.Id, Element>) : Map<Element.Id, 
     )
 
     fun fragmentsWithConnectors(): List<FragmentWithConnectors> = graph
-            .filterValues { it is Element.Identified }
+            .filterValues { it is Element.Target }
             .map { (id, element) ->
-                val f = element as Element.Identified
+                val f = element as Element.Target
                 val (front, back) = listOf(graph.prevOf(id), graph.nextOf(id)).map {
                     it.map { (graph.getValue(it) as Element.Connector).body }
                 }
@@ -36,8 +35,8 @@ class FscComponent(val graph: Component<Element.Id, Element>) : Map<Element.Id, 
             }
 
     override fun toJson(): JsonElement = jsonObject(
-            "graph" to graph.map { (k, v) -> k.elementId.toJson() to v.toJson() }.toJsonArray())
-}
+            "graph" to jsonMap(graph.map { (k, v) -> k.elementId.toJson() to v.toJson() }.toMap()))
+}*/
 
 
 class Editor(
@@ -46,21 +45,21 @@ class Editor(
         val blender: (BSpline, BSpline) -> Option<BSpline>,
         val fragmenter: (BSpline) -> List<Fragment>) {
 
-    fun edit(overlapFsc: BSpline, fscComponents: List<FscComponent>): List<FscComponent> {
-        val (merged, decomposed) = merge(overlapFsc, Graph.compose(fscComponents.map { it.graph }))
+    fun edit(overlapFsc: BSpline, fscComponents: List<Component>): List<Component> {
+        val (merged, decomposed) = merge(overlapFsc, FscGraph.compose(fscComponents))
         val fragmented = fragment(merged)
         val resolved = resolveConnectivity(decomposed, fragmented)
         return cleanupConnector(resolved)
     }
 
-    fun merge(overlap: BSpline, graph: Graph<Element.Id, Element>): Pair<BSpline, Graph<Element.Id, Element>> {
+    fun merge(overlap: BSpline, graph: FscGraph): Pair<BSpline, FscGraph> {
         val selected = graph.filterValues { element ->
-            element is Element.Identified && blender(element.fragment, overlap).isDefined
+            element is Element.Target && blender(element.fragment, overlap).isDefined
         }
         var merged = overlap
-        val removed = mutableSetOf<Element.Id>()
+        val removed = mutableSetOf<Id>()
         selected.forEach { (id, element) ->
-            blender((element as Element.Identified).fragment, merged)
+            blender((element as Element.Target).fragment, merged)
                     .forEach { blended ->
                         merged = blended
                         removed += id
@@ -69,19 +68,16 @@ class Editor(
         return Pair(merged, graph.remove(removed))
     }
 
-    fun fragment(merged: BSpline): Component<Element.Id, Element> {
+    fun fragment(merged: BSpline): Component {
         val fragments = fragmenter(merged)
         val elements = fragments.mapIndexed { index, (interval, type) ->
             val (id, e) = when (type) {
                 Fragment.Type.Move -> Element.identified(merged.restrict(interval))
                 Fragment.Type.Stay -> {
-                    val begin = if (index == 0) interval.begin else fragments[index - 1].interval.end
-                    val l = fragments.lastIndex
-                    val end = if (index == l) interval.end else fragments[index + 1].interval.begin
-                    val ps = Interval(begin, end).sample(nConnectorSamples).map(merged)
+                    val ps = interval.sample(nConnectorSamples).map(merged)
                     val body = ps.minBy { it.r }!!.copy(r = ps.map { it.r }.average())
                     val first = optionWhen(index > 0) { merged(fragments[index - 1].interval.end) }
-                    val last = optionWhen(index < l) { merged(fragments[index + 1].interval.begin) }
+                    val last = optionWhen(index < fragments.lastIndex) { merged(fragments[index + 1].interval.begin) }
                     Element.connector(body, first, last)
                 }
             }
@@ -90,10 +86,7 @@ class Editor(
         return Component(elements.toMap(), false)
     }
 
-    fun resolveConnectivity(
-            decomposed: Graph<Element.Id, Element>,
-            fragmented: Component<Element.Id, Element>
-    ): List<Component<Element.Id, Element>> {
+    fun resolveConnectivity(decomposed: FscGraph, fragmented: Component): List<Component> {
         val (first, _) = fragmented.first.orThrow()
         val (last, _) = fragmented.last.orThrow()
         var g = decomposed.compose(fragmented)
@@ -104,9 +97,9 @@ class Editor(
         return g.decompose()
     }
 
-    fun cleanupConnector(resolved: List<Component<Element.Id, Element>>): List<FscComponent> =
+    fun cleanupConnector(resolved: List<Component>): List<Component> =
             resolved.flatMap { component ->
-                var g: Graph<Element.Id, Element> = component
+                var g: FscGraph = component
                 g = component.first.map { (id, e) ->
                     if (e is Element.Connector && id in g) g.updateValue(id, e.copy(front = None)) else g
                 }.orDefault(g)
@@ -114,7 +107,7 @@ class Editor(
                     if (e is Element.Connector && id in g) g.updateValue(id, e.copy(back = None)) else g
                 }.orDefault(g)
                 g.decompose()
-            }.filter { c -> c.count { (_, e) -> e is Element.Identified } > 0 }.map { FscComponent(it) }
+            }.filter { c -> c.count { (_, e) -> e is Element.Target } > 0 }
 
     /*
     override fun toJson(): JsonElement = jsonObject(
@@ -140,31 +133,31 @@ class Editor(
         */
 
         private data class Connection(
-                val source: Element.Id,
-                val destination: Element.Id,
+                val source: Id,
+                val destination: Id,
                 val grade: Grade = Grade.FALSE,
                 val connector: Option<Element.Connector> = None
         ) {
-            fun connect(graph: Graph<Element.Id, Element>): Graph<Element.Id, Element> {
+            fun connect(graph: FscGraph): FscGraph {
                 val s = graph[source]
                 val d = graph[destination]
                 val c = connector.orNull() ?: return graph
                 return when {
                     s is Element.Connector && d is Element.Connector ->
                         graph.connect(source, destination) { c.withId() }
-                    s is Element.Connector && d is Element.Identified ->
-                        graph.updateValue(source, c).insert(insertedEdges = setOf(Graph.Edge(source, destination)))
-                    s is Element.Identified && d is Element.Connector ->
-                        graph.updateValue(destination, c).insert(insertedEdges = setOf(Graph.Edge(source, destination)))
+                    s is Element.Connector && d is Element.Target ->
+                        graph.updateValue(source, c).insert(insertedEdges = setOf(FscGraph.Edge(source, destination)))
+                    s is Element.Target && d is Element.Connector ->
+                        graph.updateValue(destination, c).insert(insertedEdges = setOf(FscGraph.Edge(source, destination)))
                     else -> graph
                 }
             }
         }
 
         private fun evaluateConnection(
-                srcId: Element.Id,
-                destId: Element.Id,
-                graph: Graph<Element.Id, Element>
+                srcId: Id,
+                destId: Id,
+                graph: FscGraph
         ): Connection {
             val default = Connection(srcId, destId)
             val src = graph[srcId]
@@ -177,11 +170,11 @@ class Editor(
                         // dest is not first
                         graph.prevOf(destId).isDefined ||
                         // src and dest are fragments
-                        src is Element.Identified && dest is Element.Identified ||
+                        src is Element.Target && dest is Element.Target ||
                         // src is complete connector and dest is fragment
-                        src is Element.Connector && src.back is None && dest is Element.Identified ||
+                        src is Element.Connector && src.back is None && dest is Element.Target ||
                         // src is fragment and dest is complete connector
-                        src is Element.Identified && dest is Element.Connector && dest.front is None
+                        src is Element.Target && dest is Element.Connector && dest.front is None
                 -> default
                 // src is last connector and dest is first connector
                 src is Element.Connector && dest is Element.Connector -> default.copy(
@@ -189,12 +182,12 @@ class Editor(
                         connector = Some(Element.Connector(src.body.middle(dest.body), src.front, dest.back))
                 )
                 // src is incomplete connector and dest is fragment
-                src is Element.Connector && src.back is Some && dest is Element.Identified -> default.copy(
+                src is Element.Connector && src.back is Some && dest is Element.Target -> default.copy(
                         grade = src.back.value.isPossible(dest.front),
                         connector = Some(src.copy(back = Some(dest.front)))
                 )
                 // src is fragment and dest is incomplete connector
-                src is Element.Identified && dest is Element.Connector && dest.front is Some -> default.copy(
+                src is Element.Target && dest is Element.Connector && dest.front is Some -> default.copy(
                         grade = src.back.isPossible(dest.front.value),
                         connector = Some(dest.copy(front = Some(src.back)))
                 )

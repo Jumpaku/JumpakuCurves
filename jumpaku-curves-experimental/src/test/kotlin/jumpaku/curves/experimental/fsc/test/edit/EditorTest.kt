@@ -1,16 +1,21 @@
 package jumpaku.curves.experimental.fsc.test.edit
 
+import com.github.salomonbrys.kotson.string
+import jumpaku.commons.json.map
+import jumpaku.commons.json.parseJson
 import jumpaku.commons.test.matcher
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.experimental.fsc.edit.Editor
-import jumpaku.curves.experimental.fsc.edit.FscComponent
+import jumpaku.curves.experimental.fsc.edit.*
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.TypeSafeMatcher
+import org.junit.Assert.assertThat
 import org.junit.Test
 
 
@@ -28,9 +33,22 @@ fun closeTo(expected: FscComponent, precision: Double = 1.0e-9): TypeSafeMatcher
 
 class EditorTest {
 
+    val urlString = "/jumpaku/curves/experimental/fsc/test/edit/"
+    fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
+
+
     @Test
     fun testEditor() {
         println("Editor")
+        var fscComponents: List<FscComponent> = emptyList()
+        for (i in 0..38) {
+            val s = resourceText("EditingFsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
+            fscComponents = Settings.editor.edit(s, fscComponents)
+            /*val e = resourceText("EditedResult$i.json").parseJson().tryMap { json ->
+
+            }.orThrow()
+            assertThat(fscComponents.size, `is`(e.size))*/
+        }
 
     }
 }
@@ -64,8 +82,8 @@ object Settings {
             fuzzifier = generator.fuzzifier)
     val fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
-                    necessity = 0.4,
-                    possibility = 0.7),
+                    necessity = 0.5,
+                    possibility = 0.8),
             chunkSize = 8,
             minStayTimeSpan = 0.05)
     val editor: Editor = Editor(

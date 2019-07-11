@@ -18,19 +18,19 @@ class Fragmenter(
     private enum class State {
 
         STAY {
-            override fun transit(next: Chunk.Label): Fragmenter.State = when (next) {
-                Chunk.Label.STAY, Chunk.Label.UNKNOWN -> Fragmenter.State.STAY
-                Chunk.Label.MOVE -> Fragmenter.State.MOVE
+            override fun transit(next: Chunk.Label): State = when (next) {
+                Chunk.Label.STAY, Chunk.Label.UNKNOWN -> STAY
+                Chunk.Label.MOVE -> MOVE
             }
         },
         MOVE {
-            override fun transit(next: Chunk.Label): Fragmenter.State = when (next) {
-                Chunk.Label.STAY -> Fragmenter.State.STAY
-                Chunk.Label.MOVE, Chunk.Label.UNKNOWN -> Fragmenter.State.MOVE
+            override fun transit(next: Chunk.Label): State = when (next) {
+                Chunk.Label.STAY -> STAY
+                Chunk.Label.MOVE, Chunk.Label.UNKNOWN -> MOVE
             }
         };
 
-        abstract fun transit(next: Chunk.Label): Fragmenter.State
+        abstract fun transit(next: Chunk.Label): State
     }
 
     init {
@@ -49,7 +49,7 @@ class Fragmenter(
                 .map { Chunk(fsc.restrict(it.first(), it.last()).sample(chunkSize)) }
         val states = chunks
                 .map { it.label(threshold) }
-                .fold(mutableListOf(Fragmenter.State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
+                .fold(mutableListOf(State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
                 .drop(1)
         val initial = chunks.first().run { Triple(beginParam, endParam, states.first()) }
         return chunks.zip(states)

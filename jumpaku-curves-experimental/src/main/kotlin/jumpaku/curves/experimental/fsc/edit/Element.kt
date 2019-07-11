@@ -15,8 +15,6 @@ import java.util.*
 
 sealed class Element : ToJson {
 
-    data class Id(val elementId: String)
-
     data class Connector(val body: Point, val front: Option<Point>, val back: Option<Point>) : Element() {
 
         override fun toJson(): JsonElement = jsonObject(
@@ -27,14 +25,14 @@ sealed class Element : ToJson {
         override fun toString(): String = toJsonString()
     }
 
-    class Identified(val fragment: BSpline) : Element() {
+    class Target(val fragment: BSpline) : Element() {
 
         val front: Point = fragment.evaluate(fragment.domain.begin)
 
         val back: Point = fragment.evaluate(fragment.domain.end)
 
         override fun toJson(): JsonElement = jsonObject(
-                "elementClass" to "Identified".toJson(),
+                "elementClass" to "Target".toJson(),
                 "fragment" to fragment.toJson())
         override fun toString(): String = toJsonString()
     }
@@ -48,14 +46,14 @@ sealed class Element : ToJson {
         fun connector(body: Point, first: Option<Point>, last: Option<Point>): Pair<Id, Connector> =
                 randomId() to Connector(body, first, last)
 
-        fun identified(fragment: BSpline): Pair<Id, Identified> = randomId() to Identified(fragment)
+        fun identified(fragment: BSpline): Pair<Id, Target> = randomId() to Target(fragment)
 
         fun fromJson(json: JsonElement): Element = when(json["elementClass"].string) {
             "Connector" -> Connector(
                     Point.fromJson(json["body"]),
                     Option.fromJson(json["front"]).map { Point.fromJson(it) },
                     Option.fromJson(json["back"]).map { Point.fromJson(it) })
-            "Identified" -> Identified(BSpline.fromJson(json["fragment"]))
+            "Target" -> Target(BSpline.fromJson(json["fragment"]))
             else -> error("invalid elementClass ${json["elementClass"].string}")
         }
     }
