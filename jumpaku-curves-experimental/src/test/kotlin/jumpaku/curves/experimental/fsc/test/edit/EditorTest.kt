@@ -19,12 +19,12 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 
 
-fun isCloseTo(actual: FscComponent, expected: FscComponent, error: Double = 1.0e-9): Boolean =
+fun isCloseTo(actual: FscPath, expected: FscPath, error: Double = 1.0e-9): Boolean =
         actual.keys == expected.keys && actual.keys.all { key ->
             isCloseTo(actual[key]!!, expected[key]!!, error)
         }
 
-fun closeTo(expected: FscComponent, precision: Double = 1.0e-9): TypeSafeMatcher<FscComponent> =
+fun closeTo(expected: FscPath, precision: Double = 1.0e-9): TypeSafeMatcher<FscPath> =
         matcher("close to <$expected> with precision $precision") { actual ->
             isCloseTo(actual, expected, precision)
         }
@@ -40,7 +40,7 @@ class EditorTest {
     @Test
     fun testEditor() {
         println("Editor")
-        var fscComponents: List<FscComponent> = emptyList()
+        var fscComponents: List<FscPath> = emptyList()
         for (i in 0..38) {
             val s = resourceText("EditingFsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             fscComponents = Settings.editor.edit(s, fscComponents)

@@ -12,7 +12,7 @@ import jumpaku.curves.core.geom.Point
 open class FscPath internal constructor(elements: Map<Id, OrderedElement>, val isClosed: Boolean)
     : FscGraph(constructGraph(elements, isClosed)) {
 
-    class OrderedElement(val order: Int, val element: Element)
+    internal class OrderedElement(val order: Int, val element: Element)
 
     private val orderedVertices: List<Id> = elements.toList().sortedBy { it.second.order }.map { it.first }
 
