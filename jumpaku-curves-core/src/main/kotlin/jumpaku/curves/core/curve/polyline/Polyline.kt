@@ -81,6 +81,9 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     companion object {
 
+        fun of(points: Iterable<Point>): Polyline =
+                Polyline(points.withIndex().map { (i, p) -> ParamPoint(p, i.toDouble()) })
+
         fun byArcLength(points: Iterable<Point>): Polyline {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
             val paramPoints = chordalParametrize(points.toList())

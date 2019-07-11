@@ -172,3 +172,26 @@ project(':jumpaku-curves-demo') {
         compile project(':jumpaku-curves-graphics')
     }
 }
+
+project(':jumpaku-curves-experimental') {
+
+    apply plugin: "org.openjfx.javafxplugin"
+    javafx {
+        version = "12.0.1"
+        modules = [ 'javafx.controls' ]
+    }
+    dependencies {
+        compile project(':jumpaku-curves-core')
+        compile project(':jumpaku-curves-fsc')
+        compile project(':jumpaku-curves-graphics')
+
+        testCompileOnly "junit:junit:${dependencyVersions.junit4}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
+        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
+        testCompile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
+        testCompile project(':jumpaku-curves-core-test')
+        testCompile project(':jumpaku-curves-fsc-test')
+
+    }
+}

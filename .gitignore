@@ -31,6 +31,9 @@ jumpaku-curves-graphics/out/*
 jumpaku-curves-demo/build/*
 jumpaku-curves-demo/classes/*
 jumpaku-curves-demo/out/*
+jumpaku-curves-experimental/build/*
+jumpaku-curves-experimental/classes/*
+jumpaku-curves-experimental/out/*
 
 # Netbeans
 nbproject/
