@@ -1,21 +1,17 @@
 package jumpaku.curves.experimental.fsc.test.edit
 
-import com.github.salomonbrys.kotson.string
-import jumpaku.commons.json.map
 import jumpaku.commons.json.parseJson
 import jumpaku.commons.test.matcher
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.experimental.fsc.edit.*
 import jumpaku.curves.fsc.blend.BlendGenerator
-import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.experimental.demo.edit.oldblend.Blender
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.TypeSafeMatcher
-import org.junit.Assert.assertThat
 import org.junit.Test
 
 

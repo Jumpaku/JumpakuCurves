@@ -19,9 +19,9 @@ data class Id(val elementId: String)
 open class FscGraph protected constructor(private val structure: Map<Id, Vertex> = emptyMap())
     : Map<Id, Element> by (structure.mapValues { (_, v) -> v.element }), ToJson {
 
-    constructor(elements: Map<Id, Element>,
-                outgoing: Map<Id, Option<Id>>,
-                incoming: Map<Id, Option<Id>>) : this(elements.map { (id, e) ->
+    constructor(elements: Map<Id, Element> = emptyMap(),
+                outgoing: Map<Id, Option<Id>> = emptyMap(),
+                incoming: Map<Id, Option<Id>> = emptyMap()) : this(elements.map { (id, e) ->
         id to Vertex(
                 element = e,
                 incoming = incoming.getValue(id).map { Edge(it, id) },

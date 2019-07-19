@@ -66,7 +66,7 @@ class EditDemo : Application() {
 
     fun Graphics2D.drawFsc(s: BSpline, style: DrawStyle) {
         drawCubicBSpline(s, style)
-        drawPoints(s.evaluateAll(0.01), style)
+        drawPoints(s.evaluateAll(0.05/4), style)
     }
 
     fun Graphics2D.drawFscComponents(paths: List<FscPath>) {
@@ -97,7 +97,7 @@ object EditDemoModel {
 }
 
 
-object Settings {
+private object Settings {
 
     val generator: Generator = Generator(
             degree = 3,
@@ -125,9 +125,9 @@ object Settings {
             fuzzifier = generator.fuzzifier)
     val fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
-                    necessity = 0.5,
-                    possibility = 0.8),
-            chunkSize = 8,
+                    necessity = 0.45,
+                    possibility = 0.75),
+            chunkSize = 4,
             minStayTimeSpan = 0.05)
     val editor: Editor = Editor(
             nConnectorSamples = 17,

@@ -94,7 +94,7 @@ class Editor(
                 json["nConnectorSamples"].int,
                 Grade.fromJson(json["connectionThreshold"].asJsonPrimitive),
                 Generator.fromJson(json["generator"]),
-                Blender.fromJson(json["blender"]),
+                Blender.fromJson(json["blender_old"]),
                 Fragmenter.fromJson(json["fragmenter"])
         )
         */
