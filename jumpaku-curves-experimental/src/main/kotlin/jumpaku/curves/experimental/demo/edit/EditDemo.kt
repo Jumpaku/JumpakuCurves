@@ -11,8 +11,9 @@ import jumpaku.commons.history.History
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.experimental.fsc.edit.FscPath
 import jumpaku.curves.experimental.fsc.edit.Editor
+import jumpaku.curves.experimental.fsc.edit.FscGraph
+import jumpaku.curves.experimental.fsc.edit.FscPath
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.fragment.Chunk
@@ -45,7 +46,7 @@ class EditDemo : Application() {
                     //println(Paths.get("./jumpaku-curves-experimental/src/test/resources/jumpaku/curves/experimental").toAbsolutePath().toFile().exists())
                     //path.resolve("EditingFsc${i++}.json").toFile().writeText(s.toJsonString())
                     val updated = EditDemoModel.update(s)
-                    drawFscComponents(updated)
+                    drawFscComponents(updated.decompose())
                 }
             }
         }
@@ -66,7 +67,7 @@ class EditDemo : Application() {
 
     fun Graphics2D.drawFsc(s: BSpline, style: DrawStyle) {
         drawCubicBSpline(s, style)
-        drawPoints(s.evaluateAll(0.05/4), style)
+        drawPoints(s.evaluateAll(0.05 / 4), style)
     }
 
     fun Graphics2D.drawFscComponents(paths: List<FscPath>) {
@@ -82,17 +83,17 @@ class EditDemo : Application() {
 
 object EditDemoModel {
 
-    private var history: History<List<FscPath>> = History<List<FscPath>>().run { exec { emptyList() } }
+    private var history: History<FscGraph> = History<FscGraph>().run { exec { FscGraph() } }
 
-    fun update(fsc: BSpline): List<FscPath> {
+    fun update(fsc: BSpline): FscGraph {
         history = history.exec {
-            it.map { Settings.editor.edit(fsc, it) }.orDefault { emptyList() }
+            it.map { Settings.editor.edit(fsc, it) }.orDefault { FscGraph() }
         }
         return history.current.orThrow()
     }
 
     fun initialize() {
-        history = History<List<FscPath>>().run { exec { emptyList() } }
+        history = History<FscGraph>().run { exec { FscGraph() } }
     }
 }
 
@@ -132,7 +133,9 @@ private object Settings {
     val editor: Editor = Editor(
             nConnectorSamples = 17,
             connectionThreshold = Grade.FALSE,
-            blender = { exist, overlap -> blender.blend(exist, overlap).map { blendGenerator.generate(it) } },
-            fragmenter = { merged -> fragmenter.fragment(merged) })
+            merger = Editor.mergerOf(blender, blendGenerator),
+            //{ exist, overlap -> blender.blend(exist, overlap).map { blendGenerator.generate(it) } },
+            fragmenter = Editor.fragmenterOf(fragmenter))
+    //{ merged -> fragmenter.fragment(merged) })
 
 }
