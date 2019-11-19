@@ -1,5 +1,9 @@
 package jumpaku.curves.experimental.demo.edit
 
+import com.github.salomonbrys.kotson.array
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.jsonObject
+import com.github.salomonbrys.kotson.toJsonArray
 import com.google.gson.JsonElement
 import javafx.application.Application
 import javafx.scene.Scene
@@ -10,6 +14,7 @@ import javafx.stage.WindowEvent
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.history.Command
 import jumpaku.commons.history.History
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.ParamPoint
@@ -26,6 +31,7 @@ import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.experimental.fsc.edit.Editor
 import jumpaku.curves.experimental.fsc.edit.FscGraph
 import jumpaku.curves.experimental.fsc.edit.FscPath
+import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.fragment.Chunk
@@ -49,6 +55,8 @@ import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.geom.Path2D
+import java.nio.file.Path
+import java.nio.file.Paths
 
 
 object ExpSettings {
@@ -144,8 +152,8 @@ object ExpSettings {
                 frontStop: Point,
                 backStop: Point
         ): Original7Identifier.Result {
-            val grid = ExpSettings.baseGrid
-            val mfgs = ExpSettings.pointSnapper
+            val grid = baseGrid
+            val mfgs = pointSnapper
             val (snappedFront, snappedBack) = listOf(frontStop, backStop).map {
                 mfgs.snap(grid, it).map { it.worldPoint(grid) }.orDefault(it)
             }
@@ -168,8 +176,8 @@ object ExpSettings {
         }
 
         fun snapCE(result: Original7Identifier.Result, frontStop: Point): Original7Identifier.Result {
-            val grid = ExpSettings.baseGrid
-            val mfgs = ExpSettings.pointSnapper
+            val grid = baseGrid
+            val mfgs = pointSnapper
             val r = (result.curve as Reference)
             val center = r.base.center().orThrow()
             val (snappedFront, snappedBack) = listOf(frontStop, center).map {
@@ -195,17 +203,15 @@ object ExpSettings {
             degree = 3,
             knotSpan = 0.1,
             fillSpan = 0.025,
-            extendInnerSpan = 0.15,
-            extendOuterSpan = 0.15,
+            extendInnerSpan = 0.175,
+            extendOuterSpan = 0.175,
             extendDegree = 2,
             fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.0085,
-                    accelerationCoefficient = 0.007
-            )
-    )
+                    accelerationCoefficient = 0.0075))
     val blender = Blender(
             samplingSpan = 0.01,
-            blendingRate = 0.5,
+            blendingRate = 0.65,
             threshold = Grade.FALSE)
     val blendGenerator = BlendGenerator(
             degree = generator.degree,
@@ -218,31 +224,34 @@ object ExpSettings {
     val fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
                     necessity = 0.45,
-                    possibility = 0.75),
-            chunkSize = 4,
+                    possibility = 0.8),
+            chunkSize = 6,
             minStayTimeSpan = 0.05)
     val editor: Editor = Editor(
             nConnectorSamples = 17,
             connectionThreshold = Grade.FALSE,
-            blender = { exist, overlap -> blender.blend(exist, overlap).map { blendGenerator.generate(it) } },
-            fragmenter = { merged -> fragmenter.fragment(merged) })
+            merger = Editor.mergerOf(blender, blendGenerator),
+            fragmenter = Editor.fragmenterOf(fragmenter))
 }
 
-class FscGraphState(val fixed: FscGraph = FscGraph(), val editing: FscGraph = FscGraph())
+class FscGraphState(val fixed: FscGraph = FscGraph(), val editing: FscGraph = FscGraph(), val input: List<List<DrawingStroke>> = listOf(listOf()))
 
 fun main(args: Array<String>) = Application.launch(EditExperiment::class.java, *args)
 
 class EditExperiment : Application() {
 
-    var history: History<FscGraphState> = History<FscGraphState>().run { exec { FscGraphState() } }
+    var history: History<FscGraphState> = History<FscGraphState>().run { exec { loadData() }}//FscGraphState() } }
 
     val curveControl = DrawingControl(ExpSettings.width, ExpSettings.height).apply {
         addEventHandler(DrawingEvent.DRAWING_DONE) {
+            val drawingStroke = it.drawingStroke
+            if (drawingStroke.domain.span < 0.1) return@addEventHandler
             val s = ExpSettings.generator.generate(it.drawingStroke)
             update(Command.Do {
                 it.map {
                     FscGraphState(fixed = it.fixed,
-                            editing = FscGraph.compose(ExpSettings.editor.edit(s, it.editing.decompose())))
+                            editing = ExpSettings.editor.edit(s, it.editing),
+                            input = it.input.run { dropLast(1) + listOf((last() + listOf(drawingStroke))) })
                 }.orThrow()
             })
         }
@@ -256,9 +265,15 @@ class EditExperiment : Application() {
                 update(when (it.code) {
                     KeyCode.C -> Command.Do { FscGraphState() }
                     KeyCode.U -> Command.Undo
+                    KeyCode.S -> {
+                        history.current.forEach { storeData(it) }
+                        Command.Do { it.orDefault { FscGraphState() } }
+                    }
                     KeyCode.ENTER -> Command.Do<FscGraphState> {
                         it.map {
-                            FscGraphState(fixed = it.fixed.compose(it.editing), editing = FscGraph())
+                            FscGraphState(fixed = it.fixed.compose(it.editing),
+                                    editing = FscGraph(),
+                                    input = it.input + listOf(listOf()))
                         }.orThrow()
                     }
                     else -> Command.Do { it.orDefault { FscGraphState() } }
@@ -272,6 +287,8 @@ class EditExperiment : Application() {
     fun update(command: Command<FscGraphState> = Command.Do { it.orDefault(FscGraphState()) }) {
         history = history.exec(command)
         history.current.forEach { draw(it) }
+        history.current.forEach { println(it.input.map { it.size }) }
+
     }
 
     fun draw(state: FscGraphState) {
@@ -375,3 +392,24 @@ fun Graphics2D.drawGrids() {
         drawGrid(base, r, 0.0, 0.0, w, h, DrawStyle(Color.GRAY, BasicStroke(Math.pow(2.0, -r * 0.5).toFloat())))
     }
 }
+
+fun storeData(state: FscGraphState, dir: Path = Paths.get("./")) {
+    dir.resolve("fscGraphState.json").toFile().writeText(state.run {
+        jsonObject(
+                "input" to input.map {
+                    it.map { it.toJson() }.toJsonArray()
+                }.toJsonArray(),
+                "fixed" to fixed.toJson(),
+                "editing" to editing.toJson()).toString()
+    })
+}
+
+fun loadData(dir: Path = Paths.get("./")): FscGraphState =
+        dir.resolve("fscGraphState.json").parseJson().tryMap { json ->
+            FscGraphState(
+                    input = json["input"].array.map { it.array.map { DrawingStroke.fromJson(it) } },
+                    fixed = FscGraph.fromJson(json["fixed"]),
+                    editing = FscGraph.fromJson(json["editing"])
+            )
+        }.orThrow()
+

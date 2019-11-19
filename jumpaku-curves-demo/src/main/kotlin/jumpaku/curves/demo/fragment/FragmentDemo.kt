@@ -40,8 +40,8 @@ object FragmentDemoSettings {
 
     val fragmenter: Fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
-                    necessity = 0.5,
-                    possibility = 0.7),
+                    necessity = 0.37,
+                    possibility = 0.8),
             chunkSize = 4,
             minStayTimeSpan = 0.05)
 }
@@ -55,7 +55,6 @@ class FragmentDemo : Application() {
                     clearRect(0.0, 0.0, width, height)
                     val fsc = FragmentDemoSettings.generator.generate(it.drawingStroke.inputData)
                     val fragments = FragmentDemoSettings.fragmenter.fragment(fsc)
-                    println(fragments.count { it.type == Fragment.Type.Move })
                     fragments.filter { it.type == Fragment.Type.Move }.map { fsc.restrict(it.interval) }.apply {
                         forEach { drawPoints(it.evaluateAll(0.01)) }
                         forEach { drawCubicBSpline(it, DrawStyle(Color.MAGENTA, BasicStroke(3f))) }
