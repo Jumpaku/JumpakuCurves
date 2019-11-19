@@ -150,7 +150,7 @@ project(':jumpaku-curves-graphics') {
     apply plugin: "org.openjfx.javafxplugin"
     javafx {
         version = "12.0.1"
-        modules = [ 'javafx.controls' ]
+        modules = ['javafx.controls']
     }
     dependencies {
         compile project(':jumpaku-curves-core')
@@ -164,7 +164,7 @@ project(':jumpaku-curves-demo') {
     apply plugin: "org.openjfx.javafxplugin"
     javafx {
         version = "12.0.1"
-        modules = [ 'javafx.controls' ]
+        modules = ['javafx.controls']
     }
     dependencies {
         compile project(':jumpaku-curves-core')
@@ -178,12 +178,14 @@ project(':jumpaku-curves-experimental') {
     apply plugin: "org.openjfx.javafxplugin"
     javafx {
         version = "12.0.1"
-        modules = [ 'javafx.controls' ]
+        modules = ['javafx.controls']
     }
     dependencies {
         compile project(':jumpaku-curves-core')
         compile project(':jumpaku-curves-fsc')
         compile project(':jumpaku-curves-graphics')
+        compile 'org.jfree:jfreesvg:3.3'
+
 
         testCompileOnly "junit:junit:${dependencyVersions.junit4}"
         testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
