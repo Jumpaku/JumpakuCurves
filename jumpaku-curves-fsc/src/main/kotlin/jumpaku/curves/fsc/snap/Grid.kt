@@ -37,6 +37,10 @@ open class Grid(
     fun snapToNearestGrid(cursor: Point, resolution: Int): GridPoint = localToWorld(resolution).invert().orThrow()(cursor)
             .let { (x, y, z) -> GridPoint(FastMath.round(x), FastMath.round(y), FastMath.round(z)) }
 
+    fun toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
+        localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
+    }
+
     override fun toString(): String = toJsonString()
 
     override fun toJson(): JsonElement = jsonObject(
