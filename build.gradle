@@ -173,7 +173,7 @@ project(':jumpaku-curves-demo') {
     }
 }
 
-project(':jumpaku-curves-experimental') {
+/*project(':jumpaku-curves-experimental') {
 
     apply plugin: "org.openjfx.javafxplugin"
     javafx {
@@ -196,4 +196,4 @@ project(':jumpaku-curves-experimental') {
         testCompile project(':jumpaku-curves-fsc-test')
 
     }
-}
+}*/

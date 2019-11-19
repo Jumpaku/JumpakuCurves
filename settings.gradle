@@ -4,5 +4,5 @@ include 'jumpaku-curves-core',
         'jumpaku-curves-fsc',
         'jumpaku-curves-fsc-test',
         'jumpaku-curves-graphics',
-        'jumpaku-curves-demo',
-        'jumpaku-curves-experimental'
+        'jumpaku-curves-demo'//,
+        //'jumpaku-curves-experimental'
