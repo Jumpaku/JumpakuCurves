@@ -24,7 +24,7 @@ class PointSnapResult(
             "gridPoint" to gridPoint.toJson(),
             "grade" to grade.toJson())
 
-    fun worldPoint(grid: Grid): Point = grid.toWorldPoint(gridPoint, resolution)
+    fun worldPoint(grid: Grid): Point = grid.toWorldPoint(gridPoint, resolution).copy(r = grid.fuzziness(resolution))
 
     companion object {
 

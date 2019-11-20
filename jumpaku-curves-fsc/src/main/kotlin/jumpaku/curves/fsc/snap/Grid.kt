@@ -39,6 +39,7 @@ open class Grid(
 
     fun toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
         localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
+                .copy(r = fuzziness(resolution))
     }
 
     override fun toString(): String = toJsonString()

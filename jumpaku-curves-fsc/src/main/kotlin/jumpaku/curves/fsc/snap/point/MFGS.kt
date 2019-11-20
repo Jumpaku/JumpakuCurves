@@ -18,7 +18,7 @@ class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0) : PointSnappe
 
         val candidates = (minResolution..maxResolution).map {
             val gridPoint = grid.snapToNearestGrid(cursor, it)
-            val grade = grid.toWorldPoint(gridPoint, it).copy(r = grid.fuzziness(it)).isNecessary(cursor)
+            val grade = grid.toWorldPoint(gridPoint, it).isNecessary(cursor)
             TmpResult(it, gridPoint, grade)
         }
         val necessities = candidates.map { it.necessity }
