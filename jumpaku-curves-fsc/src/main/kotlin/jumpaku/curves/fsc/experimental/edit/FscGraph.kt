@@ -46,6 +46,7 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
     init {
 
     }
+
     fun compose(g: FscGraph): FscGraph = FscGraph(structure + g.structure)
 
     fun nextOf(v: Id): Option<Id> {

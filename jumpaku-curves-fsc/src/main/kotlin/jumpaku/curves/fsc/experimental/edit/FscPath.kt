@@ -31,8 +31,8 @@ open class FscPath internal constructor(elements: Map<Id, OrderedElement>, val i
             require((prev is Element.Connector && next is Element.Target && prev.back is Some) ||
                     (prev is Element.Target && next is Element.Connector && next.front is Some))
         }
-        (getValue(orderedVertices.first()) as? Element.Connector)?.run { require(front is None || !isClosed) }
-        (getValue(orderedVertices.last()) as? Element.Connector)?.run { require(back is None || !isClosed) }
+        //(getValue(orderedVertices.first()) as? Element.Connector)?.run { require(front is None || !isClosed) }
+        //(getValue(orderedVertices.last()) as? Element.Connector)?.run { require(back is None || !isClosed) }
     }
 
     fun connectors(): List<Element.Connector> = mapNotNull { it.value as? Element.Connector }

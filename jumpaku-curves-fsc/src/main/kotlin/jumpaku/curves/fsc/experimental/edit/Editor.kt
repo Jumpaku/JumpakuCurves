@@ -63,11 +63,9 @@ class Editor(
     }
 
     fun resolveConnectivity(decomposed: FscGraph, fragmented: FscPath): List<FscPath> {
-        val paths = decomposed.decompose().filter { it.any { (_, e) -> e is Element.Target } }
-        if (fragmented.all { (_, e) -> e is Element.Connector }) return paths
         val (first, _) = fragmented.first.orThrow()
         val (last, _) = fragmented.last.orThrow()
-        var g = FscGraph.compose(paths + fragmented)
+        var g = decomposed.compose(fragmented)
         g = g.vertices.map { evaluateConnection(it, first, g) }.filter { it.grade > connectionThreshold }
                 .maxBy { it.grade }?.let { it.connect(g) } ?: g
         g = g.vertices.map { evaluateConnection(last, it, g) }.filter { it.grade > connectionThreshold }
@@ -85,7 +83,7 @@ class Editor(
                 if (e is Element.Connector && id in g) g.updateValue(id, e.copy(back = None)) else g
             }.orDefault(g)
             g.decompose()
-        }
+        }.filter { path -> path.count { (_, e) -> e is Element.Target } > 0 }
         return FscGraph.compose(paths)
     }
 

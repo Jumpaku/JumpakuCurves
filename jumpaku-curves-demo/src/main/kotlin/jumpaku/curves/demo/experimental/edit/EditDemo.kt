@@ -5,16 +5,14 @@ import javafx.scene.Scene
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.stage.Stage
-import jumpaku.commons.control.orDefault
-import jumpaku.commons.history.History
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.fsc.experimental.edit.Editor
-import jumpaku.curves.fsc.experimental.edit.FscGraph
-import jumpaku.curves.fsc.experimental.edit.FscPath
 import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.fsc.experimental.edit.Editor
+import jumpaku.curves.fsc.experimental.edit.FscGraph
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.Fuzzifier
@@ -25,6 +23,8 @@ import jumpaku.curves.graphics.fx.DrawingEvent
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
+import java.io.File
+import java.nio.file.Paths
 
 fun main(vararg args: String) = Application.launch(EditDemo::class.java, *args)
 
@@ -34,14 +34,24 @@ class EditDemo : Application() {
     val width = 1600.0
     val height = 900.0
 
+    val fscs = (0..38).flatMap {
+        File("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/EditingFsc$it.json")
+                .parseJson().tryMap { BSpline.fromJson(it) }.value()
+    }
+
+    var fscIndex = 0;
+
+    var fscGraph: FscGraph = FscGraph()
+
     override fun start(primaryStage: Stage) {
+        println(Paths.get(".").toAbsolutePath())
         val curveControl = DrawingControl(width, height).apply {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
                     val s = Settings.generator.generate(it.drawingStroke)
-                    val updated = EditDemoModel.update(s)
-                    drawFscComponents(updated.decompose())
+                    fscGraph = Settings.editor.edit(s, fscGraph)
+                    drawFscGraph(fscGraph)
                 }
             }
         }
@@ -49,9 +59,31 @@ class EditDemo : Application() {
             scene = Scene(curveControl).apply {
                 addEventHandler(KeyEvent.KEY_PRESSED) {
                     when (it.code) {
-                        KeyCode.C -> curveControl.updateGraphics2D {
-                            clearRect(0.0, 0.0, width, height)
-                            EditDemoModel.initialize()
+                        KeyCode.C -> {
+                            fscGraph = FscGraph()
+                            curveControl.updateGraphics2D { clearRect(0.0, 0.0, width, height) }
+                        }
+                        KeyCode.ENTER -> {
+                            if (fscIndex in 0..38) {
+                                val s = fscs[fscIndex]
+                                curveControl.updateGraphics2D {
+                                    clearRect(0.0, 0.0, width, height)
+                                    val prev = fscGraph
+                                    val next = Settings.editor.edit(s, prev)
+                                    drawTargets(prev, DrawStyle(color = Color.BLUE))
+                                    drawConnectors(prev, DrawStyle(Color.MAGENTA, BasicStroke()))
+                                    drawFsc(s, DrawStyle(color = Color.CYAN))
+                                    drawFscGraph(next)
+                                    fscGraph = next
+                                }
+
+                                /*File("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/EditedFscGraph$fscIndex.json").run {
+                                createNewFile()
+                                writeText(fscGraph.toJsonString())
+                            }*/
+                                println("$fscIndex : ${fscGraph.vertices.size}")
+                                fscIndex++
+                            }
                         }
                     }
                 }
@@ -65,33 +97,24 @@ class EditDemo : Application() {
         drawPoints(s.evaluateAll(0.05 / 4), style)
     }
 
-    fun Graphics2D.drawFscComponents(paths: List<FscPath>) {
-        paths.flatMap { it.fragments().map { it.fragment } }.forEach {
-            drawFsc(it, DrawStyle())
+    fun Graphics2D.drawConnectors(graph: FscGraph, style: DrawStyle = DrawStyle()) {
+        graph.decompose().flatMap { it.connectors() }.forEach {
+            drawPoints(it.front + it.body + it.back, style)
+            drawPolyline(Polyline.of(it.front + it.body + it.back), style)
         }
-        paths.flatMap { it.connectors() }.forEach {
-            drawPoints(it.front + it.body + it.back, DrawStyle(Color.RED, BasicStroke(3f)))
-            drawPolyline(Polyline.of(it.front + it.body + it.back), DrawStyle(Color.RED, BasicStroke(3f)))
+    }
+
+    fun Graphics2D.drawTargets(graph: FscGraph, style: DrawStyle = DrawStyle()) {
+        graph.decompose().flatMap { it.fragments().map { it.fragment } }.forEach {
+            drawFsc(it, style)
         }
+    }
+
+    fun Graphics2D.drawFscGraph(graph: FscGraph) {
+        drawTargets(graph, DrawStyle())
+        drawConnectors(graph, DrawStyle(Color.RED, BasicStroke(3f)))
     }
 }
-
-object EditDemoModel {
-
-    private var history: History<FscGraph> = History<FscGraph>().run { exec { FscGraph() } }
-
-    fun update(fsc: BSpline): FscGraph {
-        history = history.exec {
-            it.map { Settings.editor.edit(fsc, it) }.orDefault { FscGraph() }
-        }
-        return history.current.orThrow()
-    }
-
-    fun initialize() {
-        history = History<FscGraph>().run { exec { FscGraph() } }
-    }
-}
-
 
 private object Settings {
 
