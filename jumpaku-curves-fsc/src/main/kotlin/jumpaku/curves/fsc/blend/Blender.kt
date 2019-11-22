@@ -14,6 +14,7 @@ import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.math.abs
 
+data class BlendResult(val grade: Grade, val blendedData: Option<BlendData>)
 
 class Blender(
         val samplingSpan: Double = 0.01,
@@ -25,12 +26,14 @@ class Blender(
         require(blendingRate in 0.0..1.0)
     }
 
-    fun blend(existing: BSpline, overlapping: BSpline): Option<BlendData> {
+    fun blend(existing: BSpline, overlapping: BSpline): BlendResult {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
         val overlap = detectOverlap(osm)
-        return optionWhen(!overlap.isEmpty()) { resample(existSamples, overlapSamples, overlap) }
+        return overlap.let {
+            BlendResult(it.grade, optionWhen(!it.isEmpty()) { resample(existSamples, overlapSamples, it) })
+        }
     }
 
     fun detectOverlap(osm: OverlapMatrix): OverlapState {

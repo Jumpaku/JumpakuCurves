@@ -13,6 +13,7 @@ import jumpaku.curves.fsc.blend.BlendGenerator
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.experimental.edit.Editor
 import jumpaku.curves.fsc.experimental.edit.FscGraph
+import jumpaku.curves.fsc.experimental.edit.Merger
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.Fuzzifier
@@ -23,7 +24,6 @@ import jumpaku.curves.graphics.fx.DrawingEvent
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
-import java.io.File
 import java.nio.file.Paths
 
 fun main(vararg args: String) = Application.launch(EditDemo::class.java, *args)
@@ -34,12 +34,13 @@ class EditDemo : Application() {
     val width = 1600.0
     val height = 900.0
 
+    val dirPath = Paths.get("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/")
     val fscs = (0..38).flatMap {
-        File("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/EditingFsc$it.json")
+        dirPath.resolve("EditingFsc$it.json")
                 .parseJson().tryMap { BSpline.fromJson(it) }.value()
     }
 
-    var fscIndex = 0;
+    var fscIndex = 0
 
     var fscGraph: FscGraph = FscGraph()
 
@@ -49,8 +50,15 @@ class EditDemo : Application() {
             addEventHandler(DrawingEvent.DRAWING_DONE) {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
-                    val s = Settings.generator.generate(it.drawingStroke)
-                    fscGraph = Settings.editor.edit(s, fscGraph)
+                    val fsc = Settings.generator.generate(it.drawingStroke)
+                    fscGraph = Settings.editor.edit(fsc, fscGraph)
+                    dirPath.resolve("EditingFsc$fscIndex.json").toFile()
+                            .apply { createNewFile() }
+                            .writeText(fsc.toJsonString())
+                    dirPath.resolve("EditedFscGraph$fscIndex.json").toFile()
+                            .apply { createNewFile() }
+                            .writeText(fscGraph.toJsonString())
+                    ++fscIndex
                     drawFscGraph(fscGraph)
                 }
             }
@@ -61,6 +69,7 @@ class EditDemo : Application() {
                     when (it.code) {
                         KeyCode.C -> {
                             fscGraph = FscGraph()
+                            fscIndex = 0
                             curveControl.updateGraphics2D { clearRect(0.0, 0.0, width, height) }
                         }
                         KeyCode.ENTER -> {
@@ -151,6 +160,6 @@ private object Settings {
     val editor: Editor = Editor(
             nConnectorSamples = 17,
             connectionThreshold = Grade.FALSE,
-            merger = Editor.mergerOf(blender, blendGenerator),
-            fragmenter = Editor.fragmenterOf(fragmenter))
+            merger = Merger(blender, blendGenerator),
+            fragmenter = fragmenter)
 }

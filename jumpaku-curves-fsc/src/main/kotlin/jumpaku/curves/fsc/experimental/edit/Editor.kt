@@ -1,7 +1,5 @@
 package jumpaku.curves.fsc.experimental.edit
 
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
@@ -10,16 +8,20 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.blend.BlendGenerator
+import jumpaku.curves.fsc.blend.BlendResult
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 
 
+class Merger(val blender: Blender, val blendGenerator: BlendGenerator)
+
 class Editor(
         val nConnectorSamples: Int = 17,
         val connectionThreshold: Grade = Grade.FALSE,
-        val merger: (BSpline, BSpline) -> Option<BSpline>,
-        val fragmenter: (BSpline) -> List<Fragment>) : ToJson {
+        val merger: Merger,//(BSpline, BSpline) -> Option<BSpline>,
+        val fragmenter: Fragmenter//(BSpline) -> List<Fragment>
+) : ToJson {
 
     fun edit(overlapFsc: BSpline, fscGraph: FscGraph): FscGraph {
         val (merged, decomposed) = merge(overlapFsc, fscGraph)
@@ -29,23 +31,31 @@ class Editor(
     }
 
     fun merge(overlap: BSpline, graph: FscGraph): Pair<BSpline, FscGraph> {
-        val selected = graph.filterValues { element ->
-            element is Element.Target && merger(element.fragment, overlap).isDefined
+        data class Selected(val id: Id, val target: Element.Target, val grade: Grade)
+        val selected = graph.flatMap { (id, element) ->
+            when(element) {
+                is Element.Target -> merger.blender.blend(element.fragment, overlap).let { (grade, blended) ->
+                    blended.map { Selected(id, element, grade) }
+                }
+                is Element.Connector -> emptyList<Selected>()
+            }
+        }.sortedByDescending { it.grade }.map { it.id to it.target }
+        fun merge(exist: BSpline, overlap: BSpline): Option<BSpline> = merger.run {
+            blender.blend(exist, overlap).run { blendedData.map { blendGenerator.generate(it) } }
         }
         var merged = overlap
         val removed = mutableSetOf<Id>()
-        selected.forEach { (id, element) ->
-            merger((element as Element.Target).fragment, merged)
-                    .forEach { blended ->
-                        merged = blended
-                        removed += id
-                    }
+        selected.forEach { (id, target) ->
+            merge(target.fragment, merged).forEach { blended ->
+                merged = blended
+                removed += id
+            }
         }
         return Pair(merged, graph.remove(removed))
     }
 
     fun fragment(merged: BSpline): FscPath {
-        val fragments = fragmenter(merged)
+        val fragments = fragmenter.fragment(merged)
         val elements = fragments.mapIndexed { index, (interval, type) ->
             val (id, e) = when (type) {
                 Fragment.Type.Move -> Element.target(merged.restrict(interval))
@@ -95,22 +105,6 @@ class Editor(
 
 
     companion object {
-
-        fun fromJsonWith(json: JsonElement,
-                         merger: (BSpline, BSpline) -> Option<BSpline>,
-                         fragmenter: (BSpline) -> List<Fragment>): Editor = Editor(
-                json["nConnectorSamples"].int,
-                Grade.fromJson(json["connectionThreshold"].asJsonPrimitive),
-                merger,
-                fragmenter)
-
-        fun mergerOf(blender: Blender, blendGenerator: BlendGenerator): (BSpline, BSpline) -> Option<BSpline> =
-                fun(exist: BSpline, overlap: BSpline): Option<BSpline> {
-                    return blender.blend(exist, overlap).map { blendGenerator.generate(it) }
-                }
-
-        fun fragmenterOf(fragmenter: Fragmenter): (BSpline) -> List<Fragment> =
-                fun(merged: BSpline): List<Fragment> { return fragmenter.fragment(merged) }
 
         private data class Connection(
                 val source: Id,

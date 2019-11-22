@@ -8,7 +8,7 @@ import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import kotlin.math.sqrt
 
 class ReferenceTest {

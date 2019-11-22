@@ -7,6 +7,7 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.blend.BlendData
 import jumpaku.curves.fsc.blend.Blender
 import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
 import org.junit.Test
 
@@ -29,9 +30,10 @@ class BlenderTest {
             val expected = resourceText("BlendDataOpt$i.json")
                     .parseJson().value().flatMap { Option.fromJson(it).map { BlendData.fromJson(it) } }
             val actual = blender.blend(existing, overlapping)
-            assertThat(actual.isDefined, `is`(expected.isDefined))
-            if (actual.isDefined) {
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+            assertThat(actual.blendedData.isDefined, `is`(expected.isDefined))
+            if (actual.blendedData.isDefined) {
+                assertThat(actual.grade, `is`(greaterThan(blender.threshold)))
+                assertThat(actual.blendedData.orThrow(), `is`(closeTo(expected.orThrow())))
             }
         }
     }

@@ -67,17 +67,17 @@ class BlendDemo : Application() {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
                     val overlappingFsc = generator.generate(event.drawingStroke)
-                    existingFscOpt
-                            .ifPresent { existingFsc ->
-                                drawFsc(existingFsc, DrawStyle())
-                                drawFsc(overlappingFsc, DrawStyle(Color.CYAN))
-                                blender.blend(existingFsc, overlappingFsc).forEach {
-                                    existingFscOpt = some(blendGenerator.generate(it))
-                                }
+                    existingFscOpt.ifPresent { existingFsc ->
+                        drawFsc(existingFsc, DrawStyle())
+                        drawFsc(overlappingFsc, DrawStyle(Color.CYAN))
+                        blender.blend(existingFsc, overlappingFsc).let { (_, blended) ->
+                            blended.forEach {
+                                existingFscOpt = some(blendGenerator.generate(it))
                             }
-                            .ifAbsent {
-                                existingFscOpt = some(overlappingFsc)
-                            }
+                        }
+                    }.ifAbsent {
+                        existingFscOpt = some(overlappingFsc)
+                    }
                     existingFscOpt.forEach { drawFsc(it, DrawStyle(Color.MAGENTA)) }
                 }
             }
