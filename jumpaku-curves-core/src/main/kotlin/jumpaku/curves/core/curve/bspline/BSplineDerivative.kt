@@ -52,6 +52,8 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun removeKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().removeKnot(t, m))
 
+    fun removeKnot(knotIndex: Int, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().removeKnot(knotIndex, m))
+
     fun toBeziers(): List<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
 
     fun subdivide(t: Double): Pair<Option<BSplineDerivative>, Option<BSplineDerivative>> = toBSpline().subdivide(t)

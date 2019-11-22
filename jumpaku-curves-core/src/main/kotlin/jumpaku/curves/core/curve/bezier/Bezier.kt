@@ -18,7 +18,7 @@ import org.apache.commons.math3.util.FastMath
 
 
 class Bezier private constructor(private val rationalBezier: RationalBezier)
-    : Curve by rationalBezier, Differentiable by rationalBezier, ToJson {
+    : Curve by rationalBezier, Differentiable, ToJson {
 
     constructor(controlPoints: Iterable<Point>) : this(RationalBezier(controlPoints.map { it.weighted() }))
 
@@ -28,13 +28,13 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     val degree: Int get() = rationalBezier.degree
 
-    override fun toCrisp(): Bezier = Bezier(rationalBezier.toCrisp())
-
     override val derivative: BezierDerivative by lazy {
         val cp = controlPoints.map(Point::toCrisp)
         val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre) * degree.toDouble() }
         BezierDerivative(vs)
     }
+
+    override fun toCrisp(): Bezier = Bezier(rationalBezier.toCrisp())
 
     override fun toString(): String = toJsonString()
 
