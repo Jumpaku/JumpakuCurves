@@ -1,4 +1,4 @@
-package jumpaku.curves.core.curve.rationalbezier
+package jumpaku.curves.core.curve.bezier
 
 
 import com.github.salomonbrys.kotson.double

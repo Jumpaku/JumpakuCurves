@@ -1,10 +1,10 @@
-package jumpaku.curves.core.test.curve.rationalbezier
+package jumpaku.curves.core.test.curve.bezier
 
 import jumpaku.commons.json.parseJson
 import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
-import jumpaku.curves.core.curve.rationalbezier.RationalBezier
+import jumpaku.curves.core.curve.bezier.ConicSection
+import jumpaku.curves.core.curve.bezier.RationalBezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint

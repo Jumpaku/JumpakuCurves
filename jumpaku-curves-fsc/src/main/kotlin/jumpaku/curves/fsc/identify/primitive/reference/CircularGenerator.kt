@@ -5,7 +5,7 @@ import io.vavr.Tuple3
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.util.component1
 import jumpaku.curves.core.util.component2

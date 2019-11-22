@@ -4,13 +4,9 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 import jumpaku.curves.core.curve.polyline.Polyline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.graphics.*
 import jumpaku.curves.graphics.fx.DrawingControl
 import jumpaku.curves.graphics.fx.DrawingEvent
-import java.awt.Color
-import kotlin.math.sqrt
 
 
 fun main(vararg args: String) = Application.launch(FxTemplate::class.java, *args)

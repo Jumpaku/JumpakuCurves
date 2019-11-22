@@ -7,7 +7,7 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineDerivative
-import jumpaku.curves.core.curve.rationalbezier.RationalBezier
+import jumpaku.curves.core.curve.bezier.RationalBezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint

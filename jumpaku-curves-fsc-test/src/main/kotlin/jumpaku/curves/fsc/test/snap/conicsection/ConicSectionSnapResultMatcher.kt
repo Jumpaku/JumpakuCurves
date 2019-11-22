@@ -2,7 +2,7 @@ package jumpaku.curves.fsc.test.snap.conicsection
 
 import jumpaku.commons.test.matcher
 import jumpaku.commons.test.math.isCloseTo
-import jumpaku.curves.core.test.curve.rationalbezier.isCloseTo
+import jumpaku.curves.core.test.curve.bezier.isCloseTo
 import jumpaku.curves.core.test.geom.isCloseTo
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResult
 import jumpaku.curves.fsc.test.snap.point.isCloseTo

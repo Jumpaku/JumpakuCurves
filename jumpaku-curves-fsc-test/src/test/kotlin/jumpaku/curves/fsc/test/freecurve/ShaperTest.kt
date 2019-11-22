@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.fsc.freecurve.Segmenter
 import jumpaku.curves.fsc.freecurve.Shaper
 import jumpaku.curves.fsc.freecurve.SmoothResult

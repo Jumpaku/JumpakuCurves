@@ -2,10 +2,10 @@ package jumpaku.curves.fsc.test.snap.conicsection
 
 import com.github.salomonbrys.kotson.get
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.test.curve.rationalbezier.closeTo
+import jumpaku.curves.core.test.curve.bezier.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.snap.Grid

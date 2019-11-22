@@ -1,9 +1,9 @@
-package jumpaku.curves.core.test.curve.rationalbezier
+package jumpaku.curves.core.test.curve.bezier
 
 import jumpaku.commons.json.parseJson
 import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.rationalbezier.RationalBezier
+import jumpaku.curves.core.curve.bezier.RationalBezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
@@ -275,7 +275,7 @@ class RationalBezierTest {
                 .extend(-3.0)
         assertThat(extendFront, `is`(closeTo(RationalBezier(
                 WeightedPoint(Point.xy(63.0 / 47, 56.0 / 47), -47.0),
-                WeightedPoint(Point.xy(1.0, 4.0/3), 9.0),
+                WeightedPoint(Point.xy(1.0, 4.0 / 3), 9.0),
                 WeightedPoint(Point.xy(1.0, 0.0), 1.0)))))
 
         val extendBack = RationalBezier(
@@ -285,7 +285,7 @@ class RationalBezierTest {
                 .extend(4.0)
         assertThat(extendBack, `is`(closeTo(RationalBezier(
                 WeightedPoint(Point.xy(0.0, 1.0), 1.0),
-                WeightedPoint(Point.xy(4.0/3, 1.0), 9.0),
+                WeightedPoint(Point.xy(4.0 / 3, 1.0), 9.0),
                 WeightedPoint(Point.xy(56.0 / 47, 63.0 / 47), -47.0)))))
     }
 }

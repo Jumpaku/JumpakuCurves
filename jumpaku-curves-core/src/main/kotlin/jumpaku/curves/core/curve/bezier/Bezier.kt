@@ -9,7 +9,6 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.rationalbezier.RationalBezier
 import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.weighted

@@ -5,7 +5,7 @@ import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.LineSegment
 import jumpaku.curves.core.curve.polyline.Polyline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.fsc.DrawingStroke

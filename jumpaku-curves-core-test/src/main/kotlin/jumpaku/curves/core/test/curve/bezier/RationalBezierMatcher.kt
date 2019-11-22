@@ -1,7 +1,7 @@
-package jumpaku.curves.core.test.curve.rationalbezier
+package jumpaku.curves.core.test.curve.bezier
 
 import jumpaku.commons.test.matcher
-import jumpaku.curves.core.curve.rationalbezier.RationalBezier
+import jumpaku.curves.core.curve.bezier.RationalBezier
 import jumpaku.curves.core.test.geom.isCloseTo
 import org.hamcrest.TypeSafeMatcher
 

@@ -1,6 +1,6 @@
 package jumpaku.curves.fsc.test.snap.conicsection
 
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.fsc.snap.conicsection.ConjugateBox

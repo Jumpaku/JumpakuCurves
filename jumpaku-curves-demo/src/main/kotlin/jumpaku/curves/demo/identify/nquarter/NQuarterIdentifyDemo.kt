@@ -5,7 +5,7 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.identify.nquarter.NQuarterClass

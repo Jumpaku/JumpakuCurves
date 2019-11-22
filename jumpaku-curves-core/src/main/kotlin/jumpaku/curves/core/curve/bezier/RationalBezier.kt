@@ -1,4 +1,4 @@
-package jumpaku.curves.core.curve.rationalbezier
+package jumpaku.curves.core.curve.bezier
 
 import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.get
@@ -11,8 +11,6 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.bezier.Bezier
-import jumpaku.curves.core.curve.bezier.BezierDerivative
 import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.transform.Transform
 
