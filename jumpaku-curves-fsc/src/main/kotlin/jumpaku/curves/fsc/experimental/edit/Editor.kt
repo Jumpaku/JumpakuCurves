@@ -8,7 +8,6 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.blend.BlendGenerator
-import jumpaku.curves.fsc.blend.BlendResult
 import jumpaku.curves.fsc.blend.Blender
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
@@ -23,7 +22,7 @@ class Editor(
         val fragmenter: Fragmenter//(BSpline) -> List<Fragment>
 ) : ToJson {
 
-    fun edit(overlapFsc: BSpline, fscGraph: FscGraph): FscGraph {
+    fun edit(fscGraph: FscGraph, overlapFsc: BSpline): FscGraph {
         val (merged, decomposed) = merge(overlapFsc, fscGraph)
         val fragmented = fragment(merged)
         val resolved = resolveConnectivity(decomposed, fragmented)

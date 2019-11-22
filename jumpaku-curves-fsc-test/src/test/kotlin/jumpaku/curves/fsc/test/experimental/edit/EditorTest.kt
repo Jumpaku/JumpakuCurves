@@ -22,28 +22,7 @@ class EditorTest {
     val urlString = "/jumpaku/curves/fsc/test/experimental/edit/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
-
-    @Test
-    fun testEditor() {
-        println("Editor")
-        var fscComponents = FscGraph()
-        for (i in 0..38) {
-            val s = resourceText("EditingFsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
-            fscComponents = Settings.editor.edit(s, fscComponents)
-            val e = resourceText("EditedResult$i.json").parseJson().tryMap { json ->
-                FscGraph.fromJson(json)
-            }.orThrow()
-            assertThat(fscComponents.decompose().size, `is`(e.decompose().size))
-            fscComponents.decompose().zip(e.decompose()).forEach { (aPath, ePath) ->
-                assertThat(aPath, `is`(closeTo(ePath, 1e-10)))
-            }
-        }
-
-    }
-}
-
-
-object Settings {
+    val nFscs = 35
 
     val generator: Generator = Generator(
             degree = 3,
@@ -71,15 +50,25 @@ object Settings {
             fuzzifier = generator.fuzzifier)
     val fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
-                    necessity = 0.5,
-                    possibility = 0.8),
-            chunkSize = 8,
+                    necessity = 0.45,
+                    possibility = 0.75),
+            chunkSize = 4,
             minStayTimeSpan = 0.05)
     val editor: Editor = Editor(
             nConnectorSamples = 17,
             connectionThreshold = Grade.FALSE,
             merger = Merger(blender, blendGenerator),
-//            { exist, overlap -> blender.blend(exist, overlap).map { blendGenerator.generate(it) } },
-            fragmenter = fragmenter)//{ merged -> fragmenter.fragment(merged) })
+            fragmenter = fragmenter)
 
+    @Test
+    fun testEditor() {
+        println("Editor")
+        var a = FscGraph()
+        for (i in 0 until nFscs) {
+            val s = resourceText("EditingFsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
+            a = editor.edit(a, s)
+            val e = resourceText("EditedFscGraph$i.json").parseJson().tryMap { FscGraph.fromJson(it) }.orThrow()
+            assertThat(a, `is`(closeTo(e, 1e-10)))
+        }
+    }
 }

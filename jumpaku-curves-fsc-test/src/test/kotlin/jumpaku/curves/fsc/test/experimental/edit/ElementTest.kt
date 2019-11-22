@@ -35,7 +35,7 @@ class ElementTest {
     }
 
     @Test
-    fun testIdentified() {
+    fun testTarget() {
         println("Target")
         assertThat(target.fragment, `is`(closeTo(BSpline(
                 listOf(Point.x(1.0), Point.x(2.0), Point.x(3.0), Point.x(4.0)),

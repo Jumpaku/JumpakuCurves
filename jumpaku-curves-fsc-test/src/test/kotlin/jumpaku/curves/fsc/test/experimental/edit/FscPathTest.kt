@@ -1,6 +1,5 @@
 package jumpaku.curves.fsc.test.experimental.edit
 
-import org.junit.Assert
 import org.junit.Assert.fail
 import org.junit.Test
 

@@ -35,10 +35,10 @@ class EditDemo : Application() {
     val height = 900.0
 
     val dirPath = Paths.get("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/")
-    val fscs = (0..38).flatMap {
+    /*val fscs = (0..73).flatMap {
         dirPath.resolve("EditingFsc$it.json")
                 .parseJson().tryMap { BSpline.fromJson(it) }.value()
-    }
+    }*/
 
     var fscIndex = 0
 
@@ -51,7 +51,7 @@ class EditDemo : Application() {
                 updateGraphics2D {
                     clearRect(0.0, 0.0, width, height)
                     val fsc = Settings.generator.generate(it.drawingStroke)
-                    fscGraph = Settings.editor.edit(fsc, fscGraph)
+                    fscGraph = Settings.editor.edit(fscGraph, fsc)
                     dirPath.resolve("EditingFsc$fscIndex.json").toFile()
                             .apply { createNewFile() }
                             .writeText(fsc.toJsonString())
@@ -73,26 +73,28 @@ class EditDemo : Application() {
                             curveControl.updateGraphics2D { clearRect(0.0, 0.0, width, height) }
                         }
                         KeyCode.ENTER -> {
-                            if (fscIndex in 0..38) {
+                            /*if (fscIndex in 0..73) {
                                 val s = fscs[fscIndex]
                                 curveControl.updateGraphics2D {
                                     clearRect(0.0, 0.0, width, height)
-                                    val prev = fscGraph
-                                    val next = Settings.editor.edit(s, prev)
-                                    drawTargets(prev, DrawStyle(color = Color.BLUE))
-                                    drawConnectors(prev, DrawStyle(Color.MAGENTA, BasicStroke()))
+                                    //val prev = fscGraph
+                                    //val next = Settings.editor.edit(s, prev)
+                                    //drawTargets(prev, DrawStyle(color = Color.BLUE))
+                                    //drawConnectors(prev, DrawStyle(Color.MAGENTA, BasicStroke()))
+                                    val next = dirPath.resolve("EditedFscGraph$fscIndex.json").parseJson().value().map { FscGraph.fromJson(it) }.orThrow()
+
                                     drawFsc(s, DrawStyle(color = Color.CYAN))
                                     drawFscGraph(next)
                                     fscGraph = next
                                 }
 
-                                /*File("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/EditedFscGraph$fscIndex.json").run {
-                                createNewFile()
-                                writeText(fscGraph.toJsonString())
-                            }*/
+                                *//*File("./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/experimental/edit/EditedFscGraph$fscIndex.json").run {
+                                    createNewFile()
+                                    writeText(fscGraph.toJsonString())
+                                }*//*
                                 println("$fscIndex : ${fscGraph.vertices.size}")
                                 fscIndex++
-                            }
+                            }*/
                         }
                     }
                 }
