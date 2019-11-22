@@ -1,12 +1,12 @@
-package jumpaku.curves.core.test.curve
+package jumpaku.curves.fsc.test.generate.fit
 
 import jumpaku.commons.test.matcher
 import jumpaku.commons.test.math.isCloseTo
-import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: WeightedParamPoint, expected: WeightedParamPoint, error: Double = 1.0e-9): Boolean =
-        isCloseTo(actual.paramPoint, expected.paramPoint, error) &&
+        jumpaku.curves.core.test.curve.isCloseTo(actual.paramPoint, expected.paramPoint, error) &&
                 isCloseTo(actual.weight, expected.weight, error)
 
 fun closeTo(expected: WeightedParamPoint, precision: Double = 1.0e-9): TypeSafeMatcher<WeightedParamPoint> =

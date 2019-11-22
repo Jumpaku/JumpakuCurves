@@ -2,11 +2,12 @@ package jumpaku.curves.fsc.test.blend
 
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.WeightedParamPoint
-import jumpaku.curves.core.curve.weighted
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
+import jumpaku.curves.fsc.generate.fit.weighted
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.blend.BlendData
+import jumpaku.curves.fsc.test.generate.fit.closeTo
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test

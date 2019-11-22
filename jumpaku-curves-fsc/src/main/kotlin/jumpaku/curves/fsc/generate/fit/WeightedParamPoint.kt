@@ -1,4 +1,4 @@
-package jumpaku.curves.core.curve
+package jumpaku.curves.fsc.generate.fit
 
 import com.github.salomonbrys.kotson.double
 import com.github.salomonbrys.kotson.get
@@ -6,6 +6,7 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.commons.json.ToJson
+import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)

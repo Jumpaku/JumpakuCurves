@@ -7,8 +7,8 @@ import com.github.salomonbrys.kotson.toJsonArray
 import com.google.gson.JsonElement
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.WeightedParamPoint
-import jumpaku.curves.core.curve.weighted
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
+import jumpaku.curves.fsc.generate.fit.weighted
 
 class BlendData(val front: List<ParamPoint>, val back: List<ParamPoint>, val blended: List<WeightedParamPoint>) : ToJson {
 

@@ -1,7 +1,7 @@
-package jumpaku.curves.core.test.curve
+package jumpaku.curves.fsc.test.generate.fit
 
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.core.geom.Point
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat

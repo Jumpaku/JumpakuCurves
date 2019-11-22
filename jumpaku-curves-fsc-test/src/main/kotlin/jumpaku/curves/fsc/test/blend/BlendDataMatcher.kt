@@ -3,6 +3,7 @@ package jumpaku.curves.fsc.test.blend
 import jumpaku.commons.test.matcher
 import jumpaku.curves.core.test.curve.isCloseTo
 import jumpaku.curves.fsc.blend.BlendData
+import jumpaku.curves.fsc.test.generate.fit.isCloseTo
 import org.hamcrest.TypeSafeMatcher
 
 fun isCloseTo(actual: BlendData, expected: BlendData, error: Double = 1.0e-9): Boolean =

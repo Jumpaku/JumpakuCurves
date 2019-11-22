@@ -1,12 +1,9 @@
 package jumpaku.curves.fsc.generate
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.core.curve.transformParams
-import jumpaku.curves.core.curve.weighted
+import jumpaku.curves.fsc.generate.fit.weighted
 import jumpaku.curves.core.geom.middle
 import jumpaku.curves.fsc.generate.fit.BezierFitter
 import org.apache.commons.math3.util.FastMath

@@ -10,6 +10,7 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.fsc.generate.fit.weighted
 import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.math.abs
