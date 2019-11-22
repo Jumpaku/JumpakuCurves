@@ -5,7 +5,6 @@ import javafx.scene.Scene
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.stage.Stage
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.fuzzy.Grade
@@ -111,7 +110,7 @@ class EditDemo : Application() {
     fun Graphics2D.drawConnectors(graph: FscGraph, style: DrawStyle = DrawStyle()) {
         graph.decompose().flatMap { it.connectors() }.forEach {
             drawPoints(it.front + it.body + it.back, style)
-            drawPolyline(Polyline.of(it.front + it.body + it.back), style)
+            drawPolyline(Polyline.byIndices(it.front + it.body + it.back), style)
         }
     }
 

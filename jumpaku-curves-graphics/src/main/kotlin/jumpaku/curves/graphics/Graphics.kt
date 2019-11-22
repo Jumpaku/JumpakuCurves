@@ -90,8 +90,8 @@ fun Graphics2D.drawGrid(
 }
 
 fun Graphics2D.drawConjugateBox(conjugateBox: ConjugateBox, style: (Graphics2D) -> Unit = DrawStyle()) {
-    conjugateBox.run { drawPolyline(Polyline.byArcLength(bottomLeft, topLeft, topRight, bottomRight, bottomLeft), style) }
-    conjugateBox.run { drawPolyline(Polyline.byArcLength(left, top, right, bottom, left), style) }
+    conjugateBox.run { drawPolyline(Polyline.byIndices(bottomLeft, topLeft, topRight, bottomRight, bottomLeft), style) }
+    conjugateBox.run { drawPolyline(Polyline.byIndices(left, top, right, bottom, left), style) }
 }
 
 

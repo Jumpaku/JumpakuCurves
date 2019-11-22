@@ -115,6 +115,17 @@ class PolylineTest {
                 ParamPoint(Point.xyr(1.0, 1.0, 1.0), 2.0),
                 ParamPoint(Point.xyr(1.0, -3.0, 3.0), 6.0),
                 ParamPoint(Point.xyzr(1.0, -3.0, 1.5, 2.0), 7.5))))))
+    }
 
+    @Test
+    fun testByIndices() {
+        println("ByIndices")
+        val byIndices = Polyline.byIndices(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1.0, 1.0, 1.0), Point.xyr(1.0, -3.0, 3.0), Point.xyzr(1.0, -3.0, 1.5, 2.0))
+        assertThat(byIndices.points[0], `is`(closeTo(Point.xyr(-1.0, 1.0, 2.0))))
+        assertThat(byIndices.points[1], `is`(closeTo(Point.xyr(1.0, 1.0, 1.0))))
+        assertThat(byIndices.points[2], `is`(closeTo(Point.xyr(1.0, -3.0, 3.0))))
+        assertThat(byIndices.points[3], `is`(closeTo(Point.xyzr(1.0, -3.0, 1.5, 2.0))))
+        assertThat(byIndices.domain.begin, `is`(closeTo(0.0)))
+        assertThat(byIndices.domain.end, `is`(closeTo(3.0)))
     }
 }
