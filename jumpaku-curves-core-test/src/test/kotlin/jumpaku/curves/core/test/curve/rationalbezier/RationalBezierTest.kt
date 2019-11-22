@@ -264,4 +264,28 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(1.0, R2 - 1, 4 - R2), (2 + R2) / 4),
                 WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0)))))
     }
+
+    @Test
+    fun testExtend() {
+        println("Extend")
+        val extendFront = RationalBezier(
+                WeightedPoint(Point.xy(0.0, 1.0), 1.0),
+                WeightedPoint(Point.xy(1.0, 1.0), 3.0),
+                WeightedPoint(Point.xy(1.0, 0.0), 1.0))
+                .extend(-3.0)
+        assertThat(extendFront, `is`(closeTo(RationalBezier(
+                WeightedPoint(Point.xy(63.0 / 47, 56.0 / 47), -47.0),
+                WeightedPoint(Point.xy(1.0, 4.0/3), 9.0),
+                WeightedPoint(Point.xy(1.0, 0.0), 1.0)))))
+
+        val extendBack = RationalBezier(
+                WeightedPoint(Point.xy(0.0, 1.0), 1.0),
+                WeightedPoint(Point.xy(1.0, 1.0), 3.0),
+                WeightedPoint(Point.xy(1.0, 0.0), 1.0))
+                .extend(4.0)
+        assertThat(extendBack, `is`(closeTo(RationalBezier(
+                WeightedPoint(Point.xy(0.0, 1.0), 1.0),
+                WeightedPoint(Point.xy(4.0/3, 1.0), 9.0),
+                WeightedPoint(Point.xy(56.0 / 47, 63.0 / 47), -47.0)))))
+    }
 }
