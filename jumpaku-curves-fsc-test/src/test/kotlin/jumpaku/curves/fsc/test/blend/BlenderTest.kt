@@ -1,6 +1,7 @@
 package jumpaku.curves.fsc.test.blend
 
 import jumpaku.commons.control.Option
+import jumpaku.commons.control.Some
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
@@ -27,13 +28,13 @@ class BlenderTest {
         for (i in 0..4) {
             val existing = resourceText("BlendExisting$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             val overlapping = resourceText("BlendOverlapping$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
+            val actual = blender.blend(existing, overlapping)
             val expected = resourceText("BlendDataOpt$i.json")
                     .parseJson().value().flatMap { Option.fromJson(it).map { BlendData.fromJson(it) } }
-            val actual = blender.blend(existing, overlapping)
-            assertThat(actual.blendedData.isDefined, `is`(expected.isDefined))
-            if (actual.blendedData.isDefined) {
-                assertThat(actual.grade, `is`(greaterThan(blender.threshold)))
-                assertThat(actual.blendedData.orThrow(), `is`(closeTo(expected.orThrow())))
+            assertThat(actual.isDefined, `is`(expected.isDefined))
+            if (actual is Some) {
+                assertThat(actual.value.grade, `is`(greaterThan(blender.threshold)))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
             }
         }
     }

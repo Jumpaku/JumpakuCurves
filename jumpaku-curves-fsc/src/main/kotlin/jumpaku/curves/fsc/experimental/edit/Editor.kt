@@ -18,8 +18,8 @@ class Merger(val blender: Blender, val blendGenerator: BlendGenerator)
 class Editor(
         val nConnectorSamples: Int = 17,
         val connectionThreshold: Grade = Grade.FALSE,
-        val merger: Merger,//(BSpline, BSpline) -> Option<BSpline>,
-        val fragmenter: Fragmenter//(BSpline) -> List<Fragment>
+        val merger: Merger,
+        val fragmenter: Fragmenter
 ) : ToJson {
 
     fun edit(fscGraph: FscGraph, overlapFsc: BSpline): FscGraph {
@@ -30,21 +30,19 @@ class Editor(
     }
 
     fun merge(overlap: BSpline, graph: FscGraph): Pair<BSpline, FscGraph> {
-        data class Selected(val id: Id, val target: Element.Target, val grade: Grade)
-        val selected = graph.flatMap { (id, element) ->
-            when(element) {
-                is Element.Target -> merger.blender.blend(element.fragment, overlap).let { (grade, blended) ->
-                    blended.map { Selected(id, element, grade) }
-                }
-                is Element.Connector -> emptyList<Selected>()
+        data class Selected(val id: Id, val grade: Grade)
+        val selected = graph.mapNotNull { (id, element) ->
+            (element as? Element.Target)?.run {
+                merger.blender.blend(fragment, overlap).map { blend -> Selected(id, blend.grade) }.orNull()
             }
-        }.sortedByDescending { it.grade }.map { it.id to it.target }
+        }.sortedByDescending { it.grade }.map { it.id }
         fun merge(exist: BSpline, overlap: BSpline): Option<BSpline> = merger.run {
-            blender.blend(exist, overlap).run { blendedData.map { blendGenerator.generate(it) } }
+            blender.blend(exist, overlap).map { blendGenerator.generate(it) }
         }
         var merged = overlap
         val removed = mutableSetOf<Id>()
-        selected.forEach { (id, target) ->
+        selected.forEach { id ->
+            val target = graph.getValue(id) as Element.Target
             merge(target.fragment, merged).forEach { blended ->
                 merged = blended
                 removed += id
@@ -98,7 +96,12 @@ class Editor(
 
     override fun toJson(): JsonElement = jsonObject(
             "nConnectorSamples" to nConnectorSamples.toJson(),
-            "connectionThreshold" to connectionThreshold.toJson())
+            "connectionThreshold" to connectionThreshold.toJson(),
+            "merger" to jsonObject(
+                    "blender" to merger.blender.toJson(),
+                    "blendGenerator" to merger.blendGenerator.toJson()),
+            "fragmenter" to fragmenter.toJson()
+            )
 
     override fun toString(): String = toJsonString()
 

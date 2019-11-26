@@ -9,8 +9,6 @@ class OverlapState(
         val range: Set<Pair<Int, Int>>
 ) {
     init {
-        require(ridge.isEmpty() == range.isEmpty())
+        require(ridge.isNotEmpty() && range.isNotEmpty())
     }
-
-    fun isEmpty(): Boolean = ridge.isEmpty() && range.isEmpty()
 }

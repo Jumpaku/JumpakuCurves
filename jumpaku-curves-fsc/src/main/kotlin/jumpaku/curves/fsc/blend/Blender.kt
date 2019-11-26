@@ -15,8 +15,6 @@ import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.math.abs
 
-data class BlendResult(val grade: Grade, val blendedData: Option<BlendData>)
-
 class Blender(
         val samplingSpan: Double = 0.01,
         val blendingRate: Double = 0.5,
@@ -27,30 +25,27 @@ class Blender(
         require(blendingRate in 0.0..1.0)
     }
 
-    fun blend(existing: BSpline, overlapping: BSpline): BlendResult {
+    fun blend(existing: BSpline, overlapping: BSpline): Option<BlendData> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
         val overlap = detectOverlap(osm)
-        return overlap.let {
-            BlendResult(it.grade, optionWhen(!it.isEmpty()) { resample(existSamples, overlapSamples, it) })
-        }
+        return overlap.map { resample(existSamples, overlapSamples, it) }
     }
 
-    fun detectOverlap(osm: OverlapMatrix): OverlapState {
-        val distMaxRidge = find(osm, compareBy({ it.dist }, { it.grade })) { i, j -> osm[i, j] > threshold }
+    fun detectOverlap(osm: OverlapMatrix): Option<OverlapState> {
+        val distMaxRidge = findRidge(osm, compareBy { it.dist }) { i, j -> osm[i, j] > threshold }
                 .map { it.subRidge.map { it.asPair() } }
-                .orDefault(emptyList())
+                .filter { it.isNotEmpty() }
+                .orNull() ?: return None
         val available = collectRange(osm, distMaxRidge, threshold)
-        val gradeOpt =
-                find(osm, compareBy({ it.grade }, { it.dist })) { i, j -> osm[i, j] > threshold && i to j in available }
-                        .map { it.grade }
-        val gradeMaxRidge = gradeOpt.flatMap { grade ->
-            find(osm, compareBy { it.dist }) { i, j -> osm[i, j] >= grade && i to j in available }
-                    .map { it.subRidge.map { it.asPair() } }
-        }.orDefault(emptyList())
+        val grade = findRidge(osm, compareBy { it.grade }) { i, j -> osm[i, j] > threshold && (i to j) in available }
+                .map { it.grade }.orThrow()
+        val gradeMaxRidge = findRidge(osm, compareBy { it.dist }) { i, j -> osm[i, j] >= grade && (i to j) in available }
+                .map { it.subRidge.map { it.asPair() } }
+                .orThrow()
         val range = collectRange(osm, gradeMaxRidge, threshold)
-        return OverlapState(osm, gradeOpt.orDefault(Grade.FALSE), gradeMaxRidge, range)
+        return  Some(OverlapState(osm, grade, gradeMaxRidge, range))
     }
 
     fun resample(existing: List<ParamPoint>, overlapping: List<ParamPoint>, overlapState: OverlapState): BlendData {
@@ -82,7 +77,7 @@ class Blender(
         val oBack = overlapping.takeLast(backOverlapCount)
                 .map { it.run { copy(param = param - (1 - blendingRate) * (ridgeEndOverlap - ridgeEndExist)) } }
 
-        return BlendData(eFront + oFront, eBack + oBack, blendedData)
+        return BlendData(overlapState.grade, eFront + oFront, eBack + oBack, blendedData)
     }
 
 
@@ -108,7 +103,7 @@ class Blender(
             }
         }
 
-        fun find(osm: OverlapMatrix, compare: Comparator<DpValue>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
+        fun findRidge(osm: OverlapMatrix, compare: Comparator<DpValue>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
             val dpTable = LinkedHashMap<DpKey, Option<DpValue>>()
             fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
                 val (i, j) = key
@@ -134,20 +129,19 @@ class Blender(
 
         fun collectRange(osm: OverlapMatrix, ridge: List<Pair<Int, Int>>, threshold: Grade): Set<Pair<Int, Int>> {
             if (ridge.isEmpty()) return emptySet()
-            val th = threshold
 
             // Left Bottom
             val frontLB = ridge.first()
-                    .let { (i, j) -> ((j - 1) downTo 0).takeWhile { osm[i, it] > th }.map { i to it } }
+                    .let { (i, j) -> ((j - 1) downTo 0).takeWhile { osm[i, it] > threshold }.map { i to it } }
             val backLB = ridge.last()
-                    .let { (i, j) -> ((i + 1)..osm.rowLastIndex).takeWhile { osm[it, j] > th }.map { it to j } }
+                    .let { (i, j) -> ((i + 1)..osm.rowLastIndex).takeWhile { osm[it, j] > threshold }.map { it to j } }
             val pLB = (frontLB + ridge + backLB).toSet()
             val dpTableLB = HashMap<Pair<Int, Int>, Boolean>()
             fun isAvailableLB(key: Pair<Int, Int>): Boolean = dpTableLB.getOrPut(key) {
                 val (i, j) = key
                 when {
                     (key in pLB) -> true
-                    i > 0 && j < osm.columnLastIndex && osm[i, j] > th ->
+                    i > 0 && j < osm.columnLastIndex && osm[i, j] > threshold ->
                         setOf((i - 1) to j, i to (j + 1), (i - 1) to (j + 1))
                                 .run { all { isAvailableLB(it) } || any { it in pLB } }
                     else -> false
@@ -157,15 +151,15 @@ class Blender(
             // Right Above
             val dpTableRA = HashMap<Pair<Int, Int>, Boolean>()
             val frontRA = ridge.first()
-                    .let { (i, j) -> ((i - 1) downTo 0).takeWhile { osm[it, j] > th }.map { it to j } }
+                    .let { (i, j) -> ((i - 1) downTo 0).takeWhile { osm[it, j] > threshold }.map { it to j } }
             val backRA = ridge.last()
-                    .let { (i, j) -> ((j + 1)..osm.columnLastIndex).takeWhile { osm[i, it] > th }.map { i to it } }
+                    .let { (i, j) -> ((j + 1)..osm.columnLastIndex).takeWhile { osm[i, it] > threshold }.map { i to it } }
             val pRA = (frontRA + ridge + backRA).toSet()
             fun isAvailableRA(key: Pair<Int, Int>): Boolean = dpTableRA.getOrPut(key) {
                 val (i, j) = key
                 when {
                     (key in pRA) -> true
-                    i < osm.rowLastIndex && j > 0 && osm[i, j] > th ->
+                    i < osm.rowLastIndex && j > 0 && osm[i, j] > threshold ->
                         setOf((i + 1) to j, i to (j - 1), (i + 1) to (j - 1))
                                 .run { all { isAvailableRA(it) } || any { it in pRA } }
                     else -> false

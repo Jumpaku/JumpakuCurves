@@ -1,7 +1,9 @@
 package jumpaku.curves.fsc.test.blend
 
 import jumpaku.commons.json.parseJson
+import jumpaku.commons.test.math.closeTo
 import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.fsc.generate.fit.weighted
 import jumpaku.curves.core.geom.Point
@@ -14,11 +16,17 @@ import org.junit.Test
 
 class BlendDataTest {
 
+    val g = Grade(0.75)
     val f = listOf(ParamPoint(Point.xy(1.0, 2.0), 3.0), ParamPoint(Point.xy(4.0, 5.0), 6.0))
     val m = listOf(WeightedParamPoint(Point.xy(7.0, 8.0), 9.0, 10.0), WeightedParamPoint(Point.xy(11.0, 12.0), 13.0, 14.0))
     val b = listOf(ParamPoint(Point.xy(15.0, 16.0), 17.0), ParamPoint(Point.xy(18.0, 19.0), 20.0))
+    val bd = BlendData(g, f, b, m)
 
-    val bd = BlendData(f, b, m)
+    @Test
+    fun testGrade() {
+        println("Grade")
+        assertThat(bd.grade.value, `is`(closeTo(g.value)))
+    }
 
     @Test
     fun testAggregated() {

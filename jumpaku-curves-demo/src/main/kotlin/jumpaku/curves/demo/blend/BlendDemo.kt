@@ -70,10 +70,8 @@ class BlendDemo : Application() {
                     existingFscOpt.ifPresent { existingFsc ->
                         drawFsc(existingFsc, DrawStyle())
                         drawFsc(overlappingFsc, DrawStyle(Color.CYAN))
-                        blender.blend(existingFsc, overlappingFsc).let { (_, blended) ->
-                            blended.forEach {
-                                existingFscOpt = some(blendGenerator.generate(it))
-                            }
+                        blender.blend(existingFsc, overlappingFsc).forEach {
+                            existingFscOpt = some(blendGenerator.generate(it))
                         }
                     }.ifAbsent {
                         existingFscOpt = some(overlappingFsc)
