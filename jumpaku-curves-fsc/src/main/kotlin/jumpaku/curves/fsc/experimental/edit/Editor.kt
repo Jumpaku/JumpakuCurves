@@ -84,10 +84,10 @@ class Editor(
         val paths = resolved.flatMap { path ->
             var g: FscGraph = path
             g = path.first.map { (id, e) ->
-                if (e is Element.Connector && id in g) g.updateValue(id, e.copy(front = None)) else g
+                if (e is Element.Connector && id in g) g.updateValue(id) { e.copy(front = None) } else g
             }.orDefault(g)
             g = path.last.map { (id, e) ->
-                if (e is Element.Connector && id in g) g.updateValue(id, e.copy(back = None)) else g
+                if (e is Element.Connector && id in g) g.updateValue(id) { e.copy(back = None) } else g
             }.orDefault(g)
             g.decompose()
         }.filter { path -> path.count { (_, e) -> e is Element.Target } > 0 }
@@ -120,11 +120,11 @@ class Editor(
                 val c = connector.orNull() ?: return graph
                 return when {
                     s is Element.Connector && d is Element.Connector ->
-                        graph.connect(source, destination) { c.withId() }
+                        graph.connect(source, destination) { _, _ -> c.withId() }
                     s is Element.Connector && d is Element.Target ->
-                        graph.updateValue(source, c).insert(insertedEdges = setOf(FscGraph.Edge(source, destination)))
+                        graph.updateValue(source) { c }.insert(insertedEdges = setOf(FscGraph.Edge(source, destination)))
                     s is Element.Target && d is Element.Connector ->
-                        graph.updateValue(destination, c).insert(insertedEdges = setOf(FscGraph.Edge(source, destination)))
+                        graph.updateValue(destination) { c }.insert(insertedEdges = setOf(FscGraph.Edge(source, destination)))
                     else -> graph
                 }
             }

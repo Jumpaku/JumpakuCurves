@@ -19,15 +19,6 @@ data class Id(val elementId: String)
 open class FscGraph protected constructor(private val structure: Map<Id, Vertex> = emptyMap())
     : Map<Id, Element> by (structure.mapValues { (_, v) -> v.element }), ToJson {
 
-    constructor(elements: Map<Id, Element> = emptyMap(),
-                outgoing: Map<Id, Option<Id>> = emptyMap(),
-                incoming: Map<Id, Option<Id>> = emptyMap()) : this(elements.map { (id, e) ->
-        id to Vertex(
-                element = e,
-                incoming = incoming.getValue(id).map { Edge(it, id) },
-                outgoing = outgoing.getValue(id).map { Edge(id, it) })
-    }.toMap())
-
     data class Edge(val source: Id, val destination: Id)
 
     data class Vertex(
@@ -42,10 +33,6 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
     private val incoming: Map<Id, Option<Id>> = structure.mapValues { it.value.incoming.map { it.source } }
 
     val edges: Set<Edge> = structure.flatMap { (_, v) -> v.incoming + v.outgoing }.toSet()
-
-    init {
-
-    }
 
     fun compose(g: FscGraph): FscGraph = FscGraph(structure + g.structure)
 
@@ -85,19 +72,19 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
         return FscGraph(g)
     }
 
-    fun updateValue(id: Id, value: Element): FscGraph {
+    fun updateValue(id: Id, updater: (Element) -> Element): FscGraph {
         require(id in this)
         val g = structure.toMutableMap()
-        g.compute(id) { _, v -> v!!.copy(element = value) }
+        g.compute(id) { _, v -> v!!.copy(element = updater(v.element)) }
         return FscGraph(g)
     }
 
-    fun connect(front: Id, back: Id, f: () -> Pair<Id, Element>): FscGraph {
+    fun connect(front: Id, back: Id, f: (frontElm: Element, backElm: Element) -> Pair<Id, Element>): FscGraph {
         require(front in this)
         require(back in this)
         val g = structure.toMutableMap()
         g.filterValues { it.incoming is Some && it.incoming.value.destination == back }
-        val (k, v) = f()
+        val (k, v) = f(getValue(front), getValue(back))
         g[k] = Vertex(v)
         prevOf(front).forEach { prev ->
             val e = Edge(prev, k)
@@ -152,9 +139,21 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
 
     companion object {
 
+        fun of(elements: Map<Id, Element> = emptyMap(),
+               outgoing: Map<Id, Option<Id>> = emptyMap(),
+               incoming: Map<Id, Option<Id>> = emptyMap()): FscGraph {
+            val structure = elements.map { (id, e) ->
+                id to Vertex(
+                        element = e,
+                        incoming = incoming[id]?.map { Edge(it, id) } ?: None,
+                        outgoing = outgoing[id]?.map { Edge(id, it) } ?: None)
+            }.toMap()
+
+            return FscGraph(structure)
+        }
         fun compose(gs: List<FscGraph>): FscGraph = gs.fold(FscGraph(), FscGraph::compose)
 
-        fun fromJson(json: JsonElement): FscGraph = FscGraph(
+        fun fromJson(json: JsonElement): FscGraph = FscGraph.of(
                 json["elements"].map.map { (k, v) -> Id(k.string) to Element.fromJson(v) }.toMap(),
                 json["outgoing"].map.map { (k, v) -> Id(k.string) to Option.fromJson(v).map { Id(it.string) } }.toMap(),
                 json["incoming"].map.map { (k, v) -> Id(k.string) to Option.fromJson(v).map { Id(it.string) } }.toMap()

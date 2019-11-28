@@ -39,22 +39,6 @@ open class FscPath internal constructor(elements: Map<Id, OrderedElement>, val i
 
     fun fragments(): List<Element.Target> = mapNotNull { it.value as? Element.Target }
 
-    data class FragmentWithConnectors(
-            val fragment: BSpline,
-            val front: Option<Point>,
-            val back: Option<Point>
-    )
-
-    fun fragmentsWithConnectors(): List<FragmentWithConnectors> =
-            filterValues { it is Element.Target }
-                    .map { (id, element) ->
-                        val f = element as Element.Target
-                        val (front, back) = listOf(prevOf(id), nextOf(id)).map {
-                            it.map { (getValue(it) as Element.Connector).body }
-                        }
-                        FragmentWithConnectors(f.fragment, front, back)
-                    }
-
     companion object {
 
         fun openPath(orderedElements: List<Pair<Id, Element>>): FscPath = FscPath(

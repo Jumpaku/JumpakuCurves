@@ -63,7 +63,7 @@ class EditorTest {
     @Test
     fun testEditor() {
         println("Editor")
-        var a = FscGraph()
+        var a = FscGraph.of()
         for (i in 0 until nFscs) {
             val s = resourceText("EditingFsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
             a = editor.edit(a, s)
