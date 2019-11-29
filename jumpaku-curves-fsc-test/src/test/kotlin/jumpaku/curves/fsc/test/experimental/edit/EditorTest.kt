@@ -58,8 +58,8 @@ class EditorTest {
             fragmenter = fragmenter)
 
     @Test
-    fun testEditor() {
-        println("Editor")
+    fun testEdit() {
+        println("Edit")
         var a = FscGraph.of()
         for (i in 0 until nFscs) {
             val s = resourceText("EditingFsc$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
@@ -67,5 +67,12 @@ class EditorTest {
             val e = resourceText("EditedFscGraph$i.json").parseJson().tryMap { FscGraph.fromJson(it) }.orThrow()
             assertThat(a, `is`(closeTo(e, 1e-10)))
         }
+    }
+
+    @Test
+    fun testToString() {
+        println("ToString")
+        val a = editor.toString().parseJson().tryMap { Editor.fromJson(it) }.orThrow()
+        assertThat(a, `is`(closeTo(editor)))
     }
 }

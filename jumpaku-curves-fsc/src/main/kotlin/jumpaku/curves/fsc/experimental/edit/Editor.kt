@@ -1,5 +1,7 @@
 package jumpaku.curves.fsc.experimental.edit
 
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
@@ -163,5 +165,11 @@ class Editor(
                 else -> error("")
             }
         }
+
+        fun fromJson(json: JsonElement): Editor = Editor(
+                nConnectorSamples = json["nConnectorSamples"].int,
+                connectionThreshold = Grade.fromJson(json["connectionThreshold"].asJsonPrimitive),
+                merger = Merger.fromJson(json["merger"]),
+                fragmenter = Fragmenter.fromJson(json["fragmenter"]))
     }
 }
