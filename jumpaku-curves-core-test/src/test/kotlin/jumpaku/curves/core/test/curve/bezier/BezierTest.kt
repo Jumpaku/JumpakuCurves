@@ -158,7 +158,6 @@ class BezierTest {
                 .extend(-1 / 3.0)
         assertThat(extendFront, `is`(closeTo(Bezier(
                 Point.xyr(-2.0, 0.0, 721 / 81.0), Point.xyr(-1.0, 0.0, 134 / 27.0), Point.xyr(0.0, 2.0, 28 / 9.0), Point.xyr(1.0, 0.0, 8 / 3.0), Point.xyr(2.0, 0.0, 1.0)))))
-
     }
 
     @Test

@@ -2,7 +2,7 @@ package jumpaku.curves.fsc.identify.nquarter.reference
 
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.fsc.identify.primitive.reference.CircularGenerator
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import org.apache.commons.math3.util.FastMath

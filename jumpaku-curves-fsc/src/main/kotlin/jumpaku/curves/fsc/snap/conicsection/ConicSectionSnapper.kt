@@ -10,13 +10,14 @@ import jumpaku.commons.control.result
 import jumpaku.commons.control.toOption
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.point.PointSnapper
+import jumpaku.curves.fsc.snap.point.transformToWorld
 
 
 class ConicSectionSnapper<C : FeaturePointsCombinator>(
@@ -61,8 +62,8 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
                 val s1 = pointSnapper.snap(grid, f1)
                 result {
                     val calibrate = Calibrate(
-                            f0 to s0.map { it.worldPoint(grid) }.orDefault { f0 },
-                            f1 to s1.map { it.worldPoint(grid) }.orDefault { f1 })
+                            f0 to s0.map { grid.transformToWorld(it) }.orDefault { f0 },
+                            f1 to s1.map { grid.transformToWorld(it) }.orDefault { f1 })
                     ConicSectionSnapResult.Candidate(
                             listOf(ConicSectionSnapResult.SnappedPoint(f0, s0), ConicSectionSnapResult.SnappedPoint(f1, s1)),
                             calibrate)
@@ -76,14 +77,14 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
                 val s0 = pointSnapper.snap(grid, f0)
                 val s1 = pointSnapper.snap(grid, f1)
                 val sn = pointSnapper.snap(grid, fn)
-                val n = sn.map { it.worldPoint(grid) }.orDefault { fn }
-                        .normal(s0.map { it.worldPoint(grid) }.orDefault { f0 },
-                                s1.map { it.worldPoint(grid) }.orDefault { f1 })
+                val n = sn.map { grid.transformToWorld(it) }.orDefault { fn }
+                        .normal(s0.map { grid.transformToWorld(it) }.orDefault { f0 },
+                                s1.map { grid.transformToWorld(it) }.orDefault { f1 })
                 val m = fn.normal(f0, f1)
                 result {
                     val calibrate = Calibrate.similarityWithNormal(
-                            f0 to s0.map { it.worldPoint(grid) }.orDefault { f0 },
-                            f1 to s1.map { it.worldPoint(grid) }.orDefault { f1 },
+                            f0 to s0.map { grid.transformToWorld(it) }.orDefault { f0 },
+                            f1 to s1.map { grid.transformToWorld(it) }.orDefault { f1 },
                             m.orThrow() to n.orThrow())
                     ConicSectionSnapResult.Candidate(
                             listOf(ConicSectionSnapResult.SnappedPoint(f0, s0), ConicSectionSnapResult.SnappedPoint(f1, s1)),
@@ -99,9 +100,9 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
                 val s1 = pointSnapper.snap(grid, f1)
                 val s2 = pointSnapper.snap(grid, f2)
                 result {
-                    val calibrate = Calibrate(f0 to s0.map { it.worldPoint(grid) }.orDefault { f0 },
-                            f1 to s1.map { it.worldPoint(grid) }.orDefault { f1 },
-                            f2 to s2.map { it.worldPoint(grid) }.orDefault { f2 })
+                    val calibrate = Calibrate(f0 to s0.map { grid.transformToWorld(it) }.orDefault { f0 },
+                            f1 to s1.map { grid.transformToWorld(it) }.orDefault { f1 },
+                            f2 to s2.map { grid.transformToWorld(it) }.orDefault { f2 })
                     ConicSectionSnapResult.Candidate(listOf(
                             ConicSectionSnapResult.SnappedPoint(f0, s0),
                             ConicSectionSnapResult.SnappedPoint(f1, s1),

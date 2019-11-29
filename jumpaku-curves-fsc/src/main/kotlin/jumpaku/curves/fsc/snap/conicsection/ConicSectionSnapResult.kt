@@ -8,7 +8,7 @@ import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.toJson
 import jumpaku.commons.json.ToJson
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Transform

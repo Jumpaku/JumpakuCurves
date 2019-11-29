@@ -3,7 +3,7 @@ package jumpaku.curves.fsc.identify.primitive.reference
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 
 
 interface ReferenceGenerator {

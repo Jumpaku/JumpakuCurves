@@ -42,6 +42,22 @@ class GridTest {
     }
 
     @Test
+    fun testTransformToWorld() {
+        println("LocalToWorld")
+        assertThat(baseGrid.transformToWorld(GridPoint(0, 0, 0), 0), `is`(closeTo(Point.xyr(4.0, 4.0, 2.0))))
+        assertThat(baseGrid.transformToWorld(GridPoint(1, 0, 0), 0), `is`(closeTo(Point.xyr(4.0, 8.0, 2.0))))
+        assertThat(baseGrid.transformToWorld(GridPoint(0, 1, 0), 0), `is`(closeTo(Point.xyr(0.0, 4.0, 2.0))))
+
+        assertThat(baseGrid.transformToWorld(GridPoint(0, 0, 0), -1), `is`(closeTo(Point.xyr(4.0, 4.0, 4.0))))
+        assertThat(baseGrid.transformToWorld(GridPoint(1, 0, 0), -1), `is`(closeTo(Point.xyr(4.0, 12.0, 4.0))))
+        assertThat(baseGrid.transformToWorld(GridPoint(0, 1, 0), -1), `is`(closeTo(Point.xyr(-4.0, 4.0, 4.0))))
+
+        assertThat(baseGrid.transformToWorld(GridPoint(0, 0, 0), 1), `is`(closeTo(Point.xyr(4.0, 4.0, 1.0))))
+        assertThat(baseGrid.transformToWorld(GridPoint(1, 0, 0), 1), `is`(closeTo(Point.xyr(4.0, 6.0, 1.0))))
+        assertThat(baseGrid.transformToWorld(GridPoint(0, 1, 0), 1), `is`(closeTo(Point.xyr(2.0, 4.0, 1.0))))
+    }
+
+    @Test
     fun testSnapToNearestGrid() {
         println("SnapToNearestGrid")
         assertThat(baseGrid.snapToNearestGrid(Point.xy(0.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 1, 0))))

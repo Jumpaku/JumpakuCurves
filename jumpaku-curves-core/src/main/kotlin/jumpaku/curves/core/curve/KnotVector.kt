@@ -50,8 +50,8 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
     fun multiplicityOf(knotValue: Double): Int =
             search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
 
-    fun searchLastExtractedLessThanOrEqualTo(value: Double): Int {
-        require(domain.begin <= value && value < domain.end)
+    fun searchLastExtractedLessThanOrEqualTo(t: Double): Int {
+        require(domain.begin <= t && t < domain.end)
         val us = extractedKnots
         var a = degree
         var b = us.lastIndex - degree
@@ -59,8 +59,8 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
             val c = (a + b).ushr(1)
             when {
                 a == b -> return c
-                value < us[c] -> b = c - 1
-                us[c + 1] <= value -> a = c + 1
+                t < us[c] -> b = c - 1
+                us[c + 1] <= t -> a = c + 1
                 else/* us[c] <= t && t < us[c + 1] */ -> return c
             }
         }

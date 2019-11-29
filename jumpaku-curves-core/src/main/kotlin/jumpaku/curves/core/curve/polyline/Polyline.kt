@@ -20,10 +20,6 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     val points: List<Point> = paramPoints.map(ParamPoint::point)
 
-    init {
-        require(points.size == parameters.size) { "points.size() != parameters.size()" }
-    }
-
     override val domain: Interval = Interval(parameters.first(), parameters.last())
 
     override fun toString(): String = toJsonString()
@@ -54,7 +50,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
     private fun evaluateInSpan(t: Double, index: Int): Point =
             points[index].lerp((t - parameters[index]) / (parameters[index + 1] - parameters[index]), points[index + 1])
 
-    fun transform(a: Transform): Polyline = byArcLength(points.map(a::invoke))
+    fun transform(a: Transform): Polyline = Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 
@@ -80,6 +76,11 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
     }
 
     companion object {
+
+        fun byIndices(vararg points: Point): Polyline = byIndices(points.asIterable())
+
+        fun byIndices(points: Iterable<Point>): Polyline =
+                Polyline(points.mapIndexed { i, p -> ParamPoint(p, i.toDouble()) })
 
         fun byArcLength(points: Iterable<Point>): Polyline {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()

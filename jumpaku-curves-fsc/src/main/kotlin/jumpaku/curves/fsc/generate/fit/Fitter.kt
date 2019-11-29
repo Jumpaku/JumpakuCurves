@@ -2,7 +2,6 @@ package jumpaku.curves.fsc.generate.fit
 
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.WeightedParamPoint
 
 
 interface Fitter<out C : Curve> {

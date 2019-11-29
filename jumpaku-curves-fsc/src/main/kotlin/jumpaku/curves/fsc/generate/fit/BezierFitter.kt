@@ -1,7 +1,6 @@
 package jumpaku.curves.fsc.generate.fit
 
 import io.vavr.Tuple3
-import jumpaku.curves.core.curve.WeightedParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.util.asVavr

@@ -6,7 +6,7 @@ import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.WeightedParamPoint
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.DrawingStroke

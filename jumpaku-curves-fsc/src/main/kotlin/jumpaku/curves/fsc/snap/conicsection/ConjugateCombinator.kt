@@ -1,6 +1,6 @@
 package jumpaku.curves.fsc.snap.conicsection
 
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import org.apache.commons.math3.util.FastMath
 

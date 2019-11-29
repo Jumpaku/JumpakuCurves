@@ -2,7 +2,7 @@ package jumpaku.curves.fsc.test.identify.primitive.reference
 
 import jumpaku.commons.test.matcher
 import jumpaku.curves.core.test.curve.isCloseTo
-import jumpaku.curves.core.test.curve.rationalbezier.isCloseTo
+import jumpaku.curves.core.test.curve.bezier.isCloseTo
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 import org.hamcrest.TypeSafeMatcher
 

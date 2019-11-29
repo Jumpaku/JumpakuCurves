@@ -13,7 +13,7 @@ import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.chordalParametrize
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
 import kotlin.collections.component1

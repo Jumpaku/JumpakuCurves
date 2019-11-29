@@ -3,7 +3,6 @@ package jumpaku.curves.fsc.generate.fit
 import io.vavr.Tuple3
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
-import jumpaku.curves.core.curve.WeightedParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.geom.Point

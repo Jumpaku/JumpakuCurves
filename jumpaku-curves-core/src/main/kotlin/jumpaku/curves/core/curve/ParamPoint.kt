@@ -26,8 +26,6 @@ data class ParamPoint(val point: Point, val param: Double) : Lerpable<ParamPoint
 
     companion object {
 
-        fun now(point: Point): ParamPoint = ParamPoint(point, System.nanoTime() * 1.0e-9)
-
         fun fromJson(json: JsonElement): ParamPoint = ParamPoint(Point.fromJson(json["point"]), json["param"].double)
     }
 }

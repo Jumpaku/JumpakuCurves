@@ -4,7 +4,7 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.weighted
+import jumpaku.curves.fsc.generate.fit.weighted
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.curve.bspline.closeTo
 import jumpaku.curves.core.test.curve.closeTo

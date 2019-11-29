@@ -8,9 +8,7 @@ import com.google.gson.JsonElement
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.Point
 
-fun Grid.toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
-    localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
-}
+
 
 data class GridPoint(val x: Long, val y: Long, val z: Long) : ToJson {
 
