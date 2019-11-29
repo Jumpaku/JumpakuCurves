@@ -12,6 +12,9 @@ import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
 
 
+fun Grid.transformToWorld(pointSnapResult: PointSnapResult): Point =
+        pointSnapResult.run { transformToWorld(gridPoint, resolution) }
+
 class PointSnapResult(
         val resolution: Int,
         val gridPoint: GridPoint,
@@ -23,8 +26,6 @@ class PointSnapResult(
             "resolution" to resolution.toJson(),
             "gridPoint" to gridPoint.toJson(),
             "grade" to grade.toJson())
-
-    fun worldPoint(grid: Grid): Point = grid.toWorldPoint(gridPoint, resolution).copy(r = grid.fuzziness(resolution))
 
     companion object {
 

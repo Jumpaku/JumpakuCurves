@@ -37,7 +37,7 @@ open class Grid(
     fun snapToNearestGrid(cursor: Point, resolution: Int): GridPoint = localToWorld(resolution).invert().orThrow()(cursor)
             .let { (x, y, z) -> GridPoint(FastMath.round(x), FastMath.round(y), FastMath.round(z)) }
 
-    fun toWorldPoint(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
+    fun transformToWorld(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
         localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
                 .copy(r = fuzziness(resolution))
     }

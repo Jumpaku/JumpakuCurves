@@ -9,6 +9,7 @@ import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.point.MFGS
+import jumpaku.curves.fsc.snap.point.transformToWorld
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.junit.Assert.assertThat
@@ -28,7 +29,7 @@ class MFGSTest {
 
     fun assertSnapping(cursor: Point, expected: Option<Point>) {
         val result = snapper.snap(baseGrid, cursor)
-        val actual = result.map { it.worldPoint(baseGrid).copy(r = baseGrid.fuzziness(it.resolution)) }
+        val actual = result.map { baseGrid.transformToWorld(it) }
         assertThat(actual is Some, `is`(expected is Some))
         if (actual is Some && expected is Some) {
             assertThat(expected.value.isNecessary(cursor), `is`(greaterThanOrEqualTo(Grade(0.5))))

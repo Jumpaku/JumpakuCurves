@@ -17,16 +17,16 @@ object IFGS : PointSnapper() {
         1.0.tryDiv(cursor.r).onFailure { return None }
         val h = generateSequence(0) { it + 1 }.first {
             val gi = grid.snapToNearestGrid(cursor, it)
-            val ni = grid.toWorldPoint(gi, it).isNecessary(cursor)
+            val ni = grid.transformToWorld(gi, it).isNecessary(cursor)
             ni >= Grade(0.5)
         }
         val k = generateSequence(h) { it - 1 }.first {
             val gi = grid.snapToNearestGrid(cursor, it - 1)
-            val ni = grid.toWorldPoint(gi, it - 1).isNecessary(cursor)
+            val ni = grid.transformToWorld(gi, it - 1).isNecessary(cursor)
             ni < Grade(0.5)
         }
         val gk = grid.snapToNearestGrid(cursor, k)
-        val nk = grid.toWorldPoint(gk, k).isNecessary(cursor)
+        val nk = grid.transformToWorld(gk, k).isNecessary(cursor)
 
         return some(PointSnapResult(k, gk, nk))
     }
