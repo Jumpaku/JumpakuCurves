@@ -7,13 +7,10 @@ import jumpaku.commons.control.*
 import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.fsc.blend.BlendGenerator
-import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.fsc.merge.Merger
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 
-
-class Merger(val blender: Blender, val blendGenerator: BlendGenerator)
 
 class Editor(
         val nConnectorSamples: Int = 17,
@@ -33,18 +30,16 @@ class Editor(
         data class Selected(val id: Id, val grade: Grade)
         val selected = graph.mapNotNull { (id, element) ->
             (element as? Element.Target)?.run {
-                merger.blender.blend(fragment, overlap).map { blend -> Selected(id, blend.grade) }.orNull()
+                merger.detector.detect(fragment, overlap, merger.samplingSpan)
+                        .map { Selected(id, it.grade) }.orNull()
             }
         }.sortedByDescending { it.grade }.map { it.id }
-        fun merge(exist: BSpline, overlap: BSpline): Option<BSpline> = merger.run {
-            blender.blend(exist, overlap).map { blendGenerator.generate(it) }
-        }
         var merged = overlap
         val removed = mutableSetOf<Id>()
         selected.forEach { id ->
             val target = graph.getValue(id) as Element.Target
-            merge(target.fragment, merged).forEach { blended ->
-                merged = blended
+            merger.tryMerge(target.fragment, merged).forEach {
+                merged = it
                 removed += id
             }
         }
@@ -97,9 +92,7 @@ class Editor(
     override fun toJson(): JsonElement = jsonObject(
             "nConnectorSamples" to nConnectorSamples.toJson(),
             "connectionThreshold" to connectionThreshold.toJson(),
-            "merger" to jsonObject(
-                    "blender" to merger.blender.toJson(),
-                    "blendGenerator" to merger.blendGenerator.toJson()),
+            "merger" to merger.toJson(),
             "fragmenter" to fragmenter.toJson()
             )
 

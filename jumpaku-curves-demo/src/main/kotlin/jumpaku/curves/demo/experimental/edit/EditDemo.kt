@@ -8,11 +8,9 @@ import javafx.stage.Stage
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.fsc.blend.BlendGenerator
-import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.fsc.merge.Merger
 import jumpaku.curves.fsc.experimental.edit.Editor
 import jumpaku.curves.fsc.experimental.edit.FscGraph
-import jumpaku.curves.fsc.experimental.edit.Merger
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.Fuzzifier
@@ -100,17 +98,16 @@ private object Settings {
                     accelerationCoefficient = 0.007
             )
     )
-    val blender = Blender(
-            samplingSpan = 0.01,
-            blendingRate = 0.5,
-            threshold = Grade.FALSE)
-    val blendGenerator = BlendGenerator(
+    val merger = Merger(
             degree = generator.degree,
             knotSpan = generator.knotSpan,
-            bandWidth = blender.samplingSpan,
+            extendDegree = generator.extendDegree,
             extendInnerSpan = generator.extendInnerSpan,
             extendOuterSpan = generator.extendOuterSpan,
-            extendDegree = generator.extendDegree,
+            samplingSpan = 0.01,
+            mergeRate = 0.5,
+            overlapThreshold = Grade.FALSE,
+            bandWidth = 0.01,
             fuzzifier = generator.fuzzifier)
     val fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
@@ -121,6 +118,6 @@ private object Settings {
     val editor: Editor = Editor(
             nConnectorSamples = 17,
             connectionThreshold = Grade.FALSE,
-            merger = Merger(blender, blendGenerator),
+            merger = merger,
             fragmenter = fragmenter)
 }
