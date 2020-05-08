@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.freecurve
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.fsc.freecurve.Segmenter
 import jumpaku.curves.fsc.freecurve.Shaper
 import jumpaku.curves.fsc.freecurve.Smoother

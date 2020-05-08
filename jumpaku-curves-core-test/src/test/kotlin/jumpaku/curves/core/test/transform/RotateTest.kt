@@ -1,13 +1,12 @@
 package jumpaku.curves.core.test.transform
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import kotlin.math.sqrt
 
 class RotateTest {
@@ -21,11 +20,5 @@ class RotateTest {
         println("Invoke")
         assertThat(t(p), `is`(closeTo(Point(0.0, r2 * 2, 2.0))))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = t.toString().parseJson().tryMap { Rotate.fromJson(it) }.orThrow()
-        assertThat(a(p), `is`(closeTo(Point(0.0, r2 * 2, 2.0))))
-    }
 }
+

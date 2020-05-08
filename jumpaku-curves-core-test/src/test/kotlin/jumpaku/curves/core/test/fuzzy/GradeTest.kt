@@ -1,24 +1,29 @@
 package jumpaku.curves.core.test.fuzzy
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.control.result
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.fuzzy.Grade
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Test
-import org.junit.jupiter.api.assertThrows
 
 class GradeTest {
 
     @Test
     fun testConstructorException() {
         println("ConstructorException")
-        assertThrows<IllegalArgumentException> { Grade(-0.5) }
-        assertThrows<IllegalArgumentException> { Grade(1.5) }
-        assertThrows<IllegalArgumentException> { Grade(Double.NaN) }
-        assertThrows<IllegalArgumentException> { Grade(Double.NEGATIVE_INFINITY) }
-        assertThrows<IllegalArgumentException> { Grade(Double.POSITIVE_INFINITY) }
+        val a0 = result { Grade(-0.5) }.error().orThrow()
+        val a1 = result { Grade(1.5) }.error().orThrow()
+        val a2 = result { Grade(Double.NaN) }.error().orThrow()
+        val a3 = result { Grade(Double.NEGATIVE_INFINITY) }.error().orThrow()
+        val a4 = result { Grade(Double.POSITIVE_INFINITY) }.error().orThrow()
+        val e = IllegalArgumentException::class.java
+        assertThat(a0, `is`(instanceOf(e)))
+        assertThat(a1, `is`(instanceOf(e)))
+        assertThat(a2, `is`(instanceOf(e)))
+        assertThat(a3, `is`(instanceOf(e)))
+        assertThat(a4, `is`(instanceOf(e)))
     }
 
     @Test
@@ -26,17 +31,6 @@ class GradeTest {
         println("ToGrade")
         assertThat(Grade(true).value, `is`(closeTo(1.0)))
         assertThat(Grade(false).value, `is`(closeTo(0.0)))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = Grade(1.0).toString().parseJson().tryMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow()
-        val b = Grade(0.0).toString().parseJson().tryMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow()
-        val c = Grade(0.5).toString().parseJson().tryMap { Grade.fromJson(it.asJsonPrimitive) }.orThrow()
-        assertThat(a.value, `is`(closeTo(Grade(1.0).value)))
-        assertThat(b.value, `is`(closeTo(Grade(0.0).value)))
-        assertThat(c.value, `is`(closeTo(Grade(0.5).value)))
     }
 
     @Test
@@ -113,3 +107,4 @@ class GradeTest {
         assertThat(Grade.clamped(-0.5).value, `is`(closeTo(0.0)))
     }
 }
+

@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.geom
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.times
 import org.apache.commons.math3.util.FastMath
@@ -106,12 +105,6 @@ class VectorTest {
     }
 
     @Test
-    fun testJson() {
-        println("Json")
-        assertThat(v.toString().parseJson().tryMap { Vector.fromJson(it) }.orThrow(), `is`(closeTo(v)))
-    }
-
-    @Test
     fun testToArray() {
         println("ToArray")
         val a = v.toDoubleArray()
@@ -120,3 +113,4 @@ class VectorTest {
         assertThat(a[2], `is`(closeTo(3.0)))
     }
 }
+

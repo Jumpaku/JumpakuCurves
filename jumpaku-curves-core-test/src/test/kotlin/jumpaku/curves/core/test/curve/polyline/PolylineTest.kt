@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.curve.polyline
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
@@ -29,13 +28,6 @@ class PolylineTest {
         assertThat(pl.points[3], `is`(closeTo(Point.xyzr(1.0, -3.0, 1.5, 2.0))))
         assertThat(pl.domain.begin, `is`(closeTo(0.0)))
         assertThat(pl.domain.end, `is`(closeTo(7.5)))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = pl.toString().parseJson().tryMap { Polyline.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(pl)))
     }
 
     @Test
@@ -129,3 +121,4 @@ class PolylineTest {
         assertThat(byIndices.domain.end, `is`(closeTo(3.0)))
     }
 }
+

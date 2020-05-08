@@ -1,13 +1,12 @@
 package jumpaku.curves.core.test.transform
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.*
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import kotlin.math.sqrt
 
 class TransformTest {
@@ -50,12 +49,5 @@ class TransformTest {
         assertThat(Transform.Identity(p), `is`(closeTo(p)))
         assertThat(Transform.Identity.invert().orThrow()(p), `is`(closeTo(p)))
     }
-
-    @Test
-    fun testToMatrixJson() {
-        println("ToMatrixJson")
-        val e = r.at(o)(p)
-        assertThat(r.at(o).toMatrixJson()
-                .toString().parseJson().tryMap { Transform.fromMatrixJson(it) }.orThrow()(p), `is`(closeTo(e)))
-    }
 }
+

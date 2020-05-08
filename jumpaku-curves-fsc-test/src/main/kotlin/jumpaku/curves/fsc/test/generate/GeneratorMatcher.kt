@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.generate
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.fsc.generate.Generator
 import org.hamcrest.TypeSafeMatcher
 

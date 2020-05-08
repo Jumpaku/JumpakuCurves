@@ -1,9 +1,10 @@
 package jumpaku.curves.core.test.curve.bezier
 
 import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.RationalBezier
+import jumpaku.curves.core.curve.bezier.RationalBezierJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
@@ -83,13 +84,6 @@ class RationalBezierTest {
         assertThat(d.evaluate(0.5), `is`(closeTo(Vector(4 - 2 * R2, -4 + 2 * R2))))
         assertThat(d.evaluate(0.75), `is`(closeTo(Vector(-(40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41), -(40 - 12 * R2) * (6 + 72 * R2) / (41 * 41)))))
         assertThat(d.evaluate(1.0), `is`(closeTo(Vector(0.0, -R2))))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = rb.toString().parseJson().tryMap { RationalBezier.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(rb)))
     }
 
     @Test
@@ -288,4 +282,23 @@ class RationalBezierTest {
                 WeightedPoint(Point.xy(4.0 / 3, 1.0), 9.0),
                 WeightedPoint(Point.xy(56.0 / 47, 63.0 / 47), -47.0)))))
     }
+}
+
+class RationalBezierJsonTest {
+
+    private val R2 = FastMath.sqrt(2.0)
+
+    private val rb = RationalBezier(
+            WeightedPoint(Point.xyr(0.0, 1.0, 1.0), 1.0),
+            WeightedPoint(Point.xyr(2 - R2, 1.0, 3 - R2), (1 + R2) / 3),
+            WeightedPoint(Point.xyr(1.0, 2 - R2, 1 + R2), (1 + R2) / 3),
+            WeightedPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
+
+    @Test
+    fun testRationalBezierJson() {
+        println("RationalBezierJson")
+        val a = RationalBezierJson.toJsonStr(rb).parseJson().let { RationalBezierJson.fromJson(it) }
+        assertThat(a, `is`(closeTo(rb)))
+    }
+
 }

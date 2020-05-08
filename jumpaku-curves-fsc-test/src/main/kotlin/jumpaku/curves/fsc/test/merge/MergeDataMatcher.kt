@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.merge
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.core.test.curve.isCloseTo
 import jumpaku.curves.fsc.merge.MergeData
 import jumpaku.curves.fsc.test.generate.fit.isCloseTo

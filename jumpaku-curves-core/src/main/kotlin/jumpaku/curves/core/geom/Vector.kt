@@ -1,12 +1,7 @@
 package jumpaku.curves.core.geom
 
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Result
 import jumpaku.commons.control.result
-import jumpaku.commons.json.ToJson
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.MathArrays
 
@@ -25,7 +20,7 @@ fun linearCombination(vararg terms: Pair<Double, Vector>): Vector {
     return Vector(x, y, z)
 }
 
-data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) : ToJson {
+data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
 
@@ -52,9 +47,6 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0)
 
     operator fun unaryMinus(): Vector = -1.0 * this
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z)
 
     fun normalize(): Result<Vector> = div(length()).tryMapFailure { IllegalStateException("$this is close to zero.") }
 
@@ -82,6 +74,6 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0)
 
         val Zero: Vector = Vector()
 
-        fun fromJson(json: JsonElement): Vector = Vector(json["x"].double, json["y"].double, json["z"].double)
     }
 }
+

@@ -1,12 +1,8 @@
 package jumpaku.curves.core.geom
 
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
+
 import jumpaku.commons.control.Result
 import jumpaku.commons.control.orDefault
-import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.sum
 import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.fuzzy.Grade
@@ -19,7 +15,7 @@ import kotlin.math.abs
 
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
-        Lerpable<Point>, ToJson {
+        Lerpable<Point> {
 
     constructor(v: Vector, r: Double = 0.0) : this(v.x, v.y, v.z, r)
 
@@ -60,9 +56,6 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
         return Point(v, r)
     }
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z, "r" to r)
 
     private fun isCloseTo(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean =
             Precision.equals(p1.distSquare(p2), 0.0, eps * eps)
@@ -167,6 +160,6 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
 
-        fun fromJson(json: JsonElement): Point = Point(json["x"].double, json["y"].double, json["z"].double, json["r"].double)
     }
 }
+

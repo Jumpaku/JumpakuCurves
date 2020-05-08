@@ -1,199 +1,144 @@
 buildscript {
-    ext.jumpaku_curves_version = '2.1.0-experimental'
-    ext.kotlin_version = '1.3.31'
-    ext.jvm_version = '1.8'
-    ext.dokka_version = '0.9.18'
-    ext.javafxplugin_version = '0.0.7'
-    ext.dependencyVersions = [
-            'jumpaku_commons': '1.1.0',
-            'junit4'         : '4.12',
-            'junit5'         : '5.1.0',
-            'hamcrest'       : '2.1',
-            'commons_math3'  : '3.6.1',
-            'kotson'         : '2.5.0',
-            'vavr'           : '0.9.1',
-            'fxgraphics2d'   : '1.8'
-    ]
+    ext.kotlin_version = "1.3.31"
+    ext.jvm_version = "1.8"
+    ext.javafxplugin_version = "0.0.8"
+    ext.jumpaku_commons_version = "2.0.0-alpha-3-SNAPSHOT"
+    ext.junit4_version = "4.12"
+    ext.junit5_version = "5.1.0"
+    ext.hamcrest_version = "2.1"
+    ext.commons_math3_version = "3.6.1"
+    ext.kotson_version = "2.5.0"
+    ext.vavr_version = "0.9.1"
+    ext.fxgraphics2d_version = "1.8"
+    ext.javafx_version = "12.0.1"
 }
+
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.3.31" apply false
-    id 'maven'
-    id 'java'
-    id "org.jetbrains.dokka" version "0.9.18" apply false
-    id 'org.openjfx.javafxplugin' version "0.0.7" apply false
+    id("org.jetbrains.kotlin.jvm") version "$kotlin_version" apply false
+    id("maven-publish")
+    id("org.openjfx.javafxplugin") version "$javafxplugin_version" apply false
 }
+
 // Common configuration
-subprojects {
+allprojects {
 
-    group 'jumpaku'
-    version jumpaku_curves_version
+    group = "jumpaku"
+    version = "3.0.0-alpha-1-SNAPSHOT"
 
-    apply plugin: 'kotlin'
-    apply plugin: 'maven'
-    apply plugin: 'java'
-    apply plugin: 'org.jetbrains.dokka'
+    apply(plugin: "kotlin")
+    apply(plugin: "maven-publish")
 
     repositories {
         mavenCentral()
         jcenter()
         maven {
-            url "https://nexus.jumpaku.net/repository/maven-public/"
+            url = "https://nexus.jumpaku.net/repository/maven-public/"
         }
     }
 
-    compileKotlin {
+    tasks.named("compileKotlin") {
         kotlinOptions.jvmTarget = jvm_version
     }
-    compileTestKotlin {
+    tasks.named("compileTestKotlin") {
         kotlinOptions.jvmTarget = jvm_version
     }
 
     dependencies {
-        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
 
-        compile "jumpaku:jumpaku-commons:${dependencyVersions.jumpaku_commons}"
-        compile "org.apache.commons:commons-math3:${dependencyVersions.commons_math3}"
-        compile "com.github.salomonbrys.kotson:kotson:${dependencyVersions.kotson}"
-        compile "io.vavr:vavr:${dependencyVersions.vavr}"
+        api("jumpaku:jumpaku-commons-control:$jumpaku_commons_version")
+        api("jumpaku:jumpaku-commons-math:$jumpaku_commons_version")
+        api("jumpaku:jumpaku-commons-json:$jumpaku_commons_version")
+        api("com.github.salomonbrys.kotson:kotson:$kotson_version")
+        api("org.apache.commons:commons-math3:$commons_math3_version")
+        testImplementation("jumpaku:jumpaku-commons-control-test:$jumpaku_commons_version")
+        implementation("io.vavr:vavr:$vavr_version")
+        if (name.endsWith("-test")) {
+            implementation("org.hamcrest:hamcrest:$hamcrest_version")
+            implementation("junit:junit:$junit4_version")
+            api("jumpaku:jumpaku-commons-matcher:$jumpaku_commons_version")
+            api("jumpaku:jumpaku-commons-math-test:$jumpaku_commons_version")
+        }
     }
 
-    // Documentation
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-    }
-    dokka {
-        outputFormat = 'html'
-        outputDirectory = "$buildDir/javadoc"
+    if (name in [":jumpaku-curves-graphics", ":jumpaku-curves-demo"]) {
+        apply(plugin: "org.openjfx.javafxplugin")
+        javafx {
+            version = javafx_version
+            modules = ["javafx.controls"]
+        }
     }
 
     // Publishing
     /**
-     * To run uploadArchives,  ./gradlew uploadArchives -Pargs="`user id of nexus.jumpaku.net` `password`"
+     * To run publish,  ./gradlew publish -Pargs="`user id of nexus.jumpaku.net` `password`"
      */
-    uploadArchives {
-        def args = project.hasProperty("args") ? project.findProperty("args").split(/\s+/) : []
-        def nexusUsername = args.size() >= 1 ? args[0] : "UNKNOWN USER"
-        def nexusPassword = args.size() >= 2 ? args[1] : "NO PASSWORD"
-        def nexusUrl = "https://nexus.jumpaku.net"
+    publishing {
+        def (repositoryUsername, repositoryPassword) = (project?.findProperty("args") as String)?.split(/\s+/) ?: []
         repositories {
-            mavenDeployer {
-                def releaseUrl = "${nexusUrl}/repository/maven-releases/"
-                repository(url: releaseUrl) {
-                    authentication(userName: nexusUsername, password: nexusPassword)
+            maven {
+                name = "snapshotRepo"
+                url = uri("https://nexus.jumpaku.net/repository/maven-snapshots")
+                credentials {
+                    username = repositoryUsername ?: "UNKOWN"
+                    password = repositoryPassword ?: "UNKOWN"
                 }
-                def snapshotUrl = "${nexusUrl}/repository/maven-snapshots/"
-                snapshotRepository(url: snapshotUrl) {
-                    authentication(userName: nexusUsername, password: nexusPassword)
+            }
+            if (!version.endsWith("SNAPSHOT")) {
+                maven {
+                    name = "releaseRepo"
+                    url = uri("https://nexus.jumpaku.net/repository/maven-releases")
+                    credentials {
+                        username = repositoryUsername ?: "UNKOWN"
+                        password = repositoryPassword ?: "UNKOWN"
+                    }
                 }
+            }
+        }
+
+        publications {
+            create("release", MavenPublication) {
+                from(components["kotlin"])
             }
         }
     }
 }
 
 // Configurations for sub-projects
-project(':jumpaku-curves-core') {
+project(":jumpaku-curves-core") {
 }
 
-project(':jumpaku-curves-core-test') {
+project(":jumpaku-curves-core-test") {
     dependencies {
-        testCompileOnly "junit:junit:${dependencyVersions.junit4}"
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
-        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
-
-        compile project(':jumpaku-curves-core')
-        compile "jumpaku:jumpaku-commons-test:${dependencyVersions.jumpaku_commons}"
-        compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
-
-    }
-    test {
-        useJUnitPlatform()
+        implementation(project(":jumpaku-curves-core"))
     }
 }
 
-project(':jumpaku-curves-fsc') {
+project(":jumpaku-curves-fsc") {
     dependencies {
-        compile project(':jumpaku-curves-core')
+        api(project(":jumpaku-curves-core"))
     }
 }
 
-project(':jumpaku-curves-fsc-test') {
+project(":jumpaku-curves-fsc-test") {
     dependencies {
-        testCompileOnly "junit:junit:${dependencyVersions.junit4}"
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
-        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
-        compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
-
-        compile project(':jumpaku-curves-core')
-        compile project(':jumpaku-curves-core-test')
-        compile project(':jumpaku-curves-fsc')
-        compile "jumpaku:jumpaku-commons-test:${dependencyVersions.jumpaku_commons}"
-        compile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
-    }
-    test {
-        useJUnitPlatform()
+        implementation(project(":jumpaku-curves-fsc"))
+        api(project(":jumpaku-curves-core-test"))
     }
 }
 
-project(':jumpaku-curves-graphics') {
-
-    apply plugin: "org.openjfx.javafxplugin"
-    javafx {
-        version = "12.0.1"
-        modules = ['javafx.controls']
-    }
+project(":jumpaku-curves-graphics") {
     dependencies {
-        compile project(':jumpaku-curves-core')
-        compile project(':jumpaku-curves-fsc')
-        compile "org.jfree:fxgraphics2d:${dependencyVersions.fxgraphics2d}"
+        api(project(":jumpaku-curves-core"))
+        api(project(":jumpaku-curves-fsc"))
+        api("org.jfree:fxgraphics2d:$fxgraphics2d_version")
     }
 }
 
-project(':jumpaku-curves-demo') {
-
-    apply plugin: "org.openjfx.javafxplugin"
-    javafx {
-        version = "12.0.1"
-        modules = ['javafx.controls']
-    }
+project(":jumpaku-curves-demo") {
     dependencies {
-        compile project(':jumpaku-curves-core')
-        compile project(':jumpaku-curves-fsc')
-        compile project(':jumpaku-curves-graphics')
+        implementation(project(":jumpaku-curves-core"))
+        implementation(project(":jumpaku-curves-fsc"))
+        implementation(project(":jumpaku-curves-graphics"))
     }
 }
-
-/*project(':jumpaku-curves-experimental') {
-
-    apply plugin: "org.openjfx.javafxplugin"
-    javafx {
-        version = "12.0.1"
-        modules = ['javafx.controls']
-    }
-    dependencies {
-        compile project(':jumpaku-curves-core')
-        compile project(':jumpaku-curves-fsc')
-        compile project(':jumpaku-curves-graphics')
-        compile 'org.jfree:jfreesvg:3.3'
-
-
-        testCompileOnly "junit:junit:${dependencyVersions.junit4}"
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${dependencyVersions.junit5}"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${dependencyVersions.junit5}"
-        testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${dependencyVersions.junit5}"
-        testCompile "org.hamcrest:hamcrest:${dependencyVersions.hamcrest}"
-        testCompile project(':jumpaku-curves-core-test')
-        testCompile project(':jumpaku-curves-fsc-test')
-
-    }
-}*/

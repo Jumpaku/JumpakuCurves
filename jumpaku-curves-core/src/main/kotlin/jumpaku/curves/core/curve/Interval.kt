@@ -1,16 +1,11 @@
 package jumpaku.curves.core.curve
 
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+
 import jumpaku.curves.core.geom.lerp
 import org.apache.commons.math3.util.FastMath
 
 
-data class Interval(val begin: Double, val end: Double) : ToJson, ClosedRange<Double> {
+data class Interval(val begin: Double, val end: Double) : ClosedRange<Double> {
 
     init {
         require(begin.isFinite() && end.isFinite()) { "[$begin, $end]" }
@@ -36,14 +31,11 @@ data class Interval(val begin: Double, val end: Double) : ToJson, ClosedRange<Do
 
     operator fun contains(i: Interval): Boolean = i.begin in begin..i.end && i.end in i.begin..end
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject("begin" to begin.toJson(), "end" to end.toJson())
 
     companion object {
 
         val ZERO_ONE = Interval(0.0, 1.0)
 
-        fun fromJson(json: JsonElement): Interval = Interval(json["begin"].double, json["end"].double)
     }
 }
+

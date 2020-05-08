@@ -1,6 +1,6 @@
 package jumpaku.curves.core.test.curve.arclength
 
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.MonotonicQuadratic
 import jumpaku.curves.core.curve.arclength.Reparametrizer

@@ -1,15 +1,9 @@
 package jumpaku.curves.core.curve.bezier
 
 
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
 import jumpaku.commons.control.orDefault
-import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Derivative
@@ -24,7 +18,7 @@ import org.apache.commons.math3.util.FastMath
  * Conic section defined by 3 representation points.
  */
 class ConicSection(val begin: Point, val far: Point, val end: Point, val weight: Double)
-    : Curve, Differentiable, ToJson {
+    : Curve, Differentiable {
 
     val representPoints: List<Point> get() = listOf(begin, far, end)
 
@@ -65,10 +59,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     fun transform(a: Transform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "begin" to begin.toJson(), "far" to far.toJson(), "end" to end.toJson(), "weight" to weight.toJson())
+    override fun toString(): String = "ConicSection(begin=$begin, far=$far, end=$end, weight=$weight)"
 
     override fun toCrisp(): ConicSection = ConicSection(begin.toCrisp(), far.toCrisp(), end.toCrisp(), weight)
 
@@ -142,11 +133,6 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
         fun lineSegment(begin: Point, end: Point): ConicSection = ConicSection(begin, begin.middle(end), end, 1.0)
 
-        fun fromJson(json: JsonElement): ConicSection =
-                ConicSection(
-                        Point.fromJson(json["begin"]),
-                        Point.fromJson(json["far"]),
-                        Point.fromJson(json["end"]),
-                        json["weight"].double)
     }
 }
+

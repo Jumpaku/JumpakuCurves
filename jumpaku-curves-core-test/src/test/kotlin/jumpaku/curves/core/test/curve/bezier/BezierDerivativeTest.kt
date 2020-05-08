@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.curve.bezier
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bezier.BezierDerivative
@@ -27,14 +26,6 @@ class BezierDerivativeTest {
         assertThat(b4.degree, `is`(4))
         assertThat(b4.domain.begin, `is`(closeTo(0.0)))
         assertThat(b4.domain.end, `is`(closeTo(1.0)))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val p = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-        val a = p.toString().parseJson().tryMap { BezierDerivative.fromJson(it) }.orThrow().toBezier()
-        assertThat(a, `is`(closeTo(p.toBezier())))
     }
 
     @Test
@@ -150,3 +141,4 @@ class BezierDerivativeTest {
                 `is`(closeTo(Bezier(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)))))
     }
 }
+

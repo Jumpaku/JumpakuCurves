@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.curve.bspline
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
@@ -53,13 +52,6 @@ class BSplineTest {
         assertThat(clamped.knotVector, `is`(closeTo(KnotVector.clamped(Interval(3.0, 4.0), 3, 9))))
         assertThat(clamped.domain, `is`(closeTo(Interval(3.0, 4.0))))
         assertThat(clamped.degree, `is`(3))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = clamped.toString().parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(clamped)))
     }
 
     @Test
@@ -343,3 +335,4 @@ class BSplineTest {
         assertThat(BSpline.basis(2.0, 3, knots), `is`(closeTo(1.0)))
     }
 }
+

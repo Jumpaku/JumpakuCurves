@@ -1,11 +1,5 @@
 package jumpaku.curves.core.curve.bezier
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.isOdd
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Derivative
@@ -15,7 +9,7 @@ import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.transform.Transform
 
 
-class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable, ToJson {
+class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable {
 
     constructor(weightedControlPoints: Iterable<WeightedPoint>) :
             this(weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight })
@@ -66,10 +60,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         return createEvaluatedPoint(t, weightedControlPoints).point
     }
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }))
+    override fun toString(): String = "RationalBezier(weightedControlPoints=$weightedControlPoints)"
 
     fun transform(a: Transform): RationalBezier =
             RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
@@ -174,8 +165,6 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
             }
             return ws.first()
         }
-
-        fun fromJson(json: JsonElement): RationalBezier =
-                RationalBezier(json["weightedControlPoints"].array.map { WeightedPoint.fromJson(it) })
     }
 }
+

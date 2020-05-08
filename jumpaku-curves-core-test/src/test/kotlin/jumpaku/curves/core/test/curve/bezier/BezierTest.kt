@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.curve.bezier
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
@@ -30,13 +29,6 @@ class BezierTest {
         assertThat(bc.degree, `is`(4))
         assertThat(bc.domain.begin, `is`(closeTo(0.0)))
         assertThat(bc.domain.end, `is`(closeTo(1.0)))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = bc.toString().parseJson().tryMap { Bezier.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(bc)))
     }
 
     @Test
@@ -190,3 +182,4 @@ class BezierTest {
         assertThat(Bezier.basis(2, 2, 1.0), `is`(closeTo(1.0)))
     }
 }
+

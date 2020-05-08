@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test
 
 import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.geom.Point

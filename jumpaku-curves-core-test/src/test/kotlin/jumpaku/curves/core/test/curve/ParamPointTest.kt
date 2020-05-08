@@ -1,6 +1,5 @@
 package jumpaku.curves.core.test.curve
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point
 import org.hamcrest.CoreMatchers.`is`
@@ -20,12 +19,5 @@ class ParamPointTest {
         assertThat(f0.lerp(0.0, f2), `is`(closeTo(ParamPoint(Point.xr(1.0, 10.0), 1.0))))
         assertThat(f0.lerp(1.0, f2), `is`(closeTo(ParamPoint(Point.xr(2.0, 20.0), 2.0))))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val t = ParamPoint(Point.xr(1.0, 10.0), 1.0)
-        val a = t.toString().parseJson().tryMap { ParamPoint.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(t)))
-    }
 }
+

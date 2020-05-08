@@ -5,7 +5,7 @@ import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Calibrate
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.Test
 
 class CalibrateTest {
 

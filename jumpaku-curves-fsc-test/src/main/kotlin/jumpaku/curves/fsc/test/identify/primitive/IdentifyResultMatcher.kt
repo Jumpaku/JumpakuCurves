@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.fsc.identify.primitive.IdentifyResult
 import jumpaku.curves.fsc.test.identify.primitive.reference.isCloseTo
 import org.hamcrest.TypeSafeMatcher

@@ -1,6 +1,5 @@
 package jumpaku.curves.core.test.curve.bspline
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
@@ -37,15 +36,7 @@ class BSplineDerivativeTest {
         assertThat(b.domain, `is`(closeTo(Interval(3.0, 4.0))))
         assertThat(b.degree, `is`(3))
     }
-
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = b.toString().parseJson().tryMap { BSplineDerivative.fromJson(it) }.orThrow()
-        assertThat(a.toBSpline(), `is`(closeTo(b.toBSpline())))
-    }
-
+    
     @Test
     fun testEvaluate() {
         println("Evaluate")
@@ -254,3 +245,4 @@ class BSplineDerivativeTest {
         assertThat(c.toBSpline(), `is`(closeTo(e)))
     }
 }
+

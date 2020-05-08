@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.curve.bezier
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.bezier.RationalBezier
@@ -48,14 +47,6 @@ class ConicSectionTest {
                 WeightedPoint(Point.xy(0.0, 1.0), 1.0),
                 WeightedPoint(Point.xy(1.0, 1.0), 1 / R2),
                 WeightedPoint(Point.xy(1.0, 0.0), 1.0)))))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val i = cs
-        val a = i.toString().parseJson().tryMap { ConicSection.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(i)))
     }
 
     @Test
@@ -162,3 +153,4 @@ class ConicSectionTest {
                 Point.xyr(1.0, 0.0, 3.0), Math.sqrt(2 + R2) / 2), 0.1)))
     }
 }
+

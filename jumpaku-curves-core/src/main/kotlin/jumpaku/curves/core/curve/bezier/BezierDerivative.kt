@@ -1,11 +1,6 @@
 package jumpaku.curves.core.curve.bezier
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+
 import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
@@ -13,7 +8,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 
 
-class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable, ToJson {
+class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable {
 
     constructor(controlVectors: Iterable<Vector>) : this(Bezier(controlVectors.map { Point(it) }))
 
@@ -33,10 +28,7 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     override fun differentiate(t: Double): Vector = toBezier().differentiate(t)
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement =
-            jsonObject("controlVectors" to jsonArray(controlVectors.map { it.toJson() }))
+    override fun toString(): String = "BezierDerivative(controlVectors=$controlVectors)"
 
     fun restrict(i: Interval): BezierDerivative = BezierDerivative(toBezier().restrict(i))
 
@@ -53,8 +45,5 @@ class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable,
 
     fun extend(t: Double): BezierDerivative = BezierDerivative(toBezier().extend(t))
 
-    companion object {
-
-        fun fromJson(json: JsonElement): BezierDerivative = BezierDerivative(json["controlVectors"].array.map { Vector.fromJson(it) })
-    }
 }
+

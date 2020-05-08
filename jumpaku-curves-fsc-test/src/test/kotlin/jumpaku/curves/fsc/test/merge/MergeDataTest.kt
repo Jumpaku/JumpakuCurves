@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.merge
 
 import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint

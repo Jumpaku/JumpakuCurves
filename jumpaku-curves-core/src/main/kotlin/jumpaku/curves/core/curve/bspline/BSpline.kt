@@ -1,12 +1,7 @@
 package jumpaku.curves.core.curve.bspline
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
-import jumpaku.commons.control.orDefault
-import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.divOrDefault
-import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
@@ -14,7 +9,7 @@ import jumpaku.curves.core.geom.weighted
 import jumpaku.curves.core.transform.Transform
 
 
-class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differentiable, ToJson {
+class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differentiable {
 
     constructor(controlPoints: Iterable<Point>, knotVector: KnotVector) : this(Nurbs(controlPoints.map { it.weighted() }, knotVector))
 
@@ -50,12 +45,7 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     override fun toCrisp(): BSpline = BSpline(nurbs.toCrisp())
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "controlPoints" to jsonArray(controlPoints.map { it.toJson() }),
-            "degree" to degree,
-            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
+    override fun toString(): String = "BSpline(knotVectr=$knotVector, controlPoints=$controlPoints)"
 
     fun transform(a: Transform): BSpline = BSpline(nurbs.transform(a))
 
@@ -77,7 +67,7 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
      */
     fun close(): BSpline = BSpline(nurbs.close())
 
-    fun toBeziers(): List<Bezier> = nurbs.toRationalBeziers().map{ Bezier(it.controlPoints) }
+    fun toBeziers(): List<Bezier> = nurbs.toRationalBeziers().map { Bezier(it.controlPoints) }
 
     fun subdivide(t: Double): Pair<Option<BSpline>, Option<BSpline>> = nurbs.subdivide(t).run {
         Pair(first.map(::BSpline), second.map(::BSpline))
@@ -95,12 +85,6 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     companion object {
 
-        fun fromJson(json: JsonElement): BSpline {
-            val d = json["degree"].int
-            val cp = json["controlPoints"].array.map { Point.fromJson(it) }
-            val ks = json["knots"].array.map { Knot.fromJson(it) }
-            return BSpline(cp, KnotVector(d, ks))
-        }
 
         fun basis(t: Double, i: Int, knotVector: KnotVector): Double {
             val domain = knotVector.domain
@@ -128,3 +112,4 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
                 (a - b).divOrDefault(c - d) { 0.0 }
     }
 }
+

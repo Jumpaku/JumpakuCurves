@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.experimental.edit
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.fsc.experimental.edit.Editor
 import jumpaku.curves.fsc.test.fragment.isCloseTo
 import jumpaku.curves.fsc.test.merge.isCloseTo
