@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.snap.point
 
 import jumpaku.commons.test.matcher
-import jumpaku.curves.fsc.experimental.snap.point.IFGS
+import jumpaku.curves.fsc.snap.point.IFGS
 import jumpaku.curves.fsc.snap.point.MFGS
 import jumpaku.curves.fsc.snap.point.PointSnapper
 import org.hamcrest.TypeSafeMatcher

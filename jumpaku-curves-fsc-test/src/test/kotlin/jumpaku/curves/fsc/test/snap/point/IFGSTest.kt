@@ -1,4 +1,4 @@
-package jumpaku.curves.fsc.test.experimental.snap.point
+package jumpaku.curves.fsc.test.snap.point
 
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.Some
@@ -6,7 +6,7 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
-import jumpaku.curves.fsc.experimental.snap.point.IFGS
+import jumpaku.curves.fsc.snap.point.IFGS
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.point.transformToWorld
 import org.hamcrest.Matchers.greaterThanOrEqualTo

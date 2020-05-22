@@ -1,4 +1,4 @@
-package jumpaku.curves.fsc.experimental.snap.point
+package jumpaku.curves.fsc.snap.point
 
 import jumpaku.commons.control.None
 import jumpaku.commons.control.Option
@@ -7,8 +7,6 @@ import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.snap.Grid
-import jumpaku.curves.fsc.snap.point.PointSnapResult
-import jumpaku.curves.fsc.snap.point.PointSnapper
 
 
 object IFGS : PointSnapper() {
