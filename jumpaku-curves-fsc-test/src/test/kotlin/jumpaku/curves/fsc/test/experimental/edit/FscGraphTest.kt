@@ -279,11 +279,11 @@ class FscGraphTest {
         a.forEach { ai -> assertThat(e.any { ei -> isCloseTo(ai, ei) }, `is`(true)) }
         e.forEach { ei -> assertThat(a.any { ai -> isCloseTo(ai, ei) }, `is`(true)) }
     }
-
+/*
     @Test
     fun testToString() {
         println("ToString")
         val actual = g.toString().parseJson().tryMap { FscGraph.fromJson(it) }.orThrow()
         assertThat(actual, `is`(closeTo(g)))
-    }
+    }*/
 }

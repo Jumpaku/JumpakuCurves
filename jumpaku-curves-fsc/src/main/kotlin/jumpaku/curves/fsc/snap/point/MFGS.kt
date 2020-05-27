@@ -7,7 +7,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
 
-class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0) : PointSnapper() {
+class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0) : PointSnapper {
 
     init {
         require(minResolution <= maxResolution) { "minResolution($minResolution) > maxResolution($maxResolution)" }

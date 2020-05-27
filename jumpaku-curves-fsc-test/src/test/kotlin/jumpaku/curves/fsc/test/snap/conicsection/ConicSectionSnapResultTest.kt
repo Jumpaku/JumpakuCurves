@@ -2,21 +2,22 @@ package jumpaku.curves.fsc.test.snap.conicsection
 
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResult
+import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapResultJson
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
-class ConicSectionSnapResultTest {
+class ConicSectionSnapResultJsonTest {
 
     val urlString = "/jumpaku/curves/fsc/test/snap/conicsection/"
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
-    val r = resourceText("snapResult.json").parseJson().tryMap { ConicSectionSnapResult.fromJson(it) }.orThrow()
+    val r = resourceText("snapResult.json").parseJson().let { ConicSectionSnapResultJson.fromJson(it) }
 
     @Test
-    fun testToString() {
-        println("ToString")
-        assertThat(r.toString().parseJson().tryMap { ConicSectionSnapResult.fromJson(it) }.orThrow(), `is`(closeTo(r)))
+    fun testConicSectionSnapResultJson() {
+        println("ConicSectionSnapResultJson")
+        assertThat(ConicSectionSnapResultJson.toJsonStr(r).parseJson().let { ConicSectionSnapResultJson.fromJson(it) }, `is`(closeTo(r)))
     }
 
 }

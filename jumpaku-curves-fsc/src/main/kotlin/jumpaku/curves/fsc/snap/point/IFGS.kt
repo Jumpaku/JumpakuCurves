@@ -9,7 +9,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.snap.Grid
 
 
-object IFGS : PointSnapper() {
+object IFGS : PointSnapper {
 
     override fun snap(grid: Grid, cursor: Point): Option<PointSnapResult> {
         1.0.tryDiv(cursor.r).onFailure { return None }

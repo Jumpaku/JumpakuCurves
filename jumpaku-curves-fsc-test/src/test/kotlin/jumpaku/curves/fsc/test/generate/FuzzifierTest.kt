@@ -8,6 +8,7 @@ import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.generate.Fuzzifier
+import jumpaku.curves.fsc.generate.FuzzifierJson
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -32,11 +33,16 @@ class FuzzifierTest {
             assertThat(a, `is`(closeTo(e, 1e0)))
         }
     }
+}
+
+class FuzzifierJsonTest {
+
+    val l = Fuzzifier.Linear(velocityCoefficient = 3.0, accelerationCoefficient = 0.1)
 
     @Test
-    fun testToString() {
-        println("ToString")
-        val a = l.toString().parseJson().tryMap { Fuzzifier.fromJson(it) }.orThrow()
+    fun testFuzzifierJson() {
+        println("FuzzifierJson")
+        val a = FuzzifierJson.toJsonStr(l).parseJson().let { FuzzifierJson.fromJson(it) }
         assertThat(a, `is`(closeTo(l)))
     }
 }

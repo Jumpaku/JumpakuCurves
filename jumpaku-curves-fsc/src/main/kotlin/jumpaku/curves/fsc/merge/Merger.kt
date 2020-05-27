@@ -3,16 +3,14 @@ package jumpaku.curves.fsc.merge
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.fsc.generate.Fuzzifier
-import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.extendBack
-import jumpaku.curves.fsc.generate.extendFront
+import jumpaku.curves.core.fuzzy.GradeJson
+import jumpaku.curves.fsc.generate.*
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import java.util.*
 import kotlin.math.abs
@@ -30,7 +28,7 @@ class Merger(
         val fuzzifier: Fuzzifier = Fuzzifier.Linear(
                 velocityCoefficient = 0.86,
                 accelerationCoefficient = 0.77)
-) : ToJson {
+) {
 
     init {
         require(degree >= 0)
@@ -64,6 +62,7 @@ class Merger(
             (frontInterval.map { it.end..mergeInterval.begin } + backInterval.map { mergeInterval.end..it.begin })
                     .any { knot in it }
         }
+
         val extendedDomain = Interval(data.first().param, data.last().param)
         val removedKnots = LinkedList<Knot>()
         val remainedKnots = LinkedList<Knot>()
@@ -76,20 +75,6 @@ class Merger(
                 .run { restrict(mergeData.domain) }
                 .let { s -> removedKnots.fold(s) { inserted, (v, m) -> inserted.insertKnot(v, m) } }
     }
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "degree" to degree.toJson(),
-            "knotSpan" to knotSpan.toJson(),
-            "extendDegree" to extendDegree.toJson(),
-            "extendInnerSpan" to extendInnerSpan.toJson(),
-            "extendOuterSpan" to extendOuterSpan.toJson(),
-            "samplingSpan" to samplingSpan.toJson(),
-            "overlapThreshold" to overlapThreshold.toJson(),
-            "mergeRate" to mergeRate.toJson(),
-            "bandWidth" to bandWidth.toJson(),
-            "fuzzifier" to fuzzifier.toJson())
 
     companion object {
 
@@ -106,7 +91,7 @@ class Merger(
                 overlapThreshold: Grade = Grade.FALSE,
                 mergeRate: Double = 0.5,
                 bandWidth: Double = 0.01
-        ) : Merger = Merger(
+        ): Merger = Merger(
                 degree = generator.degree,
                 knotSpan = generator.knotSpan,
                 extendDegree = generator.extendDegree,
@@ -117,17 +102,35 @@ class Merger(
                 mergeRate = mergeRate,
                 bandWidth = bandWidth,
                 fuzzifier = generator.fuzzifier)
-
-        fun fromJson(json: JsonElement): Merger = Merger(
-                degree = json["degree"].int,
-                knotSpan = json["knotSpan"].double,
-                extendDegree = json["extendDegree"].int,
-                extendInnerSpan = json["extendInnerSpan"].double,
-                extendOuterSpan = json["extendOuterSpan"].double,
-                samplingSpan = json["samplingSpan"].double,
-                mergeRate = json["mergeRate"].double,
-                overlapThreshold = Grade.fromJson(json["overlapThreshold"].asJsonPrimitive),
-                bandWidth = json["bandWidth"].double,
-                fuzzifier = Fuzzifier.fromJson(json["fuzzifier"]))
     }
+}
+
+object MergerJson : JsonConverterBase<Merger>() {
+
+    override fun toJson(src: Merger): JsonElement = src.run {
+        jsonObject(
+                "degree" to degree.toJson(),
+                "knotSpan" to knotSpan.toJson(),
+                "extendDegree" to extendDegree.toJson(),
+                "extendInnerSpan" to extendInnerSpan.toJson(),
+                "extendOuterSpan" to extendOuterSpan.toJson(),
+                "samplingSpan" to samplingSpan.toJson(),
+                "overlapThreshold" to GradeJson.toJson(overlapThreshold),
+                "mergeRate" to mergeRate.toJson(),
+                "bandWidth" to bandWidth.toJson(),
+                "fuzzifier" to FuzzifierJson.toJson(fuzzifier))
+    }
+
+    override fun fromJson(json: JsonElement): Merger = Merger(
+            degree = json["degree"].int,
+            knotSpan = json["knotSpan"].double,
+            extendDegree = json["extendDegree"].int,
+            extendInnerSpan = json["extendInnerSpan"].double,
+            extendOuterSpan = json["extendOuterSpan"].double,
+            samplingSpan = json["samplingSpan"].double,
+            mergeRate = json["mergeRate"].double,
+            overlapThreshold = GradeJson.fromJson(json["overlapThreshold"].asJsonPrimitive),
+            bandWidth = json["bandWidth"].double,
+            fuzzifier = FuzzifierJson.fromJson(json["fuzzifier"]))
+
 }

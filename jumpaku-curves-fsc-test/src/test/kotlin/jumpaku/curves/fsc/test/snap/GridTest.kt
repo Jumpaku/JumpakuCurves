@@ -6,6 +6,7 @@ import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.snap.Grid
+import jumpaku.curves.fsc.snap.GridJson
 import jumpaku.curves.fsc.snap.GridPoint
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.Matchers.`is`
@@ -70,7 +71,7 @@ class GridTest {
     @Test
     fun testToString() {
         println("ToString")
-        assertThat(baseGrid.toString().parseJson().tryFlatMap { Grid.fromJson(it) }.orThrow(), `is`(closeTo(baseGrid)))
+        assertThat(GridJson.toJsonStr(baseGrid).parseJson().let { GridJson.fromJson(it) }, `is`(closeTo(baseGrid)))
     }
 }
 

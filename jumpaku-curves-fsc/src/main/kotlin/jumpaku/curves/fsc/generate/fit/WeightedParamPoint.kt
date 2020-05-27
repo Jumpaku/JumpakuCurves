@@ -5,13 +5,14 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.ParamPointJson
 import jumpaku.curves.core.geom.Point
 
 fun ParamPoint.weighted(weight: Double = 1.0): WeightedParamPoint = WeightedParamPoint(this, weight)
 
-data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1.0) : ToJson {
+data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1.0) {
 
     constructor(point: Point, param: Double, weight: Double = 1.0) : this(ParamPoint(point, param), weight)
 
@@ -23,13 +24,15 @@ data class WeightedParamPoint(val paramPoint: ParamPoint, val weight: Double = 1
 
     val param: Double = paramPoint.param
 
-    override fun toString(): String = toJsonString()
+    override fun toString(): String = "WeightedParamPoint(paramPoint=$paramPoint,weight=$weight)"
+}
 
-    override fun toJson(): JsonElement = jsonObject("paramPoint" to paramPoint.toJson(), "weight" to weight.toJson())
+object WeightedParamPointJson : JsonConverterBase<WeightedParamPoint>() {
+    override fun toJson(src: WeightedParamPoint): JsonElement = src.run {
+        jsonObject("paramPoint" to ParamPointJson.toJson(paramPoint), "weight" to weight.toJson())
 
-    companion object {
-
-        fun fromJson(json: JsonElement): WeightedParamPoint =
-                WeightedParamPoint(ParamPoint.fromJson(json["paramPoint"]), json["weight"].double)
     }
+
+    override fun fromJson(json: JsonElement): WeightedParamPoint =
+            WeightedParamPoint(ParamPointJson.fromJson(json["paramPoint"]), json["weight"].double)
 }

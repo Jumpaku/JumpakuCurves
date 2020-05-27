@@ -28,13 +28,13 @@ fun closeTo(expected: Smoother, precision: Double = 1.0e-9): TypeSafeMatcher<Smo
 fun isCloseTo(actual: Shaper, expected: Shaper, error: Double = 1.0e-9): Boolean =
         equals(actual.segmenter, expected.segmenter) &&
                 isCloseTo(actual.smoother, expected.smoother, error) &&
-                actual.sampleMethod.run {
-                    val e = expected.sampleMethod
+                actual.sampler.run {
+                    val e = expected.sampler
                     when (this) {
-                        is Shaper.SampleMethod.ByFixedNumber ->
-                            e is Shaper.SampleMethod.ByFixedNumber && nSamples == e.nSamples
-                        is Shaper.SampleMethod.ByEqualInterval ->
-                            e is Shaper.SampleMethod.ByEqualInterval && isCloseTo(samplingSpan, e.samplingSpan, error)
+                        is Shaper.Sampler.ByFixedNumber ->
+                            e is Shaper.Sampler.ByFixedNumber && nSamples == e.nSamples
+                        is Shaper.Sampler.ByEqualInterval ->
+                            e is Shaper.Sampler.ByEqualInterval && isCloseTo(samplingSpan, e.samplingSpan, error)
                         else -> false
                     }
                 }

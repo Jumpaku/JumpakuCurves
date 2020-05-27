@@ -10,10 +10,10 @@ import jumpaku.curves.core.util.*
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 
-private fun createModelMatrix(sataParams: List<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
+private fun createModelMatrix(dataParams: List<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
     val n = knotVector.extractedKnots.size - degree - 1
-    val sparse = OpenMapRealMatrix(sataParams.size, n)
-    sataParams.map { t ->
+    val sparse = OpenMapRealMatrix(dataParams.size, n)
+    dataParams.map { t ->
         (0..(n - 1)).map { BSpline.basis(t, it, knotVector) }
     }.forEachIndexed { i, row ->
         row.forEachIndexed { j, value ->
@@ -28,9 +28,6 @@ private fun createModelMatrix(sataParams: List<Double>, degree: Int, knotVector:
 class BSplineFitter(
         val degree: Int,
         val knotVector: KnotVector) : Fitter<BSpline> {
-
-    constructor(degree: Int, domain: Interval, delta: Double) : this(
-            degree, KnotVector.clamped(domain, degree, domain.sample(delta).size + degree * 2))
 
     override fun fit(data: List<WeightedParamPoint>): BSpline {
         require(data.size >= 2) { "data.size == ${data.size}, too few data" }

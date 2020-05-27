@@ -43,11 +43,12 @@ class ElementTest {
         assertThat(target.front, `is`(closeTo(Point.x(1.0))))
         assertThat(target.back, `is`(closeTo(Point.x(4.0))))
     }
-
+/*
     @Test
     fun testToString() {
         println("ToString")
         assertThat(Element.fromJson(connector.toString().parseJson().orThrow()), `is`(closeTo(connector)))
         assertThat(Element.fromJson(target.toString().parseJson().orThrow()), `is`(closeTo(target)))
     }
+ */
 }

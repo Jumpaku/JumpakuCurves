@@ -6,79 +6,79 @@ import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
-import jumpaku.commons.control.toJson
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
+import jumpaku.commons.option.json.OptionJson
 import jumpaku.curves.core.curve.bezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSectionJson
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.fuzzy.GradeJson
 import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.PointJson
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.transform.toMatrixJson
+import jumpaku.curves.core.transform.TransformJson
 import jumpaku.curves.fsc.snap.point.PointSnapResult
+import jumpaku.curves.fsc.snap.point.PointSnapResultJson
 
-class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, candidates: Iterable<EvaluatedCandidate>) : ToJson {
+class ConicSectionSnapResult(val snappedConicSection: Option<ConicSection>, candidates: Iterable<EvaluatedCandidate>) {
 
-    data class SnappedPoint(val source: Point, val target: Option<PointSnapResult>) : ToJson {
+    data class SnappedPoint(val source: Point, val target: Option<PointSnapResult>)
 
-        override fun toString(): String = toJsonString()
-
-        override fun toJson(): JsonElement = jsonObject(
-                "source" to source.toJson(),
-                "target" to target.map { it.toJson() }.toJson())
-
-        companion object {
-
-            fun fromJson(json: JsonElement): SnappedPoint = SnappedPoint(
-                    Point.fromJson(json["source"]),
-                    Option.fromJson(json["target"]).map { PointSnapResult.fromJson(it) })
-        }
-    }
-
-    class Candidate(featurePoints: Iterable<SnappedPoint>, val transform: Transform) : ToJson {
+    class Candidate(featurePoints: Iterable<SnappedPoint>, val transform: Transform) {
 
         val featurePoints: List<SnappedPoint> = featurePoints.toList()
-
-        override fun toString(): String = toJsonString()
-
-        override fun toJson(): JsonElement = jsonObject(
-                "featurePoints" to jsonArray(featurePoints.map { it.toJson() }),
-                "transform" to transform.toMatrixJson())
-
-        companion object {
-
-            fun fromJson(json: JsonElement): Candidate =
-                    Candidate(
-                            json["featurePoints"].array.map { SnappedPoint.fromJson(it) },
-                            Transform.fromMatrixJson(json["transform"]))
-        }
     }
 
-    data class EvaluatedCandidate(val grade: Grade, val candidate: Candidate) : ToJson {
-
-        override fun toString(): String = toJsonString()
-
-        override fun toJson(): JsonElement =
-                jsonObject("grade" to grade.toJson(), "candidate" to candidate.toJson())
-
-        companion object {
-
-            fun fromJson(json: JsonElement): EvaluatedCandidate = EvaluatedCandidate(
-                    Grade.fromJson(json["grade"].asJsonPrimitive),
-                    Candidate.fromJson(json["candidate"]))
-        }
-    }
+    data class EvaluatedCandidate(val grade: Grade, val candidate: Candidate)
 
     val candidates: List<EvaluatedCandidate> = candidates.toList()
+}
 
-    override fun toString(): String = toJsonString()
+object ConicSectionSnapResultJson : JsonConverterBase<ConicSectionSnapResult>() {
 
-    override fun toJson(): JsonElement = jsonObject(
-            "snappedConicSection" to snappedConicSection.map { it.toJson() }.toJson(),
-            "candidates" to jsonArray(candidates.map { it.toJson() }))
+    override fun toJson(src: ConicSectionSnapResult): JsonElement = src.run {
+        jsonObject(
+                "snappedConicSection" to OptionJson.toJson(snappedConicSection.map { ConicSectionJson.toJson(it) }),
+                "candidates" to jsonArray(candidates.map { EvaluatedCandidateJson.toJson(it) }))
+    }
 
-    companion object {
+    override fun fromJson(json: JsonElement): ConicSectionSnapResult = ConicSectionSnapResult(
+            OptionJson.fromJson(json["snappedConicSection"]).map { ConicSectionJson.fromJson(it) },
+            json["candidates"].array.map { EvaluatedCandidateJson.fromJson(it) })
 
-        fun fromJson(json: JsonElement): ConicSectionSnapResult = ConicSectionSnapResult(
-                Option.fromJson(json["snappedConicSection"]).map { ConicSection.fromJson(it) },
-                json["candidates"].array.map { EvaluatedCandidate.fromJson(it) })
+    object SnappedPointJson : JsonConverterBase<ConicSectionSnapResult.SnappedPoint>() {
+        override fun toJson(src: ConicSectionSnapResult.SnappedPoint): JsonElement = src.run {
+            jsonObject(
+                    "source" to PointJson.toJson(source),
+                    "target" to OptionJson.toJson(target.map { PointSnapResultJson.toJson(it) }))
+        }
+
+        override fun fromJson(json: JsonElement): ConicSectionSnapResult.SnappedPoint = ConicSectionSnapResult.SnappedPoint(
+                PointJson.fromJson(json["source"]),
+                OptionJson.fromJson(json["target"]).map { PointSnapResultJson.fromJson(it) })
+    }
+
+    object CandidateJson : JsonConverterBase<ConicSectionSnapResult.Candidate>() {
+
+        override fun toJson(src: ConicSectionSnapResult.Candidate): JsonElement = src.run {
+            jsonObject(
+                    "featurePoints" to jsonArray(featurePoints.map { SnappedPointJson.toJson(it) }),
+                    "transform" to TransformJson.toJson(transform))
+        }
+
+        override fun fromJson(json: JsonElement): ConicSectionSnapResult.Candidate =
+                ConicSectionSnapResult.Candidate(
+                        json["featurePoints"].array.map { SnappedPointJson.fromJson(it) },
+                        TransformJson.fromJson(json["transform"]))
+    }
+    object EvaluatedCandidateJson : JsonConverterBase<ConicSectionSnapResult.EvaluatedCandidate>() {
+
+        override fun toJson(src: ConicSectionSnapResult.EvaluatedCandidate): JsonElement = src.run {
+            jsonObject("grade" to GradeJson.toJson(grade),
+                    "candidate" to CandidateJson.toJson(candidate))
+        }
+
+        override fun fromJson(json: JsonElement): ConicSectionSnapResult.EvaluatedCandidate = ConicSectionSnapResult.EvaluatedCandidate(
+                GradeJson.fromJson(json["grade"].asJsonPrimitive),
+                CandidateJson.fromJson(json["candidate"]))
     }
 }

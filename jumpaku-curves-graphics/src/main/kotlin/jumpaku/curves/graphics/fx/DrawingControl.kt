@@ -1,5 +1,5 @@
 package jumpaku.curves.graphics.fx
-
+/*
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.Event
@@ -112,3 +112,4 @@ class DrawingControl(val canvasWidth: Double, val canvasHeight: Double) : Contro
         get() = onCurveDoneProperty().get()
         set(h) = onCurveDoneProperty().set(h)
 }
+*/

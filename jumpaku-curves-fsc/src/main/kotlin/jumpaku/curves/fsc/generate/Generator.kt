@@ -2,14 +2,14 @@ package jumpaku.curves.fsc.generate
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.DrawingStroke
+import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import org.apache.commons.math3.linear.CholeskyDecomposition
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.OpenMapRealMatrix
@@ -26,7 +26,7 @@ class Generator(
         val fuzzifier: Fuzzifier = Fuzzifier.Linear(
                 velocityCoefficient = 0.0086,
                 accelerationCoefficient = 0.0077)
-) : ToJson {
+) {
 
     init {
         require(degree >= 0)
@@ -53,17 +53,6 @@ class Generator(
         val kv = KnotVector.clamped(domainExtended, degree, knotSpan)
         return generate(prepared, kv, fuzzifier).restrict(domain)
     }
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "degree" to degree.toJson(),
-            "knotSpan" to knotSpan.toJson(),
-            "fillSpan" to fillSpan.toJson(),
-            "extendInnerSpan" to extendInnerSpan.toJson(),
-            "extendOuterSpan" to extendOuterSpan.toJson(),
-            "extendDegree" to extendDegree.toJson(),
-            "fuzzifier" to fuzzifier.toJson())
 
     companion object {
 
@@ -106,13 +95,27 @@ class Generator(
             return b to wbt
         }
 
-        fun fromJson(json: JsonElement): Generator = Generator(
-                json["degree"].int,
-                json["knotSpan"].double,
-                json["fillSpan"].double,
-                json["extendInnerSpan"].double,
-                json["extendOuterSpan"].double,
-                json["extendDegree"].int,
-                Fuzzifier.fromJson(json["fuzzifier"]))
     }
+}
+
+object GeneratorJson : JsonConverterBase<Generator>() {
+    override fun toJson(src: Generator): JsonElement = src.run {
+        jsonObject(
+                "degree" to degree.toJson(),
+                "knotSpan" to knotSpan.toJson(),
+                "fillSpan" to fillSpan.toJson(),
+                "extendInnerSpan" to extendInnerSpan.toJson(),
+                "extendOuterSpan" to extendOuterSpan.toJson(),
+                "extendDegree" to extendDegree.toJson(),
+                "fuzzifier" to FuzzifierJson.toJson(fuzzifier))
+    }
+
+    override fun fromJson(json: JsonElement): Generator = Generator(
+            json["degree"].int,
+            json["knotSpan"].double,
+            json["fillSpan"].double,
+            json["extendInnerSpan"].double,
+            json["extendOuterSpan"].double,
+            json["extendDegree"].int,
+            FuzzifierJson.fromJson(json["fuzzifier"]))
 }

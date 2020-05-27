@@ -1,16 +1,10 @@
 package jumpaku.curves.fsc.snap.conicsection
 
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.string
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.control.result
 import jumpaku.commons.control.toOption
-import jumpaku.commons.json.ToJson
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bezier.ConicSection
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.fsc.identify.primitive.CurveClass
@@ -23,7 +17,7 @@ import jumpaku.curves.fsc.snap.point.transformToWorld
 class ConicSectionSnapper<C : FeaturePointsCombinator>(
         val pointSnapper: PointSnapper,
         val featurePointsCombinator: C
-) : ToJson {
+) {
 
     fun snap(
             grid: Grid,
@@ -111,24 +105,7 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
                 }.value()
             }
 
-    override fun toJson(): JsonElement {
-        check(featurePointsCombinator is ConjugateCombinator) { "cannot convert to JSON" }
-        return jsonObject(
-                "pointSnapper" to pointSnapper.toJson(),
-                "featurePointsCombinator" to jsonObject("type" to "ConjugateCombinator".toJson()))
-    }
-
-    override fun toString(): String = toJsonString()
-
     companion object {
-
-        fun fromJson(json: JsonElement): ConicSectionSnapper<ConjugateCombinator> {
-            check(json["featurePointsCombinator"]["type"].string == "ConjugateCombinator") {
-                "invalid featurePointsCombinator type ${json["featurePointsCombinator"]["type"].string}"
-            }
-            return ConicSectionSnapper(
-                    PointSnapper.fromJson(json["pointSnapper"]), ConjugateCombinator)
-        }
 
         fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15)
                 : (ConicSectionSnapResult.Candidate) -> Grade = {
@@ -141,3 +118,22 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
         }
     }
 }
+
+/*
+object ConicSectionSnapperJson : JsonConverterBase<ConicSectionSnapper>() {
+    override fun toJson(src: ConicSectionSnapper): JsonElement {
+        check(featurePointsCombinator is ConjugateCombinator) { "cannot convert to JSON" }
+        return jsonObject(
+                "pointSnapper" to pointSnapper.toJson(),
+                "featurePointsCombinator" to jsonObject("type" to "ConjugateCombinator".toJson()))
+    }
+
+    override fun fromJson(json: JsonElement): ConicSectionSnapper<ConjugateCombinator> {
+        check(json["featurePointsCombinator"]["type"].string == "ConjugateCombinator") {
+            "invalid featurePointsCombinator type ${json["featurePointsCombinator"]["type"].string}"
+        }
+        return ConicSectionSnapper(
+                PointSnapperJson.fromJson(json["pointSnapper"]), ConjugateCombinator)
+    }
+}
+ */

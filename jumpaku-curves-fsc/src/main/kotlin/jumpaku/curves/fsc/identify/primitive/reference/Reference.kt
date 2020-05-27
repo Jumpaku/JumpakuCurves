@@ -3,23 +3,21 @@ package jumpaku.curves.fsc.identify.primitive.reference
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.IntervalJson
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSectionJson
 import jumpaku.curves.core.geom.Point
 
 
-class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE) : Curve, ToJson {
+class Reference(val base: ConicSection, override val domain: Interval = Interval.ZERO_ONE) : Curve {
 
     init {
         require(domain in Interval(-1.0, 2.0)) { "domain($domain) must be in [-1.0, 2.0]" }
     }
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject("base" to base.toJson(), "domain" to domain.toJson())
 
     val complement: ConicSection = base.complement()
 
@@ -38,10 +36,14 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
             else -> error("")
         }
     }
+}
 
-    companion object {
+object ReferenceJson : JsonConverterBase<Reference>() {
 
-        fun fromJson(json: JsonElement): Reference =
-                Reference(ConicSection.fromJson(json["base"]), Interval.fromJson(json["domain"]))
+    override fun toJson(src: Reference): JsonElement = src.run {
+        jsonObject("base" to ConicSectionJson.toJson(base), "domain" to IntervalJson.toJson(domain))
     }
+
+    override fun fromJson(json: JsonElement): Reference =
+            Reference(ConicSectionJson.fromJson(json["base"]), IntervalJson.fromJson(json["domain"]))
 }

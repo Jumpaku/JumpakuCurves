@@ -25,7 +25,7 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     val degree: Int get() = toBSpline().degree
 
-    override fun toString(): String = "BSplineDerivative(knotVectr=$knotVector, controlVectors=$controlVectors)"
+    override fun toString(): String = "BSplineDerivative(knotVector=$knotVector, controlVectors=$controlVectors)"
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 

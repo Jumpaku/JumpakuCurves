@@ -5,7 +5,7 @@ import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.fuzzy.Grade
@@ -13,7 +13,7 @@ import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterCircular
 import jumpaku.curves.fsc.identify.nquarter.reference.NQuarterElliptic
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
-class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) : ToJson {
+class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) {
 
     private fun <C : Curve> evaluate(
             reference1: Reference, reference2: Reference, reference3: Reference, fsc: ReparametrizedCurve<C>
@@ -38,15 +38,16 @@ class NQuarterIdentifier(val nSamples: Int = 25, val nFmps: Int = 15) : ToJson {
         val grades = evaluate(q1, q2, q3, fsc)
         return NQuarterIdentifyResult(grades, q1, q2, q3)
     }
+}
 
-    override fun toJson(): JsonElement = jsonObject(
-            "nSamples" to nSamples.toJson(),
-            "nFmps" to nFmps.toJson())
+object NQuarterIdentifierJson : JsonConverterBase<NQuarterIdentifier>() {
 
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): NQuarterIdentifier = NQuarterIdentifier(json["nSamples"].int, json["nFmps"].int)
+    override fun toJson(src: NQuarterIdentifier): JsonElement = src.run {
+        jsonObject(
+                "nSamples" to nSamples.toJson(),
+                "nFmps" to nFmps.toJson())
     }
+
+    override fun fromJson(json: JsonElement): NQuarterIdentifier =
+            NQuarterIdentifier(json["nSamples"].int, json["nFmps"].int)
 }

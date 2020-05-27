@@ -58,7 +58,7 @@ class Nurbs(
         require(degree > 0) { "degree($degree) <= 0" }
     }
 
-    override fun toString(): String = "Nurbs(knotVectr=$knotVector, weightedControlPoints=$weightedControlPoints)"
+    override fun toString(): String = "Nurbs(knotVector=$knotVector, weightedControlPoints=$weightedControlPoints)"
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 

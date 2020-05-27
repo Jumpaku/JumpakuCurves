@@ -45,7 +45,7 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     override fun toCrisp(): BSpline = BSpline(nurbs.toCrisp())
 
-    override fun toString(): String = "BSpline(knotVectr=$knotVector, controlPoints=$controlPoints)"
+    override fun toString(): String = "BSpline(knotVector=$knotVector, controlPoints=$controlPoints)"
 
     fun transform(a: Transform): BSpline = BSpline(nurbs.transform(a))
 

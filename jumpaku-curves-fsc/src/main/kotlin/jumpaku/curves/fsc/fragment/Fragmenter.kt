@@ -2,10 +2,11 @@ package jumpaku.curves.fsc.fragment
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.fuzzy.GradeJson
 
 
 class Fragmenter(
@@ -13,7 +14,7 @@ class Fragmenter(
                 necessity = Grade(0.35),
                 possibility = Grade(0.65)),
         val chunkSize: Int = 4,
-        val minStayTimeSpan: Double = 0.04) : ToJson {
+        val minStayTimeSpan: Double = 0.04) {
 
     private enum class State {
 
@@ -60,29 +61,28 @@ class Fragmenter(
                         else set(prev.lastIndex, Triple(prevBegin, nextChunk.endParam, prevState))
                     }
                 }.map { (begin, end, state) ->
-                    when (state!!) {  // 型推論がうまくいかない
+                    when (state) {
                         State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
                         State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
                     }
                 }
     }
+}
 
-    override fun toJson(): JsonElement = jsonObject(
-            "necessityThreshold" to threshold.necessity.toJson(),
-            "possibilityThreshold" to threshold.possibility.toJson(),
-            "chunkSize" to chunkSize.toJson(),
-            "minStayTimeSpan" to minStayTimeSpan.toJson())
+object FragmenterJson : JsonConverterBase<Fragmenter>() {
 
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Fragmenter = Fragmenter(
-                Chunk.Threshold(
-                        Grade.fromJson(json["necessityThreshold"].asJsonPrimitive),
-                        Grade.fromJson(json["possibilityThreshold"].asJsonPrimitive)),
-                json["chunkSize"].int,
-                json["minStayTimeSpan"].double)
+    override fun toJson(src: Fragmenter): JsonElement = src.run {
+        jsonObject(
+                "necessityThreshold" to GradeJson.toJson(threshold.necessity),
+                "possibilityThreshold" to GradeJson.toJson(threshold.possibility),
+                "chunkSize" to chunkSize.toJson(),
+                "minStayTimeSpan" to minStayTimeSpan.toJson())
     }
 
+    override fun fromJson(json: JsonElement): Fragmenter = Fragmenter(
+            Chunk.Threshold(
+                    GradeJson.fromJson(json["necessityThreshold"].asJsonPrimitive),
+                    GradeJson.fromJson(json["possibilityThreshold"].asJsonPrimitive)),
+            json["chunkSize"].int,
+            json["minStayTimeSpan"].double)
 }

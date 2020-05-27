@@ -6,7 +6,6 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.commons.control.*
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.merge.Merger
@@ -19,7 +18,7 @@ class Editor(
         val connectionThreshold: Grade = Grade.FALSE,
         val merger: Merger,
         val fragmenter: Fragmenter
-) : ToJson {
+)  {
 
     fun edit(fscGraph: FscGraph, overlapFsc: BSpline): FscGraph {
         val (merged, decomposed) = merge(overlapFsc, fscGraph)
@@ -90,7 +89,7 @@ class Editor(
         }.filter { path -> path.count { (_, e) -> e is Element.Target } > 0 }
         return FscGraph.compose(paths)
     }
-
+/*
     override fun toJson(): JsonElement = jsonObject(
             "nConnectorSamples" to nConnectorSamples.toJson(),
             "connectionThreshold" to connectionThreshold.toJson(),
@@ -99,7 +98,7 @@ class Editor(
             )
 
     override fun toString(): String = toJsonString()
-
+*/
 
     companion object {
 
@@ -165,11 +164,12 @@ class Editor(
                 else -> error("")
             }
         }
-
+    }
+/*
         fun fromJson(json: JsonElement): Editor = Editor(
                 nConnectorSamples = json["nConnectorSamples"].int,
                 connectionThreshold = Grade.fromJson(json["connectionThreshold"].asJsonPrimitive),
                 merger = Merger.fromJson(json["merger"]),
                 fragmenter = Fragmenter.fromJson(json["fragmenter"]))
-    }
+    }*/
 }

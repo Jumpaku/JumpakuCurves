@@ -7,7 +7,6 @@ import com.github.salomonbrys.kotson.string
 import com.github.salomonbrys.kotson.toJson
 import com.google.gson.JsonElement
 import jumpaku.commons.control.*
-import jumpaku.commons.json.ToJson
 import jumpaku.commons.json.jsonMap
 import jumpaku.commons.json.map
 import java.util.stream.Stream
@@ -17,7 +16,7 @@ import kotlin.streams.toList
 data class Id(val elementId: String)
 
 open class FscGraph protected constructor(private val structure: Map<Id, Vertex> = emptyMap())
-    : Map<Id, Element> by (structure.mapValues { (_, v) -> v.element }), ToJson {
+    : Map<Id, Element> by (structure.mapValues { (_, v) -> v.element }) {
 
     data class Edge(val source: Id, val destination: Id)
 
@@ -123,7 +122,7 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
         }
         return components
     }
-
+/*
     override fun toJson(): JsonElement = jsonObject(
             "elements" to jsonMap(map { (k, v) ->
                 k.elementId.toJson() to v.toJson()
@@ -136,7 +135,7 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
             }.toMap()))
 
     override fun toString(): String = toJsonString()
-
+*/
     companion object {
 
         fun of(elements: Map<Id, Element> = emptyMap(),
@@ -152,11 +151,11 @@ open class FscGraph protected constructor(private val structure: Map<Id, Vertex>
             return FscGraph(structure)
         }
         fun compose(gs: List<FscGraph>): FscGraph = gs.fold(FscGraph(), FscGraph::compose)
-
+/*
         fun fromJson(json: JsonElement): FscGraph = FscGraph.of(
                 json["elements"].map.map { (k, v) -> Id(k.string) to Element.fromJson(v) }.toMap(),
                 json["outgoing"].map.map { (k, v) -> Id(k.string) to Option.fromJson(v).map { Id(it.string) } }.toMap(),
                 json["incoming"].map.map { (k, v) -> Id(k.string) to Option.fromJson(v).map { Id(it.string) } }.toMap()
-        )
+        )*/
     }
 }
