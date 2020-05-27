@@ -1,40 +1,47 @@
 package jumpaku.curves.demo.merge
 
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
-import javafx.stage.Stage
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.none
 import jumpaku.commons.control.or
 import jumpaku.commons.control.some
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.demo.merge.BlendDemoSettings.generator
-import jumpaku.curves.demo.merge.BlendDemoSettings.height
-import jumpaku.curves.demo.merge.BlendDemoSettings.merger
-import jumpaku.curves.demo.merge.BlendDemoSettings.width
-import jumpaku.curves.fsc.merge.Merger
+import jumpaku.curves.demo.DrawingPanel
+import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.merge.Merger
 import jumpaku.curves.graphics.DrawStyle
-import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
 import jumpaku.curves.graphics.drawPoints
-import jumpaku.curves.graphics.fx.DrawingControl
-import jumpaku.curves.graphics.fx.DrawingEvent
-import java.awt.Color
+import java.awt.Dimension
+import java.awt.Graphics
 import java.awt.Graphics2D
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 
-fun main(vararg args: String) = Application.launch(BlendDemo::class.java, *args)
+fun main() = SwingUtilities.invokeLater {
+    val demo = DemoPanel()
+    val drawing = DrawingPanel().apply {
+        addCurveListener { demo.update(it.drawingStroke) }
+        add(demo)
+    }
+    JFrame("MergeDemo").apply {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        contentPane.add(drawing)
+        pack()
+        isVisible = true
+    }
+}
 
-object BlendDemoSettings {
 
-    val width = 640.0
+object Settings {
 
-    val height = 480.0
+    val width = 640
+
+    val height = 480
 
     val generator: Generator = Generator(
             degree = 4,
@@ -54,43 +61,29 @@ object BlendDemoSettings {
             overlapThreshold = Grade(1e-10))
 }
 
-class BlendDemo : Application() {
 
-    var existingFscOpt: Option<BSpline> = none()
+class DemoPanel : JPanel() {
 
-    override fun start(primaryStage: Stage) {
-        val curveControl = DrawingControl(width, height).apply {
-            addEventHandler(DrawingEvent.DRAWING_DONE) { event ->
-                updateGraphics2D {
-                    clearRect(0.0, 0.0, width, height)
-                    val overlappingFsc = generator.generate(event.drawingStroke)
-                    existingFscOpt.ifPresent { existingFsc ->
-                        drawFsc(existingFsc, DrawStyle())
-                        drawFsc(overlappingFsc, DrawStyle(Color.CYAN))
-                        existingFscOpt = merger.tryMerge(existingFsc, overlappingFsc).or(existingFscOpt)
-                    }.ifAbsent {
-                        existingFscOpt = some(overlappingFsc)
-                    }
-                    existingFscOpt.forEach { drawFsc(it, DrawStyle(Color.MAGENTA)) }
-                }
-            }
-        }
-
-
-        val scene = Scene(curveControl).apply {
-            addEventHandler(KeyEvent.KEY_PRESSED) {
-                if (it.code == KeyCode.C) {//clear
-                    curveControl.updateGraphics2D { clearRect(0.0, 0.0, width, height) }
-                    existingFscOpt = none()
-                }
-            }
-        }
-        primaryStage.scene = scene
-        primaryStage.show()
+    init {
+        preferredSize = Dimension(Settings.width, Settings.height)
     }
-}
 
-private fun Graphics2D.drawFsc(fsc: BSpline, style: DrawStyle) {
-    drawCubicBSpline(fsc, style)
-    drawPoints(fsc.evaluateAll(0.01), style)
+    var existingFsc: Option<BSpline> = none()
+
+    fun update(drawingStroke: DrawingStroke) {
+        val o = Settings.generator.generate(drawingStroke)
+        existingFsc.ifPresent { s ->
+            existingFsc = Settings.merger.tryMerge(s, o).or(existingFsc)
+        }.ifAbsent {
+            existingFsc = some(o)
+        }
+        repaint()
+    }
+
+    override fun paint(g: Graphics) = with(g as Graphics2D) {
+        existingFsc.forEach { s ->
+            drawCubicBSpline(s, DrawStyle())
+            drawPoints(s.evaluateAll(0.01), DrawStyle())
+        }
+    }
 }

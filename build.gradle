@@ -1,7 +1,6 @@
 buildscript {
     ext.kotlin_version = "1.3.31"
     ext.jvm_version = "1.8"
-    ext.javafxplugin_version = "0.0.8"
     ext.jumpaku_commons_version = "2.0.0-alpha-3-SNAPSHOT"
     ext.junit4_version = "4.12"
     ext.junit5_version = "5.1.0"
@@ -9,14 +8,11 @@ buildscript {
     ext.commons_math3_version = "3.6.1"
     ext.kotson_version = "2.5.0"
     ext.vavr_version = "0.9.1"
-    ext.fxgraphics2d_version = "1.8"
-    ext.javafx_version = "12.0.1"
 }
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "$kotlin_version" apply false
     id("maven-publish")
-    id("org.openjfx.javafxplugin") version "$javafxplugin_version" apply false
 }
 
 // Common configuration
@@ -58,14 +54,6 @@ allprojects {
             implementation("junit:junit:$junit4_version")
             api("jumpaku:jumpaku-commons-matcher:$jumpaku_commons_version")
             api("jumpaku:jumpaku-commons-math-test:$jumpaku_commons_version")
-        }
-    }
-
-    if (name in [":jumpaku-curves-graphics", ":jumpaku-curves-demo"]) {
-        apply(plugin: "org.openjfx.javafxplugin")
-        javafx {
-            version = javafx_version
-            modules = ["javafx.controls"]
         }
     }
 
@@ -131,7 +119,6 @@ project(":jumpaku-curves-graphics") {
     dependencies {
         api(project(":jumpaku-curves-core"))
         api(project(":jumpaku-curves-fsc"))
-        api("org.jfree:fxgraphics2d:$fxgraphics2d_version")
     }
 }
 

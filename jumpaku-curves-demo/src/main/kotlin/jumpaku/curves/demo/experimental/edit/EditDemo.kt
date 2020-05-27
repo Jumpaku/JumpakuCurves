@@ -1,5 +1,5 @@
 package jumpaku.curves.demo.experimental.edit
-
+/*
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
@@ -121,3 +121,4 @@ private object Settings {
             merger = merger,
             fragmenter = fragmenter)
 }
+ */

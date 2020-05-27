@@ -1,24 +1,39 @@
 package jumpaku.curves.demo.generate
 
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.stage.Stage
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.demo.DrawingPanel
+import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
 import jumpaku.curves.graphics.drawPoints
-import jumpaku.curves.graphics.fx.DrawingControl
-import jumpaku.curves.graphics.fx.DrawingEvent
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
+
+fun main() = SwingUtilities.invokeLater {
+    val demo = DemoPanel()
+    val drawing = DrawingPanel().apply {
+        addCurveListener { demo.update(it.drawingStroke) }
+        add(demo)
+    }
+    JFrame("GenerateDemo").apply {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        contentPane.add(drawing)
+        pack()
+        isVisible = true
+    }
+}
 
 
-fun main(vararg args: String) = Application.launch(GenerateDemo::class.java, *args)
+object Settings {
 
-object GenerateDemoSettings {
+    val width = 640
 
-    val width = 600.0
-
-    val height = 480.0
+    val height = 480
 
     val generator: Generator = Generator(
             degree = 3,
@@ -33,22 +48,25 @@ object GenerateDemoSettings {
             ))
 }
 
-class GenerateDemo : Application() {
 
-    override fun start(primaryStage: Stage) {
-        val curveControl = DrawingControl(GenerateDemoSettings.width, GenerateDemoSettings.height).apply {
-            addEventHandler(DrawingEvent.DRAWING_DONE) {
-                updateGraphics2D {
-                    clearRect(0.0, 0.0, width, height)
-                    val fsc = GenerateDemoSettings.generator.generate(it.drawingStroke.inputData)
-                    drawCubicBSpline(fsc)
-                    drawPoints(fsc.evaluateAll(0.01))
-                }
-            }
-        }
-        primaryStage.apply {
-            scene = Scene(curveControl)
-            show()
+class DemoPanel : JPanel() {
+
+    init {
+        preferredSize = Dimension(Settings.width, Settings.height)
+    }
+
+    private val results = mutableListOf<BSpline>()
+
+    fun update(drawingStroke: DrawingStroke) {
+        val fsc = Settings.generator.generate(drawingStroke)
+        results += fsc
+        repaint()
+    }
+
+    override fun paint(g: Graphics) = with(g as Graphics2D) {
+        results.forEach { fsc ->
+            drawCubicBSpline(fsc)
+            drawPoints(fsc.evaluateAll(0.01))
         }
     }
 }

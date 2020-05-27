@@ -1,12 +1,15 @@
 package jumpaku.curves.demo.snap
 
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.stage.Stage
-import javafx.stage.WindowEvent
+import jumpaku.commons.control.None
+import jumpaku.commons.control.Option
+import jumpaku.commons.control.Some
+import jumpaku.curves.core.curve.bezier.ConicSection
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
+import jumpaku.curves.demo.DrawingPanel
+import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.identify.primitive.CurveClass
@@ -17,23 +20,34 @@ import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.conicsection.ConicSectionSnapper
 import jumpaku.curves.fsc.snap.conicsection.ConjugateBox
 import jumpaku.curves.fsc.snap.conicsection.ConjugateCombinator
-import jumpaku.curves.fsc.snap.point.MFGS
+import jumpaku.curves.fsc.snap.point.IFGS
 import jumpaku.curves.graphics.*
-import jumpaku.curves.graphics.fx.DrawingControl
-import jumpaku.curves.graphics.fx.DrawingEvent
-import java.awt.BasicStroke
-import java.awt.Color
-import java.awt.Graphics2D
+import java.awt.*
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
 import kotlin.math.pow
 
+fun main() = SwingUtilities.invokeLater {
+    val demo = DemoPanel()
+    val drawing = DrawingPanel().apply {
+        addCurveListener { demo.update(it.drawingStroke) }
+        add(demo)
+    }
+    JFrame("SnapDemo").apply {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        contentPane.add(drawing)
+        pack()
+        isVisible = true
+    }
+}
 
-fun main(vararg args: String) = Application.launch(SnapDemo::class.java, *args)
 
-object SnapDemoSettings {
+object Settings {
 
-    val width = 600.0
+    val width = 640
 
-    val height = 480.0
+    val height = 480
 
     val generator: Generator = Generator(
             degree = 3,
@@ -53,61 +67,60 @@ object SnapDemoSettings {
             baseSpacing = 64.0,
             baseFuzziness = 8.0,
             magnification = 2,
-            origin = Point.xy(width / 2, height / 2),
+            origin = Point.xy(width * 0.5, height * 0.5),
             rotation = Rotate(Vector.K, 0.0))
 
     val snapper: ConicSectionSnapper<*> = ConicSectionSnapper(
-            pointSnapper = MFGS(
-                    minResolution = -5,
-                    maxResolution = 6),
+            pointSnapper = IFGS,
             featurePointsCombinator = ConjugateCombinator)
 }
 
-class SnapDemo : Application() {
 
-    override fun start(primaryStage: Stage) {
-        val curveControl = DrawingControl(SnapDemoSettings.width, SnapDemoSettings.height).apply {
-            addEventHandler(DrawingEvent.DRAWING_DONE) {
-                updateGraphics2D {
-                    clearRect(0.0, 0.0, width, height)
-                    drawGrid()
-                    val fsc = SnapDemoSettings.generator.generate(it.drawingStroke.inputData)
-                    drawPoints(fsc.evaluateAll(0.01), DrawStyle(Color.LIGHT_GRAY))
-                    val identified = SnapDemoSettings.identifier.identify(reparametrize(fsc))
-                    when (identified.curveClass) {
-                        CurveClass.OpenFreeCurve -> drawCubicBSpline(fsc, DrawStyle(Color.MAGENTA))
-                        else -> {
-                            val cs = when (identified.curveClass) {
-                                CurveClass.LineSegment -> identified.linear.base
-                                CurveClass.CircularArc -> identified.circular.base
-                                CurveClass.EllipticArc -> identified.elliptic.base
-                                else -> error("")
-                            }
-                            val snapped = SnapDemoSettings.snapper.snap(
-                                    SnapDemoSettings.baseGrid, cs, identified.curveClass).snappedConicSection
-                            snapped.forEach {
-                                drawConjugateBox(ConjugateBox.ofConicSection(it), DrawStyle(Color.CYAN))
-                                drawConicSection(it, DrawStyle(Color.MAGENTA))
-                            }
-                        }
-                    }
+class DemoPanel : JPanel() {
+
+    init {
+        preferredSize = Dimension(Settings.width, Settings.height)
+    }
+
+    private val results = mutableListOf<Pair<BSpline, Option<ConicSection>>>()
+
+    fun update(drawingStroke: DrawingStroke) {
+        val fsc = Settings.generator.generate(drawingStroke)
+        val identified = Settings.identifier.identify(reparametrize(fsc))
+        val result = if (identified.curveClass.isConicSection) {
+            val cs = when (identified.curveClass) {
+                CurveClass.LineSegment -> identified.linear.base
+                CurveClass.CircularArc -> identified.circular.base
+                CurveClass.EllipticArc -> identified.elliptic.base
+                else -> error("")
+            }
+            val snapped = Settings.snapper.snap(
+                    Settings.baseGrid, cs, identified.curveClass).snappedConicSection
+            snapped
+        } else None
+        results += fsc to result
+        repaint()
+    }
+
+    override fun paint(g: Graphics) = with(g as Graphics2D) {
+        results.forEach { (fsc, cs) ->
+            drawGrid()
+            drawPoints(fsc.evaluateAll(0.01), DrawStyle(Color.LIGHT_GRAY))
+            when (cs) {
+                None -> drawCubicBSpline(fsc, DrawStyle(Color.MAGENTA))
+                is Some -> {
+                    drawConjugateBox(ConjugateBox.ofConicSection(cs.value), DrawStyle(Color.CYAN))
+                    drawConicSection(cs.value, DrawStyle(Color.MAGENTA))
                 }
             }
         }
-        primaryStage.apply {
-            scene = Scene(curveControl)
-            addEventHandler(WindowEvent.WINDOW_SHOWN) {
-                curveControl.updateGraphics2D { drawGrid() }
-            }
-            show()
-        }
     }
+}
 
-    fun Graphics2D.drawGrid() {
-        for (r in listOf(-2, 0, 2)) {
-            drawGrid(SnapDemoSettings.baseGrid, r,
-                    0.0, 0.0, SnapDemoSettings.width, SnapDemoSettings.height,
-                    DrawStyle(Color.GRAY, BasicStroke(2f.pow(-r))))
-        }
+private fun Graphics2D.drawGrid() {
+    for (r in listOf(-2, 0, 2)) {
+        drawGrid(Settings.baseGrid, r,
+                0.0, 0.0, Settings.width.toDouble(), Settings.height.toDouble(),
+                DrawStyle(Color.GRAY, BasicStroke(2f.pow(-r))))
     }
 }
