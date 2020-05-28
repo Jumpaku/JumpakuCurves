@@ -4,6 +4,7 @@ buildscript {
     ext.jumpaku_commons_version = "2.0.0-alpha-3-SNAPSHOT"
     ext.junit4_version = "4.12"
     ext.junit5_version = "5.1.0"
+    ext.jmh_plugin_version = "0.5.0"
     ext.hamcrest_version = "2.1"
     ext.commons_math3_version = "3.6.1"
     ext.kotson_version = "2.5.0"
@@ -11,12 +12,13 @@ buildscript {
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "$kotlin_version" apply false
+    id("org.jetbrains.kotlin.jvm").version("$kotlin_version")
     id("maven-publish")
+    id("me.champeau.gradle.jmh").version("$jmh_plugin_version").apply(false)
 }
 
 // Common configuration
-allprojects {
+subprojects {
 
     group = "jumpaku"
     version = "3.0.0-alpha-1-SNAPSHOT"
@@ -112,6 +114,26 @@ project(":jumpaku-curves-fsc-test") {
     dependencies {
         implementation(project(":jumpaku-curves-fsc"))
         api(project(":jumpaku-curves-core-test"))
+    }
+}
+
+project(":jumpaku-curves-fsc-benchmark") {
+    apply(plugin: "me.champeau.gradle.jmh")
+    dependencies {
+        jmhImplementation(project(":jumpaku-curves-fsc"))
+        //jmhImplementation(project(":jumpaku-curves-fsc-test"))
+        jmhImplementation('org.openjdk.jmh:jmh-core:0.9')
+        jmhAnnotationProcessor('org.openjdk.jmh:jmh-generator-annprocess:0.9')
+    }
+    sourceSets {
+        jmh {
+            kotlin.srcDirs = ['src/jmh/kotlin']
+            resources.srcDirs = ['src/jmh/resources']
+            compileClasspath += sourceSets.main.runtimeClasspath
+        }
+    }
+    jmh {
+        duplicateClassesStrategy = 'warn'
     }
 }
 
