@@ -53,7 +53,12 @@ fun Graphics2D.fillPoints(points: List<Point>, style: (Graphics2D) -> Unit = Fil
         points.forEach { fillPoint(it, style) }
 
 
-private fun makeLineShape(line: LineSegment): Shape = line.run { Line2D.Double(begin.x, begin.y, end.x, end.y) }
+private fun makeLineShape(line: LineSegment): Shape = line.run {
+    Path2D.Double().apply {
+        moveTo(begin.x, begin.y)
+        lineTo(end.x, end.y)
+    }
+}
 fun Graphics2D.drawLineSegment(line: LineSegment, style: (Graphics2D) -> Unit = DrawStyle()) =
         drawShape(makeLineShape(line), style)
 

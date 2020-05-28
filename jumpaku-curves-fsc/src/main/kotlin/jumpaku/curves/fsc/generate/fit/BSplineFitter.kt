@@ -14,7 +14,7 @@ private fun createModelMatrix(dataParams: List<Double>, degree: Int, knotVector:
     val n = knotVector.extractedKnots.size - degree - 1
     val sparse = OpenMapRealMatrix(dataParams.size, n)
     dataParams.map { t ->
-        (0..(n - 1)).map { BSpline.basis(t, it, knotVector) }
+        (0 until n).map { BSpline.basis(t, it, knotVector) }
     }.forEachIndexed { i, row ->
         row.forEachIndexed { j, value ->
             if (!Precision.equals(value, 0.0, 1.0e-10)) {

@@ -118,22 +118,3 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
         }
     }
 }
-
-/*
-object ConicSectionSnapperJson : JsonConverterBase<ConicSectionSnapper>() {
-    override fun toJson(src: ConicSectionSnapper): JsonElement {
-        check(featurePointsCombinator is ConjugateCombinator) { "cannot convert to JSON" }
-        return jsonObject(
-                "pointSnapper" to pointSnapper.toJson(),
-                "featurePointsCombinator" to jsonObject("type" to "ConjugateCombinator".toJson()))
-    }
-
-    override fun fromJson(json: JsonElement): ConicSectionSnapper<ConjugateCombinator> {
-        check(json["featurePointsCombinator"]["type"].string == "ConjugateCombinator") {
-            "invalid featurePointsCombinator type ${json["featurePointsCombinator"]["type"].string}"
-        }
-        return ConicSectionSnapper(
-                PointSnapperJson.fromJson(json["pointSnapper"]), ConjugateCombinator)
-    }
-}
- */

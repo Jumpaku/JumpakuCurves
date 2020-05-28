@@ -6,7 +6,6 @@ import jumpaku.curves.core.curve.ParamPointJson
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.GeneratorJson
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
@@ -55,21 +54,3 @@ class FscGeneratorTest {
 */
 }
 
-class GeneratorJsonTest {
-
-    val generator = Generator(
-            degree = 3,
-            knotSpan = 0.1,
-            fillSpan = 0.1 / 3,
-            extendInnerSpan = 0.1,
-            extendOuterSpan = 0.1,
-            extendDegree = 2,
-            fuzzifier = Fuzzifier.Linear(0.004, 0.003))
-
-    @Test
-    fun testGeneratorJson() {
-        println("GeneratorJson")
-        val a = GeneratorJson.toJsonStr(generator).parseJson().let { GeneratorJson.fromJson(it) }
-        assertThat(a, `is`(closeTo(generator)))
-    }
-}

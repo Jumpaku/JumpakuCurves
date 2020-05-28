@@ -4,18 +4,17 @@ import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.get
 import com.google.gson.JsonElement
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bezier.BezierJson
-import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.bezier.ConicSectionJson
 import jumpaku.curves.core.curve.bspline.BSplineJson
-import jumpaku.curves.fsc.freecurve.*
+import jumpaku.curves.fsc.freecurve.Segmenter
+import jumpaku.curves.fsc.freecurve.Shaper
+import jumpaku.curves.fsc.freecurve.SmoothResult
+import jumpaku.curves.fsc.freecurve.Smoother
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
-import java.time.Duration
 
 class ShaperTest {
 
@@ -84,23 +83,4 @@ class ShaperTest {
         assertThat(a, `is`(closeTo(shaper.smoother)))
     }
 */
-}
-class ShaperJsonTest {
-
-    val shaper = Shaper(
-            segmenter = Segmenter(
-                    identifier = Open4Identifier(
-                            nSamples = 25,
-                            nFmps = 15)),
-            smoother = Smoother(
-                    pruningFactor = 2.0,
-                    samplingFactor = 33),
-            sampler = Shaper.Sampler.ByFixedNumber(50))
-
-    @Test
-    fun testShaperJson() {
-        println("ShaperJson")
-        val a = ShaperJson.toJsonStr(shaper).parseJson().let { ShaperJson.fromJson(it) }
-        assertThat(a, `is`(closeTo(shaper)))
-    }
 }

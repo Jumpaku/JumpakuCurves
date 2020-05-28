@@ -1,6 +1,5 @@
 package jumpaku.curves.fsc.test.snap.point
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
@@ -8,9 +7,7 @@ import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.fsc.snap.Grid
 import jumpaku.curves.fsc.snap.GridPoint
-import jumpaku.curves.fsc.snap.point.MFGS
 import jumpaku.curves.fsc.snap.point.PointSnapResult
-import jumpaku.curves.fsc.snap.point.PointSnapResultJson
 import jumpaku.curves.fsc.snap.point.transformToWorld
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.Matchers.`is`
@@ -49,13 +46,3 @@ class PointSnapResultTest {
 
 }
 
-class PointSnapResultJsonTest{
-
-    @Test
-    fun testPointSnapResultJson() {
-        println("PointSnapResultJson")
-        val a = PointSnapResult(5, GridPoint(1,2,-8), Grade(0.6))
-        val e = PointSnapResultJson.toJsonStr(a).parseJson().let { PointSnapResultJson.fromJson(it) }
-        assertThat(a, `is`(closeTo(e)))
-    }
-}

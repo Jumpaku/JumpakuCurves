@@ -7,7 +7,16 @@ import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
-class NQuarterIdentifyResultTest {
+class NQuarterIdentifyResultJsonTest {
+
+    @Test
+    fun testNQuarterIdentifyResultJson() {
+        println("NQuarterIdentifyResultJson")
+        val e = str.parseJson().let { NQuarterIdentifyResultJson.fromJson(it) }
+        val a = NQuarterIdentifyResultJson.toJsonStr(e).parseJson().let { NQuarterIdentifyResultJson.fromJson(it) }
+
+        assertThat(a, `is`(closeTo(e)))
+    }
 
     val str = """{
   "grades": [
@@ -137,13 +146,4 @@ class NQuarterIdentifyResultTest {
     }
   }
 }"""
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val e = str.parseJson().let { NQuarterIdentifyResultJson.fromJson(it) }
-        val a = NQuarterIdentifyResultJson.toJsonStr(e).parseJson().let { NQuarterIdentifyResultJson.fromJson(it) }
-
-        assertThat(a, `is`(closeTo(e)))
-    }
 }

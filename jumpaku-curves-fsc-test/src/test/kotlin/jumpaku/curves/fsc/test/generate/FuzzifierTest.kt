@@ -1,14 +1,12 @@
 package jumpaku.curves.fsc.test.generate
 
 import io.vavr.collection.Array
-import jumpaku.commons.json.parseJson
 import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.generate.Fuzzifier
-import jumpaku.curves.fsc.generate.FuzzifierJson
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -35,14 +33,3 @@ class FuzzifierTest {
     }
 }
 
-class FuzzifierJsonTest {
-
-    val l = Fuzzifier.Linear(velocityCoefficient = 3.0, accelerationCoefficient = 0.1)
-
-    @Test
-    fun testFuzzifierJson() {
-        println("FuzzifierJson")
-        val a = FuzzifierJson.toJsonStr(l).parseJson().let { FuzzifierJson.fromJson(it) }
-        assertThat(a, `is`(closeTo(l)))
-    }
-}

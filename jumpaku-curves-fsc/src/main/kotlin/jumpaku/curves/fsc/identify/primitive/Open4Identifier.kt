@@ -1,11 +1,5 @@
 package jumpaku.curves.fsc.identify.primitive
 
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.int
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
-import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.fsc.identify.primitive.reference.CircularGenerator
@@ -29,14 +23,3 @@ class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15) : Id
     }
 }
 
-object Open4IdentifierJson : JsonConverterBase<Open4Identifier>() {
-
-    override fun toJson(src: Open4Identifier): JsonElement = src.run {
-        jsonObject(
-                "nSamples" to nSamples.toJson(),
-                "nFmps" to nFmps.toJson())
-    }
-
-    override fun fromJson(json: JsonElement): Open4Identifier =
-            Open4Identifier(json["nSamples"].int, json["nFmps"].int)
-}

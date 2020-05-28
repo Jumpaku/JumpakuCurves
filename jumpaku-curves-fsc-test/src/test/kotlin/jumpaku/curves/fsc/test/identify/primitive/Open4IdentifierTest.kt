@@ -1,16 +1,13 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
-import jumpaku.curves.fsc.identify.primitive.Open4IdentifierJson
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
-import java.time.Duration
 
 class Open4IdentifierTest {
 
@@ -80,15 +77,4 @@ class Open4IdentifierTest {
         }
     }
 */
-}
-class Open4IdentifierJsonTest {
-
-    val identifier = Open4Identifier(nSamples = 25, nFmps = 15)
-
-    @Test
-    fun testOpen4IdentifierJson() {
-        println("Open4IdentifierJson")
-        val a = Open4IdentifierJson.toJsonStr(identifier).parseJson().let { Open4IdentifierJson.fromJson(it) }
-        assertThat(a, `is`(equalTo(identifier)))
-    }
 }

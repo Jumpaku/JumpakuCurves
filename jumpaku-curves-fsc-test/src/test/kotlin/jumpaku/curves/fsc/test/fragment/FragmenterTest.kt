@@ -2,10 +2,11 @@ package jumpaku.curves.fsc.test.fragment
 
 import com.github.salomonbrys.kotson.array
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.core.test.curve.closeTo
-import jumpaku.curves.fsc.fragment.*
+import jumpaku.curves.fsc.fragment.Chunk
+import jumpaku.curves.fsc.fragment.FragmentJson
+import jumpaku.curves.fsc.fragment.Fragmenter
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -32,17 +33,4 @@ class FragmenterTest {
             }
         }
     }
-}
-class FragmenterJsonTest{
-
-    val threshold = Chunk.Threshold(0.4, 0.6)
-    val fragmenter = Fragmenter(threshold, 4, 0.1)
-
-    @Test
-    fun testFragmenterJson() {
-        println("FragmenterJson")
-        val a = FragmenterJson.toJsonStr(fragmenter).parseJson().let { FragmenterJson.fromJson(it) }
-        assertThat(a, `is`(closeTo(fragmenter)))
-    }
-
 }

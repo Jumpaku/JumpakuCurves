@@ -1,4 +1,4 @@
-package jumpaku.curves.demo
+package jumpaku.curves.graphics.swing
 
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point

@@ -8,7 +8,7 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.Rotate
-import jumpaku.curves.demo.DrawingPanel
+import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator

@@ -180,14 +180,4 @@ class Segmenter(val identifier: Open4Identifier) {
 
         return if (ss1.size < ss2.size) ss1 else ss2
     }
-/*
-
-    override fun toJson(): JsonElement = jsonObject("identifier" to identifier.toJson())
-
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Segmenter = Segmenter(Open4Identifier.fromJson(json["identifier"]))
-    }*/
 }

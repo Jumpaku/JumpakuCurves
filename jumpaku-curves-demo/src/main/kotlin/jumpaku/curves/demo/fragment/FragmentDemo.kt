@@ -1,7 +1,7 @@
 package jumpaku.curves.demo.fragment
 
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.demo.DrawingPanel
+import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragment

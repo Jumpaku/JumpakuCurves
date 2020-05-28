@@ -1,9 +1,10 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineJson
-import jumpaku.curves.fsc.identify.primitive.*
+import jumpaku.curves.fsc.identify.primitive.CurveClass
+import jumpaku.curves.fsc.identify.primitive.Primitive7Identifier
+import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -100,14 +101,3 @@ class Primitive7IdentifierTest {
     }
 }
 
-class Primitive7IdentifierJsonTest {
-
-    val identifier = Primitive7Identifier(nSamples = 25, nFmps = 15)
-
-    @Test
-    fun testPrimitive7IdentifierJson() {
-        println("Primitive7IdentifierJson")
-        val a = Primitive7IdentifierJson.toJsonStr(identifier).parseJson().let { Primitive7IdentifierJson.fromJson(it) }
-        assertThat(a, `is`(equalTo(identifier)))
-    }
-}

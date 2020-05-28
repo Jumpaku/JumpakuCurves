@@ -1,16 +1,12 @@
 package jumpaku.curves.fsc.test.merge
 
-import jumpaku.commons.control.Option
 import jumpaku.commons.json.parseJson
 import jumpaku.commons.option.json.OptionJson
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.core.test.curve.bspline.closeTo
-import jumpaku.curves.fsc.merge.MergeData
-import jumpaku.curves.fsc.merge.Merger
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.merge.MergeDataJson
-import jumpaku.curves.fsc.merge.MergerJson
+import jumpaku.curves.fsc.merge.Merger
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -63,23 +59,3 @@ class MergerTest {
     }
 }
 
-class MergerJsonTest {
-
-    val merger: Merger = Merger(
-            degree = 3,
-            knotSpan = 0.1,
-            extendDegree = 2,
-            extendInnerSpan = 0.1,
-            extendOuterSpan = 0.1,
-            bandWidth = 0.01,
-            fuzzifier = Fuzzifier.Linear(0.004, 0.003))
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = MergerJson.fromJson(MergerJson.toJsonStr(merger).parseJson())
-        assertThat(a, `is`(closeTo(merger)))
-    }
-
-
-}

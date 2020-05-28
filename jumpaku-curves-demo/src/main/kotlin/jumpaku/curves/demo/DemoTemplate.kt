@@ -3,6 +3,7 @@ package jumpaku.curves.demo
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.graphics.drawPolyline
+import jumpaku.curves.graphics.swing.DrawingPanel
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics

@@ -3,7 +3,7 @@ package jumpaku.curves.demo.identify.nquarter
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.demo.DrawingPanel
+import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator

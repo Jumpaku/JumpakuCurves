@@ -3,7 +3,6 @@ package jumpaku.curves.fsc.test.identify.nquarter
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifier
-import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifierJson
 import jumpaku.curves.fsc.identify.nquarter.NQuarterIdentifyResultJson
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.hamcrest.Matchers.`is`
@@ -39,14 +38,3 @@ class NQuarterIdentifierTest {
     }
 }
 
-class NQuarterIdentifierJsonTest {
-
-    val identifier = NQuarterIdentifier(25, 15)
-
-    @Test
-    fun testNQuarterIdentifierJson() {
-        println("NQuarterIdentifierJson")
-        val a = NQuarterIdentifierJson.toJsonStr(identifier).parseJson().let { NQuarterIdentifierJson.fromJson(it) }
-        assertThat(a, `is`(equalTo(identifier)))
-    }
-}
