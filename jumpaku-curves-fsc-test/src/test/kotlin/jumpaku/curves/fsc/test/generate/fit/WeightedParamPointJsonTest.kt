@@ -9,7 +9,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 
 
-class WeightedParamPointTest {
+class WeightedParamPointJsonTest {
 
     val wpp = WeightedParamPoint(
             point = Point.xyz(1.0, 2.0, 3.0),
@@ -17,8 +17,8 @@ class WeightedParamPointTest {
             weight = 2.0)
 
     @Test
-    fun testToString() {
-        println("ToString")
+    fun testWeightedParamPointJson() {
+        println("WeightedParamPointJson")
         val a = WeightedParamPointJson.toJsonStr(wpp).parseJson().let { WeightedParamPointJson.fromJson(it) }
         assertThat(a, `is`(closeTo(wpp)))
     }
