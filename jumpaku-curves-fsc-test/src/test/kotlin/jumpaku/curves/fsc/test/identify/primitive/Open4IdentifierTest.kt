@@ -63,18 +63,4 @@ class Open4IdentifierTest {
             assertThat(a.curveClass, `is`(e))
         }
     }
-/*
-    @Test
-    fun testIdentify_Time() {
-        println("IdentifierOpen4.Identify_Time")
-        val fsc = resourceText("FscFO0.json").parseJson().let { BSplineJson.fromJson(it) }
-        val s = reparametrize(fsc)
-        repeat(1000) { identifier.identify(s) }
-        val b = System.nanoTime()
-        assertTimeoutPreemptively(Duration.ofMillis(1500)) {
-            repeat(1000) { identifier.identify(s) }
-            println("    ${(System.nanoTime() - b) * 1e-9} [s]")
-        }
-    }
-*/
 }

@@ -37,20 +37,5 @@ class FscGeneratorTest {
             }
         }
     }
-/*
-    @Test
-    fun testGenerate_Time() {
-        println("Generate_Time")
-        val data = (0..3).map { resourceText("Data$it.json").parseJson().array.map { ParamPoint.fromJson(it) } }
-        data.forEach { generator.generate(it) }
-        data.forEachIndexed { i, d ->
-            val b = System.nanoTime()
-            assertTimeoutPreemptively(Duration.ofMillis(300)) {
-                generator.generate(d)
-                println("    $i: ${d.last().param - d.first().param}, ${(System.nanoTime() - b) * 1e-9} [s]")
-            }
-        }
-    }
-*/
 }
 

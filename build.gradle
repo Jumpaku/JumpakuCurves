@@ -14,11 +14,11 @@ buildscript {
 plugins {
     id("org.jetbrains.kotlin.jvm").version("$kotlin_version")
     id("maven-publish")
-    id("me.champeau.gradle.jmh").version("$jmh_plugin_version").apply(false)
+    id("java")
 }
 
 // Common configuration
-subprojects {
+allprojects {
 
     group = "jumpaku"
     version = "3.0.0-alpha-1-SNAPSHOT"
@@ -118,23 +118,28 @@ project(":jumpaku-curves-fsc-test") {
 }
 
 project(":jumpaku-curves-fsc-benchmark") {
-    apply(plugin: "me.champeau.gradle.jmh")
     dependencies {
-        jmhImplementation(project(":jumpaku-curves-fsc"))
-        //jmhImplementation(project(":jumpaku-curves-fsc-test"))
-        jmhImplementation('org.openjdk.jmh:jmh-core:0.9')
-        jmhAnnotationProcessor('org.openjdk.jmh:jmh-generator-annprocess:0.9')
+        implementation(project(":jumpaku-curves-fsc"))
+        testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     }
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+    /*
     sourceSets {
         jmh {
             kotlin.srcDirs = ['src/jmh/kotlin']
+            java.srcDirs = ['src/jmh/java']
             resources.srcDirs = ['src/jmh/resources']
             compileClasspath += sourceSets.main.runtimeClasspath
         }
     }
     jmh {
         duplicateClassesStrategy = 'warn'
-    }
+    }*/
 }
 
 project(":jumpaku-curves-graphics") {
