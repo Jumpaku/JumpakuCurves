@@ -1,19 +1,16 @@
 package jumpaku.curves.fsc.freecurve
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.control.toOption
-import jumpaku.commons.json.ToJson
 import jumpaku.commons.math.Solver
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.chordalParametrize
-import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
 import kotlin.collections.component1
@@ -22,7 +19,7 @@ import kotlin.collections.component2
 
 class SmoothResult(val conicSections: List<ConicSection>, val cubicBeziers: List<Bezier>)
 
-class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) : ToJson {
+class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
 
     fun smooth(fsc: BSpline, ts: List<Double>, segmentResult: SegmentResult, isClosed: Boolean = isClosed(fsc)): SmoothResult {
         val pis = segmentResult.segmentParamIndices
@@ -142,16 +139,4 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) : 
     fun parametrize(points: List<Point>): List<ParamPoint> =
             chordalParametrize(points, range = Interval.ZERO_ONE)
                     .tryRecover { uniformParametrize(points, range = Interval.ZERO_ONE) }.value().orThrow()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "pruningFactor" to pruningFactor.toJson(),
-            "samplingFactor" to samplingFactor.toJson())
-
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Smoother = Smoother(json["pruningFactor"].double, json["samplingFactor"].int)
-    }
-
 }

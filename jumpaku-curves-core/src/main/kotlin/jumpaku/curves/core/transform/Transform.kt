@@ -1,9 +1,5 @@
 package jumpaku.curves.core.transform
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.jsonArray
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
 import jumpaku.curves.core.geom.Point
@@ -30,12 +26,8 @@ interface Transform {
             override val matrix: RealMatrix = m
         }
 
-        fun fromMatrixJson(json: JsonElement): Transform =
-                json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
-                        .let { ofMatrix(MatrixUtils.createRealMatrix(it)) }
-
         val Identity = ofMatrix(MatrixUtils.createRealIdentityMatrix(4))
     }
 }
 
-fun Transform.toMatrixJson(): JsonElement = jsonArray(matrix.data.map { jsonArray(it.asIterable()) })
+

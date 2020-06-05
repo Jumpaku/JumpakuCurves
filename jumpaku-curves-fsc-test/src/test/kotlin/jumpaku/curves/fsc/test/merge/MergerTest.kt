@@ -1,12 +1,12 @@
 package jumpaku.curves.fsc.test.merge
 
-import jumpaku.commons.control.Option
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.commons.option.json.OptionJson
+import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.core.test.curve.bspline.closeTo
-import jumpaku.curves.fsc.merge.MergeData
-import jumpaku.curves.fsc.merge.Merger
 import jumpaku.curves.fsc.generate.Fuzzifier
+import jumpaku.curves.fsc.merge.MergeDataJson
+import jumpaku.curves.fsc.merge.Merger
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -31,13 +31,13 @@ class MergerTest {
         println("Generate")
         for (i in 0..4) {
             val bdOpt = resourceText("BlendDataOpt$i.json")
-                    .parseJson().value().flatMap { Option.fromJson(it).map { MergeData.fromJson(it) } }
+                    .parseJson().let { OptionJson.fromJson(it).map { MergeDataJson.fromJson(it) } }
             val expected = resourceText("BlendedFscOpt$i.json")
-                    .parseJson().value().flatMap { Option.fromJson(it).map { BSpline.fromJson(it) } }
+                    .parseJson().let { OptionJson.fromJson(it).map { BSplineJson.fromJson(it) } }
             val actual = bdOpt.map { merger.generate(it) }
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual.isDefined) {
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow(),1e-7)))
             }
         }
     }
@@ -46,24 +46,16 @@ class MergerTest {
     fun testTryMerge() {
         println("TryMerge")
         for (i in 0..4) {
-            val existing = resourceText("BlendExisting$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
-            val overlapping = resourceText("BlendOverlapping$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
+            val existing = resourceText("BlendExisting$i.json").parseJson().let { BSplineJson.fromJson(it) }
+            val overlapping = resourceText("BlendOverlapping$i.json").parseJson().let { BSplineJson.fromJson(it) }
             val expected = resourceText("BlendedFscOpt$i.json")
-                    .parseJson().value().flatMap { Option.fromJson(it).map { BSpline.fromJson(it) } }
+                    .parseJson().let { OptionJson.fromJson(it).map { BSplineJson.fromJson(it) } }
             val actual = merger.tryMerge(existing, overlapping)
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual.isDefined) {
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow(),1e-7)))
             }
         }
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = Merger.fromJson(merger.toJsonString().parseJson().orThrow())
-        assertThat(a, `is`(jumpaku.curves.fsc.test.merge.closeTo(merger)))
-    }
-
-
 }
+

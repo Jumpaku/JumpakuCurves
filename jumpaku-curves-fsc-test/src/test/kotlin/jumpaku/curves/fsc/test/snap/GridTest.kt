@@ -1,6 +1,5 @@
 package jumpaku.curves.fsc.test.snap
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.test.geom.closeTo
@@ -65,12 +64,6 @@ class GridTest {
         assertThat(baseGrid.snapToNearestGrid(Point.xy(2.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 1, 0))))
         assertThat(baseGrid.snapToNearestGrid(Point.xy(3.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 0, 0))))
         assertThat(baseGrid.snapToNearestGrid(Point.xy(4.0, 0.0), 0), `is`(equalTo(GridPoint(-1, 0, 0))))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        assertThat(baseGrid.toString().parseJson().tryFlatMap { Grid.fromJson(it) }.orThrow(), `is`(closeTo(baseGrid)))
     }
 }
 

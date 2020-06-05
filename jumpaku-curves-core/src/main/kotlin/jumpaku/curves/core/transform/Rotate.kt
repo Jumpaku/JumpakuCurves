@@ -1,17 +1,12 @@
 package jumpaku.curves.core.transform
 
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+
 import jumpaku.curves.core.geom.Vector
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 import org.apache.commons.math3.util.FastMath
 
-class Rotate(val axis: Vector, val angleRadian: Double) : Transform, ToJson {
+class Rotate(val axis: Vector, val angleRadian: Double) : Transform {
 
     init {
         require(axis.run { div(length()).isSuccess }) { "axis($axis) is close to zero" }
@@ -30,15 +25,10 @@ class Rotate(val axis: Vector, val angleRadian: Double) : Transform, ToJson {
             ))
         }
 
-    override fun toString(): String = toJsonString()
+    override fun toString(): String = "Rotate(axis=$axis, angleRadian=$angleRadian)"
 
-    override fun toJson(): JsonElement = jsonObject(
-            "axis" to axis.toJson(),
-            "angleRadian" to angleRadian.toJson())
 
     companion object {
-
-        fun fromJson(json: JsonElement): Rotate = Rotate(Vector.fromJson(json["axis"]), json["angleRadian"].double)
 
         /**
          * @throws IllegalArgumentException when from is close to -to

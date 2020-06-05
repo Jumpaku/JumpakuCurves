@@ -1,11 +1,12 @@
 package jumpaku.curves.fsc.test.merge
 
-import jumpaku.commons.control.Option
 import jumpaku.commons.control.Some
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.commons.option.json.OptionJson
+import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.merge.MergeData
+import jumpaku.curves.fsc.merge.MergeDataJson
 import jumpaku.curves.fsc.merge.OverlapDetector
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.greaterThan
@@ -26,19 +27,19 @@ class OverlapDetectorTest {
     fun testDetect() {
         println("Detect")
         for (i in 0..4) {
-            val existing = resourceText("BlendExisting$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
-            val overlapping = resourceText("BlendOverlapping$i.json").parseJson().tryMap { BSpline.fromJson(it) }.orThrow()
+            val existing = resourceText("BlendExisting$i.json").parseJson().let { BSplineJson.fromJson(it) }
+            val overlapping = resourceText("BlendOverlapping$i.json").parseJson().let { BSplineJson.fromJson(it) }
             val eSampled = existing.sample(samplingSpan)
             val aSampled = overlapping.sample(samplingSpan)
             val actual = overlapDetector.detect(eSampled, aSampled).map {
                 MergeData.parameterize(eSampled, aSampled, mergeRate, it)
             }
             val expected = resourceText("BlendDataOpt$i.json")
-                    .parseJson().value().flatMap { Option.fromJson(it).map { MergeData.fromJson(it) } }
+                    .parseJson().let { OptionJson.fromJson(it).map { MergeDataJson.fromJson(it) } }
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual is Some) {
                 assertThat(actual.value.grade, `is`(greaterThan(threshold)))
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow(), 1e-6)))
             }
         }
     }

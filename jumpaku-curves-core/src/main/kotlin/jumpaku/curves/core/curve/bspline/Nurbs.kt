@@ -1,9 +1,6 @@
 package jumpaku.curves.core.curve.bspline
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.RationalBezier
 import jumpaku.curves.core.geom.*
@@ -14,7 +11,7 @@ import jumpaku.curves.core.util.asVavr
 class Nurbs(
         controlPoints: Iterable<Point>,
         weights: Iterable<Double>,
-        val knotVector: KnotVector) : Curve, Differentiable, ToJson {
+        val knotVector: KnotVector) : Curve, Differentiable {
 
     constructor(weightedControlPoints: Iterable<WeightedPoint>, knotVector: KnotVector) : this(
             weightedControlPoints.map { it.point }, weightedControlPoints.map { it.weight }, knotVector)
@@ -61,12 +58,7 @@ class Nurbs(
         require(degree > 0) { "degree($degree) <= 0" }
     }
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "weightedControlPoints" to jsonArray(weightedControlPoints.map { it.toJson() }),
-            "degree" to degree,
-            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
+    override fun toString(): String = "Nurbs(knotVector=$knotVector, weightedControlPoints=$weightedControlPoints)"
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 
@@ -132,13 +124,6 @@ class Nurbs(
     }
 
     companion object {
-
-        fun fromJson(json: JsonElement): Nurbs {
-            val d = json["degree"].int
-            val wcp = json["weightedControlPoints"].array.map { WeightedPoint.fromJson(it) }
-            val ks = json["knots"].array.map { Knot.fromJson(it) }
-            return Nurbs(wcp, KnotVector(d, ks))
-        }
 
         private tailrec fun evaluate(controlPoints: List<WeightedPoint>, knotVector: KnotVector, t: Double): WeightedPoint {
             val us = knotVector.extractedKnots
@@ -280,6 +265,5 @@ class Nurbs(
             val closeAt = cp.run { first().middle(last()) }
             return cp.asVavr().update(0, closeAt).update(cp.lastIndex, closeAt).asKt()
         }
-
     }
 }

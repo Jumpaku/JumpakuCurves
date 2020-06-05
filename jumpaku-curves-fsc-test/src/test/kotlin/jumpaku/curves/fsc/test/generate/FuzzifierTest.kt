@@ -1,8 +1,7 @@
 package jumpaku.curves.fsc.test.generate
 
 import io.vavr.collection.Array
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
@@ -32,11 +31,5 @@ class FuzzifierTest {
             assertThat(a, `is`(closeTo(e, 1e0)))
         }
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = l.toString().parseJson().tryMap { Fuzzifier.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(l)))
-    }
 }
+

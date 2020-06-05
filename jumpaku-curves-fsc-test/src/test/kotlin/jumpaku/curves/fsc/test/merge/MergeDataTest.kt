@@ -1,14 +1,13 @@
 package jumpaku.curves.fsc.test.merge
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
-import jumpaku.curves.core.test.curve.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.fsc.generate.fit.weighted
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.merge.MergeData
 import jumpaku.curves.fsc.test.generate.fit.closeTo
 import org.hamcrest.Matchers.`is`
@@ -56,11 +55,5 @@ class MergeDataTest {
             assertThat(a[i], `is`(closeTo(e[i])))
         }
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = MergeData.fromJson(bd.toJsonString().parseJson().orThrow())
-        assertThat(a, `is`(closeTo(bd)))
-    }
 }
+

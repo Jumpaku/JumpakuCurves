@@ -6,6 +6,7 @@ import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
+import jumpaku.curves.fsc.identify.primitive.reference.ReferenceJson
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -38,11 +39,24 @@ class ReferenceTest {
         assertThat(linear(1.0), `is`(closeTo(Point.x(1.0))))
         assertThat(linear(1.25), `is`(closeTo(Point.x(2.0))))
     }
+}
+
+class ReferenceJsonTest {
+
+    val r2 = sqrt(2.0)
+
+    val circular = Reference(
+            ConicSection(Point.xy(-r2 / 2, -r2 / 2), Point.xy(0.0, 1.0), Point.xy(r2 / 2, -r2 / 2), -r2 / 2),
+            Interval(-0.5, 1.5))
+
+    val linear = Reference(
+            ConicSection.lineSegment(Point.x(-1.0), Point.x(1.0)),
+            Interval(-0.25, 1.25))
 
     @Test
-    fun testToString() {
-        println("ToString")
-        assertThat(circular.toString().parseJson().tryMap { Reference.fromJson(it) }.orThrow(), `is`(closeTo(circular)))
-        assertThat(linear.toString().parseJson().tryMap { Reference.fromJson(it) }.orThrow(), `is`(closeTo(linear)))
+    fun testReferenceJson() {
+        println("ReferenceJson")
+        assertThat(ReferenceJson.toJsonStr(circular).parseJson().let { ReferenceJson.fromJson(it) }, `is`(closeTo(circular)))
+        assertThat(ReferenceJson.toJsonStr(linear).parseJson().let { ReferenceJson.fromJson(it) }, `is`(closeTo(linear)))
     }
 }

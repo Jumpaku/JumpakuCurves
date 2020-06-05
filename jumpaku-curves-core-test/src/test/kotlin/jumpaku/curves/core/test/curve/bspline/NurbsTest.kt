@@ -1,7 +1,6 @@
 package jumpaku.curves.core.test.curve.bspline
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
@@ -60,13 +59,6 @@ class NurbsTest {
         assertThat(n.weights[5], `is`(closeTo(1.0)))
         assertThat(n.knotVector, `is`(closeTo(KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))))
         assertThat(n.degree, `is`(3))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = n.toString().parseJson().tryMap { Nurbs.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(n)))
     }
 
     @Test
@@ -366,3 +358,4 @@ class NurbsTest {
         assertThat(c, `is`(closeTo(e)))
     }
 }
+

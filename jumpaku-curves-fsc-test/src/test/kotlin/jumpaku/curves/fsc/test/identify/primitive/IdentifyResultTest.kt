@@ -1,6 +1,5 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
-import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
@@ -49,11 +48,5 @@ class IdentifyResultTest {
         assertThat(r.curveClass, `is`(CurveClass.Ellipse))
         assertThat(r.grade.value, `is`(greaterThan(0.5)))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = r.toString().parseJson().tryMap { IdentifyResult.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(r)))
-    }
 }
+

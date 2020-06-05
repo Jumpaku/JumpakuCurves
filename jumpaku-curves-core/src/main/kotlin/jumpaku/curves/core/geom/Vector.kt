@@ -1,31 +1,21 @@
 package jumpaku.curves.core.geom
 
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Result
 import jumpaku.commons.control.result
-import jumpaku.commons.json.ToJson
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
-import org.apache.commons.math3.util.MathArrays
 
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
 
-fun linearCombination(vararg terms: Pair<Double, Vector>): Vector {
-    if (terms.isEmpty()) return Vector.Zero
-    val cs = terms.map { it.first }.toDoubleArray()
-    val xs = terms.map { it.second.x }.toDoubleArray()
-    val ys = terms.map { it.second.y }.toDoubleArray()
-    val zs = terms.map { it.second.z }.toDoubleArray()
-    val x = MathArrays.linearCombination(cs, xs)
-    val y = MathArrays.linearCombination(cs, ys)
-    val z = MathArrays.linearCombination(cs, zs)
-    return Vector(x, y, z)
+internal inline fun <T> List<T>.sumByVector(selector: (T) -> Vector): Vector {
+    var sum: Vector = Vector.Zero
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
 }
 
-data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) : ToJson {
+data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
 
@@ -51,10 +41,6 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0)
     operator fun unaryPlus(): Vector = this
 
     operator fun unaryMinus(): Vector = -1.0 * this
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject("x" to x, "y" to y, "z" to z)
 
     fun normalize(): Result<Vector> = div(length()).tryMapFailure { IllegalStateException("$this is close to zero.") }
 
@@ -82,6 +68,6 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0)
 
         val Zero: Vector = Vector()
 
-        fun fromJson(json: JsonElement): Vector = Vector(json["x"].double, json["y"].double, json["z"].double)
     }
 }
+

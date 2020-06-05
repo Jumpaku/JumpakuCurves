@@ -1,7 +1,7 @@
 package jumpaku.curves.core.test.geom
 
 
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.geom.lerp
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat

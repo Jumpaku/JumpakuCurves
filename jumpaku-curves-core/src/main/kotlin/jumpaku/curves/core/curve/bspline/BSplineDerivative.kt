@@ -1,16 +1,14 @@
 package jumpaku.curves.core.curve.bspline
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
+
 import jumpaku.commons.control.Option
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.BezierDerivative
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 
 
-class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable, ToJson {
+class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable {
 
     constructor(controlVectors: Iterable<Vector>, knots: KnotVector) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
@@ -27,12 +25,7 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     val degree: Int get() = toBSpline().degree
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement = jsonObject(
-            "controlVectors" to jsonArray(controlVectors.map { it.toJson() }),
-            "degree" to degree,
-            "knots" to jsonArray(knotVector.knots.map { it.toJson() }))
+    override fun toString(): String = "BSplineDerivative(knotVector=$knotVector, controlVectors=$controlVectors)"
 
     override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
 
@@ -58,14 +51,4 @@ class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiab
 
     fun subdivide(t: Double): Pair<Option<BSplineDerivative>, Option<BSplineDerivative>> = toBSpline().subdivide(t)
             .run { Pair(first.map { BSplineDerivative(it) }, second.map { BSplineDerivative(it) }) }
-
-    companion object {
-
-        fun fromJson(json: JsonElement): BSplineDerivative {
-            val d = json["degree"].int
-            val cv = json["controlVectors"].array.map { Vector.fromJson(it) }
-            val ks = json["knots"].array.map { Knot.fromJson(it) }
-            return BSplineDerivative(cv, KnotVector(d, ks))
-        }
-    }
 }

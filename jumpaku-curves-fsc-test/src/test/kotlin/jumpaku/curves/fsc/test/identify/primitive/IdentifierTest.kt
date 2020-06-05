@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.commons.math.sum
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector

@@ -1,12 +1,12 @@
 package jumpaku.curves.core.test.curve
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
-import org.junit.jupiter.api.assertThrows
 
 class IntervalTest {
 
@@ -15,7 +15,14 @@ class IntervalTest {
     @Test
     fun testConstructorException() {
         println("ConstructorException")
-        assertThrows<IllegalArgumentException> { Interval(4.0, -3.0) }
+        try {
+            Interval(4.0, -3.0)
+            fail()
+        } catch (e: IllegalArgumentException) {
+            assertThat(e, `is`(instanceOf(IllegalArgumentException::class.java)))
+        } catch (e: Throwable) {
+            fail()
+        }
     }
 
     @Test
@@ -61,11 +68,5 @@ class IntervalTest {
         assertThat((Interval(-2.0, 3.0) in i), `is`(true))
         assertThat((Interval(-3.0, 4.0) in i), `is`(false))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val a = i.toString().parseJson().tryMap { Interval.fromJson(it) }.orThrow()
-        assertThat(a, `is`(closeTo(i)))
-    }
 }
+

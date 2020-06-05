@@ -1,18 +1,12 @@
 package jumpaku.curves.core.curve.polyline
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.util.asVavr
 
 
-class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
+class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
 
     val paramPoints: List<ParamPoint> = paramPoints.sortedBy { it.param }
 
@@ -22,9 +16,8 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     override val domain: Interval = Interval(parameters.first(), parameters.last())
 
-    override fun toString(): String = toJsonString()
+    override fun toString(): String = "Polyline(paramPoints=$paramPoints)"
 
-    override fun toJson(): JsonElement = jsonObject("paramPoints" to jsonArray(paramPoints.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
@@ -92,6 +85,6 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
         fun byArcLength(vararg points: Point): Polyline = byArcLength(points.asIterable())
 
-        fun fromJson(json: JsonElement): Polyline = Polyline(json["paramPoints"].array.map { ParamPoint.fromJson(it) })
     }
 }
+

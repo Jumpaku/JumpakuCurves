@@ -1,34 +1,24 @@
 package jumpaku.curves.core.curve
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.optionWhen
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.util.asVavr
 import jumpaku.curves.core.util.lastIndex
 import kotlin.math.ceil
 
 
-data class Knot(val value: Double, val multiplicity: Int = 1) : ToJson {
+data class Knot(val value: Double, val multiplicity: Int = 1) {
 
     init {
         require(value.isFinite()) { "value($value)" }
         require(multiplicity > 0) { "must be multiplicity($multiplicity) > 0" }
     }
 
-    override fun toString(): String = toJsonString()
 
-    override fun toJson(): JsonElement = jsonObject("value" to value, "multiplicity" to multiplicity)
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Knot = Knot(json["value"].double, json["multiplicity"].int)
-    }
 }
 
-class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
+class KnotVector(val degree: Int, knots: Iterable<Knot>) {
 
     constructor(degree: Int, vararg knots: Knot) : this(degree, knots.toList())
 
@@ -42,10 +32,7 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
 
     val domain: Interval = extractedKnots.run { Interval(get(degree), get(lastIndex - degree)) }
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement =
-            jsonObject("degree" to degree, "knots" to jsonArray(knots.map { it.toJson() }))
+    override fun toString(): String = "KnotVector(degree=$degree, knots=$knots)"
 
     fun multiplicityOf(knotValue: Double): Int =
             search(knotValue).let { if (it < 0) 0 else knots[it].multiplicity }
@@ -133,7 +120,6 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) : ToJson {
 
     companion object {
 
-        fun fromJson(json: JsonElement): KnotVector = KnotVector(json["degree"].int, json["knots"].array.map { Knot.fromJson(it) })
 
         fun uniform(domain: Interval, degree: Int, knotSize: Int): KnotVector {
             require(degree >= 0) { "degree($degree)" }

@@ -1,11 +1,6 @@
 package jumpaku.curves.core.curve.bezier
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
+
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
@@ -18,7 +13,7 @@ import org.apache.commons.math3.util.FastMath
 
 
 class Bezier private constructor(private val rationalBezier: RationalBezier)
-    : Curve by rationalBezier, Differentiable, ToJson {
+    : Curve by rationalBezier, Differentiable {
 
     constructor(controlPoints: Iterable<Point>) : this(RationalBezier(controlPoints.map { it.weighted() }))
 
@@ -36,10 +31,7 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     override fun toCrisp(): Bezier = Bezier(rationalBezier.toCrisp())
 
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement =
-            jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
+    override fun toString(): String = "Bezier(controlPoints=${controlPoints})"
 
     fun transform(a: Transform): Bezier = Bezier(rationalBezier.transform(a))
 
@@ -59,7 +51,6 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     companion object {
 
-        fun fromJson(json: JsonElement): Bezier = Bezier(json["controlPoints"].array.map { Point.fromJson(it) })
 
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
@@ -70,3 +61,4 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
                 cps.zipWithNext { p0, p1 -> p0.lerp(t, p1) }
     }
 }
+

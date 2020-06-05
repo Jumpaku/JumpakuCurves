@@ -1,11 +1,8 @@
 package jumpaku.curves.core.fuzzy
 
-import com.github.salomonbrys.kotson.double
-import com.google.gson.JsonPrimitive
-import jumpaku.commons.json.ToJson
 
 
-data class Grade(val value: Double) : Comparable<Grade>, ToJson {
+data class Grade(val value: Double) : Comparable<Grade> {
 
     init {
         require(value.isFinite() && value in 0.0..1.0) { "value($value) is out of [0.0, 1.0]." }
@@ -22,21 +19,16 @@ data class Grade(val value: Double) : Comparable<Grade>, ToJson {
     fun toBoolean(greaterThan: Double = 0.5, orEqual: Boolean = true): Boolean =
             if (orEqual) value >= greaterThan else value > greaterThan
 
-    override fun toString(): String = value.toString()
-
-    override fun toJson(): JsonPrimitive = JsonPrimitive(value)
-
     companion object {
 
         val TRUE = Grade(1.0)
 
         val FALSE = Grade(0.0)
 
-        operator fun invoke(booleanValue: Boolean) = if (booleanValue) Grade.TRUE else Grade.FALSE
+        operator fun invoke(booleanValue: Boolean) = if (booleanValue) TRUE else FALSE
 
         fun clamped(value: Double): Grade = Grade(value.coerceIn(0.0, 1.0))
 
-        fun fromJson(json: JsonPrimitive): Grade = Grade(json.double)
     }
 }
 

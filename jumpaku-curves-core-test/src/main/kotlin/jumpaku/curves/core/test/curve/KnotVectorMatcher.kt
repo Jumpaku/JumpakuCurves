@@ -1,7 +1,7 @@
 package jumpaku.curves.core.test.curve
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.core.curve.Knot
 import jumpaku.curves.core.curve.KnotVector
 import org.hamcrest.TypeSafeMatcher

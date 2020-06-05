@@ -19,21 +19,15 @@ jumpaku-curves-core-test/out/*
 jumpaku-curves-fsc-test/build/*
 jumpaku-curves-fsc-test/classes/*
 jumpaku-curves-fsc-test/out/*
-jumpaku-curves-fxcomponents/build/*
-jumpaku-curves-fxcomponents/classes/*
-jumpaku-curves-fxcomponents/out/*
-jumpaku-curves-examples/build/*
-jumpaku-curves-examples/classes/*
-jumpaku-curves-examples/out/*
+jumpaku-curves-fsc-benchmark/build/*
+jumpaku-curves-fsc-benchmark/classes/*
+jumpaku-curves-fsc-benchmark/out/*
 jumpaku-curves-graphics/build/*
 jumpaku-curves-graphics/classes/*
 jumpaku-curves-graphics/out/*
 jumpaku-curves-demo/build/*
 jumpaku-curves-demo/classes/*
 jumpaku-curves-demo/out/*
-jumpaku-curves-experimental/build/*
-jumpaku-curves-experimental/classes/*
-jumpaku-curves-experimental/out/*
 
 # Netbeans
 nbproject/

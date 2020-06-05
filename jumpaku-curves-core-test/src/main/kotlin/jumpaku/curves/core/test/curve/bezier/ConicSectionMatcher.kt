@@ -1,7 +1,7 @@
 package jumpaku.curves.core.test.curve.bezier
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.test.geom.isCloseTo
 import org.hamcrest.TypeSafeMatcher

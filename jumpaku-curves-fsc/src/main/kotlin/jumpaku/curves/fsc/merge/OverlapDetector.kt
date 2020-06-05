@@ -48,7 +48,7 @@ class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
         }
 
         fun findRidge(osm: OverlapMatrix, compare: Comparator<DpValue>, isAvailable: (i: Int, j: Int) -> Boolean): Option<DpValue> {
-            val dpTable = java.util.LinkedHashMap<DpKey, Option<DpValue>>()
+            val dpTable = LinkedHashMap<DpKey, Option<DpValue>>()
             fun dpSearch(key: DpKey): Option<DpValue> = dpTable.getOrPut(key) {
                 val (i, j) = key
                 val muij = osm[i, j]
