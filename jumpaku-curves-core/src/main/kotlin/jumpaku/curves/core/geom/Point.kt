@@ -3,13 +3,11 @@ package jumpaku.curves.core.geom
 
 import jumpaku.commons.control.Result
 import jumpaku.commons.control.orDefault
-import jumpaku.commons.math.sum
 import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.transform.Transform
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
-import org.apache.commons.math3.util.MathArrays
 import org.apache.commons.math3.util.Precision
 import kotlin.math.abs
 
@@ -46,14 +44,14 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @param terms sequence of pairs of coefficient and conic fuzzy point.
      * @return affine combination of conic fuzzy points
      */
-    override fun lerp(vararg terms: Pair<Double, Point>): Point {
-        val cs = terms.map { it.first }
-        val c0 = 1 - sum(cs)
-        val vs = terms.map { it.second.toVector() }
-        val v = linearCombination(*(cs.zip(vs) + (c0 to this.toVector())).toTypedArray())
-        val rs = terms.map { it.second.r }
-        val r = MathArrays.linearCombination((cs + c0).map { abs(it) }.toDoubleArray(), (rs + this.r).toDoubleArray())
-        return Point(v, r)
+    override fun lerp(terms: List<Pair<Double, Point>>): Point {
+        val c0 = terms.sumByDouble { it.first }
+        val cs = terms.map { (c, _) -> c } + (1 - c0)
+        val vs = terms.map { (_, p) -> p.toVector() } + this.toVector()
+        val rs = terms.map { (_, p) -> p.r } + this.r
+        return Point(
+                cs.zip(vs).sumByVector { (c, v) -> c * v },
+                cs.zip(rs).sumByDouble { (c, r) -> abs(c * r) })
     }
 
 

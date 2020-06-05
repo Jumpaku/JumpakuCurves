@@ -10,9 +10,9 @@ data class ParamPoint(val point: Point, val param: Double) : Lerpable<ParamPoint
         require(param.isFinite()) { "param($param)" }
     }
 
-    override fun lerp(vararg terms: Pair<Double, ParamPoint>): ParamPoint = ParamPoint(
-            point.lerp(*terms.map { (c, p) -> c to p.point }.toTypedArray()),
-            param.lerp(*terms.map { (c, p) -> c to p.param }.toTypedArray()))
+    override fun lerp(terms: List<Pair<Double, ParamPoint>>): ParamPoint = ParamPoint(
+            point.lerp(terms.map { (c, p) -> c to p.point }),
+            param.lerp(terms.map { (c, p) -> c to p.param }))
 
 
 }

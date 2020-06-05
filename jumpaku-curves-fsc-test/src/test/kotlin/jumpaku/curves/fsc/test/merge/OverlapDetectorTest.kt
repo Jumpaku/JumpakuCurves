@@ -1,10 +1,8 @@
 package jumpaku.curves.fsc.test.merge
 
-import jumpaku.commons.control.Option
 import jumpaku.commons.control.Some
 import jumpaku.commons.json.parseJson
 import jumpaku.commons.option.json.OptionJson
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.merge.MergeData
@@ -41,7 +39,7 @@ class OverlapDetectorTest {
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual is Some) {
                 assertThat(actual.value.grade, `is`(greaterThan(threshold)))
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow(), 1e-6)))
             }
         }
     }

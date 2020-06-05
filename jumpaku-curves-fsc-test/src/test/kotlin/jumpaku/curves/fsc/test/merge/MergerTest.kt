@@ -37,7 +37,7 @@ class MergerTest {
             val actual = bdOpt.map { merger.generate(it) }
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual.isDefined) {
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow(),1e-7)))
             }
         }
     }
@@ -53,7 +53,7 @@ class MergerTest {
             val actual = merger.tryMerge(existing, overlapping)
             assertThat(actual.isDefined, `is`(expected.isDefined))
             if (actual.isDefined) {
-                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow())))
+                assertThat(actual.orThrow(), `is`(closeTo(expected.orThrow(),1e-7)))
             }
         }
     }
