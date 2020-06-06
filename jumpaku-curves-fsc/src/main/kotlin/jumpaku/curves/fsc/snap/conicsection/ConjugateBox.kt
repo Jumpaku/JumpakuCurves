@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.snap.conicsection
 
 import jumpaku.commons.math.tryDiv
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.core.transform.Transform

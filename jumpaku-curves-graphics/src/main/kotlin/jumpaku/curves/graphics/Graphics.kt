@@ -5,7 +5,7 @@ import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.LineSegment
 import jumpaku.curves.core.curve.polyline.Polyline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Calibrate
 import jumpaku.curves.fsc.DrawingStroke
@@ -53,7 +53,12 @@ fun Graphics2D.fillPoints(points: List<Point>, style: (Graphics2D) -> Unit = Fil
         points.forEach { fillPoint(it, style) }
 
 
-private fun makeLineShape(line: LineSegment): Shape = line.run { Line2D.Double(begin.x, begin.y, end.x, end.y) }
+private fun makeLineShape(line: LineSegment): Shape = line.run {
+    Path2D.Double().apply {
+        moveTo(begin.x, begin.y)
+        lineTo(end.x, end.y)
+    }
+}
 fun Graphics2D.drawLineSegment(line: LineSegment, style: (Graphics2D) -> Unit = DrawStyle()) =
         drawShape(makeLineShape(line), style)
 
@@ -90,8 +95,8 @@ fun Graphics2D.drawGrid(
 }
 
 fun Graphics2D.drawConjugateBox(conjugateBox: ConjugateBox, style: (Graphics2D) -> Unit = DrawStyle()) {
-    conjugateBox.run { drawPolyline(Polyline.byArcLength(bottomLeft, topLeft, topRight, bottomRight, bottomLeft), style) }
-    conjugateBox.run { drawPolyline(Polyline.byArcLength(left, top, right, bottom, left), style) }
+    conjugateBox.run { drawPolyline(Polyline.byIndices(bottomLeft, topLeft, topRight, bottomRight, bottomLeft), style) }
+    conjugateBox.run { drawPolyline(Polyline.byIndices(left, top, right, bottom, left), style) }
 }
 
 

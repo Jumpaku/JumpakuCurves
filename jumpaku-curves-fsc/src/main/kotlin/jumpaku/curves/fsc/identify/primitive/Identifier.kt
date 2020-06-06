@@ -1,15 +1,14 @@
 package jumpaku.curves.fsc.identify.primitive
 
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
 
-interface Identifier : ToJson {
+interface Identifier  {
 
     val nFmps: Int
 

@@ -6,6 +6,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 
 class CurveClassTest {
+
     @Test
     fun testIsFreeCurve() {
         println("IsFreeCurve")

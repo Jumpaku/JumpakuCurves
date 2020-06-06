@@ -3,10 +3,9 @@ package jumpaku.curves.fsc.freecurve
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
@@ -23,7 +22,7 @@ sealed class Segment {
     class FO(override val isConicSection: Grade, override val curveClass: CurveClass, val freeCurve: BSpline) : Segment()
 }
 
-class Segmenter(val identifier: Open4Identifier) : ToJson {
+class Segmenter(val identifier: Open4Identifier) {
 
     fun identify(fsc: BSpline): Segment {
         val result = identifier.identify(reparametrize(fsc))
@@ -180,15 +179,5 @@ class Segmenter(val identifier: Open4Identifier) : ToJson {
         val ss2 = rs2.zip(ls2, Segmenter::NarrowedInterval)
 
         return if (ss1.size < ss2.size) ss1 else ss2
-    }
-
-
-    override fun toJson(): JsonElement = jsonObject("identifier" to identifier.toJson())
-
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Segmenter = Segmenter(Open4Identifier.fromJson(json["identifier"]))
     }
 }

@@ -1,24 +1,24 @@
 package jumpaku.curves.core.test.curve
 
-import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.Knot
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.commons.math.test.closeTo
+import jumpaku.curves.core.curve.*
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
 class KnotVectorTest {
 
+    val k = KnotVector.clamped(Interval(3.5, 5.0), 3, 10)
+
     @Test
     fun testClamped() {
         println("Clamped")
         val a0 = KnotVector.clamped(Interval(1.0, 4.0), 3, 10)
         assertThat(a0.knots.size, `is`(4))
-        assertThat(a0.knots[0].value, `is`(1.0))
-        assertThat(a0.knots[1].value, `is`(2.0))
-        assertThat(a0.knots[2].value, `is`(3.0))
-        assertThat(a0.knots[3].value, `is`(4.0))
+        assertThat(a0.knots[0].value, `is`(closeTo(1.0)))
+        assertThat(a0.knots[1].value, `is`(closeTo(2.0)))
+        assertThat(a0.knots[2].value, `is`(closeTo(3.0)))
+        assertThat(a0.knots[3].value, `is`(closeTo(4.0)))
         assertThat(a0.knots[0].multiplicity, `is`(4))
         assertThat(a0.knots[1].multiplicity, `is`(1))
         assertThat(a0.knots[2].multiplicity, `is`(1))
@@ -28,10 +28,10 @@ class KnotVectorTest {
 
         val a1 = KnotVector.clamped(Interval(1.0, 4.0), 3, 1.0)
         assertThat(a1.knots.size, `is`(4))
-        assertThat(a1.knots[0].value, `is`(1.0))
-        assertThat(a1.knots[1].value, `is`(2.0))
-        assertThat(a1.knots[2].value, `is`(3.0))
-        assertThat(a1.knots[3].value, `is`(4.0))
+        assertThat(a1.knots[0].value, `is`(closeTo(1.0)))
+        assertThat(a1.knots[1].value, `is`(closeTo(2.0)))
+        assertThat(a1.knots[2].value, `is`(closeTo(3.0)))
+        assertThat(a1.knots[3].value, `is`(closeTo(4.0)))
         assertThat(a1.knots[0].multiplicity, `is`(4))
         assertThat(a1.knots[1].multiplicity, `is`(1))
         assertThat(a1.knots[2].multiplicity, `is`(1))
@@ -45,16 +45,16 @@ class KnotVectorTest {
         println("Uniform")
         val a0 = KnotVector.uniform(Interval(1.0, 4.0), 3, 10)
         assertThat(a0.knots.size, `is`(10))
-        assertThat(a0.knots[0].value, `is`(-2.0))
-        assertThat(a0.knots[1].value, `is`(-1.0))
-        assertThat(a0.knots[2].value, `is`(0.0))
-        assertThat(a0.knots[3].value, `is`(1.0))
-        assertThat(a0.knots[4].value, `is`(2.0))
-        assertThat(a0.knots[5].value, `is`(3.0))
-        assertThat(a0.knots[6].value, `is`(4.0))
-        assertThat(a0.knots[7].value, `is`(5.0))
-        assertThat(a0.knots[8].value, `is`(6.0))
-        assertThat(a0.knots[9].value, `is`(7.0))
+        assertThat(a0.knots[0].value, `is`(closeTo(-2.0)))
+        assertThat(a0.knots[1].value, `is`(closeTo(-1.0)))
+        assertThat(a0.knots[2].value, `is`(closeTo(0.0)))
+        assertThat(a0.knots[3].value, `is`(closeTo(1.0)))
+        assertThat(a0.knots[4].value, `is`(closeTo(2.0)))
+        assertThat(a0.knots[5].value, `is`(closeTo(3.0)))
+        assertThat(a0.knots[6].value, `is`(closeTo(4.0)))
+        assertThat(a0.knots[7].value, `is`(closeTo(5.0)))
+        assertThat(a0.knots[8].value, `is`(closeTo(6.0)))
+        assertThat(a0.knots[9].value, `is`(closeTo(7.0)))
         assertThat(a0.knots[0].multiplicity, `is`(1))
         assertThat(a0.knots[1].multiplicity, `is`(1))
         assertThat(a0.knots[2].multiplicity, `is`(1))
@@ -70,16 +70,16 @@ class KnotVectorTest {
 
         val a1 = KnotVector.uniform(Interval(1.0, 4.0), 3, 1.0)
         assertThat(a1.knots.size, `is`(10))
-        assertThat(a1.knots[0].value, `is`(-2.0))
-        assertThat(a1.knots[1].value, `is`(-1.0))
-        assertThat(a1.knots[2].value, `is`(0.0))
-        assertThat(a1.knots[3].value, `is`(1.0))
-        assertThat(a1.knots[4].value, `is`(2.0))
-        assertThat(a1.knots[5].value, `is`(3.0))
-        assertThat(a1.knots[6].value, `is`(4.0))
-        assertThat(a1.knots[7].value, `is`(5.0))
-        assertThat(a1.knots[8].value, `is`(6.0))
-        assertThat(a1.knots[9].value, `is`(7.0))
+        assertThat(a1.knots[0].value, `is`(closeTo(-2.0)))
+        assertThat(a1.knots[1].value, `is`(closeTo(-1.0)))
+        assertThat(a1.knots[2].value, `is`(closeTo(0.0)))
+        assertThat(a1.knots[3].value, `is`(closeTo(1.0)))
+        assertThat(a1.knots[4].value, `is`(closeTo(2.0)))
+        assertThat(a1.knots[5].value, `is`(closeTo(3.0)))
+        assertThat(a1.knots[6].value, `is`(closeTo(4.0)))
+        assertThat(a1.knots[7].value, `is`(closeTo(5.0)))
+        assertThat(a1.knots[8].value, `is`(closeTo(6.0)))
+        assertThat(a1.knots[9].value, `is`(closeTo(7.0)))
         assertThat(a1.knots[0].multiplicity, `is`(1))
         assertThat(a1.knots[1].multiplicity, `is`(1))
         assertThat(a1.knots[2].multiplicity, `is`(1))
@@ -94,16 +94,14 @@ class KnotVectorTest {
         assertThat(a1.domain, `is`(closeTo(Interval(1.0, 4.0))))
     }
 
-    val k = KnotVector.clamped(Interval(3.5, 5.0), 3, 10)
-
     @Test
     fun testProperties() {
         println("Properties")
         assertThat(k.knots.size, `is`(4))
-        assertThat(k.knots[0].value, `is`(3.5))
-        assertThat(k.knots[1].value, `is`(4.0))
-        assertThat(k.knots[2].value, `is`(4.5))
-        assertThat(k.knots[3].value, `is`(5.0))
+        assertThat(k.knots[0].value, `is`(closeTo(3.5)))
+        assertThat(k.knots[1].value, `is`(closeTo(4.0)))
+        assertThat(k.knots[2].value, `is`(closeTo(4.5)))
+        assertThat(k.knots[3].value, `is`(closeTo(5.0)))
         assertThat(k.knots[0].multiplicity, `is`(4))
         assertThat(k.knots[1].multiplicity, `is`(1))
         assertThat(k.knots[2].multiplicity, `is`(1))
@@ -111,13 +109,6 @@ class KnotVectorTest {
 
         assertThat(k.degree, `is`(3))
         assertThat(k.domain, `is`(closeTo(Interval(3.5, 5.0))))
-    }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val l = k.toString().parseJson().tryMap { KnotVector.fromJson(it) }.orThrow()
-        assertThat(l, `is`(closeTo(k)))
     }
 
     @Test
@@ -205,3 +196,4 @@ class KnotVectorTest {
         assertThat(k.insert(5.0, 1), `is`(closeTo(KnotVector(3, Knot(2.5), Knot(3.0), Knot(3.5), Knot(4.0), Knot(4.5), Knot(5.0, 3), Knot(5.5)))))
     }
 }
+

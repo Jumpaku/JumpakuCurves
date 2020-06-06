@@ -1,2 +1,10 @@
-rootProject.name = 'JumpakuCurves'
-include 'jumpaku-curves-core', 'jumpaku-curves-core-test', 'jumpaku-curves-fsc', 'jumpaku-curves-fsc-test', 'jumpaku-curves-graphics', 'jumpaku-curves-demo'
+rootProject.name = "JumpakuCurves"
+include(
+        "jumpaku-curves-core",
+        "jumpaku-curves-core-test",
+        "jumpaku-curves-fsc",
+        "jumpaku-curves-fsc-test",
+        "jumpaku-curves-fsc-benchmark",
+        "jumpaku-curves-graphics",
+        "jumpaku-curves-demo"
+)

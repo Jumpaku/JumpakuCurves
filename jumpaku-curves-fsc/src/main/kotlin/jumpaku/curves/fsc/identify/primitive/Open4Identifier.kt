@@ -1,10 +1,5 @@
 package jumpaku.curves.fsc.identify.primitive
 
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.int
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJson
-import com.google.gson.JsonElement
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.fsc.identify.primitive.reference.CircularGenerator
@@ -26,15 +21,5 @@ class Open4Identifier(val nSamples: Int = 25, override val nFmps: Int = 15) : Id
                 CurveClass.OpenFreeCurve to (!pL and !pC and !pE))
         return IdentifyResult(grades, refL, refC, refE)
     }
-
-    override fun toJson(): JsonElement = jsonObject(
-            "nSamples" to nSamples.toJson(),
-            "nFmps" to nFmps.toJson())
-
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Open4Identifier = Open4Identifier(json["nSamples"].int, json["nFmps"].int)
-    }
 }
+

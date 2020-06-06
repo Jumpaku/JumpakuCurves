@@ -1,11 +1,7 @@
 package jumpaku.curves.core.test.geom
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
-import jumpaku.curves.core.geom.Line
-import jumpaku.curves.core.geom.Plane
-import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.geom.Vector
+import jumpaku.commons.math.test.closeTo
+import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale
@@ -201,13 +197,6 @@ class PointTest {
     }
 
     @Test
-    fun testToString() {
-        println("ToString")
-        assertThat(f.toString().parseJson().tryMap { Point.fromJson(it) }.orThrow(), `is`(closeTo(f)))
-        assertThat(c.toString().parseJson().tryMap { Point.fromJson(it) }.orThrow(), `is`(closeTo(c)))
-    }
-
-    @Test
     fun testPlus() {
         println("Plus")
         val p0 = Point.xyz(-1.0, -2.0, 4.0) + Vector(1.0, -2.0, 3.0)
@@ -286,3 +275,4 @@ class PointTest {
         assertThat(s, `is`(closeTo(Point.xyz(1.5, -1.0, -0.5))))
     }
 }
+

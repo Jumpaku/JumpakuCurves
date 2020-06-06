@@ -1,12 +1,10 @@
 package jumpaku.curves.fsc
 
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
 
-class DrawingStroke(polyline: Polyline) : Curve by polyline, ToJson by polyline {
+class DrawingStroke(polyline: Polyline) : Curve by polyline {
 
     constructor(paramPoints: Iterable<ParamPoint>) : this(Polyline(paramPoints))
 
@@ -19,11 +17,5 @@ class DrawingStroke(polyline: Polyline) : Curve by polyline, ToJson by polyline 
     val paramSpan: Double = domain.span
 
     fun extend(paramPoint: ParamPoint): DrawingStroke = DrawingStroke(inputData + paramPoint)
-
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): DrawingStroke = DrawingStroke(Polyline.fromJson(json))
-    }
 }
+

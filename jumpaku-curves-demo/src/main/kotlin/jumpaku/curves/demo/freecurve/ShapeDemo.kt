@@ -1,27 +1,42 @@
 package jumpaku.curves.demo.freecurve
 
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.stage.Stage
-import jumpaku.curves.fsc.freecurve.Segmenter
-import jumpaku.curves.fsc.freecurve.Shaper
-import jumpaku.curves.fsc.freecurve.Smoother
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.graphics.swing.DrawingPanel
+import jumpaku.curves.fsc.DrawingStroke
+import jumpaku.curves.fsc.freecurve.*
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import jumpaku.curves.graphics.*
-import jumpaku.curves.graphics.fx.DrawingControl
-import jumpaku.curves.graphics.fx.DrawingEvent
 import java.awt.Color
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
+
+fun main() = SwingUtilities.invokeLater {
+    val demo = DemoPanel()
+    val drawing = DrawingPanel().apply {
+        addCurveListener { demo.update(it.drawingStroke) }
+        add(demo)
+    }
+    JFrame("ShapeDemo").apply {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        contentPane.add(drawing)
+        pack()
+        isVisible = true
+    }
+}
 
 
-fun main(vararg args: String) = Application.launch(ShapeDemo::class.java, *args)
+object Settings {
 
-object ShapeDemoSettings {
+    val width = 640
 
-    val width = 600.0
+    val height = 480
 
-    val height = 480.0
 
     val generator: Generator = Generator(
             degree = 3,
@@ -42,27 +57,31 @@ object ShapeDemoSettings {
             smoother = Smoother(
                     pruningFactor = 2.0,
                     samplingFactor = 33),
-            sampleMethod = Shaper.SampleMethod.ByFixedNumber(100))
+            sampler = Shaper.Sampler.ByFixedNumber(100))
 }
 
-class ShapeDemo : Application() {
 
-    override fun start(primaryStage: Stage) {
-        val curveControl = DrawingControl(ShapeDemoSettings.width, ShapeDemoSettings.height).apply {
-            addEventHandler(DrawingEvent.DRAWING_DONE) {
-                updateGraphics2D {
-                    clearRect(0.0, 0.0, width, height)
-                    val fsc = ShapeDemoSettings.generator.generate(it.drawingStroke.inputData)
-                    val (_, _, smooth) = ShapeDemoSettings.shaper.shape(fsc)
-                    drawPoints(fsc.evaluateAll(0.01))
-                    smooth.conicSections.forEach { drawConicSection(it, DrawStyle(Color.MAGENTA)) }
-                    smooth.cubicBeziers.forEach { drawCubicBezier(it, DrawStyle(Color.CYAN)) }
-                }
-            }
-        }
-        primaryStage.apply {
-            scene = Scene(curveControl)
-            show()
+class DemoPanel : JPanel() {
+
+    init {
+        preferredSize = Dimension(Settings.width, Settings.height)
+    }
+
+    private val results = mutableListOf<Pair<BSpline, Triple<List<Double>, SegmentResult, SmoothResult>>>()
+
+    fun update(drawingStroke: DrawingStroke) {
+        val fsc = Settings.generator.generate(drawingStroke)
+        val result = Settings.shaper.shape(fsc)
+        results += fsc to result
+        repaint()
+    }
+
+    override fun paint(g: Graphics) = with(g as Graphics2D) {
+        results.forEach { (fsc, result) ->
+            val (_, _, smooth) = result
+            drawPoints(fsc.evaluateAll(0.01))
+            smooth.conicSections.forEach { drawConicSection(it, DrawStyle(Color.MAGENTA)) }
+            smooth.cubicBeziers.forEach { drawCubicBezier(it, DrawStyle(Color.CYAN)) }
         }
     }
 }

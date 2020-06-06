@@ -1,7 +1,6 @@
 package jumpaku.curves.fsc.test
 
-import jumpaku.commons.json.parseJson
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.geom.Point
@@ -28,15 +27,5 @@ class DrawingStrokeTest {
                 ParamPoint(Point.xy(3.0, -2.0), 1.0),
                 ParamPoint(Point.xy(5.0, -8.0), 2.0))))))
     }
-
-    @Test
-    fun testToString() {
-        println("ToString")
-        val t = s.toString().parseJson().tryMap { DrawingStroke.fromJson(it) }.orThrow()
-        val a = Polyline(t.inputData)
-        assertThat(a, `is`(closeTo(Polyline(listOf(ParamPoint(Point.xy(1.0, -1.0), 0.0),
-                ParamPoint(Point.xy(3.0, -2.0), 1.0),
-                ParamPoint(Point.xy(5.0, -8.0), 2.0))))))
-    }
-
 }
+

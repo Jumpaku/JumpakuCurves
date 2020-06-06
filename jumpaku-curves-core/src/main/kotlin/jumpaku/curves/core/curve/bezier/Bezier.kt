@@ -1,91 +1,56 @@
 package jumpaku.curves.core.curve.bezier
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
-import jumpaku.commons.math.isOdd
+
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.geom.weighted
 import jumpaku.curves.core.transform.Transform
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 
 
-class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
+class Bezier private constructor(private val rationalBezier: RationalBezier)
+    : Curve by rationalBezier, Differentiable {
+
+    constructor(controlPoints: Iterable<Point>) : this(RationalBezier(controlPoints.map { it.weighted() }))
 
     constructor(vararg controlPoints: Point) : this(controlPoints.asIterable())
 
-    val controlPoints: List<Point> = controlPoints.toList()
+    val controlPoints: List<Point> get() = rationalBezier.controlPoints
 
-    override val domain: Interval get() = Interval.ZERO_ONE
+    val degree: Int get() = rationalBezier.degree
 
-    override val derivative: BezierDerivative
-        get() {
-            val cp = controlPoints.map(Point::toCrisp)
-            val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre) * degree.toDouble() }
-            return BezierDerivative(vs)
-        }
-
-    val degree: Int get() = controlPoints.size - 1
-
-    override fun toString(): String = toJsonString()
-
-    override fun toJson(): JsonElement =
-            jsonObject("controlPoints" to jsonArray(controlPoints.map { it.toJson() }))
-
-    override fun evaluate(t: Double): Point {
-        require(t in domain) { "t($t) is out of domain($domain)" }
-
-        return createEvaluatedPoint(t, controlPoints)
+    override val derivative: BezierDerivative by lazy {
+        val cp = controlPoints.map(Point::toCrisp)
+        val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre) * degree.toDouble() }
+        BezierDerivative(vs)
     }
 
-    override fun differentiate(t: Double): Vector = derivative(t)
+    override fun toCrisp(): Bezier = Bezier(rationalBezier.toCrisp())
 
-    override fun toCrisp(): Bezier = Bezier(controlPoints.map { it.toCrisp() })
+    override fun toString(): String = "Bezier(controlPoints=${controlPoints})"
 
-    fun transform(a: Transform): Bezier = Bezier(controlPoints.map(a::invoke))
+    fun transform(a: Transform): Bezier = Bezier(rationalBezier.transform(a))
 
     fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
 
-    fun restrict(begin: Double, end: Double): Bezier {
-        require(Interval(begin, end) in domain) { "Interval($domain) is out of domain($domain)" }
+    fun restrict(begin: Double, end: Double): Bezier = Bezier(rationalBezier.restrict(begin, end))
 
-        return subdivide(end).first.subdivide(begin / end).second
-    }
+    fun reverse(): Bezier = Bezier(rationalBezier.reverse())
 
-    fun reverse(): Bezier = Bezier(controlPoints.reversed())
+    fun elevate(): Bezier = Bezier(rationalBezier.elevate())
 
-    fun elevate(): Bezier = Bezier(createElevatedControlPoints(controlPoints))
+    fun reduce(): Bezier = Bezier(rationalBezier.reduce())
 
-    fun reduce(): Bezier {
-        require(degree >= 1) { "degree($degree) is too small" }
+    fun subdivide(t: Double): Pair<Bezier, Bezier> = rationalBezier.subdivide(t).run { Pair(Bezier(first), Bezier(second)) }
 
-        return Bezier(createReducedControlPoints(controlPoints))
-    }
-
-    fun subdivide(t: Double): Pair<Bezier, Bezier> {
-        require(t in domain) { "t($t) is out of domain($domain)" }
-
-        return createSubdividedControlPoints(t, controlPoints).run { Pair(Bezier(first), Bezier(second)) }
-    }
-
-    fun extend(t: Double): Bezier {
-        require(t <= domain.begin || domain.end <= t) { "t($t) is in domain($domain)" }
-
-        return createSubdividedControlPoints(t, controlPoints)
-                .let { (a, b) -> Bezier(if (t <= domain.begin) b else a) }
-    }
+    fun extend(t: Double): Bezier = Bezier(rationalBezier.extend(t))
 
     companion object {
 
-        fun fromJson(json: JsonElement): Bezier = Bezier(json["controlPoints"].array.map { Point.fromJson(it) })
 
         fun basis(degree: Int, i: Int, t: Double): Double {
             val comb = CombinatoricsUtils::binomialCoefficientDouble
@@ -94,69 +59,6 @@ class Bezier(controlPoints: Iterable<Point>) : Curve, Differentiable, ToJson {
 
         fun <P : Lerpable<P>> decasteljau(t: Double, cps: List<P>): List<P> =
                 cps.zipWithNext { p0, p1 -> p0.lerp(t, p1) }
-
-        internal tailrec fun <P : Lerpable<P>> createEvaluatedPoint(t: Double, cp: List<P>): P =
-                if (cp.size == 1) cp.first() else createEvaluatedPoint(t, decasteljau(t, cp))
-
-        internal fun <P : Lerpable<P>> createElevatedControlPoints(cp: List<P>): List<P> {
-            val n = cp.size - 1
-
-            return (0..(n + 1)).map {
-                when (it) {
-                    0 -> cp.first()
-                    n + 1 -> cp.last()
-                    else -> cp[it].lerp(it / (n + 1).toDouble(), cp[it - 1])
-                }
-            }
-        }
-
-        internal fun <P : Lerpable<P>> createSubdividedControlPoints(t: Double, cp: List<P>): Pair<List<P>, List<P>> {
-            var tmp = cp
-            val first = mutableListOf(tmp.first())
-            val second = mutableListOf(tmp.last())
-
-            while (tmp.size > 1) {
-                tmp = decasteljau(t, tmp)
-                first.add(tmp.first())
-                second.add(0, tmp.last())
-            }
-
-            return Pair(first, second)
-        }
-
-        internal fun <P : Lerpable<P>> createReducedControlPoints(cp: List<P>): List<P> {
-            val m = cp.size
-            val n = m - 1
-            return when {
-                m == 2 -> listOf(cp[0].middle(cp[1]))
-                m.isOdd() -> {
-                    val r = (m - 3) / 2
-                    val first = generateSequence(Pair(cp.first(), 1)) { (qi, i) ->
-                        Pair(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
-                    }.asIterable()
-                            .take(r + 1)
-                    val second = generateSequence(Pair(cp.last(), n - 2)) { (qi, i) ->
-                        Pair(cp[i + 1].lerp((i + 1 - n) / (i + 1.0), qi), i - 1)
-                    }.asIterable()
-                            .take(r + 1)
-                    (first + second.reversed()).map { it.first }
-                }
-                else -> {
-                    val r = (m - 2) / 2
-                    val first = generateSequence(Pair(cp.first(), 1)) { (qi, i) ->
-                        Pair(cp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
-                    }.asIterable()
-                            .take(r).map { it.first }
-                    val second = generateSequence(Pair(cp.last(), n - 2)) { (qi, i) ->
-                        Pair(cp[i + 1].lerp((i + 1 - n) / (i + 1.0), qi), i - 1)
-                    }.asIterable()
-                            .take(r).map { it.first }
-                    val pl = cp[r].lerp(r / (r - n).toDouble(), first.last())
-                    val pr = cp[r + 1].lerp((r + 1 - n) / (r + 1.0), second.last())
-                    (first + listOf(pl.middle(pr)) + second.reversed())
-
-                }
-            }
-        }
     }
 }
+

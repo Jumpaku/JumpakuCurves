@@ -1,71 +1,85 @@
 package jumpaku.curves.demo.fragment
 
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.stage.Stage
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.graphics.swing.DrawingPanel
+import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.fragment.Chunk
 import jumpaku.curves.fsc.fragment.Fragment
 import jumpaku.curves.fsc.fragment.Fragmenter
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.graphics.DrawStyle
-import jumpaku.curves.graphics.clearRect
 import jumpaku.curves.graphics.drawCubicBSpline
 import jumpaku.curves.graphics.drawPoints
-import jumpaku.curves.graphics.fx.DrawingControl
-import jumpaku.curves.graphics.fx.DrawingEvent
-import java.awt.BasicStroke
-import java.awt.Color
+import java.awt.*
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 
-fun main(vararg args: String) = Application.launch(FragmentDemo::class.java, *args)
+fun main() = SwingUtilities.invokeLater {
+    val demo = DemoPanel()
+    val drawing = DrawingPanel().apply {
+        addCurveListener { demo.update(it.drawingStroke) }
+        add(demo)
+    }
+    JFrame("FragmentDemo").apply {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        contentPane.add(drawing)
+        pack()
+        isVisible = true
+    }
+}
 
-object FragmentDemoSettings {
 
-    val width = 600.0
+object Settings {
 
-    val height = 480.0
+    val width = 640
+
+    val height = 480
 
     val generator: Generator = Generator(
             degree = 3,
-            knotSpan = 0.075,
+            knotSpan = 0.1,
             fillSpan = 0.025,
-            extendInnerSpan = 0.075,
-            extendOuterSpan = 0.075,
+            extendInnerSpan = 0.1,
+            extendOuterSpan = 0.1,
             extendDegree = 2,
             fuzzifier = Fuzzifier.Linear(
-                    velocityCoefficient = 0.025,
-                    accelerationCoefficient = 0.001
+                    velocityCoefficient = 0.008,
+                    accelerationCoefficient = 0.007
             ))
 
     val fragmenter: Fragmenter = Fragmenter(
             threshold = Chunk.Threshold(
-                    necessity = 0.35,
-                    possibility = 0.65),
+                    necessity = 0.37,
+                    possibility = 0.8),
             chunkSize = 4,
-            minStayTimeSpan = 0.04)
+            minStayTimeSpan = 0.05)
 }
 
-class FragmentDemo : Application() {
 
-    override fun start(primaryStage: Stage) {
-        val curveControl = DrawingControl(FragmentDemoSettings.width, FragmentDemoSettings.height).apply {
-            addEventHandler(DrawingEvent.DRAWING_DONE) {
-                updateGraphics2D {
-                    clearRect(0.0, 0.0, width, height)
-                    val fsc = FragmentDemoSettings.generator.generate(it.drawingStroke.inputData)
-                    val fragments = FragmentDemoSettings.fragmenter.fragment(fsc)
-                    println(fragments.count { it.type == Fragment.Type.Move })
-                    fragments.filter { it.type == Fragment.Type.Move }.map { fsc.restrict(it.interval) }.apply {
-                        forEach { drawPoints(it.evaluateAll(0.01)) }
-                        forEach { drawCubicBSpline(it, DrawStyle(Color.MAGENTA, BasicStroke(3f))) }
-                    }
-                }
+class DemoPanel : JPanel() {
+
+    init {
+        preferredSize = Dimension(Settings.width, Settings.height)
+    }
+
+    private val results = mutableListOf<Pair<BSpline, List<Fragment>>>()
+
+    fun update(drawingStroke: DrawingStroke) {
+        val fsc = Settings.generator.generate(drawingStroke)
+        val fragments = Settings.fragmenter.fragment(fsc)
+        results += fsc to fragments
+        repaint()
+    }
+
+    override fun paint(g: Graphics) = with(g as Graphics2D) {
+        results.forEach { (fsc, fragments) ->
+            fragments.filter { it.type == Fragment.Type.Move }.map { fsc.restrict(it.interval) }.apply {
+                forEach { drawPoints(it.evaluateAll(0.01)) }
+                forEach { drawCubicBSpline(it, DrawStyle(Color.MAGENTA, BasicStroke(3f))) }
             }
-        }
-        primaryStage.apply {
-            scene = Scene(curveControl)
-            show()
         }
     }
 }

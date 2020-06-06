@@ -1,27 +1,43 @@
 package jumpaku.curves.demo.identify.primitive
 
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.stage.Stage
+import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.graphics.swing.DrawingPanel
+import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.identify.primitive.CurveClass.*
-import jumpaku.curves.fsc.identify.primitive.Identifier
-import jumpaku.curves.fsc.identify.primitive.Open4Identifier
-import jumpaku.curves.fsc.identify.primitive.reparametrize
-import jumpaku.curves.graphics.*
-import jumpaku.curves.graphics.fx.DrawingControl
-import jumpaku.curves.graphics.fx.DrawingEvent
+import jumpaku.curves.fsc.identify.primitive.*
+import jumpaku.curves.graphics.DrawStyle
+import jumpaku.curves.graphics.drawConicSection
+import jumpaku.curves.graphics.drawCubicBSpline
 import java.awt.Color
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 
-fun main(vararg args: String) = Application.launch(IdentifyDemo::class.java, *args)
+fun main() = SwingUtilities.invokeLater {
+    val demo = DemoPanel()
+    val drawing = DrawingPanel().apply {
+        addCurveListener { demo.update(it.drawingStroke) }
+        add(demo)
+    }
+    JFrame("IdentifyDemo").apply {
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        contentPane.add(drawing)
+        pack()
+        isVisible = true
+    }
+}
 
-object IdentifyDemoSettings {
 
-    val width = 600.0
+object Settings {
 
-    val height = 480.0
+    val width = 640
+
+    val height = 480
 
     val generator: Generator = Generator(
             degree = 3,
@@ -38,33 +54,36 @@ object IdentifyDemoSettings {
     val identifier: Identifier = Open4Identifier(nSamples = 25, nFmps = 15)
 }
 
-class IdentifyDemo : Application() {
 
-    override fun start(primaryStage: Stage) {
-        val curveControl = DrawingControl(IdentifyDemoSettings.width, IdentifyDemoSettings.height).apply {
-            addEventHandler(DrawingEvent.DRAWING_DONE) {
-                updateGraphics2D {
-                    clearRect(0.0, 0.0, width, height)
-                    val fsc = IdentifyDemoSettings.generator.generate(it.drawingStroke.inputData)
-                    val result = IdentifyDemoSettings.identifier.identify(reparametrize(fsc))
-                    println("curveClass: ${result.curveClass}")
-                    println("grade: ${result.grade}")
-                    drawPoints(fsc.evaluateAll(0.01))
-                    val resultStyle = DrawStyle(Color.MAGENTA)
-                    result.apply {
-                        when (curveClass) {
-                            LineSegment -> drawConicSection(result.linear.base.toCrisp(), resultStyle)
-                            CircularArc -> drawConicSection(result.circular.base.toCrisp(), resultStyle)
-                            EllipticArc -> drawConicSection(result.elliptic.base.toCrisp(), resultStyle)
-                            OpenFreeCurve -> drawCubicBSpline(fsc.toCrisp(), resultStyle)
-                        }
-                    }
+class DemoPanel : JPanel() {
+
+    init {
+        preferredSize = Dimension(Settings.width, Settings.height)
+    }
+
+    private val results = mutableListOf<Pair<BSpline, IdentifyResult>>()
+
+    fun update(drawingStroke: DrawingStroke) {
+        val fsc = Settings.generator.generate(drawingStroke.inputData)
+        val result = Settings.identifier.identify(reparametrize(fsc))
+        results += fsc to result
+        repaint()
+    }
+
+    override fun paint(g: Graphics) = with(g as Graphics2D) {
+        results.forEach { (fsc, result) ->
+            println("curveClass: ${result.curveClass}")
+            println("grade: ${result.grade}")
+            val resultStyle = DrawStyle(Color.MAGENTA)
+            result.apply {
+                when (curveClass) {
+                    CurveClass.LineSegment -> drawConicSection(result.linear.base.toCrisp(), resultStyle)
+                    CurveClass.CircularArc -> drawConicSection(result.circular.base.toCrisp(), resultStyle)
+                    CurveClass.EllipticArc -> drawConicSection(result.elliptic.base.toCrisp(), resultStyle)
+                    CurveClass.OpenFreeCurve -> drawCubicBSpline(fsc.toCrisp(), resultStyle)
+                    else -> error("")
                 }
             }
-        }
-        primaryStage.apply {
-            scene = Scene(curveControl)
-            show()
         }
     }
 }

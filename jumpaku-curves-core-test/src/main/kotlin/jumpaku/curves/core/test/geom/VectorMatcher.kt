@@ -1,7 +1,7 @@
 package jumpaku.curves.core.test.geom
 
 import jumpaku.commons.test.matcher
-import jumpaku.commons.test.math.isCloseTo
+import jumpaku.commons.math.test.isCloseTo
 import jumpaku.curves.core.geom.Vector
 import org.hamcrest.TypeSafeMatcher
 

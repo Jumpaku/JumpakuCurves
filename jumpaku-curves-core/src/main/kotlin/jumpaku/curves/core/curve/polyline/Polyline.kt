@@ -1,18 +1,12 @@
 package jumpaku.curves.core.curve.polyline
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonArray
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.util.asVavr
 
 
-class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
+class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
 
     val paramPoints: List<ParamPoint> = paramPoints.sortedBy { it.param }
 
@@ -20,15 +14,10 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     val points: List<Point> = paramPoints.map(ParamPoint::point)
 
-    init {
-        require(points.size == parameters.size) { "points.size() != parameters.size()" }
-    }
-
     override val domain: Interval = Interval(parameters.first(), parameters.last())
 
-    override fun toString(): String = toJsonString()
+    override fun toString(): String = "Polyline(paramPoints=$paramPoints)"
 
-    override fun toJson(): JsonElement = jsonObject("paramPoints" to jsonArray(paramPoints.map { it.toJson() }))
 
     override fun evaluate(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
@@ -54,7 +43,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
     private fun evaluateInSpan(t: Double, index: Int): Point =
             points[index].lerp((t - parameters[index]) / (parameters[index + 1] - parameters[index]), points[index + 1])
 
-    fun transform(a: Transform): Polyline = byArcLength(points.map(a::invoke))
+    fun transform(a: Transform): Polyline = Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 
@@ -81,6 +70,11 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
     companion object {
 
+        fun byIndices(vararg points: Point): Polyline = byIndices(points.asIterable())
+
+        fun byIndices(points: Iterable<Point>): Polyline =
+                Polyline(points.mapIndexed { i, p -> ParamPoint(p, i.toDouble()) })
+
         fun byArcLength(points: Iterable<Point>): Polyline {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
             val paramPoints = chordalParametrize(points.toList())
@@ -91,6 +85,6 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve, ToJson {
 
         fun byArcLength(vararg points: Point): Polyline = byArcLength(points.asIterable())
 
-        fun fromJson(json: JsonElement): Polyline = Polyline(json["paramPoints"].array.map { ParamPoint.fromJson(it) })
     }
 }
+

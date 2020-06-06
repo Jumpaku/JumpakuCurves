@@ -1,7 +1,7 @@
 package jumpaku.curves.core.test.curve.arclength
 
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.geom.closeTo
 import org.apache.commons.math3.util.FastMath

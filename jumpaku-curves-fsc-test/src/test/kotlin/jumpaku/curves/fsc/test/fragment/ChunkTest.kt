@@ -1,6 +1,6 @@
 package jumpaku.curves.fsc.test.fragment
 
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline

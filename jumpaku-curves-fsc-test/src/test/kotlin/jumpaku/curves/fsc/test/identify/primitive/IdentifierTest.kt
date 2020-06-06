@@ -1,12 +1,12 @@
 package jumpaku.curves.fsc.test.identify.primitive
 
 import jumpaku.commons.math.sum
-import jumpaku.commons.test.math.closeTo
+import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.rationalbezier.ConicSection
+import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.hamcrest.Matchers.`is`

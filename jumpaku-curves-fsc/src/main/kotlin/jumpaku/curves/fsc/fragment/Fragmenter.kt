@@ -1,8 +1,5 @@
 package jumpaku.curves.fsc.fragment
 
-import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonElement
-import jumpaku.commons.json.ToJson
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
@@ -13,24 +10,24 @@ class Fragmenter(
                 necessity = Grade(0.35),
                 possibility = Grade(0.65)),
         val chunkSize: Int = 4,
-        val minStayTimeSpan: Double = 0.04) : ToJson {
+        val minStayTimeSpan: Double = 0.04) {
 
     private enum class State {
 
         STAY {
-            override fun transit(next: Chunk.Label): Fragmenter.State = when (next) {
-                Chunk.Label.STAY, Chunk.Label.UNKNOWN -> Fragmenter.State.STAY
-                Chunk.Label.MOVE -> Fragmenter.State.MOVE
+            override fun transit(next: Chunk.Label): State = when (next) {
+                Chunk.Label.STAY, Chunk.Label.UNKNOWN -> STAY
+                Chunk.Label.MOVE -> MOVE
             }
         },
         MOVE {
-            override fun transit(next: Chunk.Label): Fragmenter.State = when (next) {
-                Chunk.Label.STAY -> Fragmenter.State.STAY
-                Chunk.Label.MOVE, Chunk.Label.UNKNOWN -> Fragmenter.State.MOVE
+            override fun transit(next: Chunk.Label): State = when (next) {
+                Chunk.Label.STAY -> STAY
+                Chunk.Label.MOVE, Chunk.Label.UNKNOWN -> MOVE
             }
         };
 
-        abstract fun transit(next: Chunk.Label): Fragmenter.State
+        abstract fun transit(next: Chunk.Label): State
     }
 
     init {
@@ -49,7 +46,7 @@ class Fragmenter(
                 .map { Chunk(fsc.restrict(it.first(), it.last()).sample(chunkSize)) }
         val states = chunks
                 .map { it.label(threshold) }
-                .fold(mutableListOf(Fragmenter.State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
+                .fold(mutableListOf(State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
                 .drop(1)
         val initial = chunks.first().run { Triple(beginParam, endParam, states.first()) }
         return chunks.zip(states)
@@ -60,29 +57,11 @@ class Fragmenter(
                         else set(prev.lastIndex, Triple(prevBegin, nextChunk.endParam, prevState))
                     }
                 }.map { (begin, end, state) ->
-                    when (state!!) {  // 型推論がうまくいかない
+                    when (state) {
                         State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
                         State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
                     }
                 }
     }
-
-    override fun toJson(): JsonElement = jsonObject(
-            "necessityThreshold" to threshold.necessity.toJson(),
-            "possibilityThreshold" to threshold.possibility.toJson(),
-            "chunkSize" to chunkSize.toJson(),
-            "minStayTimeSpan" to minStayTimeSpan.toJson())
-
-    override fun toString(): String = toJsonString()
-
-    companion object {
-
-        fun fromJson(json: JsonElement): Fragmenter = Fragmenter(
-                Chunk.Threshold(
-                        Grade.fromJson(json["necessityThreshold"].asJsonPrimitive),
-                        Grade.fromJson(json["possibilityThreshold"].asJsonPrimitive)),
-                json["chunkSize"].int,
-                json["minStayTimeSpan"].double)
-    }
-
 }
+
