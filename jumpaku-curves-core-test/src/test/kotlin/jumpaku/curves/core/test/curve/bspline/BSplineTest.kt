@@ -75,12 +75,12 @@ class BSplineTest {
         val e0 = BSpline(
                 listOf(Point.xy(0.0, 6.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(6.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 2, 7))
-        assertThat(clamped.derivative.toBSpline(), `is`(closeTo(e0)))
+        assertThat(clamped.differentiate().curve, `is`(closeTo(e0)))
 
         val e1 = BSpline(
                 listOf(Point.xy(0.0, 3.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(3.0, 0.0)),
                 KnotVector.uniform(Interval(3.0, 4.0), 1, 6))
-        assertThat(uniform.derivative.toBSpline(), `is`(closeTo(e1)))
+        assertThat(uniform.differentiate().curve, `is`(closeTo(e1)))
     }
 
     @Test

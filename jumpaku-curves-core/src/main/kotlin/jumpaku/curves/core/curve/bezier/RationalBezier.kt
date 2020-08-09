@@ -32,12 +32,12 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative by lazy {
+    override fun differentiate(): Derivative {
         val ws = this@RationalBezier.weights
         val dws = ws.zipWithNext { a, b -> degree * (b - a) }
-        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).derivative
+        val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).differentiate()
 
-        object : Derivative {
+        return object : Derivative {
             override fun evaluate(t: Double): Vector {
                 require(t in domain) { "t($t) is out of domain($domain)" }
 

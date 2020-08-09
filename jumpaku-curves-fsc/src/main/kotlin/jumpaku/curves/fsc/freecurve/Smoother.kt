@@ -103,8 +103,9 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
             val s = if (isClosed) fsc.close() else fsc
             return listOf(fitter.fitAllFsc(parametrize(s.evaluateAll(samplingFactor))))
         }
-        val p0v0s = rs.map { Pair(it(1.0), it.differentiate(1.0)) }.dropLast(1)
-        val p1v1s = rs.map { Pair(it(0.0), it.differentiate(0.0)) }.drop(1)
+        val derivatives = rs.map { it.differentiate() }
+        val p0v0s = rs.zip(derivatives) { r, d -> Pair(r(1.0), d(1.0)) }.dropLast(1)
+        val p1v1s = rs.zip(derivatives) { r, d -> Pair(r(0.0), d(0.0)) }.drop(1)
         val p0v0p1v1s = p0v0s.zip(p1v1s)// { pv0, pv1 -> Tuple4(pv0._1, pv0._2, pv1._1, pv1._2) }
         val middles = gis.slice(1 until gis.lastIndex).zip(p0v0p1v1s) { i, (p0v0, p1v1) ->
             val data = parametrize(fsc.restrict(i).evaluateAll(samplingFactor))
@@ -112,13 +113,13 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
         }
 
 
-        val (p1, v1) = rs.first().let { Pair(it(0.0), it.differentiate(0.0)) }
+        val (p1, v1) = rs.first()(0.0) to  derivatives.first()(0.0)
         val frontPoints = gis.first().run {
             if (begin == end) List(samplingFactor) { fsc(begin) }
             else fsc.restrict(this).evaluateAll(samplingFactor)
         }
 
-        val (p0, v0) = rs.last().let { Pair(it(1.0), it.differentiate(1.0)) }
+        val (p0, v0) = rs.last()(1.0) to derivatives.last()(1.0)
         val backPoints = gis.last().run {
             if (begin == end) List(samplingFactor) { fsc(end) }
             else fsc.restrict(this).evaluateAll(samplingFactor)

@@ -33,16 +33,19 @@ class ShaperBenchmark {
 
     @Test
     fun benchmarkShaper() {
+
+        val time = 300L
+        println("Shaper <= $time ms")
         data.forEach { s ->
             repeat(30) { shaper.shape(s) }
         }
-        assertTimeout(Duration.ofMillis(1000)) {
+        assertTimeout(Duration.ofMillis(time)) {
             shaper.shape(data[0])
         }
-        assertTimeout(Duration.ofMillis(1000)) {
+        assertTimeout(Duration.ofMillis(time)) {
             shaper.shape(data[1])
         }
-        assertTimeout(Duration.ofMillis(1000)) {
+        assertTimeout(Duration.ofMillis(time)) {
             shaper.shape(data[2])
         }
     }

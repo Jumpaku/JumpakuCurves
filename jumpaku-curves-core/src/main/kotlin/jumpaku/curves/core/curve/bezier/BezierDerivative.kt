@@ -8,42 +8,40 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 
 
-class BezierDerivative(private val bezier: Bezier) : Derivative, Differentiable {
+class BezierDerivative(bezier: Bezier) : Derivative, Differentiable {
 
     constructor(controlVectors: Iterable<Vector>) : this(Bezier(controlVectors.map { Point(it) }))
 
     constructor(vararg controlVectors: Vector) : this(controlVectors.asIterable())
 
-    override val derivative: BezierDerivative get() = toBezier().derivative
+    val curve: Bezier = bezier.toCrisp()
 
-    override val domain: Interval get() = toBezier().domain
+    override val domain: Interval = curve.domain
 
-    val controlVectors: List<Vector> get() = toBezier().controlPoints.map(Point::toVector)
+    val controlVectors: List<Vector> = curve.controlPoints.map(Point::toVector)
 
-    val degree: Int get() = toBezier().degree
+    val degree: Int = curve.degree
 
-    fun toBezier(): Bezier = Bezier(bezier.controlPoints.map { it.toCrisp() })
+    override fun evaluate(t: Double): Vector = curve(t).toVector()
 
-    override fun evaluate(t: Double): Vector = toBezier()(t).toVector()
-
-    override fun differentiate(t: Double): Vector = toBezier().differentiate(t)
+    override fun differentiate(): BezierDerivative = curve.differentiate()
 
     override fun toString(): String = "BezierDerivative(controlVectors=$controlVectors)"
 
-    fun restrict(i: Interval): BezierDerivative = BezierDerivative(toBezier().restrict(i))
+    fun restrict(i: Interval): BezierDerivative = BezierDerivative(curve.restrict(i))
 
-    fun restrict(begin: Double, end: Double): BezierDerivative = BezierDerivative(toBezier().restrict(begin, end))
+    fun restrict(begin: Double, end: Double): BezierDerivative = BezierDerivative(curve.restrict(begin, end))
 
-    fun reverse(): BezierDerivative = BezierDerivative(toBezier().reverse())
+    fun reverse(): BezierDerivative = BezierDerivative(curve.reverse())
 
-    fun elevate(): BezierDerivative = BezierDerivative(toBezier().elevate())
+    fun elevate(): BezierDerivative = BezierDerivative(curve.elevate())
 
-    fun reduce(): BezierDerivative = BezierDerivative(toBezier().reduce())
+    fun reduce(): BezierDerivative = BezierDerivative(curve.reduce())
 
-    fun subdivide(t: Double): Pair<BezierDerivative, BezierDerivative> = toBezier()
+    fun subdivide(t: Double): Pair<BezierDerivative, BezierDerivative> = curve
             .subdivide(t).run { Pair(BezierDerivative(first), BezierDerivative(second)) }
 
-    fun extend(t: Double): BezierDerivative = BezierDerivative(toBezier().extend(t))
+    fun extend(t: Double): BezierDerivative = BezierDerivative(curve.extend(t))
 
 }
 

@@ -140,14 +140,40 @@ class PointTest {
     }
 
     @Test
-    fun testDivide() {
-        println("Divide")
+    fun testLerp() {
+        println("Lerp")
         val c0 = Point.x(1.0)
         val c1 = Point.x(2.0)
         val f0 = Point.xr(1.0, 10.0)
         val f1 = Point.xr(2.0, 10.0)
         val f2 = Point.xr(2.0, 20.0)
 
+        // lerp(terms)
+        assertThat(c0.lerp(0.3 to c1), `is`(closeTo(Point.xr(1.3, 0.0))))
+        assertThat(c0.lerp(-1.0 to c1), `is`(closeTo(Point.xr(0.0, 0.0))))
+        assertThat(c0.lerp(2.0 to c1), `is`(closeTo(Point.xr(3.0, 0.0))))
+        assertThat(c0.lerp(0.0 to c1), `is`(closeTo(Point.xr(1.0, 0.0))))
+        assertThat(c0.lerp(1.0 to c1), `is`(closeTo(Point.xr(2.0, 0.0))))
+
+        assertThat(f0.lerp(0.3 to c1), `is`(closeTo(Point.xr(1.3, 7.0))))
+        assertThat(f0.lerp(-1.0 to c1), `is`(closeTo(Point.xr(0.0, 20.0))))
+        assertThat(f0.lerp(2.0 to c1), `is`(closeTo(Point.xr(3.0, 10.0))))
+        assertThat(f0.lerp(0.0 to c1), `is`(closeTo(Point.xr(1.0, 10.0))))
+        assertThat(f0.lerp(1.0 to c1), `is`(closeTo(Point.xr(2.0, 0.0))))
+
+        assertThat(c0.lerp(0.3 to f1), `is`(closeTo(Point.xr(1.3, 3.0))))
+        assertThat(c0.lerp(-1.0 to f1), `is`(closeTo(Point.xr(0.0, 10.0))))
+        assertThat(c0.lerp(2.0 to f1), `is`(closeTo(Point.xr(3.0, 20.0))))
+        assertThat(c0.lerp(0.0 to f1), `is`(closeTo(Point.xr(1.0, 0.0))))
+        assertThat(c0.lerp(1.0 to f1), `is`(closeTo(Point.xr(2.0, 10.0))))
+
+        assertThat(f0.lerp(0.3 to f2), `is`(closeTo(Point.xr(1.3, 13.0))))
+        assertThat(f0.lerp(-1.0 to f2), `is`(closeTo(Point.xr(0.0, 40.0))))
+        assertThat(f0.lerp(2.0 to f2), `is`(closeTo(Point.xr(3.0, 50.0))))
+        assertThat(f0.lerp(0.0 to f2), `is`(closeTo(Point.xr(1.0, 10.0))))
+        assertThat(f0.lerp(1.0 to f2), `is`(closeTo(Point.xr(2.0, 20.0))))
+
+        // lerp(t, p)
         assertThat(c0.lerp(0.3, c1), `is`(closeTo(Point.xr(1.3, 0.0))))
         assertThat(c0.lerp(-1.0, c1), `is`(closeTo(Point.xr(0.0, 0.0))))
         assertThat(c0.lerp(2.0, c1), `is`(closeTo(Point.xr(3.0, 0.0))))

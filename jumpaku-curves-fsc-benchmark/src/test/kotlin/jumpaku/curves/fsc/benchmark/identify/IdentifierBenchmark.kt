@@ -32,43 +32,45 @@ class IdentifierBenchmark {
 
     @Test
     fun benchmarkIdentifier() {
+        val time = 1L
+        println("Identifier <= $time ms")
         data.forEach {
             val s = reparametrize(it.value)
             repeat(1000){ identifier.identify(s) }
         }
 
         val s = data.mapValues { reparametrize(it.value) }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscCA0.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscCA1.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscCA2.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscEA0.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscEA1.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscEA2.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscEA3.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscEA4.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscFO0.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscL0.json"]!!)
         }
-        assertTimeout(Duration.ofMillis(3)) {
+        assertTimeout(Duration.ofMillis(time)) {
             identifier.identify(s["FscL1.json"]!!)
         }
     }

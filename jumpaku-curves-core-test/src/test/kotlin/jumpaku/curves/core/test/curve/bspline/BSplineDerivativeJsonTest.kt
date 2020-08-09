@@ -21,7 +21,7 @@ class BSplineDerivativeJsonTest{
     fun testBSplineDerivativeJson() {
         println("BSplineDerivativeJson")
         val a = BSplineDerivativeJson.toJsonStr(b).parseJson().let { BSplineDerivativeJson.fromJson(it) }
-        Assert.assertThat(a.toBSpline(), CoreMatchers.`is`(closeTo(b.toBSpline())))
+        Assert.assertThat(a.curve, CoreMatchers.`is`(closeTo(b.curve)))
     }
 
 }
