@@ -3,11 +3,11 @@ package jumpaku.curves.graphics.swing
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.DrawingStroke
+import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.graphics.drawPoints
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.event.MouseEvent
-import java.awt.geom.Line2D
-import java.awt.geom.Point2D
 import java.util.*
 import javax.swing.JPanel
 import javax.swing.OverlayLayout
@@ -82,9 +82,13 @@ class DrawingPanel : JPanel() {
 
     override fun paint(g: Graphics) {
         synchronized(points) {
-            points.map { Point2D.Double(it.point.x, it.point.y) }
-                    .zipWithNext(Line2D::Double)
-                    .forEach((g as Graphics2D)::draw)
+            if (points.isEmpty()) return@synchronized
+            val s = Generator().generate(DrawingStroke(points))
+
+            (g as Graphics2D).drawPoints(s.evaluateAll(0.01))
+            //points.map { Point2D.Double(it.point.x, it.point.y) }
+            //        .zipWithNext(Line2D::Double)
+            //        .forEach((g as Graphics2D)::draw)
         }
         paintChildren(g)
     }

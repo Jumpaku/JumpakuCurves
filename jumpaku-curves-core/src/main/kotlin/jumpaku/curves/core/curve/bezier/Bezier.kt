@@ -2,6 +2,7 @@ package jumpaku.curves.core.curve.bezier
 
 
 import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.Lerpable
@@ -23,10 +24,10 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     val degree: Int get() = rationalBezier.degree
 
-    override val derivative: BezierDerivative by lazy {
+    override fun differentiate(): BezierDerivative {
         val cp = controlPoints.map(Point::toCrisp)
         val vs = cp.zip(cp.drop(1)) { pre, post -> (post - pre) * degree.toDouble() }
-        BezierDerivative(vs)
+        return BezierDerivative(vs)
     }
 
     override fun toCrisp(): Bezier = Bezier(rationalBezier.toCrisp())

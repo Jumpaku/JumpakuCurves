@@ -1,6 +1,7 @@
 package jumpaku.curves.core.test.geom
 
 import jumpaku.commons.math.test.closeTo
+import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.times
 import org.apache.commons.math3.util.FastMath
@@ -18,6 +19,27 @@ class VectorTest {
         assertThat(Vector.I, `is`(closeTo(Vector(1.0, 0.0, 0.0))))
         assertThat(Vector.J, `is`(closeTo(Vector(0.0, 1.0, 0.0))))
         assertThat(Vector.K, `is`(closeTo(Vector(0.0, 0.0, 1.0))))
+    }
+
+    @Test
+    fun testLerp() {
+        println("Lerp")
+        val c0 = Vector(1.0)
+        val c1 = Vector(2.0)
+
+
+        assertThat(c0.lerp(0.3 to c1), `is`(closeTo(Vector(1.3))))
+        assertThat(c0.lerp(-1.0 to c1), `is`(closeTo(Vector(0.0))))
+        assertThat(c0.lerp(2.0 to c1), `is`(closeTo(Vector(3.0))))
+        assertThat(c0.lerp(0.0 to c1), `is`(closeTo(Vector(1.0))))
+        assertThat(c0.lerp(1.0 to c1), `is`(closeTo(Vector(2.0))))
+
+
+        assertThat(c0.lerp(0.3, c1), `is`(closeTo(Vector(1.3))))
+        assertThat(c0.lerp(-1.0, c1), `is`(closeTo(Vector(0.0))))
+        assertThat(c0.lerp(2.0, c1), `is`(closeTo(Vector(3.0))))
+        assertThat(c0.lerp(0.0, c1), `is`(closeTo(Vector(1.0))))
+        assertThat(c0.lerp(1.0, c1), `is`(closeTo(Vector(2.0))))
     }
 
     @Test

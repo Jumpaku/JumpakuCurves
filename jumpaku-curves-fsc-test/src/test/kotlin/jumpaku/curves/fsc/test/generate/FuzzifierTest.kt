@@ -23,8 +23,8 @@ class FuzzifierTest {
                 KnotVector.clamped(Interval(1.0, 2.0), 3, 9))
         val f = l.fuzzify(b, b.domain.sample(10))
 
-        val db = b.derivative
-        val ddb = db.derivative
+        val db = b.differentiate()
+        val ddb = db.differentiate()
         b.domain.sample(10).forEachIndexed { i, t ->
             val e = 3 * db(t).length() + 0.1 * ddb(t).length()
             val a = f[i]

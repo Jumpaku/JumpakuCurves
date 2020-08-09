@@ -26,11 +26,19 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     override val domain: Interval = Interval.ZERO_ONE
 
-    override val derivative: Derivative
-        get() = object : Derivative {
-            override val domain: Interval = this@ConicSection.domain
-            override fun evaluate(t: Double): Vector = this@ConicSection.differentiate(t)
+    override fun differentiate(): Derivative = object : Derivative {
+        override val domain: Interval = this@ConicSection.domain
+        override fun evaluate(t: Double): Vector {
+            require(t in domain) { "t($t) is out of domain($domain)" }
+
+            val g = (1 - t) * (1 - 2 * t) * begin.toVector() + 2 * t * (1 - t) * (1 + weight) * far.toVector() + t * (2 * t - 1) * end.toVector()
+            val dg_dt = (4 * t - 3) * begin.toVector() + 2 * (1 - 2 * t) * (1 + weight) * far.toVector() + (4 * t - 1) * end.toVector()
+            val f = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
+            val df_dt = 2 * (weight - 1) * (1 - 2 * t)
+
+            return ((dg_dt * f - g * df_dt) / (f * f)).orThrow()
         }
+    }
 
     fun toCrispQuadratic(): Option<RationalBezier> = optionWhen(1.0.tryDiv(weight).isSuccess) {
         RationalBezier(listOf(
@@ -38,17 +46,6 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
                 far.lerp(-1 / weight, begin.middle(end)).toCrisp(),
                 end.toCrisp()
         ).zip(listOf(1.0, weight, 1.0), ::WeightedPoint))
-    }
-
-    override fun differentiate(t: Double): Vector {
-        require(t in domain) { "t($t) is out of domain($domain)" }
-
-        val g = (1 - t) * (1 - 2 * t) * begin.toVector() + 2 * t * (1 - t) * (1 + weight) * far.toVector() + t * (2 * t - 1) * end.toVector()
-        val dg_dt = (4 * t - 3) * begin.toVector() + 2 * (1 - 2 * t) * (1 + weight) * far.toVector() + (4 * t - 1) * end.toVector()
-        val f = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
-        val df_dt = 2 * (weight - 1) * (1 - 2 * t)
-
-        return ((dg_dt * f - g * df_dt) / (f * f)).orThrow()
     }
 
     override fun evaluate(t: Double): Point {

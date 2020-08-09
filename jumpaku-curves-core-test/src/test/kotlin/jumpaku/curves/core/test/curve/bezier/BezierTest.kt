@@ -43,13 +43,9 @@ class BezierTest {
 
     @Test
     fun testDifferentiate() {
-        val d = bc.derivative
-        assertThat(d.toBezier(), `is`(closeTo(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))))
-        assertThat(bc.differentiate(0.0), `is`(closeTo(Vector(4.0, 0.0))))
-        assertThat(bc.differentiate(0.25), `is`(closeTo(Vector(4.0, 2.25))))
-        assertThat(bc.differentiate(0.5), `is`(closeTo(Vector(4.0, 0.0))))
-        assertThat(bc.differentiate(0.75), `is`(closeTo(Vector(4.0, -2.25))))
-        assertThat(bc.differentiate(1.0), `is`(closeTo(Vector(4.0, 0.0))))
+        val d = bc.differentiate()
+        assertThat(d.curve, `is`(closeTo(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))))
+
         assertThat(d.evaluate(0.0), `is`(closeTo(Vector(4.0, 0.0))))
         assertThat(d.evaluate(0.25), `is`(closeTo(Vector(4.0, 2.25))))
         assertThat(d.evaluate(0.5), `is`(closeTo(Vector(4.0, 0.0))))

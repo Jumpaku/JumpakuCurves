@@ -12,10 +12,16 @@ import org.junit.Test
 class WeightedPointTest {
 
     @Test
-    fun testDivide() {
-        println("Divide")
+    fun testLerp() {
+        println("Lerp")
         val p1 = WeightedPoint(Point.xr(2.0, 10.0), 3.0)
         val p2 = WeightedPoint(Point.xr(-2.0, 20.0), 2.0)
+        assertThat(p1.lerp(-1.0 to p2), `is`(closeTo(WeightedPoint(Point.xr(16.0 / 4.0, 100.0 / 4.0), 4.0))))
+        assertThat(p1.lerp(0.0 to p2), `is`(closeTo(WeightedPoint(Point.xr(6.0 / 3.0, 30.0 / 3.0), 3.0))))
+        assertThat(p1.lerp(0.4 to p2), `is`(closeTo(WeightedPoint(Point.xr(2.0 / 2.6, 34.0 / 2.6), 2.6))))
+        assertThat(p1.lerp(1.0 to p2), `is`(closeTo(WeightedPoint(Point.xr(-4.0 / 2.0, 40.0 / 2.0), 2.0))))
+        assertThat(p1.lerp(2.0 to p2), `is`(closeTo(WeightedPoint(Point.xr(-14.0 / 1.0, 110.0 / 1.0), 1.0))))
+
         assertThat(p1.lerp(-1.0, p2), `is`(closeTo(WeightedPoint(Point.xr(16.0 / 4.0, 100.0 / 4.0), 4.0))))
         assertThat(p1.lerp(0.0, p2), `is`(closeTo(WeightedPoint(Point.xr(6.0 / 3.0, 30.0 / 3.0), 3.0))))
         assertThat(p1.lerp(0.4, p2), `is`(closeTo(WeightedPoint(Point.xr(2.0 / 2.6, 34.0 / 2.6), 2.6))))

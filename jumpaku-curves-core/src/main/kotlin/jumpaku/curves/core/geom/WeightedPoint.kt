@@ -11,7 +11,9 @@ data class WeightedPoint(val point: Point, val weight: Double = 1.0) : Lerpable<
         return WeightedPoint(p, w)
     }
 
-
+    override fun lerp(t: Double, p: WeightedPoint): WeightedPoint {
+        val w = weight.lerp(t, p.weight)
+        val q = point.lerp(t * p.weight / w, p.point)
+        return WeightedPoint(q, w)
+    }
 }
-
-

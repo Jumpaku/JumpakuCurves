@@ -74,16 +74,17 @@ class KnotVector(val degree: Int, knots: Iterable<Knot>) {
                 if (s <= times) ks.removeAt(knotIndex) else ks.update(knotIndex, Knot(u, s - times)))
     }
 
-    fun derivativeKnotVector(): KnotVector = KnotVector(degree - 1, knots
-            .asVavr()
-            .run {
-                if (head().multiplicity == 1) tail()
-                else update(0) { (v, m) -> Knot(v, m - 1) }
-            }
-            .run {
-                if (last().multiplicity == 1) init()
-                else update(lastIndex) { (v, m) -> Knot(v, m - 1) }
-            })
+    fun derivativeKnotVector(): KnotVector {
+        var k = knots.toMutableList()
+        val f = k.first()
+        if (f.multiplicity == 1) k.removeAt(0)
+        else k[0] = f.copy(multiplicity = f.multiplicity - 1)
+        val l = k.last()
+        if (l.multiplicity == 1) k.removeAt(k.lastIndex)
+        else k[k.lastIndex] = l.copy(multiplicity = l.multiplicity - 1)
+
+        return KnotVector(degree - 1, k)
+    }
 
     fun subdivide(t: Double): Pair<Option<KnotVector>, Option<KnotVector>> {
         val s = multiplicityOf(t)

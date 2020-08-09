@@ -71,13 +71,7 @@ class RationalBezierTest {
     @Test
     fun testDifferentiate() {
         println("Differentiate")
-        val d = rb.derivative
-
-        assertThat(rb.differentiate(0.0), `is`(closeTo(Vector(R2, 0.0))))
-        assertThat(rb.differentiate(0.25), `is`(closeTo(Vector((40 - 12 * R2) * (6 + 72 * R2) / (41 * 41), (40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41)))))
-        assertThat(rb.differentiate(0.5), `is`(closeTo(Vector(4 - 2 * R2, -4 + 2 * R2))))
-        assertThat(rb.differentiate(0.75), `is`(closeTo(Vector(-(40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41), -(40 - 12 * R2) * (6 + 72 * R2) / (41 * 41)))))
-        assertThat(rb.differentiate(1.0), `is`(closeTo(Vector(0.0, -R2))))
+        val d = rb.differentiate()
 
         assertThat(d.evaluate(0.0), `is`(closeTo(Vector(R2, 0.0))))
         assertThat(d.evaluate(0.25), `is`(closeTo(Vector((40 - 12 * R2) * (6 + 72 * R2) / (41 * 41), (40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41)))))

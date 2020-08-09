@@ -11,6 +11,8 @@ import org.apache.commons.math3.linear.CholeskyDecomposition
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.OpenMapRealMatrix
 import org.apache.commons.math3.linear.RealMatrix
+import java.lang.Integer.max
+import java.lang.Integer.min
 
 
 class Generator(
@@ -53,14 +55,18 @@ class Generator(
 
     companion object {
 
+
         fun generate(data: List<WeightedParamPoint>, knotVector: KnotVector, fuzzifier: Fuzzifier): BSpline {
             val d = createPointDataMatrix(data)
-            val (b, wbt) = createModelMatrixAndWeightedTransposed(data, knotVector)
-            val solver = CholeskyDecomposition(wbt.multiply(b), 1e-10, 1e-10).solver
-            val crispCp = solver.solve(wbt.multiply(d)).let { it.data.map { (x, y, z) -> Point.xyz(x, y, z) } }
-            val f = createFuzzinessDataMatrix(data, BSpline(crispCp, knotVector), fuzzifier)
-            val fuzziness = solver.solve(wbt.multiply(f)).let { it.data.map { it[0].coerceAtLeast(1e-10) } }
-            val fuzzyCp = crispCp.zip(fuzziness) { p, r -> p.copy(r = r) }
+            val (btwb, btw) = createModelMatrices(data, knotVector)
+            val solver = CholeskyDecomposition(btwb, 1e-10, 1e-10).solver
+            val btwd = btw.multiply(d)
+            val cps = solver.solve(btwd).data
+            val f = createFuzzinessDataMatrix(data, BSpline(cps.map { (x, y, z) -> Point.xyz(x, y, z) }, knotVector), fuzzifier)
+            val btwf = btw.multiply(f)
+            val rs = solver.solve(btwf).data
+            val fuzzyCp = cps.indices
+                    .map { i -> Point.xyzr(cps[i][0], cps[i][1], cps[i][2], rs[i][0].coerceAtLeast(1e-10)) }
             return BSpline(fuzzyCp, knotVector)
         }
 
@@ -70,28 +76,53 @@ class Generator(
                 }
 
         private fun createFuzzinessDataMatrix(data: List<WeightedParamPoint>, crisp: BSpline, fuzzifier: Fuzzifier): RealMatrix =
-                MatrixUtils.createRealMatrix(data.size, 1).apply {
-                    setColumn(0, fuzzifier.fuzzify(crisp, data.map { it.param }).toDoubleArray())
-                }
+                MatrixUtils.createRealMatrix(fuzzifier.fuzzify(crisp, data.map { it.param }).map { doubleArrayOf(it) }.toTypedArray())
 
-        private fun createModelMatrixAndWeightedTransposed(data: List<WeightedParamPoint>, knotVector: KnotVector)
+        private fun createModelMatrices(data: List<WeightedParamPoint>, knotVector: KnotVector)
                 : Pair<OpenMapRealMatrix, OpenMapRealMatrix> {
             val cpSize = knotVector.extractedKnots.size - knotVector.degree - 1
-            val b = OpenMapRealMatrix(data.size, cpSize)
-            val wbt = OpenMapRealMatrix(cpSize, data.size)
-            data.forEachIndexed { i, d ->
-                val l = if (d.param >= knotVector.domain.end) (cpSize - 1)
-                else knotVector.searchLastExtractedLessThanOrEqualTo(d.param)
-
-                ((l - knotVector.degree)..l).forEach { j ->
-                    val value = BSpline.basis(d.param, j, knotVector)
-                    b.setEntry(i, j, value)
-                    wbt.setEntry(j, i, value * d.weight)
+            val dSize = data.size
+            val w = data.map { it.weight }
+            val b = OpenMapRealMatrix(dSize, cpSize).apply {
+                data.forEachIndexed { i, (pt, _) ->
+                    val (_, t) = pt
+                    val l = if (t >= knotVector.domain.end) (cpSize - 1)
+                    else knotVector.searchLastExtractedLessThanOrEqualTo(t)
+                    ((l - knotVector.degree)..l).forEach { j ->
+                        setEntry(i, j, BSpline.basis(t, j, knotVector))
+                    }
                 }
             }
-            return b to wbt
+            val beginIdx = IntArray(cpSize).apply {
+                set(0, 0)
+                for (j in 1 until cpSize) {
+                    set(j, (get(j - 1) until dSize).first { i -> b.getEntry(i, j) > 0 })
+                }
+            }
+            val endIdx = IntArray(cpSize).apply {
+                set(cpSize - 1, dSize - 1)
+                for (j in (cpSize - 2) downTo 0) {
+                    set(j, (get(j + 1) downTo 0).first { i -> b.getEntry(i, j) > 0 })
+                }
+            }
+            val btwb = OpenMapRealMatrix(cpSize, cpSize).apply {
+                for (i in 0 until cpSize) {
+                    for (j in 0 until cpSize) {
+                        val ks = max(beginIdx[i], beginIdx[j])..min(endIdx[i], endIdx[j])
+                        if (ks.isEmpty()) continue
+                        setEntry(i, j, ks.sumByDouble { k -> b.getEntry(k, i) * w[k] * b.getEntry(k, j) })
+                    }
+                }
+            }
+            val btw = OpenMapRealMatrix(cpSize, dSize).apply {
+                for (i in 0 until cpSize) {
+                    for (j in beginIdx[i]..endIdx[i]) {
+                        setEntry(i, j, b.getEntry(j, i) * w[j])
+                    }
+                }
+            }
+            return btwb to btw
         }
-
     }
 }
 

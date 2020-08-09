@@ -3,7 +3,10 @@ package jumpaku.curves.core.curve.bspline
 import jumpaku.commons.control.Option
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.RationalBezier
-import jumpaku.curves.core.geom.*
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import jumpaku.curves.core.geom.WeightedPoint
+import jumpaku.curves.core.geom.times
 import jumpaku.curves.core.transform.Transform
 import jumpaku.curves.core.util.asKt
 import jumpaku.curves.core.util.asVavr
@@ -26,27 +29,26 @@ class Nurbs(
 
     override val domain: Interval = knotVector.domain
 
-    override val derivative: Derivative
-        get() {
-            val ws = weights
-            val dws = ws.zipWithNext { a, b -> degree * (b - a) }
-            val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).derivative
+    override fun differentiate(): Derivative {
+        val ws = weights
+        val dws = ws.zipWithNext { a, b -> degree * (b - a) }
+        val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).differentiate()
 
-            return object : Derivative {
-                override fun evaluate(t: Double): Vector {
-                    require(t in domain) { "t($t) is out of domain($domain)" }
+        return object : Derivative {
+            override fun evaluate(t: Double): Vector {
+                require(t in domain) { "t($t) is out of domain($domain)" }
 
-                    val wt = BSpline(weights.map { Point.x(it) }, knotVector).evaluate(t).x
-                    val dwt = BSpline(dws.map { Point.x(it) }, knotVector.derivativeKnotVector()).evaluate(t).x
-                    val dpt = dp.evaluate(t)
-                    val rt = this@Nurbs.evaluate(t).toVector()
+                val wt = BSpline(weights.map { Point.x(it) }, knotVector).evaluate(t).x
+                val dwt = BSpline(dws.map { Point.x(it) }, knotVector.derivativeKnotVector()).evaluate(t).x
+                val dpt = dp.evaluate(t)
+                val rt = this@Nurbs.evaluate(t).toVector()
 
-                    return ((dpt - dwt * rt) / wt).orThrow()
-                }
-
-                override val domain: Interval get() = this@Nurbs.domain
+                return ((dpt - dwt * rt) / wt).orThrow()
             }
+
+            override val domain: Interval get() = this@Nurbs.domain
         }
+    }
 
     init {
         val us = knotVector.extractedKnots
@@ -131,18 +133,16 @@ class Nurbs(
             if (b < e && t == e) return evaluate(controlPoints.reversed(), knotVector.reverse(), b)
 
             val l = knotVector.searchLastExtractedLessThanOrEqualTo(t)
-
-            val result = controlPoints.toMutableList()
             val d = knotVector.degree
+            val result = controlPoints.subList(l - d, l + 1).toMutableList()
 
             for (k in 1..d) {
                 for (i in l downTo (l - d + k)) {
                     val aki = BSpline.basisHelper(t, us[i], us[i + d + 1 - k], us[i])
-                    result[i] = result[i - 1].lerp(aki, result[i])
+                    result[i - (l - d)] = result[i - 1 - (l - d)].lerp(aki, result[i - (l - d)])
                 }
             }
-
-            return result[l]
+            return result[l - (l - d)]
         }
 
         private fun insertedControlPoints(

@@ -2,7 +2,10 @@ package jumpaku.curves.core.curve.bspline
 
 import jumpaku.commons.control.Option
 import jumpaku.commons.math.divOrDefault
-import jumpaku.curves.core.curve.*
+import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Differentiable
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.weighted
@@ -21,15 +24,15 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     override val domain: Interval = knotVector.domain
 
-    override val derivative: BSplineDerivative by lazy {
+    override fun differentiate(): BSplineDerivative {
         val us = knotVector.extractedKnots
         val cvs = controlPoints
-                .zipWithNext { a, b -> b.toCrisp() - a.toCrisp() }
+                .zipWithNext { a, b -> b - a }
                 .mapIndexed { i, v ->
                     v * basisHelper(degree.toDouble(), 0.0, us[degree + i + 1], us[i + 1])
                 }
 
-        BSplineDerivative(cvs, knotVector.derivativeKnotVector())
+        return BSplineDerivative(cvs, knotVector.derivativeKnotVector())
     }
 
     init {
@@ -112,4 +115,5 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
                 (a - b).divOrDefault(c - d) { 0.0 }
     }
 }
+
 
