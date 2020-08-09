@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  deploy:
+    image: 'gradle:6.5.1-jdk14'
+    command: ["./gradlew", "publish", "-Pargs=${NEXUS_USER} ${NEXUS_PASSWORD}"]
+    working_dir: '/home/gradle/project'
+    volumes:
+    - './:/home/gradle/project'
