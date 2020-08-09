@@ -14,8 +14,8 @@ class BezierDerivativeJsonTest {
     fun testBezierDerivativeJson() {
         println("BezierDerivativeJson")
         val p = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-        val a = BezierDerivativeJson.toJsonStr(p).parseJson().let { BezierDerivativeJson.fromJson(it) }.toBezier()
-        Assert.assertThat(a, CoreMatchers.`is`(closeTo(p.toBezier())))
+        val a = BezierDerivativeJson.toJsonStr(p).parseJson().let { BezierDerivativeJson.fromJson(it) }.curve
+        Assert.assertThat(a, CoreMatchers.`is`(closeTo(p.curve)))
     }
 
 }

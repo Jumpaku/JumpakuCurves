@@ -8,47 +8,45 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 
 
-class BSplineDerivative(private val bSpline: BSpline) : Derivative, Differentiable {
+class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     constructor(controlVectors: Iterable<Vector>, knots: KnotVector) : this(
             BSpline(controlVectors.map { Point.xyz(it.x, it.y, it.z) }, knots))
 
-    fun toBSpline(): BSpline = bSpline.toCrisp()
+    val curve: BSpline = bSpline.toCrisp()
 
-    override val domain: Interval get() = toBSpline().domain
+    override val domain: Interval get() = curve.domain
 
-    override val derivative: BSplineDerivative get() = toBSpline().derivative
+    override fun differentiate():  BSplineDerivative = curve.differentiate()
 
-    val controlVectors: List<Vector> get() = toBSpline().controlPoints.map(Point::toVector)
+    val controlVectors: List<Vector> get() = curve.controlPoints.map(Point::toVector)
 
-    val knotVector: KnotVector get() = toBSpline().knotVector
+    val knotVector: KnotVector get() = curve.knotVector
 
-    val degree: Int get() = toBSpline().degree
+    val degree: Int get() = curve.degree
 
     override fun toString(): String = "BSplineDerivative(knotVector=$knotVector, controlVectors=$controlVectors)"
 
-    override fun evaluate(t: Double): Vector = toBSpline()(t).toVector()
+    override fun evaluate(t: Double): Vector = curve(t).toVector()
 
-    override fun differentiate(t: Double): Vector = toBSpline().derivative.evaluate(t)
+    fun restrict(begin: Double, end: Double): BSplineDerivative = BSplineDerivative(curve.restrict(begin, end))
 
-    fun restrict(begin: Double, end: Double): BSplineDerivative = BSplineDerivative(toBSpline().restrict(begin, end))
+    fun restrict(i: Interval): BSplineDerivative = BSplineDerivative(curve.restrict(i))
 
-    fun restrict(i: Interval): BSplineDerivative = BSplineDerivative(toBSpline().restrict(i))
+    fun reverse(): BSplineDerivative = BSplineDerivative(curve.reverse())
 
-    fun reverse(): BSplineDerivative = BSplineDerivative(toBSpline().reverse())
+    fun clamp(): BSplineDerivative = BSplineDerivative(curve.clamp())
 
-    fun clamp(): BSplineDerivative = BSplineDerivative(toBSpline().clamp())
+    fun close(): BSplineDerivative = BSplineDerivative(curve.close())
 
-    fun close(): BSplineDerivative = BSplineDerivative(toBSpline().close())
+    fun insertKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(curve.insertKnot(t, m))
 
-    fun insertKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().insertKnot(t, m))
+    fun removeKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(curve.removeKnot(t, m))
 
-    fun removeKnot(t: Double, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().removeKnot(t, m))
+    fun removeKnot(knotIndex: Int, m: Int = 1): BSplineDerivative = BSplineDerivative(curve.removeKnot(knotIndex, m))
 
-    fun removeKnot(knotIndex: Int, m: Int = 1): BSplineDerivative = BSplineDerivative(toBSpline().removeKnot(knotIndex, m))
+    fun toBeziers(): List<BezierDerivative> = curve.toBeziers().map(::BezierDerivative)
 
-    fun toBeziers(): List<BezierDerivative> = toBSpline().toBeziers().map(::BezierDerivative)
-
-    fun subdivide(t: Double): Pair<Option<BSplineDerivative>, Option<BSplineDerivative>> = toBSpline().subdivide(t)
+    fun subdivide(t: Double): Pair<Option<BSplineDerivative>, Option<BSplineDerivative>> = curve.subdivide(t)
             .run { Pair(first.map { BSplineDerivative(it) }, second.map { BSplineDerivative(it) }) }
 }

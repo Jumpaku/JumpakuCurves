@@ -80,17 +80,13 @@ class NurbsTest {
         val v3 = Vector(-144.0, -192.0)
         val v4 = Vector(0.0, -200 / 3.0)
 
-        assertThat(n.differentiate(0.0), `is`(closeTo(v0)))
-        assertThat(n.differentiate(0.5), `is`(closeTo(v1)))
-        assertThat(n.differentiate(1.0), `is`(closeTo(v2)))
-        assertThat(n.differentiate(1.5), `is`(closeTo(v3)))
-        assertThat(n.differentiate(2.0), `is`(closeTo(v4)))
+        val d = n.differentiate()
 
-        assertThat(n.derivative(0.0), `is`(closeTo(v0)))
-        assertThat(n.derivative(0.5), `is`(closeTo(v1)))
-        assertThat(n.derivative(1.0), `is`(closeTo(v2)))
-        assertThat(n.derivative(1.5), `is`(closeTo(v3)))
-        assertThat(n.derivative(2.0), `is`(closeTo(v4)))
+        assertThat(d(0.0), `is`(closeTo(v0)))
+        assertThat(d(0.5), `is`(closeTo(v1)))
+        assertThat(d(1.0), `is`(closeTo(v2)))
+        assertThat(d(1.5), `is`(closeTo(v3)))
+        assertThat(d(2.0), `is`(closeTo(v4)))
     }
 
     @Test
