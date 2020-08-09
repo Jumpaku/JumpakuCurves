@@ -15,7 +15,7 @@ internal inline fun <T> List<T>.sumByVector(selector: (T) -> Vector): Vector {
     return sum
 }
 
-data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) {
+data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) : Lerpable<Vector> {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)
 
@@ -58,6 +58,22 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0)
 
     fun toDoubleArray(): DoubleArray = doubleArrayOf(x, y, z)
 
+    override fun lerp(terms: List<Pair<Double, Vector>>): Vector {
+        var s = Zero
+        var c0 = 1.0
+        for ((c, v) in terms) {
+            s += c * v
+            c0 -= c
+        }
+        return s + (this * c0)
+    }
+
+    override fun lerp(t: Double, p: Vector): Vector = Vector(
+            x.lerp(t, p.x),
+            y.lerp(t, p.y),
+            z.lerp(t, p.z)
+    )
+
     companion object {
 
         val I: Vector = Vector(x = 1.0)
@@ -69,5 +85,6 @@ data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0)
         val Zero: Vector = Vector()
 
     }
+
 }
 

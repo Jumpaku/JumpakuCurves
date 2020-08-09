@@ -45,14 +45,23 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @return affine combination of conic fuzzy points
      */
     override fun lerp(terms: List<Pair<Double, Point>>): Point {
-        val c0 = terms.sumByDouble { it.first }
-        val cs = terms.map { (c, _) -> c } + (1 - c0)
-        val vs = terms.map { (_, p) -> p.toVector() } + this.toVector()
-        val rs = terms.map { (_, p) -> p.r } + this.r
-        return Point(
-                cs.zip(vs).sumByVector { (c, v) -> c * v },
-                cs.zip(rs).sumByDouble { (c, r) -> abs(c * r) })
+        var vs = Vector.Zero
+        var rs = 0.0
+        var c0 = 1.0
+        for ((c, p) in terms) {
+            vs += c * p.toVector()
+            rs += abs(c * p.r)
+            c0 -= c
+        }
+        return Point(vs + this.toVector() * c0, rs + abs(r * c0))
     }
+
+    override fun lerp(t: Double, p: Point): Point = Point(
+            x.lerp(t, p.x),
+            y.lerp(t, p.y),
+            z.lerp(t, p.z),
+            abs(1 - t) * r + abs(t) * p.r
+    )
 
 
     private fun isCloseTo(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean =

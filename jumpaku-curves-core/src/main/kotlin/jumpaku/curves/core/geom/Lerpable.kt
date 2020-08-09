@@ -1,7 +1,7 @@
 package jumpaku.curves.core.geom
 
 
-fun Double.lerp(t: Double, other: Double): Double = lerp(t to other)
+fun Double.lerp(t: Double, other: Double): Double = (1 - t) * this + t * other
 
 fun Double.lerp(vararg terms: Pair<Double, Double>): Double = lerp(terms.toList())
 
