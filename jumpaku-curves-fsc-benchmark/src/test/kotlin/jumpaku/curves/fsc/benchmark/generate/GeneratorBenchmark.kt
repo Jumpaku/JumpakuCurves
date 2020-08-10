@@ -43,19 +43,15 @@ open class GeneratorBenchmark {
         data.forEach { ps ->
             repeat(20) { generator.generate(ps) }
         }
-        println("================")
         assertTimeout(Duration.ofMillis(time)) {
             generator.generate(data[0])
         }
-        println("================")
         assertTimeout(Duration.ofMillis(time)) {
             generator.generate(data[1])
         }
-        println("================")
         assertTimeout(Duration.ofMillis(time)) {
             generator.generate(data[2])
         }
-        println("================")
         assertTimeout(Duration.ofMillis(time)) {
             generator.generate(data[3])
         }
