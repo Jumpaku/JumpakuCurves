@@ -85,26 +85,25 @@ class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
                 when {
                     (key in pLB) -> true
                     i > 0 && j < osm.columnLastIndex && osm[i, j] > threshold ->
-                        setOf((i - 1) to j, i to (j + 1), (i - 1) to (j + 1))
-                                .run { all { isAvailableLB(it) } || any { it in pLB } }
+                        setOf((i - 1) to j, i to (j + 1), (i - 1) to (j + 1)).all { isAvailableLB(it) } ||
+                                setOf((i - 1) to j, i to (j + 1)).any { it in pLB }
                     else -> false
                 }
             }
-
             // Right Above
-            val dpTableRA = HashMap<Pair<Int, Int>, Boolean>()
             val frontRA = ridge.first()
                     .let { (i, j) -> ((i - 1) downTo 0).takeWhile { osm[it, j] > threshold }.map { it to j } }
             val backRA = ridge.last()
                     .let { (i, j) -> ((j + 1)..osm.columnLastIndex).takeWhile { osm[i, it] > threshold }.map { i to it } }
             val pRA = (frontRA + ridge + backRA).toSet()
+            val dpTableRA = HashMap<Pair<Int, Int>, Boolean>()
             fun isAvailableRA(key: Pair<Int, Int>): Boolean = dpTableRA.getOrPut(key) {
                 val (i, j) = key
                 when {
                     (key in pRA) -> true
                     i < osm.rowLastIndex && j > 0 && osm[i, j] > threshold ->
-                        setOf((i + 1) to j, i to (j - 1), (i + 1) to (j - 1))
-                                .run { all { isAvailableRA(it) } || any { it in pRA } }
+                        setOf((i + 1) to j, i to (j - 1), (i + 1) to (j - 1)).all { isAvailableRA(it) } ||
+                                setOf((i + 1) to j, i to (j - 1)).any { it in pRA }
                     else -> false
                 }
             }
