@@ -2,9 +2,11 @@ package jumpaku.curves.fsc.merge
 
 import jumpaku.commons.control.Option
 import jumpaku.commons.control.toOption
+import jumpaku.commons.math.divOrDefault
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.fsc.generate.fit.weighted
 
@@ -68,6 +70,75 @@ class MergeData(
                     .map { it.run { copy(param = param - (1 - mergeRate) * (ridgeEndOverlap - ridgeEndExist)) } }
 
             return MergeData(overlapState.grade, eFront + oFront, eBack + oBack, mergedData)
+        }
+
+        fun parameterize2(
+                existing: List<ParamPoint>,
+                overlapping: List<ParamPoint>,
+                mergeRate: Double,
+                overlapState: OverlapState
+        ): MergeData {
+            require(existing.size == overlapState.osm.rowSize)
+            require(overlapping.size == overlapState.osm.columnSize)
+            require(mergeRate in 0.0..1.0)
+            val rowLast = existing.lastIndex
+            val columnLast = overlapping.lastIndex
+
+            class TransformParam(val s2: Double, val s3: Double, val t0: Double, val t1: Double, val t2: Double, val t3: Double, val t4: Double, val t5: Double) {
+                val mergeGrad = (s3 - s2).divOrDefault(t3 - t2) { 1.0 }
+                val aFront = 0.5 * (mergeGrad - 1) / (t2 - t1)
+                val bFront = 1 - 2 * aFront * t1
+                val cFront = s2 - aFront * t2 * t2 - bFront * t2
+                val aBack = 0.5 * (mergeGrad - 1) / (t3 - t4)
+                val bBack = 1 - 2 * aBack * t4
+                val cBack = s3 - aBack * t3 * t3 - bBack * t3
+                operator fun invoke(t: Double) = when (t) {
+                    in t0..t1 -> t + s2 - t2
+                    in t1..t2 -> aFront * t * t + bFront * t + cFront
+                    in t2..t3 -> mergeGrad * t + s2 - mergeGrad * t2
+                    in t3..t4 -> aBack * t * t + bBack * t + cBack
+                    in t4..t5 -> t + s3 - t3
+                    else -> error("")
+                }
+            }
+
+            val range = overlapState.range
+            val ridge = overlapState.ridge
+            val (eMergeIdxBegin, oMergeIdxBegin) = ridge.first()
+            val (eMergeIdxEnd, oMergeIdxEnd) = ridge.last()
+            val eFrontRemainIdx = (0 until eMergeIdxBegin).lastOrNull { i -> (i to 0) !in range }
+            val oFrontRemainIdx = (0 until oMergeIdxBegin).lastOrNull { j -> (0 to j) !in range }
+            val eBackRemainIdx = (rowLast downTo (eMergeIdxEnd + 1)).lastOrNull { i -> (i to columnLast) !in range }
+            val oBackRemainIdx = (columnLast downTo (oMergeIdxEnd + 1)).lastOrNull { j -> (rowLast to j) !in range }
+
+            val eT0 = existing[0].param
+            val eT1 = existing[eFrontRemainIdx ?: 0].param
+            val eT2 = existing[eMergeIdxBegin].param
+            val eT3 = existing[eMergeIdxEnd].param
+            val eT4 = existing[eBackRemainIdx ?: rowLast].param
+            val eT5 = existing[rowLast].param
+            val oT0 = overlapping[0].param
+            val oT1 = overlapping[oFrontRemainIdx ?: 0].param
+            val oT2 = overlapping[oMergeIdxBegin].param
+            val oT3 = overlapping[oMergeIdxEnd].param
+            val oT4 = overlapping[oBackRemainIdx ?: columnLast].param
+            val oT5 = overlapping[columnLast].param
+
+            val s2 = eT2.lerp(mergeRate, oT2)
+            val s3 = eT3.lerp(mergeRate, oT3)
+
+            val eTransform = TransformParam(s2, s3, eT0, eT1, eT2, eT3, eT4, eT5)
+            val eData = existing.map { it.copy(param = eTransform(it.param)) }
+
+            val oTransform = TransformParam(s2, s3, oT0, oT1, oT2, oT3, oT4, oT5)
+            val oData = overlapping.map { it.copy(param = oTransform(it.param)) }
+
+            val mergedData = ridge.map { (i, j) -> existing[i].lerp(mergeRate, overlapping[j]).weighted() }
+
+            return MergeData(overlapState.grade,
+                    eData.take(eMergeIdxBegin) + oData.take(oMergeIdxBegin),
+                    eData.drop(eMergeIdxEnd + 1) + oData.drop(oMergeIdxEnd + 1),
+                    mergedData)
         }
     }
 }

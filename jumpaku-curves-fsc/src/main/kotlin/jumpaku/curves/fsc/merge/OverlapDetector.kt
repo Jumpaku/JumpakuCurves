@@ -32,6 +32,17 @@ class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
         return Some(OverlapState(osm, grade, gradeMaxRidge, range))
     }
 
+    fun detect2(existSamples: List<ParamPoint>, overlapSamples: List<ParamPoint>): Option<OverlapState> {
+        val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
+        val found = findRidge(osm, compareBy { it.dist }) { i, j -> osm[i, j] > overlapThreshold }
+                .filter { it.subRidge.isNotEmpty() }
+                .orNull() ?: return None
+        val grade = found.grade
+        val ridge = found.subRidge.map { it.asPair() }
+        val range = collectRange(osm, ridge, overlapThreshold)
+        return Some(OverlapState(osm, grade, ridge, range))
+    }
+
     companion object {
 
         data class DpKey(val i: Int, val j: Int) {
