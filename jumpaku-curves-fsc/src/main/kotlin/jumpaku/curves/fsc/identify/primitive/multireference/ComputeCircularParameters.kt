@@ -10,7 +10,7 @@ import org.apache.commons.math3.analysis.solvers.BrentSolver
 import kotlin.math.acos
 import kotlin.math.cos
 
-fun <C : Curve> computeGlobalCircularParameters(fsc: ReparametrizedCurve<C>, generations: Int, nSamples: Int = 100, nDivisions: Int = 10): Pair<Double, List<Double>> {
+fun <C : Curve> computeGlobalCircularParameters(fsc: ReparametrizedCurve<C>, nRepresentParams: Int, nSamples: Int = 100, nDivisions: Int = 10): Pair<Double, List<Double>> {
     val original = fsc.originalCurve
     val fscReparametrizer = fsc.reparametrizer
     val divisions = fsc.sample(nDivisions)
@@ -26,10 +26,8 @@ fun <C : Curve> computeGlobalCircularParameters(fsc: ReparametrizedCurve<C>, gen
             .map { i -> computeLocalCircularFar(fsc, frontPoints[i].param, backPoints[i].param) }
     val halfWeights = divisions.indices
             .map { i -> computeLocalCircularWeight(frontPoints[i], middlePoints[i], backPoints[i]) }
-    println(halfWeights)
     val globalHalfWeight = halfWeights.map { acos(it) * 2 }.average().let { cos(it / 2) }
-    val nFars = (1 shl (generations + 2)) + 1
-    val farParams = fsc.domain.sample(nFars).map { fscReparametrizer.toOriginal(it) }
+    val farParams = fsc.domain.sample(nRepresentParams).map { fscReparametrizer.toOriginal(it) }
     return globalHalfWeight to farParams
 }
 

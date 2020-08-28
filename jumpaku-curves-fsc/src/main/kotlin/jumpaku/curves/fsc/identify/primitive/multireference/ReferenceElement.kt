@@ -33,8 +33,6 @@ class QuadraticRationalBezier(
         val representParams: RepresentParams,
         val weight: Double
 ) {
-    val paramRange: Interval = Interval(representParams[0], representParams[2])
-
     private val transform: RealMatrix
 
     init {
@@ -61,10 +59,10 @@ class QuadraticRationalBezier(
     }
 
     companion object {
-        private fun basisP0(t: Double): Double = (1 - t) * (1 - 2 * t)
-        private fun basisP1(t: Double): Double = 2 * t * (1 - t)
-        private fun basisP2(t: Double): Double = t * (2 * t - 1)
-        private fun omega(t: Double, w: Double): Double = basisP0(t) + basisP1(t) * (1 + w) + basisP2(t)
+        internal fun basisP0(t: Double): Double = (1 - t) * (1 - 2 * t)
+        internal fun basisP1(t: Double): Double = 2 * t * (1 - t)
+        internal fun basisP2(t: Double): Double = t * (2 * t - 1)
+        internal fun omega(t: Double, w: Double): Double = basisP0(t) + basisP1(t) * (1 + w) + basisP2(t)
     }
 }
 
@@ -85,16 +83,18 @@ class EllipticReferenceElement(override val bezier: QuadraticRationalBezier) : R
         val w = bezier.weight
         val rp = bezier.representPoints
         val rt = bezier.representParams
-        val coef = if (paramRange.span > 1) 1 / (2 - 2 * w * w) else 1 / (1 - w)
+        val t = rt[0]
+        val wt = QuadraticRationalBezier.omega(t, w)
+        val coef = wt / ((1 - w) * (1 - 2 * t) * (1 - 2 * t))
         val c = rp[1].lerp(coef to rp[0], coef to rp[2])
-        val ct = RepresentParams(MultiReference.complementParam(rt[0]), 0.5, MultiReference.complementParam(rt[2]))
+        val ct = RepresentParams(RecursiveMultiReference.complementParam(rt[0]), 0.5, RecursiveMultiReference.complementParam(rt[2]))
         val cp = RepresentPoints(rp[0], c, rp[2])
         complementBezier = QuadraticRationalBezier(cp, ct, -w)
     }
 
     override fun evaluate(t: Double): Point = when (t) {
         in paramRange -> bezier.evaluate(t)
-        else -> complementBezier.evaluate(MultiReference.complementParam(t))
+        else -> complementBezier.evaluate(RecursiveMultiReference.complementParam(t))
     }
 }
 

@@ -1,14 +1,8 @@
 package jumpaku.curves.fsc.identify.primitive.multireference
 
-import jumpaku.commons.math.divOrDefault
-import jumpaku.commons.math.isEven
-import jumpaku.commons.math.isOdd
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
-import jumpaku.curves.core.geom.Point
-import kotlin.math.sqrt
 
 
 interface ReferenceElementBuilder<C : Curve> {
@@ -17,19 +11,29 @@ interface ReferenceElementBuilder<C : Curve> {
 
     val globalWeight: Double
 
-    fun build(): List<ReferenceElement>
+    fun build(): Map<Int, ReferenceElement>
 }
 
 
-abstract class AbstractReferenceGenerator(val generations: Int) {
+interface MultiReferenceGenerator {
+
+    val generations: Int
+
+    fun <C : Curve> generate(fsc: ReparametrizedCurve<C>): MultiReference
+}
+
+abstract class AbstractRecursiveReferenceGenerator(override val generations: Int) : MultiReferenceGenerator {
 
     abstract fun <C : Curve> createElementBuilder(fsc: ReparametrizedCurve<C>): ReferenceElementBuilder<C>
 
-    fun <C : Curve> generate(fsc: ReparametrizedCurve<C>): MultiReference {
+    override fun <C : Curve> generate(fsc: ReparametrizedCurve<C>): MultiReference {
         val builder = createElementBuilder(fsc)
-        val elements = builder.build()
+        val elements = builder
+                .build()
+                .run { Array(size) { i -> getValue(i) } }
+                .toList()
         val w = builder.globalWeight
         val domain = Interval(-1 / (2 * w + 2), (2 * w + 3) / (2 * w + 2))
-        return MultiReference(generations, domain, elements)
+        return RecursiveMultiReference(generations, domain, elements)
     }
 }

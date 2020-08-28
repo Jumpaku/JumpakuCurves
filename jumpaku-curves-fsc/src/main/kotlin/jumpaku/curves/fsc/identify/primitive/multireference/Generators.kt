@@ -28,17 +28,18 @@ abstract class AbstractReferenceElementBuilder<C : Curve>(generations: Int, val 
 
     val end: ParamPoint = fsc.originalCurve.run { ParamPoint(evaluate(domain.end), domain.end) }
 
-    final override val elementsSize = ((1 shl generations) - 1) * 3
+    final override val elementsSize = RecursiveMultiReference.elementsCount(generations)
 
     override val globalWeight: Double get() = weights[0]
 
     private val cache: List<Triple<ParamPoint, ParamPoint, ParamPoint>>
 
     init {
-        val size = (1 shl (generations + 2)) - 1
-        cache = ArrayList<Triple<ParamPoint, ParamPoint, ParamPoint>>(size).apply {
+        val nPartitions = RecursiveMultiReference.partitionsCount(generations + 1)
+        //1 shl (generations + 2)) - 1
+        cache = ArrayList<Triple<ParamPoint, ParamPoint, ParamPoint>>(nPartitions).apply {
             add(0, Triple(begin, partition(begin, end), end))
-            for (index in 1 until size) {
+            for (index in 1 until nPartitions) {
                 val (f, p, b) = get((index - 1) / 2)
                 when {
                     index.isOdd() -> add(index, Triple(f, partition(f, p), p))
@@ -104,8 +105,8 @@ abstract class AbstractReferenceElementBuilder<C : Curve>(generations: Int, val 
 
     abstract fun build(bezier: QuadraticRationalBezier): ReferenceElement
 
-    override fun build(): List<ReferenceElement> {
-        return (0 until elementsSize).map { index ->
+    override fun build(): Map<Int, ReferenceElement> {
+        return (0 until elementsSize).associateWith { index ->
             val rp = representPoints[index]
             val rt = representParams[index]
             val w = weights[index]
@@ -113,7 +114,8 @@ abstract class AbstractReferenceElementBuilder<C : Curve>(generations: Int, val 
         }
     }
 }
-class LinearGenerator(generations: Int) : AbstractReferenceGenerator(generations) {
+
+class LinearGenerator(generations: Int) : AbstractRecursiveReferenceGenerator(generations) {
 
     class ElementBuilder<C : Curve>(generations: Int, fsc: ReparametrizedCurve<C>)
         : AbstractReferenceElementBuilder<C>(generations, fsc) {
@@ -143,7 +145,7 @@ class LinearGenerator(generations: Int) : AbstractReferenceGenerator(generations
 }
 
 
-class CircularGenerator(generations: Int) : AbstractReferenceGenerator(generations) {
+class CircularGenerator(generations: Int) : AbstractRecursiveReferenceGenerator(generations) {
 
     class ElementBuilder<C : Curve>(generations: Int, fsc: ReparametrizedCurve<C>)
         : AbstractReferenceElementBuilder<C>(generations, fsc) {
@@ -181,7 +183,7 @@ class CircularGenerator(generations: Int) : AbstractReferenceGenerator(generatio
 }
 
 
-class EllipticGenerator(generations: Int) : AbstractReferenceGenerator(generations) {
+class EllipticGenerator(generations: Int) : AbstractRecursiveReferenceGenerator(generations) {
 
     class ElementBuilder<C : Curve>(generations: Int, fsc: ReparametrizedCurve<C>)
         : AbstractReferenceElementBuilder<C>(generations, fsc) {

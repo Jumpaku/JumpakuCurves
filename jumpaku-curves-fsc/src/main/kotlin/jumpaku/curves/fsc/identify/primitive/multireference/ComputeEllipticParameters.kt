@@ -13,7 +13,7 @@ import jumpaku.curves.core.transform.Transform
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 import kotlin.math.*
 
-fun <C : Curve> computeGlobalEllipticParameters(fsc: ReparametrizedCurve<C>, generations: Int, nSamples: Int = 100, nDivisions: Int = 10): Pair<Double, List<Double>> {
+fun <C : Curve> computeGlobalEllipticParameters(fsc: ReparametrizedCurve<C>, nRepresentParams: Int, nSamples: Int = 100, nDivisions: Int = 10): Pair<Double, List<Double>> {
     val original = fsc.originalCurve
     val fscReparametrizer = fsc.reparametrizer
     val divisions = fsc.sample(nDivisions)
@@ -31,7 +31,7 @@ fun <C : Curve> computeGlobalEllipticParameters(fsc: ReparametrizedCurve<C>, gen
             .map { i -> computeLocalEllipticWeight(frontPoints[i], middlePoints[i], backPoints[i], samples) }
     val globalHalfWeight = halfWeights.map { acos(it) * 2 }.average().let { cos(it / 2) }
     val localRepresentParams = divisions.indices.map { i ->
-        computeLocalEllipticRepresentParams(fsc, globalHalfWeight, frontPoints[i], middlePoints[i], backPoints[i], generations)
+        computeLocalEllipticRepresentParams(fsc, globalHalfWeight, frontPoints[i], middlePoints[i], backPoints[i], nRepresentParams)
     }
     val nFars = localRepresentParams[0].size
     val farParams = (0 until nFars).map { i -> localRepresentParams.map { it[i] }.average().coerceIn(original.domain) }
@@ -44,7 +44,7 @@ fun <C : Curve> computeLocalEllipticRepresentParams(
         front: ParamPoint,
         middle: ParamPoint,
         back: ParamPoint,
-        generations: Int): List<Double> {
+        nRepresentParams: Int): List<Double> {
     class Elliptic(val affine: Transform) : Curve {
         override val domain: Interval = Interval(-2 * PI, 2 * PI)
         override fun evaluate(t: Double): Point = affine(Point.xy(sin(t), cos(t)))
@@ -52,7 +52,6 @@ fun <C : Curve> computeLocalEllipticRepresentParams(
 
     val halfAngle = acos(halfWeight) * 2
 
-    val nFars = (1 shl (generations + 2)) + 1
     val original = fsc.originalCurve
     val affine = result {
         Calibrate(
@@ -61,8 +60,7 @@ fun <C : Curve> computeLocalEllipticRepresentParams(
                 Point.xy(sin(halfAngle / 2), cos(halfAngle / 2)) to back.point,
                 Point.xyz(0.0, 1.0, 1.0) to middle.point)
     }.orRecover {
-        println("LINE")
-        return original.domain.sample(nFars)
+        return original.domain.sample(nRepresentParams)
     }
     val fscReparametrizer = fsc.reparametrizer
     val (begin, end) = original.sample(2)
@@ -76,7 +74,7 @@ fun <C : Curve> computeLocalEllipticRepresentParams(
     val m4 = m2.lerp((l2 - l4) / (l2 - l3), m3)
     val eBegin = ellipticReparametrizer.toOriginal(m0.coerceIn(0.0, 1.0))
     val eEnd = ellipticReparametrizer.toOriginal(m4.coerceIn(0.0, 1.0))
-    val lengths = Interval(eBegin, eEnd).sample(nFars)
+    val lengths = Interval(eBegin, eEnd).sample(nRepresentParams)
             .map { ellipticReparametrizer.toArcLengthRatio(it.coerceIn(elliptic.originalCurve.domain)) }
             .map { (it - m0) / (m4 - m0) }
     return lengths.map { fscReparametrizer.toOriginal(it.coerceIn(0.0, 1.0)) }
