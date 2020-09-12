@@ -16,6 +16,7 @@ import jumpaku.curves.core.geom.line
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.identify.primitive.multireference.CircularGenerator3
+import jumpaku.curves.fsc.identify.primitive.multireference.EllipticGenerator2
 import jumpaku.curves.fsc.identify.primitive.multireference.EllipticGenerator3
 import jumpaku.curves.fsc.identify.primitive.multireference.LinearGenerator3
 import jumpaku.curves.fsc.identify.primitive.reparametrize
@@ -48,7 +49,7 @@ fun main() = SwingUtilities.invokeLater {
 
 object Settings {
     val generator = Generator()
-    val generations = 5
+    val generations = 2
     val linear = LinearGenerator3(generations)
     val circular = CircularGenerator3(generations)
     val elliptic = EllipticGenerator3(generations)
@@ -93,70 +94,29 @@ class DemoPanel : JPanel() {
         drawCubicBSpline(s)
         drawPoints(reparametrize(s).evaluateAll(0.01))
         val reparametrized = reparametrize(s)
-        val m = Settings.linear.generate(reparametrized)
-        val j = 2
-        m.elements.forEachIndexed { i, r ->
-            val polyline = Polyline.byIndices(r.bezier.representPoints.let { it + it.first() })
-            //if (i == j)
-                drawPolyline(polyline)
-            //drawPoints(r.bezier.representPoints.map { it.copy(r = (i + 1) * 1.0) })
-            //drawPoints(m.evaluateAll(10).map { it.points[i].copy(r = (i + 1) * 2.0) })
+        val m = Settings.elliptic.generate(reparametrized)
+        val generators = listOf(
+                EllipticGenerator2(3),
+                EllipticGenerator3(3)
+        )
+        generators.forEach {generator->
+            val ref = generator.generate(reparametrized)
+            m.elements.forEachIndexed { i, r ->
+                //drawPolyline(Polyline.byIndices(r.bezier.representPoints.let { it + it.first() }))
+            }
         }
         val n = 1000
         val ps = m.evaluateAll(n)
-        ps.forEach { p ->
-            val q = p.points.map { it.run { Area(Ellipse2D.Double(x - r / 2, y - r / 2, r, r)) } }.reduce { acc, a -> acc.intersect(a); acc }
-            fill(q)
-        }
+        val q = ps.map { p->
+            p.points.map { it.run { Area(Ellipse2D.Double(x - r / 2, y - r / 2, r, r)) } }.reduce { acc, a -> acc.intersect(a); acc }
+        }.reduce { acc, area -> acc.add(area); acc }
+
+        draw(q)
+
         m.elements.indices.forEach { i ->
-            //if (i == j)
-                drawPolyline(Polyline.byIndices(ps.map { it[i] }))
+            //drawPolyline(Polyline.byIndices(ps.map { it[i] }))
         }
-        val u = 0.5
-        /*for (i in m.elements.indices) {
-            val inv = m.invertParam(i, m.convertParam(i, u))
-            println("$inv == $u")
-        }*/
         println(ps.map { it.vertex().map { v -> it.isPossible(v).value }.orDefault { 0.0 } }.min())
-        //drawPolyline(Polyline.byIndices(ps.flatMap { it.vertex() }))
-        //}
-        /*
-        val (w, ts) = computeGlobalEllipticParameters(reparametrized, 1, n, 10)
-        println("w : $w")
-        val ps = ts.map(s)
-        val r0 = QuadraticRationalBezier(
-                RepresentPoints(ps[1], ps[2], ps[3]),
-                RepresentParams(0.0, 0.5, 1.0),
-                w)
-        val c0 = QuadraticRationalBezier(
-                RepresentPoints(ps[1], ps[2].lerp(1 / (1 - w) to ps[1], 1 / (1 - w) to ps[3]), ps[3]),
-                RepresentParams(0.0, 0.5, 1.0),
-                -w)
-        val domain = Interval(-1 / (2 * w + 2), (2 * w + 3) / (2 * w + 2))
-        val qs = domain.sample(100).map { t ->
-            when (val h = MultiReference.unboundParam(t)) {
-                in r0.paramRange -> r0.evaluate(h)
-                else -> c0.evaluate(MultiReference.complementParam(h))
-            }
-        }
-        println(qs)
-        drawPolyline(Polyline.byIndices(qs), DrawStyle(Color.RED))
-        // drawPoints(qs, DrawStyle(Color.RED))
-        drawPoints(computeGlobalEllipticParameters(reparametrized, 3, n, 10).second.map(s).map { it.copy(r = 5.0) }, DrawStyle(Color.BLUE))
-
-        //drawPoints(EllipticGenerator(3).createElementBuilder(reparametrized).representPoints.map { it.middle }.let { it + s.evaluateAll(2) }.map { it.copy(r = 3.0) }, DrawStyle(Color.GREEN))
-        //val ref = Settings.elliptic.generate(reparametrized)
-        //drawPoints(ref.evaluateAll(100).map { it.points[0] }, DrawStyle(Color.GREEN))
-        println(EllipticGenerator(3).createElementBuilder(reparametrized).representPoints.size)
-        drawPoints((listOf(ps[1], ps[2], ps[3]) + s.sample(2).map { it.point }).map { it.copy(r = 10.0) })
-
-        val f = computeFar(s.sample(2), w, ps[1], ps[3], ps[2])
-        println(f)
-        fillPoint(f.copy(r = 20.0), FillStyle(Color.BLUE))
-        println(ps[2])
-        //drawPoints(listOf(cs.front, cs.middle, cs.back).map { it.point.copy(r = 2.0) }, DrawStyle(Color.RED))
-        //println(cs.weight)
-         */
     }
 }
 

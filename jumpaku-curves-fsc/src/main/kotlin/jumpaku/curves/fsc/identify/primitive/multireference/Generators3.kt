@@ -25,9 +25,7 @@ abstract class AbstractSlidingReferenceElementBuilder<C : Curve>(generations: In
     fun representPoints(): Map<Int, RepresentPoints> {
         val indices = representParamPointList.indices
         val points = representParamPointList.map { it.point }
-        println(partitionIndices)
         val ws = weights()
-        println(ws)
         return partitionIndices.mapIndexedNotNull { elementIndex, (_, iMiddle, _) ->
             val iFront = iMiddle - (elementsSize / 2)
             val iBack = iMiddle + (elementsSize / 2)
@@ -48,14 +46,10 @@ abstract class AbstractSlidingReferenceElementBuilder<C : Curve>(generations: In
                 set(iMiddle, SlidingMultiReference.invertParam(elementIndex, 0.5, weights))
             }
         }
-        println(indices)
-        println(partitionIndices)
-        println(rootParams.toList())
         return partitionIndices.mapIndexedNotNull { elementIndex, (_, iMiddle, _) ->
             val iFront = iMiddle - (elementsSize / 2)
             val iBack = iMiddle + (elementsSize / 2)
             if (iFront !in indices || iBack !in indices) return@mapIndexedNotNull null
-            println("$iFront $iMiddle $iBack")
 
             val hFront = SlidingMultiReference.convertParam(elementIndex, rootParams[iFront], weights)
             val hBack = SlidingMultiReference.convertParam(elementIndex, rootParams[iBack], weights)
@@ -159,7 +153,6 @@ class CircularGenerator3(generations: Int) : AbstractSlidingReferenceGenerator(g
             val (back, tBack) = representParamPointList[backIndex]
             val far = computeLocalCircularFar(fsc, tFront, tBack).point
             val m = front.middle(back)
-            println("$frontIndex $backIndex $weight")
             val t = sqrt((front.distSquare(m) * (1 - weight)).divOrDefault(far.distSquare(m) * (1 + weight)) { 0.0 })
             return m.lerp(t, far)
         }

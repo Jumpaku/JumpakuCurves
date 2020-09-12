@@ -14,7 +14,6 @@ class SlidingMultiReference(
 
     init {
         require(elementsCount(generations) == elements.size) { "elements.size mismatch with generations" }
-        println(elements.map { it.bezier.weight })
     }
 
     private val weights = AbstractSlidingReferenceElementBuilder.weights(
