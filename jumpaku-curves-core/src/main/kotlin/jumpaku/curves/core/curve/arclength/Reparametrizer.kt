@@ -67,20 +67,19 @@ class Reparametrizer private constructor(
             return MonotonicQuadratic(s0, b1, s2, domain)
         }
 
-        fun of(curve: Curve, originalParams: Iterable<Double>): Reparametrizer {
+        fun of(curve: Curve, originalParams: List<Double>): Reparametrizer {
             require(originalParams.all { it.isFinite() }) { "originalParams contains infinite value" }
-            val params = originalParams.toList()
-            require(params.size > 1) { "originalToArcLength.size() is too small" }
+            require(originalParams.size > 1) { "originalToArcLength.size() is too small" }
 
-            val qs = params.zipWithNext { t0, t2 -> interpolate(curve, t0, t2) }
+            val qs = originalParams.zipWithNext { t0, t2 -> interpolate(curve, t0, t2) }
             val arcLengthParams = mutableListOf(0.0)
-            qs.zip(params.drop(1)) { q, t -> q(t) }.forEach {
+            qs.zip(originalParams.drop(1)) { q, t -> q(t) }.forEach {
                 arcLengthParams += (arcLengthParams.last() + it)
             }
             val quadratics = qs.zip(arcLengthParams) { q, l ->
                 q.copy(b0 = q.b0 + l, b1 = q.b1 + l, b2 = q.b2 + l)
             }
-            return Reparametrizer(params, arcLengthParams, quadratics)
+            return Reparametrizer(originalParams, arcLengthParams, quadratics)
         }
     }
 }

@@ -53,7 +53,7 @@ class ReparametrizedCurve<C : Curve>(val originalCurve: C, val reparametrizer: R
 
     companion object {
 
-        fun <C : Curve> of(originalCurve: C, originalParams: Iterable<Double>): ReparametrizedCurve<C> =
+        fun <C : Curve> of(originalCurve: C, originalParams: List<Double>): ReparametrizedCurve<C> =
                 ReparametrizedCurve(originalCurve, Reparametrizer.of(originalCurve, originalParams))
 
         fun <C : Curve> approximate(curve: C, tolerance: Double): ReparametrizedCurve<C> =
