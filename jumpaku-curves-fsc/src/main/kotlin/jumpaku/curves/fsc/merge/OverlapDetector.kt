@@ -4,37 +4,32 @@ import jumpaku.commons.control.*
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.lerp
 import java.util.*
 import kotlin.math.abs
 
 
 class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
 
-    fun detect(first: BSpline, second: BSpline, samplingSpan: Double): Option<OverlapState> {
-        val firstSamples = first.sample(samplingSpan)
-        val secondSamples = second.sample(samplingSpan)
-        return detect(firstSamples, secondSamples)
-    }
-
-    fun detect(existSamples: List<ParamPoint>, overlapSamples: List<ParamPoint>): Option<OverlapState> {
+    fun detect(existSamples: List<ParamPoint>, overlapSamples: List<ParamPoint>, mergeRate: Double): Option<OverlapState> {
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-        val distMaxRidge = findRidge(osm, compareBy { it.dist }) { i, j -> osm[i, j] > overlapThreshold }
+        val distMaxRidge = findRidge(osm, compareBy { it.dist(mergeRate) }) { i, j -> osm[i, j] > overlapThreshold }
                 .map { it.subRidge.map { it.asPair() } }
                 .filter { it.isNotEmpty() }
                 .orNull() ?: return None
         val available = collectRange(osm, distMaxRidge, overlapThreshold)
         val grade = findRidge(osm, compareBy { it.grade }) { i, j -> osm[i, j] > overlapThreshold && (i to j) in available }
                 .map { it.grade }.orThrow()
-        val gradeMaxRidge = findRidge(osm, compareBy { it.dist }) { i, j -> osm[i, j] >= grade && (i to j) in available }
+        val gradeMaxRidge = findRidge(osm, compareBy { it.dist(mergeRate) }) { i, j -> osm[i, j] >= grade && (i to j) in available }
                 .map { it.subRidge.map { it.asPair() } }
                 .orThrow()
         val range = collectRange(osm, gradeMaxRidge, overlapThreshold)
         return Some(OverlapState(osm, grade, gradeMaxRidge, range))
     }
 
-    fun detect2(existSamples: List<ParamPoint>, overlapSamples: List<ParamPoint>): Option<OverlapState> {
+    fun detect2(existSamples: List<ParamPoint>, overlapSamples: List<ParamPoint>, mergeRate: Double): Option<OverlapState> {
         val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-        val found = findRidge(osm, compareBy { it.dist }) { i, j -> osm[i, j] > overlapThreshold }
+        val found = findRidge(osm, compareBy { it.dist(mergeRate) }) { i, j -> osm[i, j] > overlapThreshold }
                 .filter { it.subRidge.isNotEmpty() }
                 .orNull() ?: return None
         val grade = found.grade
@@ -49,12 +44,15 @@ class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
             fun asPair(): Pair<Int, Int> = i to j
         }
 
-        class DpValue(val grade: Grade, val dist: Int, val subRidge: List<DpKey>) {
-            fun extend(key: DpKey, keyGrade: Grade): DpValue {
-                val extended = subRidge + key
-                val (fi, fj) = extended.first()
-                val (li, lj) = extended.last()
-                return DpValue(grade and keyGrade, abs(li - fi) + abs(lj - fj), extended)
+        class DpValue(val grade: Grade, val subRidge: List<DpKey>) {
+
+            fun extend(key: DpKey, keyGrade: Grade): DpValue =
+                    DpValue(grade and keyGrade, subRidge + key)
+
+            fun dist(mergeRate: Double): Double {
+                val (fi, fj) = subRidge.first()
+                val (li, lj) = subRidge.last()
+                return abs(li - fi).toDouble().lerp(mergeRate, abs(lj - fj).toDouble())
             }
         }
 
@@ -65,10 +63,10 @@ class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
                 val muij = osm[i, j]
                 when {
                     !isAvailable(i, j) -> none()
-                    i == 0 && j == 0 -> some(DpValue(muij, 0, listOf(key)))
-                    i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
+                    i == 0 && j == 0 -> some(DpValue(muij, listOf(key)))
+                    i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key, muij) } + DpValue(muij, listOf(key)))
                             .maxWith(compare).toOption()
-                    j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
+                    j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key, muij) } + DpValue(muij, listOf(key)))
                             .maxWith(compare).toOption()
                     else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
                             .flatMap { dpSearch(it).map { value -> value.extend(key, muij) } }

@@ -42,7 +42,7 @@ class Merger(
     fun tryMerge(existing: BSpline, overlapping: BSpline): Option<BSpline> {
         val existSamples = existing.sample(samplingSpan)
         val overlapSamples = overlapping.sample(samplingSpan)
-        return detector.detect(existSamples, overlapSamples).map { overlapState ->
+        return detector.detect(existSamples, overlapSamples, mergeRate).map { overlapState ->
             val data = MergeData.parameterize(existSamples, overlapSamples, mergeRate, overlapState)
             generate(data)
         }
