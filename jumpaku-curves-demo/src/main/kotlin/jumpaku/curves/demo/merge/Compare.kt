@@ -4,6 +4,8 @@ import jumpaku.commons.control.*
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
@@ -62,7 +64,7 @@ object CompareSettings {
     val merger2: Merger2 = Merger2.derive(generator,
             samplingSpan = 0.01,
             mergeRate = 0.5,
-            overlapThreshold = Grade(0.5))
+            overlapThreshold = Grade(0.0))
 }
 
 
@@ -110,15 +112,8 @@ class ComparePanel : JPanel() {
     }
 
     fun Graphics2D.experiment(e: BSpline, o: BSpline) {
-        val eSamples = e.sample(CompareSettings.merger2.samplingSpan)
-        val oSamples = o.sample(CompareSettings.merger2.samplingSpan)
 
         val data = CompareSettings.merger2.run {
-            val overlapState = OverlapDetector(overlapThreshold)
-                    .detect2(eSamples, oSamples, mergeRate).orNull() ?: return
-            resample(e, o, overlapState)
-        }
-        CompareSettings.merger2.run {
             val fsc0 = existFsc.orNull() ?: return@run
             val fsc1 = overlapFsc.orNull() ?: return@run
 
@@ -174,20 +169,33 @@ class ComparePanel : JPanel() {
             transition0.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.MAGENTA)) }
             transition1.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.MAGENTA)) }
 
+            val transition = (transition0 + transition1 + mergeData).sortedBy { it.param }
+            val remain0 = resampleRemainData(fsc0, segmentation0, transition)
+            val remain1 = resampleRemainData(fsc1, segmentation1, transition)
+            remain0.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.ORANGE)) }
+            remain1.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.ORANGE)) }
+
+            val data = resample(fsc0, segmentation0, fsc1, segmentation1)
+
+            val x0 = data.first().param
+            val x1 = data.last().param
+            drawPoints(data.map { Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 2.0) }, DrawStyle(color = Color.GREEN))
+            val update2 = CompareSettings.merger2.tryMerge(e, o).orNull() ?: return@run
+            drawPoints(update2.sample(0.01).map {
+                Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 2.0)
+            }, DrawStyle(color = Color.RED))
+
         }
-        val x0 = data.first().param
-        val x1 = data.last().param
-        //drawPoints(data.map { Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 2.0) }, DrawStyle(color = Color.GREEN))
-        //val update2 = CompareSettings.merger2.tryMerge(e, o).orNull() ?: return
-        //drawPoints(update2.sample(0.01).map {
-        //    Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 2.0) }, DrawStyle(color = Color.RED))
+
 
         //drawCubicBSpline(e, DrawStyle(color = Color.BLUE))
         //drawPoints(e.evaluateAll(0.01), DrawStyle(color = Color.BLUE))
         //drawCubicBSpline(o, DrawStyle(color = Color.GREEN))
         //drawPoints(o.evaluateAll(0.01), DrawStyle(color = Color.GREEN))
-        //drawCubicBSpline(update2, DrawStyle(color = Color.RED))
-        //drawPoints(update2.evaluateAll(0.01), DrawStyle(color = Color.RED))
+        CompareSettings.merger2.tryMerge(e, o).forEach { update2 ->
+            drawCubicBSpline(update2, DrawStyle(color = Color.RED))
+            drawPoints(update2.evaluateAll(0.01), DrawStyle(color = Color.RED))
+        }
 
     }
 

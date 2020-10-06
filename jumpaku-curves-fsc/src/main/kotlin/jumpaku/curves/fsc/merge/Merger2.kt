@@ -6,21 +6,18 @@ import jumpaku.commons.control.Some
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
-import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.fsc.generate.extendBack
 import jumpaku.curves.fsc.generate.extendFront
-import jumpaku.curves.fsc.generate.fit.BezierFitter
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.fsc.generate.fit.weighted
-import kotlin.math.min
 
-class DomainSegmentation(
+data class DomainSegmentation(
         val remainFront: Interval,
         val transitionFront: Interval,
         val overlap: Interval,
@@ -99,6 +96,8 @@ class Merger2(
                 samples1[overlapEnd1].param
         )
 
+        println(segmentation0)
+        println(segmentation1)
         val data = resample(fsc0, segmentation0, fsc1, segmentation1)
 
         return Some(generate(data))
@@ -110,11 +109,13 @@ class Merger2(
             fsc1: BSpline,
             segmentation1: DomainSegmentation
     ): List<WeightedParamPoint> {
-        val mergeData = resampleMergeData(fsc0, segmentation0, fsc1, segmentation1)
-        val merge = Interval(mergeData.first().param, mergeData.last().param)
+        val mergeData = resampleMergeData(fsc0, segmentation0, fsc1, segmentation1).sortedBy { it.param }
         val transition0 = resampleTransitionData(fsc0, segmentation0, mergeData)
         val transition1 = resampleTransitionData(fsc1, segmentation1, mergeData)
-        return emptyList()
+        val mergeAndTransitionData = (transition0 + transition1 + mergeData).sortedBy { it.param }
+        val remain0 = resampleRemainData(fsc0, segmentation0, mergeAndTransitionData)
+        val remain1 = resampleRemainData(fsc1, segmentation1, mergeAndTransitionData)
+        return (remain0 + remain1 + mergeAndTransitionData).sortedBy { it.param }
     }
 
     fun resampleMergeData(fsc0: BSpline,
@@ -140,102 +141,72 @@ class Merger2(
                                segmentation: DomainSegmentation,
                                mergeData: List<WeightedParamPoint>
     ): List<WeightedParamPoint> {
-        val mergeSpan = Interval(mergeData.first().param, mergeData.last().param)
-
-        val innerSpan = min(mergeSpan.span, extendInnerSpan)
         val transitionFront = if (segmentation.transitionFront.span <= 0) emptyList()
         else {
-            val samples = segmentation.transitionFront.sample(samplingSpan).map(fsc)
-            val transitionSpan = segmentation.transitionFront.span
-            val fitDataSubDomain = Interval(mergeSpan.begin - transitionSpan, mergeSpan.begin + innerSpan)
-            val bezier = if (fitDataSubDomain.span > 0) {
-                val fitData = mergeData.filter { it.param in fitDataSubDomain }.map {
-                    val param = ((it.param - fitDataSubDomain.begin) / fitDataSubDomain.span).coerceIn(0.0, 1.0)
-                    it.paramPoint.copy(param = param)
-                }
-                BezierFitter(extendDegree).fit(fitData)
-            } else {
-                Bezier(listOf(mergeData.first(), mergeData.first(), mergeData.first()).map { it.point })
-            }
-            val bezierSubDomain = Interval(0.0, (transitionSpan / fitDataSubDomain.span).coerceIn(0.0, 1.0))
-            val extendData = bezier.restrict(bezierSubDomain).evaluateAll(samples.size)
-            samples.zip(extendData).mapIndexed { i, (p, q) ->
+            val mergeBegin = mergeData.first()
+            val samples = segmentation.transitionFront.sample(samplingSpan)
+            val remainData = segmentation.transitionFront.sample(samplingSpan).map(fsc)
+            val translate = mergeBegin.point - remainData.last()
+            val transformed = remainData.map { it + translate }
+            val transitionData = remainData.zip(transformed).mapIndexed { i, (p, q) ->
                 val ratio = i / (samples.size - 1.0)
-                ParamPoint(p.lerp(ratio, q), segmentation.transitionFront.run { begin.lerp(ratio, end) })
+                p.lerp(ratio, q)
+            }
+            val remainDataLength = remainData.zipWithNext(Point::dist).sum()
+            val transitionDataLength = transitionData.zipWithNext(Point::dist).sum()
+            val transitionSpan = segmentation.transitionFront.span * transitionDataLength / remainDataLength
+            val (transitionBegin, transitionEnd) = Interval(mergeBegin.param - transitionSpan, mergeBegin.param)
+            transitionData.mapIndexed { i, p ->
+                val ratio = i / (samples.size - 1.0)
+                val param = (transitionBegin).lerp(ratio, transitionEnd)
+                ParamPoint(p, param).weighted(transitionDataLength / remainDataLength)
             }
         }
 
         val transitionBack = if (segmentation.transitionBack.span <= 0) emptyList()
         else {
-            val samples = segmentation.transitionBack.sample(samplingSpan).map(fsc)
-            val transitionSpan = segmentation.transitionBack.span
-            val fitDataSubDomain = Interval(mergeSpan.end - innerSpan, mergeSpan.end + transitionSpan)
-            val bezier = if (fitDataSubDomain.span > 0) {
-                val fitData = mergeData.filter { it.param in fitDataSubDomain }.map {
-                    val param = ((it.param - fitDataSubDomain.begin) / fitDataSubDomain.span).coerceIn(0.0, 1.0)
-                    it.paramPoint.copy(param = param)
-                }
-                BezierFitter(extendDegree).fit(fitData)
-            } else {
-                Bezier(listOf(mergeData.last(), mergeData.last(), mergeData.last()).map { it.point })
-            }
-            val bezierSubDomain = Interval((1 - transitionSpan / fitDataSubDomain.span).coerceIn(0.0, 1.0), 1.0)
-            val extendData = bezier.restrict(bezierSubDomain).evaluateAll(samples.size)
-            samples.zip(extendData).mapIndexed { i, (p, q) ->
+            val mergeEnd = mergeData.last()
+            val samples = segmentation.transitionBack.sample(samplingSpan)
+            val remainData = segmentation.transitionBack.sample(samplingSpan).map(fsc)
+            val translate = mergeEnd.point - remainData.first()
+            val transformed = remainData.map { it + translate }
+            val transitionData = remainData.zip(transformed).mapIndexed { i, (p, q) ->
                 val ratio = 1 - i / (samples.size - 1.0)
-                ParamPoint(p.lerp(ratio, q), segmentation.transitionFront.run { begin.lerp(ratio, end) })
+                p.lerp(ratio, q)
+            }
+            val remainDataLength = remainData.zipWithNext(Point::dist).sum()
+            val transitionDataLength = transitionData.zipWithNext(Point::dist).sum()
+            val transitionSpan = segmentation.transitionBack.span * transitionDataLength / remainDataLength
+            val (transitionBegin, transitionEnd) = Interval(mergeEnd.param, mergeEnd.param + transitionSpan)
+            transitionData.mapIndexed { i, p ->
+                val ratio = 1 - i / (samples.size - 1.0)
+                val param = (transitionBegin).lerp(1 - ratio, transitionEnd)
+                ParamPoint(p, param).weighted(transitionDataLength / remainDataLength)
             }
         }
-        return (transitionFront + transitionBack).map { it.weighted() }
+        return (transitionFront + transitionBack)
     }
 
-    fun resample(
-            existing: BSpline,
-            overlapping: BSpline,
-            overlapState: OverlapState
+    fun resampleRemainData(
+            fsc: BSpline,
+            segmentation: DomainSegmentation,
+            mergeAndTransitionData: List<WeightedParamPoint>
     ): List<WeightedParamPoint> {
-        require(mergeRate in 0.0..1.0)
-        val rowLast = overlapState.osm.rowLastIndex
-        val columnLast = overlapState.osm.columnLastIndex
-        val eSamples = existing.sample(rowLast + 1)
-        val oSamples = overlapping.sample(columnLast + 1)
-
-        val ridge = overlapState.ridge
-        val (eMergeIdxBegin, oMergeIdxBegin) = ridge.first()
-        val (eMergeIdxEnd, oMergeIdxEnd) = ridge.last()
-        val (t0, t1, t2, t3) = listOf(0, eMergeIdxBegin, eMergeIdxEnd, rowLast).map { eSamples[it].param }
-        val (s0, s1, s2, s3) = listOf(0, oMergeIdxBegin, oMergeIdxEnd, columnLast).map { oSamples[it].param }
-
-        val u1 = t1.lerp(mergeRate, s1)
-        val u2 = t2.lerp(mergeRate, s2)
-
-        val eData = eSamples.mapNotNull {
-            when (val t = it.param) {
-                in t1..t2 -> null
-                in t0..t1 -> it.copy(param = u1 - (t1 - t))
-                in t2..t3 -> it.copy(param = u2 + (t - t2))
-                else -> error("")
-            }?.weighted()
+        val remainFront = if (segmentation.remainFront.span <= 0) emptyList()
+        else {
+            val transitionBegin = mergeAndTransitionData.first()
+            val samples = segmentation.remainFront.sample(samplingSpan)
+            val delta = transitionBegin.param - segmentation.remainFront.end
+            samples.map { t -> ParamPoint(fsc(t), t + delta).weighted() }
         }
-        val oData = oSamples.mapNotNull {
-            when (val s = it.param) {
-                in s1..s2 -> null
-                in s0..s1 -> it.copy(param = u1 - (s1 - s))
-                in s2..s3 -> it.copy(param = u2 + (s - s2))
-                else -> error("")
-            }?.weighted()
+        val remainBack = if (segmentation.remainBack.span <= 0) emptyList()
+        else {
+            val transitionEnd = mergeAndTransitionData.last()
+            val samples = segmentation.remainBack.sample(samplingSpan)
+            val delta = transitionEnd.param - segmentation.remainBack.begin
+            samples.map { t -> ParamPoint(fsc(t), t + delta).weighted() }
         }
-
-        val nSamples = Interval(u1, u2).sample(samplingSpan).size
-        val mData = Interval(t1, t2).sample(nSamples).zip(Interval(s1, s2).sample(nSamples)) { t, s ->
-            val pE = existing(t)
-            val pO = overlapping(s)
-            val p = pE.lerp(mergeRate * (1 / pO.r) / (1 / pE.r + 1 / pO.r), pO)
-            listOf(
-                    ParamPoint(p, t.lerp(mergeRate, s)).weighted()
-            )
-        }.flatten()
-        return (eData + oData + mData).sortedBy { it.param }
+        return remainFront + remainBack
     }
 
     fun generate(mergeData: List<WeightedParamPoint>): BSpline {
