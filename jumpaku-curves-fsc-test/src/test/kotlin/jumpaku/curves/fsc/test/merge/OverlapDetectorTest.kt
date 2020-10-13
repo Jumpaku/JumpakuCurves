@@ -31,7 +31,7 @@ class OverlapDetectorTest {
             val overlapping = resourceText("BlendOverlapping$i.json").parseJson().let { BSplineJson.fromJson(it) }
             val eSampled = existing.sample(samplingSpan)
             val aSampled = overlapping.sample(samplingSpan)
-            val actual = overlapDetector.detect(eSampled, aSampled).map {
+            val actual = overlapDetector.detect(eSampled, aSampled, mergeRate).map {
                 MergeData.parameterize(eSampled, aSampled, mergeRate, it)
             }
             val expected = resourceText("BlendDataOpt$i.json")

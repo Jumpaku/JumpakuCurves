@@ -1,42 +1,34 @@
 package jumpaku.curves.fsc.merge
 
-import jumpaku.commons.control.None
-import jumpaku.commons.control.Option
-import jumpaku.commons.control.Some
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.merge.OverlapDetector.Companion.collectRange
-import jumpaku.curves.fsc.merge.OverlapDetector.Companion.findRidge
 
 
-class OverlapRidge(val grade: Grade, val ridge: List<Pair<Int, Int>>)
+class OverlapRidge(val grade: Grade, val ridge: List<Pair<Int, Int>>) : List<Pair<Int, Int>> by ridge
 
-class OverlapDetector2 {
-
-    fun detectBaseRidge(
-            existSamples: List<ParamPoint>,
-            overlapSamples: List<ParamPoint>,
-            mergeRate: Double,
-            overlapThreshold: Grade
-    ): Pair<OverlapMatrix, Option<OverlapRidge>> {
-        val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
-        val maxDistRidge = findRidge(osm, compareBy { it.dist(mergeRate) }) { i, j -> osm[i, j] > overlapThreshold }
-                .map { OverlapRidge(it.grade, it.subRidge.map { it.asPair() }) }
-                .orNull() ?: return osm to None
-        return osm to Some(maxDistRidge)
-    }
-
-    fun detectDerivedRidge(
+sealed class OverlapState2(val osm: OverlapMatrix) {
+    class NotFound(osm: OverlapMatrix) : OverlapState2(osm)
+    class Found(
             osm: OverlapMatrix,
-            baseRidge: OverlapRidge,
-            mergeRate: Double,
-            overlapThreshold: Grade
-    ): Option<OverlapRidge> {
-        if (overlapThreshold > baseRidge.grade) return None
-        val available = collectRange(osm, baseRidge.ridge, overlapThreshold)
-        val maxDistRidge = findRidge(osm, compareBy { it.dist(mergeRate) }) { i, j -> (i to j) in available }
-                .map { OverlapRidge(it.grade, it.subRidge.map { it.asPair() }) }
-                .orNull() ?: return  None
-        return Some(maxDistRidge)
+            val coreRidge: OverlapRidge,
+            val transitionBegin: Pair<Int, Int>,
+            val transitionEnd: Pair<Int, Int>
+    ) : OverlapState2(osm)
+}
+
+class OverlapDetector2(val overlapThreshold: Grade, val mergeRate: Double) {
+
+    fun detect(existSamples: List<ParamPoint>, overlapSamples: List<ParamPoint>): OverlapState2 {
+        val osm = OverlapMatrix.create(existSamples.map { it.point }, overlapSamples.map { it.point })
+        val (overlapBegin, overlapEnd) = DpHelper.findRidgeBeginEnd(osm, mergeRate) { (i, j) -> osm[i, j] > overlapThreshold }
+                .orNull() ?: return OverlapState2.NotFound(osm)
+        val coreRidge = DpHelper.findRidge(osm, overlapBegin, overlapEnd) { (i, j) -> osm[i, j] > overlapThreshold }
+                .orNull() ?: return OverlapState2.NotFound(osm)
+        val available = collectRange(osm, coreRidge, Grade.FALSE)
+        val (transitionBegin, transitionEnd) = DpHelper.findRidgeBeginEnd(osm, mergeRate) { it.asPair() in available }
+                .orNull() ?: return OverlapState2.NotFound(osm)
+        return OverlapState2.Found(osm, coreRidge, transitionBegin.asPair(), transitionEnd.asPair())
     }
 }
+

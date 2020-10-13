@@ -9,6 +9,7 @@ import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.generate.fit.weighted
 import jumpaku.curves.fsc.merge.*
 import jumpaku.curves.graphics.DrawStyle
 import jumpaku.curves.graphics.drawCubicBSpline
@@ -58,13 +59,13 @@ object CompareSettings {
 
     val merger: Merger = Merger.derive(generator,
             samplingSpan = 0.01,
-            mergeRate = 0.5,
+            mergeRate = 0.75,
             overlapThreshold = Grade(0.5))
 
     val merger2: Merger2 = Merger2.derive(generator,
             samplingSpan = 0.01,
-            mergeRate = 0.5,
-            overlapThreshold = Grade(0.0))
+            mergeRate = 0.75,
+            overlapThreshold = Grade(0.5))
 }
 
 
@@ -113,27 +114,29 @@ class ComparePanel : JPanel() {
 
     fun Graphics2D.experiment(e: BSpline, o: BSpline) {
 
-        val data = CompareSettings.merger2.run {
+        CompareSettings.merger2.run {
             val fsc0 = existFsc.orNull() ?: return@run
             val fsc1 = overlapFsc.orNull() ?: return@run
 
             val samples0 = fsc0.sample(samplingSpan)
             val samples1 = fsc1.sample(samplingSpan)
-            val (osm, baseRidge) = detector.detectBaseRidge(samples0, samples1, mergeRate, overlapThreshold)
-            drawOsm(osm)
-            if (baseRidge !is Some) return@run
-            val overlapRidge = detector.detectDerivedRidge(osm, baseRidge.value, mergeRate, overlapThreshold)
-                    .orNull() ?: return@run
-            val extendedRidge = detector.detectDerivedRidge(osm, baseRidge.value, mergeRate, Grade.FALSE)
-                    .orNull() ?: return@run
 
-            drawRidge(extendedRidge)
-            drawRidge(overlapRidge)
+            val state = when (val found = detector.detect(samples0, samples1)) {
+                is OverlapState2.NotFound -> return@run
+                else -> found as OverlapState2.Found
+            }
+            drawOsm(state.osm)
+            drawRidge(state.coreRidge)
 
-            val (overlapBegin0, overlapBegin1) = overlapRidge.ridge.first()
-            val (overlapEnd0, overlapEnd1) = overlapRidge.ridge.last()
-            val (transitionBegin0, transitionBegin1) = extendedRidge.ridge.first()
-            val (transitionEnd0, transitionEnd1) = extendedRidge.ridge.last()
+            val (overlapBegin0, overlapBegin1) = state.coreRidge.first()
+            val (overlapEnd0, overlapEnd1) = state.coreRidge.last()
+            val (transitionBegin0, transitionBegin1) = state.transitionBegin
+            val (transitionEnd0, transitionEnd1) = state.transitionEnd
+            drawOsmPoint(state.coreRidge.first(), Color.MAGENTA)
+            drawOsmPoint(state.coreRidge.last(), Color.MAGENTA)
+            drawOsmPoint(state.transitionBegin, Color.CYAN)
+            drawOsmPoint(state.transitionEnd, Color.CYAN)
+
             val segmentation0 = DomainSegmentation.segment(fsc0,
                     samples0[transitionBegin0].param,
                     samples0[transitionEnd0].param,
@@ -161,7 +164,7 @@ class ComparePanel : JPanel() {
             segmentation1.overlap.sample(samplingSpan).map(fsc1)
                     .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.RED)) }
 
-            val mergeData = resampleMergeData(fsc0, segmentation0, fsc1, segmentation1)
+            val mergeData = resampleMergeData(state.coreRidge, fsc0, fsc1)
             mergeData.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.CYAN)) }
 
             val transition0 = resampleTransitionData(fsc0, segmentation0, mergeData)
@@ -175,15 +178,22 @@ class ComparePanel : JPanel() {
             remain0.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.ORANGE)) }
             remain1.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.ORANGE)) }
 
-            val data = resample(fsc0, segmentation0, fsc1, segmentation1)
-
-            val x0 = data.first().param
-            val x1 = data.last().param
-            drawPoints(data.map { Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 2.0) }, DrawStyle(color = Color.GREEN))
-            val update2 = CompareSettings.merger2.tryMerge(e, o).orNull() ?: return@run
-            drawPoints(update2.sample(0.01).map {
-                Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 2.0)
-            }, DrawStyle(color = Color.RED))
+            val data = resample(state.coreRidge, fsc0, segmentation0, fsc1, segmentation1)
+            val weighted = weightData(data)
+            val x0 = weighted.first().param
+            val x1 = weighted.last().param
+            weighted.forEach {
+                val p = Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 1.0)
+                val sty = DrawStyle(color = Color.getHSBColor(10f, 1f, (it.weight/weighted.map { it.weight }.max()!!).toFloat()))
+                drawPoint(p, sty)
+            }
+            val y0 = weighted.first().param
+            val y1 = weighted.last().param
+            weighted.forEach {
+                val p = Point.xyr(it.point.x, 20.0.lerp((it.param - y0) / (y1 - y0), 520.0), 1.0)
+                val sty = DrawStyle(color = Color.getHSBColor(20f, 1f, (it.weight/weighted.map { it.weight }.max()!!).toFloat()))
+                drawPoint(p, sty)
+            }
 
         }
 
@@ -199,24 +209,27 @@ class ComparePanel : JPanel() {
 
     }
 
-    fun Graphics2D.drawOsm(osm: OverlapMatrix) {
+    fun Graphics2D.drawOsmPoint(p: Pair<Int, Int>, color: Color) {
         val pixel = 4
+        val (i, j) = p
+        this.color = color
+        fillRect(j * pixel, i * pixel, pixel, pixel)
+    }
+
+    fun Graphics2D.drawOsm(osm: OverlapMatrix) {
         for (i in 0..osm.rowLastIndex) {
             for (j in 0..osm.columnLastIndex) {
                 val uij = osm[i, j].value
-                color = Color.getHSBColor(0f, 0f, 1 - uij.toFloat())
-                fillRect(j * pixel, i * pixel, pixel, pixel)
+                drawOsmPoint(i to j, Color.getHSBColor(0f, 0f, 1 - uij.toFloat()))
             }
         }
     }
 
+
     fun Graphics2D.drawRidge(ridge: OverlapRidge) {
-        val pixel = 4
         ridge.ridge.forEach { (i, j) ->
             val h = 360 * ridge.grade.value.toFloat()
-            color = Color.getHSBColor(h, 1f, 1f)
-            fillRect(j * pixel, i * pixel, pixel, pixel)
-
+            drawOsmPoint(i to j, Color.getHSBColor(h, 1f, 1f))
         }
     }
 }

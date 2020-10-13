@@ -16,6 +16,9 @@ import jumpaku.curves.fsc.generate.extendBack
 import jumpaku.curves.fsc.generate.extendFront
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.fsc.generate.fit.weighted
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 data class DomainSegmentation(
         val remainFront: Interval,
@@ -67,22 +70,19 @@ class Merger2(
         require(bandWidth > 0.0)
     }
 
-    val detector: OverlapDetector2 = OverlapDetector2()
+    val detector: OverlapDetector2 = OverlapDetector2(overlapThreshold, mergeRate)
 
     fun tryMerge(fsc0: BSpline, fsc1: BSpline): Option<BSpline> {
         val samples0 = fsc0.sample(samplingSpan)
         val samples1 = fsc1.sample(samplingSpan)
-        val (osm, baseRidge) = detector.detectBaseRidge(samples0, samples1, mergeRate, overlapThreshold)
-        if (baseRidge !is Some) return None
-        val overlapRidge = detector.detectDerivedRidge(osm, baseRidge.value, mergeRate, overlapThreshold)
-                .orNull() ?: return None
-        val extendedRidge = detector.detectDerivedRidge(osm, baseRidge.value, mergeRate, Grade.FALSE)
-                .orNull() ?: return None
-
-        val (overlapBegin0, overlapBegin1) = overlapRidge.ridge.first()
-        val (overlapEnd0, overlapEnd1) = overlapRidge.ridge.last()
-        val (transitionBegin0, transitionBegin1) = extendedRidge.ridge.first()
-        val (transitionEnd0, transitionEnd1) = extendedRidge.ridge.last()
+        val state = when (val found = detector.detect(samples0, samples1)) {
+            is OverlapState2.NotFound -> return None
+            else -> found as OverlapState2.Found
+        }
+        val (overlapBegin0, overlapBegin1) = state.coreRidge.first()
+        val (overlapEnd0, overlapEnd1) = state.coreRidge.last()
+        val (transitionBegin0, transitionBegin1) = state.transitionBegin
+        val (transitionEnd0, transitionEnd1) = state.transitionEnd
         val segmentation0 = DomainSegmentation.segment(fsc0,
                 samples0[transitionBegin0].param,
                 samples0[transitionEnd0].param,
@@ -96,20 +96,46 @@ class Merger2(
                 samples1[overlapEnd1].param
         )
 
-        println(segmentation0)
-        println(segmentation1)
-        val data = resample(fsc0, segmentation0, fsc1, segmentation1)
+        val data = resample(state.coreRidge, fsc0, segmentation0, fsc1, segmentation1)
+        val weighted = weightData(data)
+        return Some(generate(weighted))
+    }
 
-        return Some(generate(data))
+    fun weightData(data: List<ParamPoint>): List<WeightedParamPoint> {
+        fun kernel(u: Double): Double = if (abs(u) > 1) 0.0 else (1 - u * u) * (1 - u * u) * 15 / 16
+
+        val params = data.map { it.param }
+        val n = params.size
+        val m = params.average()
+        val s2 = params.sumByDouble { (it - m) * (it - m) } / (n - 1)
+        val s = sqrt(s2)
+        val h = s * 1.06 * n.toDouble().pow(0.2)
+        println(h)
+
+        fun density(i: Int): Double {
+            var fi = 0.0
+            for (j in i downTo 0) {
+                val kj = kernel((params[i] - params[j]) / h)
+                if (kj > 0) fi += kj else break
+            }
+            for (j in i until n) {
+                val kj = kernel((params[i] - params[j]) / h)
+                if (kj > 0) fi += kj else break
+            }
+            return fi / (n * h)
+        }
+
+        return data.mapIndexed { i, p -> p.weighted(1 / density(i)) }
     }
 
     fun resample(
+            coreRidge: OverlapRidge,
             fsc0: BSpline,
             segmentation0: DomainSegmentation,
             fsc1: BSpline,
             segmentation1: DomainSegmentation
-    ): List<WeightedParamPoint> {
-        val mergeData = resampleMergeData(fsc0, segmentation0, fsc1, segmentation1).sortedBy { it.param }
+    ): List<ParamPoint> {
+        val mergeData = resampleMergeData(coreRidge, fsc0, fsc1).sortedBy { it.param }
         val transition0 = resampleTransitionData(fsc0, segmentation0, mergeData)
         val transition1 = resampleTransitionData(fsc1, segmentation1, mergeData)
         val mergeAndTransitionData = (transition0 + transition1 + mergeData).sortedBy { it.param }
@@ -118,29 +144,44 @@ class Merger2(
         return (remain0 + remain1 + mergeAndTransitionData).sortedBy { it.param }
     }
 
-    fun resampleMergeData(fsc0: BSpline,
-                          segmentation0: DomainSegmentation,
-                          fsc1: BSpline,
-                          segmentation1: DomainSegmentation
-    ): List<WeightedParamPoint> {
-
-        val nSamples = Interval(
-                segmentation0.overlap.begin.lerp(mergeRate, segmentation1.overlap.begin),
-                segmentation0.overlap.end.lerp(mergeRate, segmentation1.overlap.end)
-        ).sample(samplingSpan).size
-        val overlapSamples0 = segmentation0.overlap.sample(nSamples)
-        val overlapSamples1 = segmentation1.overlap.sample(nSamples)
-        return overlapSamples0.zip(overlapSamples1) { t0, t1 ->
-            val p0 = fsc0(t0)
-            val p1 = fsc1(t1)
-            ParamPoint(p0.lerp(mergeRate, p1), t0.lerp(mergeRate, t1)).weighted(1.0)
+    fun resampleMergeData(coreRidge: OverlapRidge, fsc0: BSpline, fsc1: BSpline): List<ParamPoint> {
+        val samples0 = fsc0.sample(samplingSpan)
+        val samples1 = fsc1.sample(samplingSpan)
+        val ridgeComponents = coreRidge.fold(mutableListOf<MutableList<Pair<Int, Int>>>()) { acc, (i, j) ->
+            when {
+                acc.isEmpty() -> acc.add(mutableListOf(i to j))
+                acc.last().last().let { (ii, jj) -> ii != i && jj != j } -> acc.add(mutableListOf(i to j))
+                else -> acc.last().add(i to j)
+            }
+            acc
         }
+        val mergeData = ridgeComponents.flatMap { component ->
+            val idx0 = component.map { (i, _) -> i }.distinct()
+            val idx1 = component.map { (_, j) -> j }.distinct()
+            val tau = samplingSpan / 2
+            val begin0 = samples0[idx0.first()].param - tau
+            val end0 = samples0[idx0.last()].param + tau
+            val begin1 = samples1[idx1.first()].param - tau
+            val end1 = samples1[idx1.last()].param + tau
+            val n0 = idx0.size
+            val n1 = idx1.size
+            val data0 = idx0.mapIndexed { k, i ->
+                val t = begin1.lerp((k + 0.5) / (n0 + 1), end1).coerceIn(fsc1.domain)
+                samples0[i].lerp(mergeRate, ParamPoint(fsc1(t), t))
+            }
+            val data1 = idx1.mapIndexed { k, j ->
+                val t = begin0.lerp((k + 0.5) / (n1 + 1), end0).coerceIn(fsc0.domain)
+                samples1[j].lerp(1 - mergeRate, ParamPoint(fsc0(t), t))
+            }
+            data0 + data1
+        }
+        return mergeData//coreRidge.map { (i, j) -> samples0[i].lerp(mergeRate, samples1[j]) }
     }
 
     fun resampleTransitionData(fsc: BSpline,
                                segmentation: DomainSegmentation,
-                               mergeData: List<WeightedParamPoint>
-    ): List<WeightedParamPoint> {
+                               mergeData: List<ParamPoint>
+    ): List<ParamPoint> {
         val transitionFront = if (segmentation.transitionFront.span <= 0) emptyList()
         else {
             val mergeBegin = mergeData.first()
@@ -159,7 +200,7 @@ class Merger2(
             transitionData.mapIndexed { i, p ->
                 val ratio = i / (samples.size - 1.0)
                 val param = (transitionBegin).lerp(ratio, transitionEnd)
-                ParamPoint(p, param).weighted(transitionDataLength / remainDataLength)
+                ParamPoint(p, param)
             }
         }
 
@@ -181,7 +222,7 @@ class Merger2(
             transitionData.mapIndexed { i, p ->
                 val ratio = 1 - i / (samples.size - 1.0)
                 val param = (transitionBegin).lerp(1 - ratio, transitionEnd)
-                ParamPoint(p, param).weighted(transitionDataLength / remainDataLength)
+                ParamPoint(p, param)
             }
         }
         return (transitionFront + transitionBack)
@@ -190,21 +231,21 @@ class Merger2(
     fun resampleRemainData(
             fsc: BSpline,
             segmentation: DomainSegmentation,
-            mergeAndTransitionData: List<WeightedParamPoint>
-    ): List<WeightedParamPoint> {
+            mergeAndTransitionData: List<ParamPoint>
+    ): List<ParamPoint> {
         val remainFront = if (segmentation.remainFront.span <= 0) emptyList()
         else {
             val transitionBegin = mergeAndTransitionData.first()
             val samples = segmentation.remainFront.sample(samplingSpan)
             val delta = transitionBegin.param - segmentation.remainFront.end
-            samples.map { t -> ParamPoint(fsc(t), t + delta).weighted() }
+            samples.map { t -> ParamPoint(fsc(t), t + delta) }
         }
         val remainBack = if (segmentation.remainBack.span <= 0) emptyList()
         else {
             val transitionEnd = mergeAndTransitionData.last()
             val samples = segmentation.remainBack.sample(samplingSpan)
             val delta = transitionEnd.param - segmentation.remainBack.begin
-            samples.map { t -> ParamPoint(fsc(t), t + delta).weighted() }
+            samples.map { t -> ParamPoint(fsc(t), t + delta) }
         }
         return remainFront + remainBack
     }
