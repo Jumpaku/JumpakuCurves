@@ -1,7 +1,9 @@
 package jumpaku.curves.demo.merge
 
 import jumpaku.commons.control.*
+import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
@@ -9,7 +11,6 @@ import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.fit.weighted
 import jumpaku.curves.fsc.merge.*
 import jumpaku.curves.graphics.DrawStyle
 import jumpaku.curves.graphics.drawCubicBSpline
@@ -53,8 +54,8 @@ object CompareSettings {
             extendOuterSpan = 0.1,
             extendDegree = 2,
             fuzzifier = Fuzzifier.Linear(
-                    velocityCoefficient = 0.008,
-                    accelerationCoefficient = 0.007
+                    velocityCoefficient = 0.01,
+                    accelerationCoefficient = 0.001
             ))
 
     val merger: Merger = Merger.derive(generator,
@@ -79,7 +80,6 @@ class ComparePanel : JPanel() {
     var overlapFsc: Option<BSpline> = none()
 
     fun update(drawingStroke: DrawingStroke) {
-        println(drawingStroke.run { inputData.size / paramSpan })
         overlapFsc = Some(CompareSettings.generator.generate(drawingStroke))
         repaint()
     }
@@ -102,7 +102,7 @@ class ComparePanel : JPanel() {
         //    drawPoints(s.evaluateAll(0.01), DrawStyle(color = Color.RED))
         //}
         existFsc = existFsc.flatMap { e ->
-            overlapFsc.flatMap { o -> CompareSettings.merger.tryMerge(e, o) }.or(existFsc)
+            overlapFsc.flatMap { o -> CompareSettings.merger2.tryMerge(e, o) }.or(existFsc)
         }.or(overlapFsc)
         existFsc.forEach { s ->
             drawCubicBSpline(s, DrawStyle())
@@ -150,20 +150,6 @@ class ComparePanel : JPanel() {
                     samples1[overlapEnd1].param
             )
 
-            listOf(segmentation0.remainFront, segmentation0.remainBack).flatMap { it.sample(samplingSpan).map(fsc0) }
-                    .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.BLUE)) }
-            listOf(segmentation0.transitionFront, segmentation0.transitionBack).flatMap { it.sample(samplingSpan).map(fsc0) }
-                    .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.GREEN)) }
-            segmentation0.overlap.sample(samplingSpan).map(fsc0)
-                    .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.RED)) }
-
-            listOf(segmentation1.remainFront, segmentation1.remainBack).flatMap { it.sample(samplingSpan).map(fsc1) }
-                    .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.BLUE)) }
-            listOf(segmentation1.transitionFront, segmentation1.transitionBack).flatMap { it.sample(samplingSpan).map(fsc1) }
-                    .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.GREEN)) }
-            segmentation1.overlap.sample(samplingSpan).map(fsc1)
-                    .forEach { drawPoint(it.copy(r = 2.0), DrawStyle(Color.RED)) }
-
             val mergeData = resampleMergeData(state.coreRidge, fsc0, fsc1)
             mergeData.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.CYAN)) }
 
@@ -178,23 +164,25 @@ class ComparePanel : JPanel() {
             remain0.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.ORANGE)) }
             remain1.forEach { drawPoint(it.point.copy(r = 2.0), DrawStyle(Color.ORANGE)) }
 
-            val data = resample(state.coreRidge, fsc0, segmentation0, fsc1, segmentation1)
-            val weighted = weightData(data)
-            val x0 = weighted.first().param
-            val x1 = weighted.last().param
-            weighted.forEach {
-                val p = Point.xyr(20.0.lerp((it.param - x0) / (x1 - x0), 520.0), it.point.y, 1.0)
-                val sty = DrawStyle(color = Color.getHSBColor(10f, 1f, (it.weight/weighted.map { it.weight }.max()!!).toFloat()))
-                drawPoint(p, sty)
-            }
-            val y0 = weighted.first().param
-            val y1 = weighted.last().param
-            weighted.forEach {
-                val p = Point.xyr(it.point.x, 20.0.lerp((it.param - y0) / (y1 - y0), 520.0), 1.0)
-                val sty = DrawStyle(color = Color.getHSBColor(20f, 1f, (it.weight/weighted.map { it.weight }.max()!!).toFloat()))
-                drawPoint(p, sty)
+            val domain = resample(state.coreRidge, fsc0, segmentation0, fsc1, segmentation1)
+                    .sortedBy { it.param }
+                    .run { Interval(first().param, last().param) }
+
+            mergeData.run {
+                drawPoint(first().point.copy(r = 3.0))
+                drawPoint(last().point.copy(r = 3.0))
             }
 
+            drawTX(mergeData, domain, DrawStyle(Color.CYAN))
+            drawTY(mergeData, domain, DrawStyle(Color.CYAN))
+            drawTX(transition0, domain, DrawStyle(Color.MAGENTA))
+            drawTY(transition0, domain, DrawStyle(Color.MAGENTA))
+            drawTX(transition1, domain, DrawStyle(Color.MAGENTA))
+            drawTY(transition1, domain, DrawStyle(Color.MAGENTA))
+            drawTX(remain0, domain, DrawStyle(Color.ORANGE))
+            drawTY(remain0, domain, DrawStyle(Color.ORANGE))
+            drawTX(remain1, domain, DrawStyle(Color.ORANGE))
+            drawTY(remain1, domain, DrawStyle(Color.ORANGE))
         }
 
 
@@ -230,6 +218,22 @@ class ComparePanel : JPanel() {
         ridge.ridge.forEach { (i, j) ->
             val h = 360 * ridge.grade.value.toFloat()
             drawOsmPoint(i to j, Color.getHSBColor(h, 1f, 1f))
+        }
+    }
+
+    fun Graphics2D.drawTX(data: List<ParamPoint>, domain: Interval, sty: DrawStyle) {
+        val (t0, t1) = domain
+        data.forEach {
+            val p = Point.xyr(it.point.x, 20.0.lerp((it.param - t0) / (t1 - t0), 520.0), 1.0)
+            drawPoint(p, sty)
+        }
+    }
+
+    fun Graphics2D.drawTY(data: List<ParamPoint>, domain: Interval, sty: DrawStyle) {
+        val (t0, t1) = domain
+        data.forEach {
+            val p = Point.xyr(20.0.lerp((it.param - t0) / (t1 - t0), 520.0), it.point.y, 1.0)
+            drawPoint(p, sty)
         }
     }
 }

@@ -64,7 +64,7 @@ data class MultiPoint(val points: List<Point>) : Lerpable<MultiPoint>, List<Poin
                     (1.0 / d).isFinite() -> Double.NEGATIVE_INFINITY
                     else -> 1.0
                 }
-            }.min()!!
+            }.minOrNull()!!
 
             val crisps = points.filterNot { (1.0 / it.r).isFinite() }
             if (crisps.size == 1) return Some(crisps[0] to Grade.clamped(objective(crisps[0])))
@@ -75,7 +75,7 @@ data class MultiPoint(val points: List<Point>) : Lerpable<MultiPoint>, List<Poin
             val rho = 0.5
             val sigma = 0.5
 
-            val initial = points.minBy { it.r }!!
+            val initial = points.minByOrNull { it.r }!!
             val simplex = listOf(
                     initial,
                     initial + Vector.I * initial.r,
