@@ -25,7 +25,7 @@ class Nurbs(
 
     val degree: Int = knotVector.degree
 
-    val weightedControlPoints: List<WeightedPoint> get() = controlPoints.zip(weights, ::WeightedPoint)
+    val weightedControlPoints: List<WeightedPoint> = controlPoints.zip(weights, ::WeightedPoint)
 
     override val domain: Interval = knotVector.domain
 
@@ -127,12 +127,13 @@ class Nurbs(
 
     companion object {
 
-        private tailrec fun evaluate(controlPoints: List<WeightedPoint>, knotVector: KnotVector, t: Double): WeightedPoint {
+        private fun evaluate(controlPoints: List<WeightedPoint>, knotVector: KnotVector, t: Double): WeightedPoint {
             val us = knotVector.extractedKnots
             val (b, e) = knotVector.domain
             if (b < e && t == e) return evaluate(controlPoints.reversed(), knotVector.reverse(), b)
 
             val l = knotVector.searchLastExtractedLessThanOrEqualTo(t)
+
             val d = knotVector.degree
             val result = controlPoints.subList(l - d, l + 1).toMutableList()
 

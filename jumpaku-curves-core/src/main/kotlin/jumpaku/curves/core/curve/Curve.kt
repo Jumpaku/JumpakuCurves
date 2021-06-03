@@ -18,13 +18,17 @@ interface Curve : (Double) -> Point {
         return evaluate(t)
     }
 
-    fun evaluateAll(n: Int): List<Point> = domain.sample(n).map(this::evaluate)
+    fun evaluateAll(n: Int): List<Point> = evaluateAll(domain.sample(n))
 
-    fun evaluateAll(delta: Double): List<Point> = domain.sample(delta).map(this::evaluate)
+    fun evaluateAll(delta: Double): List<Point> = evaluateAll(domain.sample(delta))
 
-    fun sample(n: Int): List<ParamPoint> = domain.sample(n).map { ParamPoint(this(it), it) }
+    fun evaluateAll(sortedParams:List<Double>): List<Point> = sortedParams.map { evaluate(it) }
 
-    fun sample(delta: Double): List<ParamPoint> = domain.sample(delta).map { ParamPoint(this(it), it) }
+    fun sample(n: Int): List<ParamPoint> = sample(domain.sample(n))
+
+    fun sample(delta: Double): List<ParamPoint> = sample(domain.sample(delta))
+
+    fun sample(sortedParams:List<Double>): List<ParamPoint> = evaluateAll(sortedParams).zip(sortedParams, ::ParamPoint)
 
     fun toCrisp(): Curve = object : Curve {
         override val domain: Interval = this@Curve.domain
