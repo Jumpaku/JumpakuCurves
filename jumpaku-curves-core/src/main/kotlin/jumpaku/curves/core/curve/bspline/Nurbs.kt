@@ -89,7 +89,7 @@ class Nurbs(
         return results
     }
 
-    fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a::invoke), weights, knotVector)
+    fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
