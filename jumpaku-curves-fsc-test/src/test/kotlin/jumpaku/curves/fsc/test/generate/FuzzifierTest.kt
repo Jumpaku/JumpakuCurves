@@ -1,9 +1,8 @@
 package jumpaku.curves.fsc.test.generate
 
-import io.vavr.collection.Array
 import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.generate.Fuzzifier
@@ -19,7 +18,7 @@ class FuzzifierTest {
     fun testFuzzify() {
         println("Fuzzify")
         val b = BSpline(
-                Array.of(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
+                listOf(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
                 KnotVector.clamped(Interval(1.0, 2.0), 3, 9))
         val f = l.fuzzify(b, b.domain.sample(10))
 

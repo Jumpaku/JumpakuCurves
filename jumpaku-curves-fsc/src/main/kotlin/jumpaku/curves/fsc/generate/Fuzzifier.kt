@@ -16,11 +16,12 @@ sealed class Fuzzifier {
         override fun fuzzify(crisp: BSpline, ts: List<Double>): List<Double> {
             val d1 = crisp.differentiate()
             val d2 = d1.differentiate()
-            val v = ts.map { d1.evaluate(it) }
-            val a = ts.map { d2.evaluate(it) }
-            return ts.mapIndexed { i, t ->
-                velocityCoefficient * v[i].length() + accelerationCoefficient * a[i].length()
+            val v = d1.evaluateAll(ts)
+            val a = d2.evaluateAll(ts)
+            val r = ts.indices.map {
+                velocityCoefficient * v[it].length() + accelerationCoefficient * a[it].length()
             }
+            return r
         }
     }
 }

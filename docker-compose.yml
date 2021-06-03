@@ -2,8 +2,16 @@ version: '3'
 
 services:
   deploy:
-    image: 'gradle:6.5.1-jdk14'
+    image: 'gradle:7.0.2-jdk16'
     command: ["./gradlew", "publish", "-Pargs=${NEXUS_USER} ${NEXUS_PASSWORD}"]
     working_dir: '/home/gradle/project'
     volumes:
-    - './:/home/gradle/project'
+      - './:/home/gradle/project'
+
+  # docker-compose up test
+  test:
+    image: 'gradle:7.0.2-jdk16'
+    command: ["./gradlew", "test"]
+    working_dir: '/home/gradle/project'
+    volumes:
+      - './:/home/gradle/project'

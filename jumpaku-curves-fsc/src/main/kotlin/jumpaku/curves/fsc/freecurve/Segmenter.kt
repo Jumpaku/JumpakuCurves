@@ -1,16 +1,32 @@
 package jumpaku.curves.fsc.freecurve
 
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonObject
-import com.google.gson.JsonElement
 import jumpaku.curves.core.curve.Curve
-import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bezier.ConicSection
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.CurveClass
 import jumpaku.curves.fsc.identify.primitive.Open4Identifier
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import java.util.*
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.all
+import kotlin.collections.emptyList
+import kotlin.collections.first
+import kotlin.collections.fold
+import kotlin.collections.getOrPut
+import kotlin.collections.last
+import kotlin.collections.listOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.plus
+import kotlin.collections.reversed
+import kotlin.collections.set
+import kotlin.collections.zip
+import kotlin.collections.zipWithNext
+import kotlin.ranges.ClosedRange
+import kotlin.ranges.downTo
+import kotlin.ranges.reversed
+import kotlin.ranges.until
 
 class SegmentResult(val isConicSections: Grade, val segmentParamIndices: List<Int>, val segments: List<Segment.CS>)
 

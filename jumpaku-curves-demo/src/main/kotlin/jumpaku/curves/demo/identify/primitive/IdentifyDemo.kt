@@ -35,9 +35,9 @@ fun main() = SwingUtilities.invokeLater {
 
 object Settings {
 
-    val width = 640
+    val width = 1280
 
-    val height = 480
+    val height = 720
 
     val generator: Generator = Generator(
             degree = 3,
