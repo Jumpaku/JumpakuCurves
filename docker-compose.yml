@@ -1,6 +1,8 @@
 version: '3'
 
 services:
+
+  # NEXUS_USER= NEXUS_PASSWORD= docker-compose up deploy
   deploy:
     image: 'gradle:7.0.2-jdk16'
     command: ["./gradlew", "publish", "-Pargs=${NEXUS_USER} ${NEXUS_PASSWORD}"]
