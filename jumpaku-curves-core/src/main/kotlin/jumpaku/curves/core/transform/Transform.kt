@@ -7,11 +7,11 @@ import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.apache.commons.math3.linear.RealMatrix
 
-interface Transform {
+interface Transform : (Point) -> Point{
 
     val matrix: RealMatrix
 
-    operator fun invoke(p: Point): Point = matrix.operate(doubleArrayOf(p.x, p.y, p.z, 1.0))
+    override operator fun invoke(p: Point): Point = matrix.operate(doubleArrayOf(p.x, p.y, p.z, 1.0))
             .let { Point.xyz(it[0], it[1], it[2]) }
 
     fun andThen(a: Transform): Transform = ofMatrix(a.matrix.multiply(this@Transform.matrix))
