@@ -1,15 +1,10 @@
 package jumpaku.curves.fsc.identify.primitive.reference
 
-import io.vavr.API
-import io.vavr.Tuple3
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.geom.lerp
-import jumpaku.curves.core.util.component1
-import jumpaku.curves.core.util.component2
-import jumpaku.curves.core.util.component3
 import jumpaku.curves.fsc.identify.primitive.reparametrize
 import org.apache.commons.math3.analysis.solvers.BrentSolver
 
@@ -46,15 +41,16 @@ class CircularGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         /**
          * Computes parameters which maximizes triangle area of (fsc(t0), fsc(far), fsc(t1)).
          */
-        fun scatteredCircularParams(fsc: Curve, nSamples: Int): Tuple3<Double, Double, Double> {
+        fun scatteredCircularParams(fsc: Curve, nSamples: Int): Triple<Double, Double, Double> {
             val ts = fsc.domain.sample(nSamples)
-            return API.For(ts.take(nSamples / 3), ts.drop(2 * nSamples / 3))
-                    .`yield` { t0, t1 ->
-                        val tf = computeCircularFar(fsc, t0, t1)
-                        API.Tuple(API.Tuple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
-                    }
-                    .maxBy { (_, area) -> area }
-                    .map { it._1() }.get()
+            val result = mutableListOf<Pair<Triple<Double, Double, Double>, Double>>()
+            for (t0 in ts.take(nSamples / 3)) {
+                for (t1 in ts.drop(2 * nSamples / 3)) {
+                    val tf = computeCircularFar(fsc, t0, t1)
+                    result += Pair(Triple(t0, tf, t1), fsc(tf).area(fsc(t0), fsc(t1)))
+                }
+            }
+            return result.maxByOrNull { (_, area) -> area }?.first!!
         }
 
         fun computeCircularFar(fsc: Curve, t0: Double, t1: Double): Double {

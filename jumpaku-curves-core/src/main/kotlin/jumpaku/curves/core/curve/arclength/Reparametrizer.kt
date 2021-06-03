@@ -7,16 +7,16 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.geom.middle
-import jumpaku.curves.core.util.asVavr
 import org.apache.commons.math3.util.FastMath
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.component3
 
 class Reparametrizer private constructor(
-        val originalParams: List<Double>,
-        private val arcLengthParams: List<Double>,
-        private val quadratics: List<MonotonicQuadratic>) {
+    val originalParams: List<Double>,
+    private val arcLengthParams: List<Double>,
+    private val quadratics: List<MonotonicQuadratic>
+) {
 
     init {
         require(originalParams.size > 1) { "originalToArcLength.size() is too small" }
@@ -36,9 +36,8 @@ class Reparametrizer private constructor(
         require(arcLengthRatio in range) { "arcLengthRatio($arcLengthRatio) is out of range($range)" }
 
         val s = (arcLengthRatio * chordLength).coerceIn(0.0..chordLength)
-        val i = arcLengthParams.asVavr()
-                .search(s)
-                .let { if (it < 0) -it - 1 else it }
+        val i = arcLengthParams.binarySearch(s)
+            .let { if (it < 0) -it - 1 else it }
         return if (i == 0) originalParams[0]
         else quadratics[i - 1].invert(s).coerceIn(domain)
     }
@@ -46,13 +45,13 @@ class Reparametrizer private constructor(
     fun toArcLengthRatio(originalParam: Double): Double {
         require(originalParam in domain) { "originalParam($originalParam) is out of domain($domain)" }
 
-        val i = originalParams.asVavr()
-                .search(originalParam)
-                .let { if (it < 0) -it - 1 else it }
+        val i = originalParams
+            .binarySearch(originalParam)
+            .let { if (it < 0) -it - 1 else it }
         return if (i == 0) 0.0
         else quadratics[i - 1].invoke(originalParam).tryDiv(chordLength).value()
-                .orDefault { 0.0 }
-                .coerceIn(range)
+            .orDefault { 0.0 }
+            .coerceIn(range)
     }
 
     companion object {
@@ -86,7 +85,8 @@ class Reparametrizer private constructor(
 }
 
 
-data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, val domain: Interval) : (Double) -> Double {
+data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, val domain: Interval) :
+        (Double) -> Double {
 
     val range: Interval = Interval(b0, b2)
 

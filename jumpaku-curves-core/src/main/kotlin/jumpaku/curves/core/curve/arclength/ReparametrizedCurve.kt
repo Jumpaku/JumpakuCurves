@@ -7,7 +7,6 @@ import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.line
-import jumpaku.curves.core.util.asVavr
 
 /**
  * maps arc-length ratio parameter to point on original curve.
@@ -34,12 +33,12 @@ class ReparametrizedCurve<C : Curve>(val originalCurve: C, val reparametrizer: R
         val (s0, s1) = interval
         val t0 = reparametrizer.toOriginal(s0)
         val t1 = reparametrizer.toOriginal(s1)
-        val i0 = reparametrizer.originalParams.asVavr()
-            .search(t0).let { if (it < 0) -it - 1 else it }
-        val i1 = reparametrizer.originalParams.asVavr()
-            .search(t1).let { if (it < 0) -it - 1 else it }
+        val i0 = reparametrizer.originalParams
+            .binarySearch(t0).let { if (it < 0) -it - 1 else it }
+        val i1 = reparametrizer.originalParams
+            .binarySearch(t1).let { if (it < 0) -it - 1 else it }
         val params = listOf(t0) + reparametrizer.originalParams.slice(i0 until i1) + listOf(t1)
-        return ReparametrizedCurve.of(originalCurve, params)
+        return of(originalCurve, params)
     }
 
     fun <O : Curve> isPossible(other: ReparametrizedCurve<O>, n: Int): Grade =

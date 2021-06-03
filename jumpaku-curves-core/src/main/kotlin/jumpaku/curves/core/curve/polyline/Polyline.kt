@@ -3,7 +3,6 @@ package jumpaku.curves.core.curve.polyline
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Transform
-import jumpaku.curves.core.util.asVavr
 
 
 class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
@@ -22,7 +21,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
     override fun invoke(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
 
-        val i = parameters.asVavr().search(t)
+        val i = parameters.binarySearch(t)
         return if (i >= 0) points[i] else evaluateInSpan(t, -2 - i)
     }
 
@@ -32,10 +31,11 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
         if (points.size == 1) return List(n) { points.first() }
 
         val evaluated = ArrayList<Point>(n)
-        val ts = params.asVavr().subSequence(1, n - 1)
+        val ts = params.subList(1, n - 1)
         var index = 0
         ts.forEach { t ->
-            index = parameters.asVavr().indexWhere({ t < it }, index)
+            while (t >= parameters[index]) ++index
+            //index = parameters.indexOfFirst { } asVavr ().indexWhere({ t < it }, index)
             evaluated += evaluateInSpan(t, index - 1)
         }
 
@@ -59,7 +59,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
     fun subdivide(t: Double): Pair<Polyline, Polyline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
 
-        val index = parameters.asVavr().search(t)
+        val index = parameters.binarySearch(t)//asVavr().search(t)
         return when {
             index >= 0 -> Pair(Polyline(paramPoints.take(index + 1)), Polyline(paramPoints.drop(index)))
             else -> {

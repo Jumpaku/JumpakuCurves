@@ -1,15 +1,10 @@
 package jumpaku.curves.fsc.freecurve
 
-import io.vavr.Tuple2
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.times
-import jumpaku.curves.core.util.asKt
-import jumpaku.curves.core.util.asVavr
-import jumpaku.curves.core.util.component1
-import jumpaku.curves.core.util.component2
 import jumpaku.curves.fsc.generate.fit.BezierFitter
 import org.apache.commons.math3.linear.ArrayRealVector
 import org.apache.commons.math3.linear.DiagonalMatrix
@@ -27,19 +22,21 @@ class SmoothBezierFitter {
 
     fun fitMiddle(p0: Point, v0: Vector, p1: Point, v1: Vector, data: List<ParamPoint>): Bezier {
         val ws = data.map { weight(it) }
-        val (ts, ds) = data.asVavr().unzip { (p, t) ->
+        val tds = data.map { (p, t) ->
             val b = p0.toVector()
             val e = p1.toVector()
             val v = p.toVector()
-            Tuple2(t, v - (basis(0, t) + basis(1, t)) * b - (basis(2, t) + basis(3, t)) * e)
+            Pair(t, v - (basis(0, t) + basis(1, t)) * b - (basis(2, t) + basis(3, t)) * e)
         }
+        val ts = tds.map { it.first}
+        val ds = tds.map { it.second}
         val d = ds.flatMap { listOf(it.x, it.y, it.z) }
-                .let { ArrayRealVector(it.asKt().toDoubleArray()) }
+                .let { ArrayRealVector(it.toDoubleArray()) }
         val b = ts.flatMap { t ->
             val a1 = v0 * basis(1, t)
             val a2 = v1 * basis(2, t)
             listOf(doubleArrayOf(a1.x, a2.x), doubleArrayOf(a1.y, a2.y), doubleArrayOf(a1.z, a2.z))
-        }.let { MatrixUtils.createRealMatrix(it.asKt().toTypedArray()) }
+        }.let { MatrixUtils.createRealMatrix(it.toTypedArray()) }
 
         val w = ws.flatMap { w -> List(3) { w } }
                 .let { DiagonalMatrix(it.toDoubleArray()) }
@@ -52,13 +49,15 @@ class SmoothBezierFitter {
 
     fun fitFront(p1: Point, v1: Vector, data: List<ParamPoint>): Bezier {
         val ws = data.map { weight(it) }
-        val (ts, ps) = data.asVavr().unzip { (p, t) ->
+        val tps = data.map { (p, t) ->
             val e = p1.toVector()
             val d = p.toVector()
-            Tuple2(t, d - (basis(2, t) + basis(3, t)) * e)
+            Pair(t, d - (basis(2, t) + basis(3, t)) * e)
         }
+        val ts = tps.map { it.first }
+        val ps = tps.map { it.second }
         val d = ps.flatMap { listOf(it.x, it.y, it.z) }
-                .let { ArrayRealVector(it.asKt().toDoubleArray()) }
+                .let { ArrayRealVector(it.toDoubleArray()) }
         val b = ts.flatMap { t ->
             val a1 = basis(0, t)
             val a2 = basis(1, t)
@@ -67,7 +66,7 @@ class SmoothBezierFitter {
                     doubleArrayOf(a1, 0.0, 0.0, a2, 0.0, 0.0, a3.x),
                     doubleArrayOf(0.0, a1, 0.0, 0.0, a2, 0.0, a3.y),
                     doubleArrayOf(0.0, 0.0, a1, 0.0, 0.0, a2, a3.z))
-        }.let { MatrixUtils.createRealMatrix(it.asKt().toTypedArray()) }
+        }.let { MatrixUtils.createRealMatrix(it.toTypedArray()) }
 
         val w = ws.flatMap { w -> List(3) { w } }
                 .let { DiagonalMatrix(it.toDoubleArray()) }

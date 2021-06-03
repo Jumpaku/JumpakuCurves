@@ -26,8 +26,9 @@ private fun createModelMatrix(dataParams: List<Double>, degree: Int, knotVector:
 }
 
 class BSplineFitter(
-        val degree: Int,
-        val knotVector: KnotVector) : Fitter<BSpline> {
+    val degree: Int,
+    val knotVector: KnotVector
+) : Fitter<BSpline> {
 
     override fun fit(data: List<WeightedParamPoint>): BSpline {
         require(data.size >= 2) { "data.size == ${data.size}, too few data" }
@@ -37,28 +38,31 @@ class BSplineFitter(
             val d = transformParams(data.map { it.paramPoint }, range = Interval.ZERO_ONE)
             val b = BezierFitter(degree).fit(d, distinct.map { it.weight })
             val knots = KnotVector
-                    .clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2)
+                .clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2)
             return BSpline(b.controlPoints, knots)
         }
 
-        val (d, b, w) = data.asVavr().unzip3 { (pt, w) -> Tuple3(pt.point, pt.param, w) }
-                .map({ it.asKt() }, { it.asKt() }, { it.asKt() })
-                .map(this::createDataMatrix, this::createBasisMatrix, this::createWeightMatrix)
+        val (d, b, w) = data.map { (pt, w) -> Triple(pt.point, pt.param, w) }.run {
+            val d = createDataMatrix(map { it.first })
+            val b = createBasisMatrix(map { it.second })
+            val w = createWeightMatrix(map { it.third })
+            Triple(d, b, w)
+        }
         val p = QRDecomposition(b.transpose().multiply(w).multiply(b)).solver
-                .solve(b.transpose().multiply(w).multiply(d))
-                .let { it.data.map { Point.xyz(it[0], it[1], it[2]) } }
+            .solve(b.transpose().multiply(w).multiply(d))
+            .let { it.data.map { Point.xyz(it[0], it[1], it[2]) } }
 
         return BSpline(p, knotVector)
     }
 
     private fun createBasisMatrix(sortedDataTimes: List<Double>): RealMatrix =
-            createModelMatrix(sortedDataTimes, degree, knotVector)
+        createModelMatrix(sortedDataTimes, degree, knotVector)
 
     private fun createDataMatrix(sortedDataPoints: List<Point>): RealMatrix = sortedDataPoints
-            .map { doubleArrayOf(it.x, it.y, it.z) }
-            .run { MatrixUtils.createRealMatrix(toTypedArray()) }
+        .map { doubleArrayOf(it.x, it.y, it.z) }
+        .run { MatrixUtils.createRealMatrix(toTypedArray()) }
 
     private fun createWeightMatrix(sortedDataWeights: List<Double>): RealMatrix =
-            DiagonalMatrix(sortedDataWeights.toDoubleArray())
+        DiagonalMatrix(sortedDataWeights.toDoubleArray())
 }
 
