@@ -25,8 +25,8 @@ class ReferenceTest {
             Interval(-0.25, 1.25))
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
+    fun testInvoke() {
+        println("Invoke")
         assertThat(circular(-0.5), `is`(closeTo(Point.xy(0.0, -1.0))))
         assertThat(circular(0.0), `is`(closeTo(Point.xy(-r2 / 2, -r2 / 2))))
         assertThat(circular(0.5), `is`(closeTo(Point.xy(0.0, 1.0))))

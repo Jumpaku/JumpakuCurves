@@ -77,7 +77,7 @@ class InputFsc : Application() {
             ctx.bezierCurveTo(cp[1].x, cp[1].y, cp[2].x, cp[2].y, cp[3].x, cp[3].y)
         }
         ctx.stroke()
-        fsc.evaluateAll(0.01).forEach { (x, y, _, r) ->
+        fsc.invoke(Sampler(0.01)).forEach { (x, y, _, r) ->
             ctx.strokeOval(x - r, y - r, 2 * r, 2 * r)
         }
     }

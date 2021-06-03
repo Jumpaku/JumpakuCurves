@@ -5,13 +5,10 @@ import jumpaku.commons.control.optionWhen
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.control.toOption
 import jumpaku.commons.math.Solver
-import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.chordalParametrize
-import jumpaku.curves.core.curve.uniformParametrize
 import jumpaku.curves.core.geom.Point
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -26,7 +23,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
         val segments = segmentResult.segments
 
         val qs = segments.map { it.conicSection }
-        val cis = fragmentCs(qs, pis.map { fsc(ts[it]) }, isClosed)
+        val cis = fragmentCs(qs, fsc.invoke(pis.map { (ts[it]) }), isClosed)
         val ks = remainConicSectionIndices(cis)
         val rs = remainCs(qs, cis, ks)
 
@@ -101,14 +98,14 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
 
         if (rs.isEmpty()) {
             val s = if (isClosed) fsc.close() else fsc
-            return listOf(fitter.fitAllFsc(parametrize(s.evaluateAll(samplingFactor))))
+            return listOf(fitter.fitAllFsc(parametrize(s.invoke(Sampler(samplingFactor)))))
         }
         val derivatives = rs.map { it.differentiate() }
         val p0v0s = rs.zip(derivatives) { r, d -> Pair(r(1.0), d(1.0)) }.dropLast(1)
         val p1v1s = rs.zip(derivatives) { r, d -> Pair(r(0.0), d(0.0)) }.drop(1)
         val p0v0p1v1s = p0v0s.zip(p1v1s)// { pv0, pv1 -> Tuple4(pv0._1, pv0._2, pv1._1, pv1._2) }
         val middles = gis.slice(1 until gis.lastIndex).zip(p0v0p1v1s) { i, (p0v0, p1v1) ->
-            val data = parametrize(fsc.restrict(i).evaluateAll(samplingFactor))
+            val data = parametrize(fsc.restrict(i).invoke(Sampler(samplingFactor)))
             fitter.fitMiddle(p0v0.first, p0v0.second, p1v1.first, p1v1.second, data)
         }
 
@@ -116,13 +113,13 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
         val (p1, v1) = rs.first()(0.0) to  derivatives.first()(0.0)
         val frontPoints = gis.first().run {
             if (begin == end) List(samplingFactor) { fsc(begin) }
-            else fsc.restrict(this).evaluateAll(samplingFactor)
+            else fsc.restrict(this).invoke(Sampler(samplingFactor))
         }
 
         val (p0, v0) = rs.last()(1.0) to derivatives.last()(1.0)
         val backPoints = gis.last().run {
             if (begin == end) List(samplingFactor) { fsc(end) }
-            else fsc.restrict(this).evaluateAll(samplingFactor)
+            else fsc.restrict(this).invoke(Sampler(samplingFactor))
         }
 
         return if (isClosed) {
@@ -135,7 +132,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
         }
     }
 
-    fun isClosed(s: BSpline): Boolean = s.evaluateAll(2).let { (b, e) -> e.isPossible(b).value > 0.5 }
+    fun isClosed(s: BSpline): Boolean = s.invoke(Sampler(2)).let { (b, e) -> e.isPossible(b).value > 0.5 }
 
     fun parametrize(points: List<Point>): List<ParamPoint> =
             chordalParametrize(points, range = Interval.ZERO_ONE)

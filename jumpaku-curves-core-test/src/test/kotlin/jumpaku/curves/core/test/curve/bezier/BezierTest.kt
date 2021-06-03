@@ -32,13 +32,13 @@ class BezierTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
-        assertThat(bc.evaluate(0.0), `is`(closeTo(Point.xyr(-2.0, 0.0, 1.0))))
-        assertThat(bc.evaluate(0.25), `is`(closeTo(Point.xyr(-1.0, 27 / 64.0, 161.0 / 128))))
-        assertThat(bc.evaluate(0.5), `is`(closeTo(Point.xyr(0.0, 0.75, 9.0 / 8))))
-        assertThat(bc.evaluate(0.75), `is`(closeTo(Point.xyr(1.0, 27 / 64.0, 161.0 / 128))))
-        assertThat(bc.evaluate(1.0), `is`(closeTo(Point.xyr(2.0, 0.0, 1.0))))
+    fun testInvoke() {
+        println("Invoke")
+        assertThat(bc.invoke(0.0), `is`(closeTo(Point.xyr(-2.0, 0.0, 1.0))))
+        assertThat(bc.invoke(0.25), `is`(closeTo(Point.xyr(-1.0, 27 / 64.0, 161.0 / 128))))
+        assertThat(bc.invoke(0.5), `is`(closeTo(Point.xyr(0.0, 0.75, 9.0 / 8))))
+        assertThat(bc.invoke(0.75), `is`(closeTo(Point.xyr(1.0, 27 / 64.0, 161.0 / 128))))
+        assertThat(bc.invoke(1.0), `is`(closeTo(Point.xyr(2.0, 0.0, 1.0))))
     }
 
     @Test
@@ -46,11 +46,11 @@ class BezierTest {
         val d = bc.differentiate()
         assertThat(d.curve, `is`(closeTo(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))))
 
-        assertThat(d.evaluate(0.0), `is`(closeTo(Vector(4.0, 0.0))))
-        assertThat(d.evaluate(0.25), `is`(closeTo(Vector(4.0, 2.25))))
-        assertThat(d.evaluate(0.5), `is`(closeTo(Vector(4.0, 0.0))))
-        assertThat(d.evaluate(0.75), `is`(closeTo(Vector(4.0, -2.25))))
-        assertThat(d.evaluate(1.0), `is`(closeTo(Vector(4.0, 0.0))))
+        assertThat(d.invoke(0.0), `is`(closeTo(Vector(4.0, 0.0))))
+        assertThat(d.invoke(0.25), `is`(closeTo(Vector(4.0, 2.25))))
+        assertThat(d.invoke(0.5), `is`(closeTo(Vector(4.0, 0.0))))
+        assertThat(d.invoke(0.75), `is`(closeTo(Vector(4.0, -2.25))))
+        assertThat(d.invoke(1.0), `is`(closeTo(Vector(4.0, 0.0))))
     }
 
     @Test

@@ -1,23 +1,14 @@
 package jumpaku.curves.core.curve
 
-import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 
-interface Derivative {
+interface Derivative : (Double) -> Vector {
 
     val domain: Interval
 
-    operator fun invoke(t: Double): Vector {
-        require(t in domain) { "t($t) is out of domain($domain)" }
+    override operator fun invoke(t: Double): Vector
 
-        return evaluate(t)
-    }
+    operator fun invoke(sampler: Sampler): List<Vector> = invoke(sampler.sample(domain))
 
-    fun evaluate(t: Double): Vector
-
-    fun evaluateAll(n: Int): List<Vector> = evaluateAll(domain.sample(n))
-
-    fun evaluateAll(delta: Double): List<Vector> = evaluateAll(domain.sample(delta))
-
-    fun evaluateAll(sortedParams: List<Double>): List<Vector> = sortedParams.map { evaluate(it) }
+    operator fun invoke(sortedParams: List<Double>): List<Vector> = sortedParams.map { invoke(it) }
 }

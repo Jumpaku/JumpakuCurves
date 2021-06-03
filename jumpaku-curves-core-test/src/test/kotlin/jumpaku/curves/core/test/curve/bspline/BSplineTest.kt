@@ -48,13 +48,13 @@ class BSplineTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
-        assertThat(clamped.evaluate(3.0), `is`(closeTo(Point.xyr(-1.0, 0.0, 0.0))))
-        assertThat(clamped.evaluate(3.25), `is`(closeTo(Point.xyr(-23 / 32.0, 27 / 32.0, 9 / 8.0))))
-        assertThat(clamped.evaluate(3.5), `is`(closeTo(Point.xyr(-1 / 4.0, 3 / 4.0, 1.5))))
-        assertThat(clamped.evaluate(3.75), `is`(closeTo(Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0))))
-        assertThat(clamped.evaluate(4.0), `is`(closeTo(Point.xyr(1.0, 0.0, 0.0))))
+    fun testInvoke() {
+        println("Invoke")
+        assertThat(clamped.invoke(3.0), `is`(closeTo(Point.xyr(-1.0, 0.0, 0.0))))
+        assertThat(clamped.invoke(3.25), `is`(closeTo(Point.xyr(-23 / 32.0, 27 / 32.0, 9 / 8.0))))
+        assertThat(clamped.invoke(3.5), `is`(closeTo(Point.xyr(-1 / 4.0, 3 / 4.0, 1.5))))
+        assertThat(clamped.invoke(3.75), `is`(closeTo(Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0))))
+        assertThat(clamped.invoke(4.0), `is`(closeTo(Point.xyr(1.0, 0.0, 0.0))))
     }
 
     @Test
