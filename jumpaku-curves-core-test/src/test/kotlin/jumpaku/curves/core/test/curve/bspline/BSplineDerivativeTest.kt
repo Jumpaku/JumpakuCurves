@@ -47,13 +47,13 @@ class BSplineDerivativeTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
-        assertThat(b.evaluate(3.0), `is`(closeTo(Vector(-1.0, 0.00))))
-        assertThat(b.evaluate(3.25), `is`(closeTo(Vector(-23 / 32.0, 27 / 32.0))))
-        assertThat(b.evaluate(3.5), `is`(closeTo(Vector(-1 / 4.0, 3 / 4.0))))
-        assertThat(b.evaluate(3.75), `is`(closeTo(Vector(3 / 32.0, 9 / 32.0))))
-        assertThat(b.evaluate(4.0), `is`(closeTo(Vector(1.0, 0.0))))
+    fun testInvoke() {
+        println("Invoke")
+        assertThat(b.invoke(3.0), `is`(closeTo(Vector(-1.0, 0.00))))
+        assertThat(b.invoke(3.25), `is`(closeTo(Vector(-23 / 32.0, 27 / 32.0))))
+        assertThat(b.invoke(3.5), `is`(closeTo(Vector(-1 / 4.0, 3 / 4.0))))
+        assertThat(b.invoke(3.75), `is`(closeTo(Vector(3 / 32.0, 9 / 32.0))))
+        assertThat(b.invoke(4.0), `is`(closeTo(Vector(1.0, 0.0))))
     }
 
     @Test

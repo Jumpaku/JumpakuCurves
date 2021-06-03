@@ -48,12 +48,12 @@ class Nurbs(
         val dp = BSplineDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }, knotVector).differentiate()
         return object : Derivative {
 
-            override fun evaluate(t: Double): Vector {
+            override fun invoke(t: Double): Vector {
                 require(t in domain) { "t($t) is out of domain($domain)" }
                 if (domain.begin == domain.end) return Vector.Zero
-                val dpt = dp.evaluate(t)
-                val rt = this@Nurbs.evaluate(t).toVector()
-                return ((dpt - dwt.evaluate(t).x * rt) / wt.evaluate(t).x).orThrow()
+                val dpt = dp.invoke(t)
+                val rt = this@Nurbs.invoke(t).toVector()
+                return ((dpt - dwt.invoke(t).x * rt) / wt.invoke(t).x).orThrow()
             }
 
             override val domain: Interval get() = this@Nurbs.domain
@@ -64,7 +64,7 @@ class Nurbs(
 
     override fun toCrisp(): Nurbs = Nurbs(controlPoints.map { it.toCrisp() }, weights, knotVector)
 
-    override fun evaluate(t: Double): Point {
+    override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
         if (t == domain.end) return controlPoints.last()
         val l = knotVector.searchIndexToInsert(t)
@@ -72,20 +72,24 @@ class Nurbs(
         return result.point
     }
 
-    override fun evaluateAll(sortedParams: List<Double>): List<Point> {
+    override fun invoke(sortedParams: List<Double>): List<Point> {
         if (domain.begin == domain.end)
             return sortedParams.map { controlPoints.last() }
         var knotIndex = degree
         val results = ArrayList<Point>(sortedParams.size)
         for (t in sortedParams) {
-            while (knotIndex < controlPoints.size - 1 && t >= knotVector[knotIndex + 1]) ++knotIndex
+            if (sortedParams.size < knotVector.size) {
+                knotIndex = knotVector.searchIndexToInsert(t).coerceAtMost(controlPoints.lastIndex)
+            } else {
+                while (knotIndex < controlPoints.lastIndex && t >= knotVector[knotIndex + 1]) ++knotIndex
+            }
             val eval = deboor(weightedControlPoints, knotVector, t, knotIndex)
             results.add(eval.point)
         }
         return results
     }
 
-    fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a::invoke), weights, knotVector)
+    fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
     fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

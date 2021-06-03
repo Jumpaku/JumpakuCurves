@@ -1,5 +1,6 @@
 package jumpaku.curves.demo.fragment
 
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
@@ -77,7 +78,7 @@ class DemoPanel : JPanel() {
     override fun paint(g: Graphics) = with(g as Graphics2D) {
         results.forEach { (fsc, fragments) ->
             fragments.filter { it.type == Fragment.Type.Move }.map { fsc.restrict(it.interval) }.apply {
-                forEach { drawPoints(it.evaluateAll(0.01)) }
+                forEach { drawPoints(it.invoke(Sampler(0.01))) }
                 forEach { drawCubicBSpline(it, DrawStyle(Color.MAGENTA, BasicStroke(3f))) }
             }
         }

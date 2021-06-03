@@ -65,8 +65,8 @@ class NurbsTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
+    fun testInvoke() {
+        println("Invoke")
         assertThat(n(0.0), `is`(closeTo(Point.xyr(200.0, 300.0, 10.0))))
         assertThat(n(0.5), `is`(closeTo(Point.xyr(220.0, 240.0, 228 / 16.0))))
         assertThat(n(1.0), `is`(closeTo(Point.xyr(400.0, 300.0, 30.0))))

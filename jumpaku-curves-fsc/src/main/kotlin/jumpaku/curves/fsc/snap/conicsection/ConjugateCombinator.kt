@@ -17,9 +17,9 @@ object ConjugateCombinator : FeaturePointsCombinator {
         return when (featurePosition) {
             FeaturePosition.B0 -> begin
             FeaturePosition.B2 -> end
-            FeaturePosition.D0 -> evaluate(t)
+            FeaturePosition.D0 -> invoke(t)
             FeaturePosition.D1 -> far
-            FeaturePosition.D2 -> evaluate(1 - t)
+            FeaturePosition.D2 -> invoke(1 - t)
             FeaturePosition.D3 -> complement().far
             FeaturePosition.E0 -> o.lerp(FastMath.sqrt(2.0), get(FeaturePosition.D0))
             FeaturePosition.E1 -> o.lerp(FastMath.sqrt(2.0), get(FeaturePosition.D1))

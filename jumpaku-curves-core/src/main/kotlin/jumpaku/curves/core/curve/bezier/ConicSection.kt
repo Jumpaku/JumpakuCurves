@@ -28,7 +28,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     override fun differentiate(): Derivative = object : Derivative {
         override val domain: Interval = this@ConicSection.domain
-        override fun evaluate(t: Double): Vector {
+        override fun invoke(t: Double): Vector {
             require(t in domain) { "t($t) is out of domain($domain)" }
 
             val g = (1 - t) * (1 - 2 * t) * begin.toVector() + 2 * t * (1 - t) * (1 + weight) * far.toVector() + t * (2 * t - 1) * end.toVector()
@@ -48,7 +48,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
         ).zip(listOf(1.0, weight, 1.0), ::WeightedPoint))
     }
 
-    override fun evaluate(t: Double): Point {
+    override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
         val wt = RationalBezier.bezier1D(t, listOf(1.0, weight, 1.0))
         return far.lerp((1 - t) * (1 - 2 * t) / wt to begin, t * (2 * t - 1) / wt to end)
@@ -83,7 +83,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
         val rootwt = FastMath.sqrt(RationalBezier.bezier1D(t, listOf(1.0, w, 1.0)))
 
         val begin0 = begin
-        val end0 = evaluate(t)
+        val end0 = invoke(t)
         val weight0 = (1 - t + t * w) / rootwt
         val far0P = ((begin0.toVector() + end0.toVector()) * rootwt * 0.5 + (1 - t) * p0 + t * ((1 + w) * p1 - m.toVector())) / (rootwt + 1 - t + t * w)
         val far0R = FastMath.abs(0.5 * (2 - 3 * t + rootwt * (2 * t * t - 3 * t + 2)) / (rootwt + 1 - t + t * w)) * begin.r +

@@ -3,6 +3,7 @@ package jumpaku.curves.core.test.curve.polyline
 import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.polyline.Polyline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
@@ -31,20 +32,20 @@ class PolylineTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
+    fun testInvoke() {
+        println("Invoke")
         val p = Polyline.byArcLength(Point.xyr(1.0, 1.0, 2.0), Point.xyr(-1.0, -1.0, 1.0), Point.xyzr(-1.0, -1.0, 1.0, 0.0))
-        assertThat(p.evaluate(0.0), `is`(closeTo(Point.xyzr(1.0, 1.0, 0.0, 2.0))))
-        assertThat(p.evaluate(Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(0.0, 0.0, 0.0, 1.5))))
-        assertThat(p.evaluate(2 * Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(-1.0, -1.0, 0.0, 1.0))))
-        assertThat(p.evaluate(2 * Math.sqrt(2.0) + 0.5), `is`(closeTo(Point.xyzr(-1.0, -1.0, 0.5, 0.5))))
-        assertThat(p.evaluate(2 * Math.sqrt(2.0) + 1), `is`(closeTo(Point.xyzr(-1.0, -1.0, 1.0, 0.0))))
+        assertThat(p.invoke(0.0), `is`(closeTo(Point.xyzr(1.0, 1.0, 0.0, 2.0))))
+        assertThat(p.invoke(Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(0.0, 0.0, 0.0, 1.5))))
+        assertThat(p.invoke(2 * Math.sqrt(2.0)), `is`(closeTo(Point.xyzr(-1.0, -1.0, 0.0, 1.0))))
+        assertThat(p.invoke(2 * Math.sqrt(2.0) + 0.5), `is`(closeTo(Point.xyzr(-1.0, -1.0, 0.5, 0.5))))
+        assertThat(p.invoke(2 * Math.sqrt(2.0) + 1), `is`(closeTo(Point.xyzr(-1.0, -1.0, 1.0, 0.0))))
     }
 
     @Test
-    fun testEvaluateAll() {
-        println("EvaluateAll")
-        val ps = pl.evaluateAll(6)
+    fun testInvokeAll() {
+        println("InvokeAll")
+        val ps = pl.invoke(Sampler(6))
         assertThat(ps.size, `is`(6))
         assertThat(ps[0], `is`(closeTo(Point.xyzr(-1.0, 1.0, 0.0, 2.0))))
         assertThat(ps[1], `is`(closeTo(Point.xyzr(0.5, 1.0, 0.0, 1.25))))

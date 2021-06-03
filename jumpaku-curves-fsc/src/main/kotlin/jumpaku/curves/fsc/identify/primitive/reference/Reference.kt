@@ -21,7 +21,7 @@ class Reference(val base: ConicSection, override val domain: Interval = Interval
         ReparametrizedCurve.of(this, ts.filter { it in domain })
     }
 
-    override fun evaluate(t: Double): Point {
+    override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) must be in domain($domain)" }
         return when (t) {
             in domain.begin..0.0 -> complement.reverse()((t + 1).coerceIn(0.0..1.0))

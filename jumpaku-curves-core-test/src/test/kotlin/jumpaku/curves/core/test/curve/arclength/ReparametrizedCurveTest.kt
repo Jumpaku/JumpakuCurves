@@ -19,11 +19,11 @@ class ReparametrizedCurveTest {
     val rcs = ReparametrizedCurve.of(cs, cs.domain.sample(15))
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
-        assertThat(rcs.evaluate(0.0), `is`(closeTo(Point.xy(0.0, 100.0), 1.0)))
-        assertThat(rcs.evaluate(0.5), `is`(closeTo(Point.xy(-R2 * 50, -R2 * 50), 1.0)))
-        assertThat(rcs.evaluate(1.0), `is`(closeTo(Point.xy(100.0, 0.0), 1.0)))
+    fun testInvoke() {
+        println("Invoke")
+        assertThat(rcs.invoke(0.0), `is`(closeTo(Point.xy(0.0, 100.0), 1.0)))
+        assertThat(rcs.invoke(0.5), `is`(closeTo(Point.xy(-R2 * 50, -R2 * 50), 1.0)))
+        assertThat(rcs.invoke(1.0), `is`(closeTo(Point.xy(100.0, 0.0), 1.0)))
     }
 
     @Test

@@ -59,13 +59,13 @@ class RationalBezierTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
-        assertThat(rb.evaluate(0.0), `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
-        assertThat(rb.evaluate(0.25), `is`(closeTo(Point.xyr((3 * R2 + 1) / (3 * R2 + 10), (3 * R2 + 9) / (3 * R2 + 10), (12 + 6 * R2) / (10 + 3 * R2)))))
-        assertThat(rb.evaluate(0.5), `is`(closeTo(Point.xyr(1 / R2, 1 / R2, 2.0))))
-        assertThat(rb.evaluate(0.75), `is`(closeTo(Point.xyr((3 * R2 + 9) / (3 * R2 + 10), (3 * R2 + 1) / (3 * R2 + 10), (28 + 6 * R2) / (10 + 3 * R2)))))
-        assertThat(rb.evaluate(1.0), `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
+    fun testInvoke() {
+        println("Invoke")
+        assertThat(rb.invoke(0.0), `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
+        assertThat(rb.invoke(0.25), `is`(closeTo(Point.xyr((3 * R2 + 1) / (3 * R2 + 10), (3 * R2 + 9) / (3 * R2 + 10), (12 + 6 * R2) / (10 + 3 * R2)))))
+        assertThat(rb.invoke(0.5), `is`(closeTo(Point.xyr(1 / R2, 1 / R2, 2.0))))
+        assertThat(rb.invoke(0.75), `is`(closeTo(Point.xyr((3 * R2 + 9) / (3 * R2 + 10), (3 * R2 + 1) / (3 * R2 + 10), (28 + 6 * R2) / (10 + 3 * R2)))))
+        assertThat(rb.invoke(1.0), `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))
     }
 
     @Test
@@ -73,11 +73,11 @@ class RationalBezierTest {
         println("Differentiate")
         val d = rb.differentiate()
 
-        assertThat(d.evaluate(0.0), `is`(closeTo(Vector(R2, 0.0))))
-        assertThat(d.evaluate(0.25), `is`(closeTo(Vector((40 - 12 * R2) * (6 + 72 * R2) / (41 * 41), (40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41)))))
-        assertThat(d.evaluate(0.5), `is`(closeTo(Vector(4 - 2 * R2, -4 + 2 * R2))))
-        assertThat(d.evaluate(0.75), `is`(closeTo(Vector(-(40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41), -(40 - 12 * R2) * (6 + 72 * R2) / (41 * 41)))))
-        assertThat(d.evaluate(1.0), `is`(closeTo(Vector(0.0, -R2))))
+        assertThat(d.invoke(0.0), `is`(closeTo(Vector(R2, 0.0))))
+        assertThat(d.invoke(0.25), `is`(closeTo(Vector((40 - 12 * R2) * (6 + 72 * R2) / (41 * 41), (40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41)))))
+        assertThat(d.invoke(0.5), `is`(closeTo(Vector(4 - 2 * R2, -4 + 2 * R2))))
+        assertThat(d.invoke(0.75), `is`(closeTo(Vector(-(40 - 12 * R2) * (-54 + 8 * R2) / (41 * 41), -(40 - 12 * R2) * (6 + 72 * R2) / (41 * 41)))))
+        assertThat(d.invoke(1.0), `is`(closeTo(Vector(0.0, -R2))))
     }
 
     @Test

@@ -29,10 +29,10 @@ class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     override fun toString(): String = "BSplineDerivative(knotVector=$knotVector, controlVectors=$controlVectors)"
 
-    override fun evaluate(t: Double): Vector = curve(t).toVector()
+    override fun invoke(t: Double): Vector = curve(t).toVector()
 
-    override fun evaluateAll(sortedParams: List<Double>): List<Vector> =
-        curve.evaluateAll(sortedParams).map { it.toVector() }
+    override fun invoke(sortedParams: List<Double>): List<Vector> =
+        curve.invoke(sortedParams).map { it.toVector() }
 
     fun restrict(begin: Double, end: Double): BSplineDerivative = BSplineDerivative(curve.restrict(begin, end))
 
