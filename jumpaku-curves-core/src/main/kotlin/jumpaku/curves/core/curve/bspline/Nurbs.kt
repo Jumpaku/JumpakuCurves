@@ -78,7 +78,11 @@ class Nurbs(
         var knotIndex = degree
         val results = ArrayList<Point>(sortedParams.size)
         for (t in sortedParams) {
-            while (knotIndex < controlPoints.size - 1 && t >= knotVector[knotIndex + 1]) ++knotIndex
+            if (sortedParams.size < knotVector.size) {
+                knotIndex = knotVector.searchIndexToInsert(t).coerceAtMost(controlPoints.lastIndex)
+            } else {
+                while (knotIndex < controlPoints.lastIndex && t >= knotVector[knotIndex + 1]) ++knotIndex
+            }
             val eval = deboor(weightedControlPoints, knotVector, t, knotIndex)
             results.add(eval.point)
         }
