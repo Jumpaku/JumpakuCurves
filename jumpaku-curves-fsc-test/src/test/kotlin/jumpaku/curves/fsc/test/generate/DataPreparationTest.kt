@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.test.generate
 
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.fsc.generate.fit.weighted
@@ -82,8 +82,8 @@ class DataPreparationTest {
         val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it).weighted(2.0) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(extendFront(data, extendInnerSpan, extendOuterSpan, extendDegree)).subdivide(1.0)
-        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0).first.orThrow())))
-        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0).second.orThrow())))
+        assertThat(sub1, `is`(closeTo(b.subdivide(1.0).first)))
+        assertThat(sub2, `is`(closeTo(b.subdivide(1.0).second)))
     }
 
     @Test
@@ -95,7 +95,7 @@ class DataPreparationTest {
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it).weighted(2.0) }
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(extendBack(data, extendInnerSpan, extendOuterSpan, extendDegree)).subdivide(1.0)
-        assertThat(sub1.orThrow(), `is`(closeTo(b.subdivide(1.0).first.orThrow())))
-        assertThat(sub2.orThrow(), `is`(closeTo(b.subdivide(1.0).second.orThrow())))
+        assertThat(sub1, `is`(closeTo(b.subdivide(1.0).first)))
+        assertThat(sub2, `is`(closeTo(b.subdivide(1.0).second)))
     }
 }

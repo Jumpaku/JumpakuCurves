@@ -2,7 +2,7 @@ package jumpaku.curves.fsc.generate.fit
 
 import io.vavr.Tuple3
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.geom.Point
@@ -11,7 +11,7 @@ import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 
 private fun createModelMatrix(dataParams: List<Double>, degree: Int, knotVector: KnotVector): RealMatrix {
-    val n = knotVector.extractedKnots.size - degree - 1
+    val n = knotVector.size - degree - 1
     val sparse = OpenMapRealMatrix(dataParams.size, n)
     dataParams.map { t ->
         (0 until n).map { BSpline.basis(t, it, knotVector) }

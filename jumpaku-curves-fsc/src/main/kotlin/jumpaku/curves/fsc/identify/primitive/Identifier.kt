@@ -21,7 +21,7 @@ interface Identifier  {
 }
 
 fun reparametrize(fsc: BSpline): ReparametrizedCurve<BSpline> = fsc.run {
-    val nSamples = knotVector.knots.count { it.value in domain } * fsc.degree * 2
+    val nSamples = knotVector.count { it in domain } * fsc.degree * 2
     val ts = fsc.domain.sample(nSamples)
     ReparametrizedCurve.of(fsc, ts)//if (ts.size <= maxSamples) ts else approximateParams(maxSamples))
 }

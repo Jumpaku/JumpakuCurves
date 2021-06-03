@@ -3,7 +3,7 @@ package jumpaku.curves.fsc.merge
 import jumpaku.commons.control.Option
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Knot
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.generate.*
@@ -60,16 +60,16 @@ class Merger(
         }
 
         val extendedDomain = Interval(data.first().param, data.last().param)
-        val removedKnots = LinkedList<Knot>()
-        val remainedKnots = LinkedList<Knot>()
-        KnotVector.clamped(extendedDomain, degree, knotSpan).knots.forEach { knot ->
-            if (shouldRemove(knot.value)) removedKnots.add(knot)
+        val removedKnots = LinkedList<Double>()
+        val remainedKnots = LinkedList<Double>()
+        KnotVector.clamped(extendedDomain, degree, knotSpan).forEach { knot ->
+            if (shouldRemove(knot)) removedKnots.add(knot)
             else remainedKnots.add(knot)
         }
-        val knotVector = KnotVector(degree, remainedKnots)
+        val knotVector = KnotVector.of(degree, remainedKnots)
         return Generator.generate(data, knotVector, fuzzifier)
                 .run { restrict(mergeData.domain) }
-                .let { s -> removedKnots.fold(s) { inserted, (v, m) -> inserted.insertKnot(v, m) } }
+                .let { s -> removedKnots.fold(s) { inserted, v -> inserted.insertKnot(v) } }
     }
 
     companion object {

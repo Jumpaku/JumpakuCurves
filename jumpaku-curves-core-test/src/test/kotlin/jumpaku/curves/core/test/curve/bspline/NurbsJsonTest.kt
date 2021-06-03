@@ -1,8 +1,8 @@
 package jumpaku.curves.core.test.curve.bspline
 
 import jumpaku.commons.json.parseJson
-import jumpaku.curves.core.curve.Knot
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.Nurbs
 import jumpaku.curves.core.curve.bspline.NurbsJson
 import jumpaku.curves.core.geom.Point
@@ -13,14 +13,17 @@ import org.junit.Test
 
 class NurbsJsonTest {
 
-    val n = Nurbs(listOf(
+    val n = Nurbs(
+        listOf(
             WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0),
             WeightedPoint(Point.xyr(200.0, 100.0, 20.0), 1 / 9.0),
             WeightedPoint(Point.xyr(400.0, 100.0, 30.0), 1 / 27.0),
             WeightedPoint(Point.xyr(400.0, 500.0, 30.0), 1 / 27.0),
             WeightedPoint(Point.xyr(200.0, 500.0, 20.0), 1 / 9.0),
-            WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)),
-            KnotVector(3, Knot(0.0, 4), Knot(1.0, 2), Knot(2.0, 4)))
+            WeightedPoint(Point.xyr(200.0, 300.0, 10.0), 1.0)
+        ),
+        KnotVector.clamped(Interval(0.0, 2.0), 3, 10)
+    )
 
     @Test
     fun testNurbsJson() {

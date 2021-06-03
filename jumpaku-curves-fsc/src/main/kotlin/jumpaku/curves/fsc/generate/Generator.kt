@@ -1,7 +1,7 @@
 package jumpaku.curves.fsc.generate
 
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
@@ -13,18 +13,20 @@ import org.apache.commons.math3.linear.OpenMapRealMatrix
 import org.apache.commons.math3.linear.RealMatrix
 import java.lang.Integer.max
 import java.lang.Integer.min
+import kotlin.math.abs
 
 
 class Generator(
-        val degree: Int = 3,
-        val knotSpan: Double = 0.1,
-        val fillSpan: Double = knotSpan / degree,
-        val extendInnerSpan: Double = knotSpan * 2,
-        val extendOuterSpan: Double = knotSpan * 2,
-        val extendDegree: Int = 2,
-        val fuzzifier: Fuzzifier = Fuzzifier.Linear(
-                velocityCoefficient = 0.0086,
-                accelerationCoefficient = 0.0077)
+    val degree: Int = 3,
+    val knotSpan: Double = 0.1,
+    val fillSpan: Double = knotSpan / degree,
+    val extendInnerSpan: Double = knotSpan * 2,
+    val extendOuterSpan: Double = knotSpan * 2,
+    val extendDegree: Int = 2,
+    val fuzzifier: Fuzzifier = Fuzzifier.Linear(
+        velocityCoefficient = 0.0086,
+        accelerationCoefficient = 0.0077
+    )
 ) {
 
     init {
@@ -39,15 +41,15 @@ class Generator(
     fun generate(drawingStroke: DrawingStroke): BSpline = generate(drawingStroke.inputData)
 
     fun generate(data: List<ParamPoint>, weights: List<Double> = data.map { 1.0 }): BSpline =
-            generate(data.zip(weights, ::WeightedParamPoint))
+        generate(data.zip(weights, ::WeightedParamPoint))
 
     fun generate(data: List<WeightedParamPoint>): BSpline {
         val sorted = data.sortedBy { it.param }
         val domain = Interval(sorted.first().param, sorted.last().param)
         val prepared = sorted
-                .let { fill(it, fillSpan) }
-                .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-                .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+            .let { fill(it, fillSpan) }
+            .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+            .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
         val domainExtended = Interval(prepared.first().param, prepared.last().param)
         val kv = KnotVector.clamped(domainExtended, degree, knotSpan)
         return generate(prepared, kv, fuzzifier).restrict(domain)
@@ -62,34 +64,45 @@ class Generator(
             val solver = CholeskyDecomposition(btwb, 1e-10, 1e-10).solver
             val btwd = btw.multiply(d)
             val cps = solver.solve(btwd).data
-            val f = createFuzzinessDataMatrix(data, BSpline(cps.map { (x, y, z) -> Point.xyz(x, y, z) }, knotVector), fuzzifier)
+            val f = createFuzzinessDataMatrix(
+                data,
+                BSpline(cps.map { (x, y, z) -> Point.xyz(x, y, z) }, knotVector),
+                fuzzifier
+            )
             val btwf = btw.multiply(f)
             val rs = solver.solve(btwf).data
             val fuzzyCp = cps.indices
-                    .map { i -> Point.xyzr(cps[i][0], cps[i][1], cps[i][2], rs[i][0].coerceAtLeast(1e-10)) }
+                .map { i -> Point.xyzr(cps[i][0], cps[i][1], cps[i][2], rs[i][0].coerceAtLeast(1e-10)) }
             return BSpline(fuzzyCp, knotVector)
         }
 
         private fun createPointDataMatrix(data: List<WeightedParamPoint>): RealMatrix =
-                MatrixUtils.createRealMatrix(data.size, 3).apply {
-                    data.forEachIndexed { i, d -> d.run { setRow(i, point.toDoubleArray()) } }
-                }
+            MatrixUtils.createRealMatrix(data.size, 3).apply {
+                data.forEachIndexed { i, d -> d.run { setRow(i, point.toDoubleArray()) } }
+            }
 
-        private fun createFuzzinessDataMatrix(data: List<WeightedParamPoint>, crisp: BSpline, fuzzifier: Fuzzifier): RealMatrix =
-                MatrixUtils.createRealMatrix(fuzzifier.fuzzify(crisp, data.map { it.param }).map { doubleArrayOf(it) }.toTypedArray())
+        private fun createFuzzinessDataMatrix(
+            data: List<WeightedParamPoint>,
+            crisp: BSpline,
+            fuzzifier: Fuzzifier
+        ): RealMatrix =
+            MatrixUtils.createRealMatrix(fuzzifier.fuzzify(crisp, data.map { it.param }).map { doubleArrayOf(it) }
+                .toTypedArray())
 
         private fun createModelMatrices(data: List<WeightedParamPoint>, knotVector: KnotVector)
                 : Pair<OpenMapRealMatrix, OpenMapRealMatrix> {
-            val cpSize = knotVector.extractedKnots.size - knotVector.degree - 1
+            val cpSize = knotVector.size - knotVector.degree - 1
             val dSize = data.size
             val w = data.map { it.weight }
             val b = OpenMapRealMatrix(dSize, cpSize).apply {
+                //var l = knotVector.degree
                 data.forEachIndexed { i, (pt, _) ->
-                    val (_, t) = pt
+                    //while (l < cpSize-1 && pt.param >= knotVector[l + 1]) ++l
+                    val t = pt.param
                     val l = if (t >= knotVector.domain.end) (cpSize - 1)
-                    else knotVector.searchLastExtractedLessThanOrEqualTo(t)
+                    else knotVector.searchIndexToInsert(t)
                     ((l - knotVector.degree)..l).forEach { j ->
-                        setEntry(i, j, BSpline.basis(t, j, knotVector))
+                        setEntry(i, j, BSpline.basis(pt.param, j, knotVector, l))
                     }
                 }
             }

@@ -1,13 +1,10 @@
 package jumpaku.curves.demo.generate
 
-import jumpaku.curves.core.curve.bspline2.BSpline
+import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.Fuzzifier
-import jumpaku.curves.fsc.generate.Fuzzifier2
 import jumpaku.curves.fsc.generate.Generator
-import jumpaku.curves.fsc.generate.Generator2
-import jumpaku.curves.graphics.drawCubicBSpline
 import jumpaku.curves.graphics.drawCubicBezier
 import jumpaku.curves.graphics.drawPoints
 import java.awt.Dimension
@@ -38,14 +35,14 @@ object Settings {
 
     val height = 720
 
-    val generator: Generator2 = Generator2(
+    val generator: Generator = Generator(
             degree = 3,
             knotSpan = 0.075,
             fillSpan = 0.0375,
             extendInnerSpan = 0.075,
             extendOuterSpan = 0.075,
             extendDegree = 2,
-            fuzzifier = Fuzzifier2.Linear(
+            fuzzifier = Fuzzifier.Linear(
                     velocityCoefficient = 0.025,
                     accelerationCoefficient = 0.001
             ))

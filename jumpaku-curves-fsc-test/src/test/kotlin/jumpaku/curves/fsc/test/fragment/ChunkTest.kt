@@ -2,7 +2,7 @@ package jumpaku.curves.fsc.test.fragment
 
 import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.KnotVector
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.test.curve.closeTo
@@ -15,10 +15,11 @@ class ChunkTest {
 
     val th = Chunk.Threshold(0.4, 0.6)
 
-    val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it * 3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
-    val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it) * 3) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
-    val s2 = BSpline((0..3).map { Point.xr(it.toDouble(), 9.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
-    val s3 = BSpline((0..3).map { Point.xr(it.toDouble(), 3.0) }, KnotVector.uniform(Interval.ZERO_ONE, 1, 6))
+    val knotVector = KnotVector.clamped(Interval.ZERO_ONE, 1, 6)
+    val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it * 3.0) }, knotVector)
+    val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it) * 3) }, knotVector)
+    val s2 = BSpline((0..3).map { Point.xr(it.toDouble(), 9.0) }, knotVector)
+    val s3 = BSpline((0..3).map { Point.xr(it.toDouble(), 3.0) }, knotVector)
 
 
     fun chunk(fsc: BSpline, n: Int): Chunk = Chunk(fsc.restrict(fsc.domain).sample(n))
