@@ -2,11 +2,13 @@ package jumpaku.curves.fsc.merge
 
 import jumpaku.commons.control.Option
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.Knot
-import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.fsc.generate.*
+import jumpaku.curves.fsc.generate.Fuzzifier
+import jumpaku.curves.fsc.generate.Generator
+import jumpaku.curves.fsc.generate.extendBack
+import jumpaku.curves.fsc.generate.extendFront
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import java.util.*
 import kotlin.math.abs

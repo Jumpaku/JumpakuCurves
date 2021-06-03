@@ -1,9 +1,6 @@
 package jumpaku.curves.fsc.generate
 
-import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
-import jumpaku.curves.core.curve.bspline.Nurbs
-import jumpaku.curves.core.geom.weighted
 
 sealed class Fuzzifier {
 

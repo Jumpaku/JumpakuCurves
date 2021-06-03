@@ -1,16 +1,15 @@
 package jumpaku.curves.core.test.curve.bspline
 
-import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.Knot
-import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineDerivative
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
-import jumpaku.curves.core.test.curve.bezier.closeTo
 import jumpaku.curves.core.test.closeTo
+import jumpaku.curves.core.test.curve.bezier.closeTo
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.test.geom.closeTo
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
