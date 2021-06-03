@@ -15,8 +15,8 @@ class LineSegmentTest {
             ParamPoint(Point.xyr(1.0, 0.0, 3.0), 1.0))
     
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
+    fun testInvoke() {
+        println("Invoke")
         assertThat(l(-1.0), `is`(closeTo(Point.xyr(0.0, 1.0, 1.0))))
         assertThat(l(0.0), `is`(closeTo(Point.xyr(0.5, 0.5, 2.0))))
         assertThat(l(1.0), `is`(closeTo(Point.xyr(1.0, 0.0, 3.0))))

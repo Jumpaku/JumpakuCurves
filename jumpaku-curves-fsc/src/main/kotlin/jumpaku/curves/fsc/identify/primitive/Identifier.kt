@@ -1,6 +1,7 @@
 package jumpaku.curves.fsc.identify.primitive
 
 import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.arclength.ReparametrizedCurve
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bezier.ConicSection
@@ -12,7 +13,7 @@ interface Identifier  {
 
     val nFmps: Int
 
-    fun isClosed(fsc: Curve): Grade = fsc.evaluateAll(2).run { first().isPossible(last()) }
+    fun isClosed(fsc: Curve): Grade = fsc.invoke(Sampler(2)).run { first().isPossible(last()) }
 
     fun <C : Curve> ReparametrizedCurve<C>.isPossible(reference: Reference): Grade =
             isPossible(reference.reparametrized, nFmps)
@@ -21,7 +22,7 @@ interface Identifier  {
 }
 
 fun reparametrize(fsc: BSpline): ReparametrizedCurve<BSpline> = fsc.run {
-    val nSamples = knotVector.knots.count { it.value in domain } * fsc.degree * 2
+    val nSamples = knotVector.count { it in domain } * fsc.degree * 2
     val ts = fsc.domain.sample(nSamples)
     ReparametrizedCurve.of(fsc, ts)//if (ts.size <= maxSamples) ts else approximateParams(maxSamples))
 }

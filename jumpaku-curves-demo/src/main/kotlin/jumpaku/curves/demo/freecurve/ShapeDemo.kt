@@ -1,5 +1,6 @@
 package jumpaku.curves.demo.freecurve
 
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
@@ -33,9 +34,9 @@ fun main() = SwingUtilities.invokeLater {
 
 object Settings {
 
-    val width = 640
+    val width = 1280
 
-    val height = 480
+    val height = 720
 
 
     val generator: Generator = Generator(
@@ -79,7 +80,7 @@ class DemoPanel : JPanel() {
     override fun paint(g: Graphics) = with(g as Graphics2D) {
         results.forEach { (fsc, result) ->
             val (_, _, smooth) = result
-            drawPoints(fsc.evaluateAll(0.01))
+            drawPoints(fsc.invoke(Sampler(0.01)))
             smooth.conicSections.forEach { drawConicSection(it, DrawStyle(Color.MAGENTA)) }
             smooth.cubicBeziers.forEach { drawCubicBezier(it, DrawStyle(Color.CYAN)) }
         }

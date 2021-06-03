@@ -29,14 +29,14 @@ class BezierDerivativeTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
+    fun testInvoke() {
+        println("Invoke")
         val b4 = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
-        assertThat(b4.evaluate(0.0), `is`(closeTo(Vector(-2.0, 0.0))))
-        assertThat(b4.evaluate(0.25), `is`(closeTo(Vector(-1.0, 27 / 64.0))))
-        assertThat(b4.evaluate(0.5), `is`(closeTo(Vector(0.0, 0.75))))
-        assertThat(b4.evaluate(0.75), `is`(closeTo(Vector(1.0, 27 / 64.0))))
-        assertThat(b4.evaluate(1.0), `is`(closeTo(Vector(2.0, 0.0))))
+        assertThat(b4.invoke(0.0), `is`(closeTo(Vector(-2.0, 0.0))))
+        assertThat(b4.invoke(0.25), `is`(closeTo(Vector(-1.0, 27 / 64.0))))
+        assertThat(b4.invoke(0.5), `is`(closeTo(Vector(0.0, 0.75))))
+        assertThat(b4.invoke(0.75), `is`(closeTo(Vector(1.0, 27 / 64.0))))
+        assertThat(b4.invoke(1.0), `is`(closeTo(Vector(2.0, 0.0))))
     }
 
     @Test
@@ -44,11 +44,11 @@ class BezierDerivativeTest {
         val b = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
         val d = b.differentiate()
         assertThat(d.curve, `is`(closeTo(Bezier(Point.xy(4.0, 0.0), Point.xy(4.0, 8.0), Point.xy(4.0, -8.0), Point.xy(4.0, 0.0)))))
-        assertThat(d.evaluate(0.0), `is`(closeTo(Vector(4.0, 0.0))))
-        assertThat(d.evaluate(0.25), `is`(closeTo(Vector(4.0, 2.25))))
-        assertThat(d.evaluate(0.5), `is`(closeTo(Vector(4.0, 0.0))))
-        assertThat(d.evaluate(0.75), `is`(closeTo(Vector(4.0, -2.25))))
-        assertThat(d.evaluate(1.0), `is`(closeTo(Vector(4.0, 0.0))))
+        assertThat(d.invoke(0.0), `is`(closeTo(Vector(4.0, 0.0))))
+        assertThat(d.invoke(0.25), `is`(closeTo(Vector(4.0, 2.25))))
+        assertThat(d.invoke(0.5), `is`(closeTo(Vector(4.0, 0.0))))
+        assertThat(d.invoke(0.75), `is`(closeTo(Vector(4.0, -2.25))))
+        assertThat(d.invoke(1.0), `is`(closeTo(Vector(4.0, 0.0))))
     }
 
     @Test

@@ -4,6 +4,7 @@ import jumpaku.commons.control.Option
 import jumpaku.commons.control.none
 import jumpaku.commons.control.or
 import jumpaku.commons.control.some
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.graphics.swing.DrawingPanel
@@ -39,9 +40,9 @@ fun main() = SwingUtilities.invokeLater {
 
 object Settings {
 
-    val width = 640
+    val width = 1280
 
-    val height = 480
+    val height = 720
 
     val generator: Generator = Generator(
             degree = 4,
@@ -83,7 +84,7 @@ class DemoPanel : JPanel() {
     override fun paint(g: Graphics) = with(g as Graphics2D) {
         existingFsc.forEach { s ->
             drawCubicBSpline(s, DrawStyle())
-            drawPoints(s.evaluateAll(0.01), DrawStyle())
+            drawPoints(s.invoke(Sampler(0.01)), DrawStyle())
         }
     }
 }

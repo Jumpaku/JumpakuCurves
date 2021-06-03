@@ -38,13 +38,13 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         val dp = BezierDerivative(weightedControlPoints.map { (p, w) -> p.toVector() * w }).differentiate()
 
         return object : Derivative {
-            override fun evaluate(t: Double): Vector {
+            override fun invoke(t: Double): Vector {
                 require(t in domain) { "t($t) is out of domain($domain)" }
 
                 val wt = bezier1D(t, ws)
                 val dwt = bezier1D(t, dws)
-                val dpt = dp.evaluate(t)
-                val rt = this@RationalBezier.evaluate(t).toVector()
+                val dpt = dp.invoke(t)
+                val rt = this@RationalBezier.invoke(t).toVector()
 
                 return ((dpt - dwt * rt) / wt).orThrow()
             }
@@ -53,7 +53,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
         }
     }
 
-    override fun evaluate(t: Double): Point {
+    override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
         tailrec fun createEvaluatedPoint(t: Double, cp: List<WeightedPoint>): WeightedPoint =
                 if (cp.size == 1) cp.first() else createEvaluatedPoint(t, Bezier.decasteljau(t, cp))

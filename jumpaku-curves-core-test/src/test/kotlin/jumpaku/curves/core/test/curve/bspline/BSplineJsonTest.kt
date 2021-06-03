@@ -2,9 +2,9 @@ package jumpaku.curves.core.test.curve.bspline
 
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.BSplineJson
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.geom.Point
 import org.hamcrest.CoreMatchers
 import org.junit.Assert

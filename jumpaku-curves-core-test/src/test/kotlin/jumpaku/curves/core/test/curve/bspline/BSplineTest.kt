@@ -1,15 +1,15 @@
 package jumpaku.curves.core.test.curve.bspline
 
 import jumpaku.commons.math.test.closeTo
+import jumpaku.curves.core.test.curve.closeTo
 import jumpaku.curves.core.curve.Interval
-import jumpaku.curves.core.curve.Knot
-import jumpaku.curves.core.curve.KnotVector
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.test.curve.bezier.closeTo
-import jumpaku.curves.core.test.curve.closeTo
+import jumpaku.curves.core.test.closeTo
 import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
@@ -23,22 +23,15 @@ import org.junit.Test
 class BSplineTest {
 
     val clamped = BSpline(
-            listOf(
-                    Point.xyr(-1.0, 0.0, 0.0),
-                    Point.xyr(-1.0, 1.0, 1.0),
-                    Point.xyr(0.0, 1.0, 2.0),
-                    Point.xyr(0.0, 0.0, 1.0),
-                    Point.xyr(1.0, 0.0, 0.0)),
-            KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
-
-    val uniform = BSpline(
-            listOf(
-                    Point.xy(-1.0, 0.0),
-                    Point.xy(-1.0, 1.0),
-                    Point.xy(0.0, 1.0),
-                    Point.xy(0.0, 0.0),
-                    Point.xy(1.0, 0.0)),
-            KnotVector.uniform(Interval(3.0, 4.0), 2, 8))
+        listOf(
+            Point.xyr(-1.0, 0.0, 0.0),
+            Point.xyr(-1.0, 1.0, 1.0),
+            Point.xyr(0.0, 1.0, 2.0),
+            Point.xyr(0.0, 0.0, 1.0),
+            Point.xyr(1.0, 0.0, 0.0)
+        ),
+        KnotVector.clamped(Interval(3.0, 4.0), 3, 9)
+    )
 
     @Test
     fun testProperties() {
@@ -55,43 +48,43 @@ class BSplineTest {
     }
 
     @Test
-    fun testEvaluate() {
-        println("Evaluate")
-        assertThat(clamped.evaluate(3.0), `is`(closeTo(Point.xyr(-1.0, 0.0, 0.0))))
-        assertThat(clamped.evaluate(3.25), `is`(closeTo(Point.xyr(-23 / 32.0, 27 / 32.0, 9 / 8.0))))
-        assertThat(clamped.evaluate(3.5), `is`(closeTo(Point.xyr(-1 / 4.0, 3 / 4.0, 1.5))))
-        assertThat(clamped.evaluate(3.75), `is`(closeTo(Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0))))
-        assertThat(clamped.evaluate(4.0), `is`(closeTo(Point.xyr(1.0, 0.0, 0.0))))
-
-        assertThat(uniform.evaluate(3.0), `is`(closeTo(Point.xy(-1.0, 0.5))))
-        assertThat(uniform.evaluate(3 + 1 / 3.0), `is`(closeTo(Point.xy(-0.5, 1.0))))
-        assertThat(uniform.evaluate(3 + 2 / 3.0), `is`(closeTo(Point.xy(0.0, 0.5))))
-        assertThat(uniform.evaluate(4.0), `is`(closeTo(Point.xy(0.5, 0.0))))
+    fun testInvoke() {
+        println("Invoke")
+        assertThat(clamped.invoke(3.0), `is`(closeTo(Point.xyr(-1.0, 0.0, 0.0))))
+        assertThat(clamped.invoke(3.25), `is`(closeTo(Point.xyr(-23 / 32.0, 27 / 32.0, 9 / 8.0))))
+        assertThat(clamped.invoke(3.5), `is`(closeTo(Point.xyr(-1 / 4.0, 3 / 4.0, 1.5))))
+        assertThat(clamped.invoke(3.75), `is`(closeTo(Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0))))
+        assertThat(clamped.invoke(4.0), `is`(closeTo(Point.xyr(1.0, 0.0, 0.0))))
     }
 
     @Test
     fun testDifferentiate() {
         println("Differentiate")
         val e0 = BSpline(
-                listOf(Point.xy(0.0, 6.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(6.0, 0.0)),
-                KnotVector.clamped(Interval(3.0, 4.0), 2, 7))
+            listOf(Point.xy(0.0, 6.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(6.0, 0.0)),
+            KnotVector.clamped(Interval(3.0, 4.0), 2, 7)
+        )
         assertThat(clamped.differentiate().curve, `is`(closeTo(e0)))
-
-        val e1 = BSpline(
-                listOf(Point.xy(0.0, 3.0), Point.xy(3.0, 0.0), Point.xy(0.0, -3.0), Point.xy(3.0, 0.0)),
-                KnotVector.uniform(Interval(3.0, 4.0), 1, 6))
-        assertThat(uniform.differentiate().curve, `is`(closeTo(e1)))
     }
 
     @Test
     fun testTransform() {
         println("Transform")
-        val a = clamped.transform(UniformlyScale(2.0)
+        val a = clamped.transform(
+            UniformlyScale(2.0)
                 .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2))
-                .andThen(Translate(Vector(1.0, 1.0))))
+                .andThen(Translate(Vector(1.0, 1.0)))
+        )
         val e = BSpline(
-                listOf(Point.xy(1.0, -1.0), Point.xy(-1.0, -1.0), Point.xy(-1.0, 1.0), Point.xy(1.0, 1.0), Point.xy(1.0, 3.0)),
-                KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
+            listOf(
+                Point.xy(1.0, -1.0),
+                Point.xy(-1.0, -1.0),
+                Point.xy(-1.0, 1.0),
+                Point.xy(1.0, 1.0),
+                Point.xy(1.0, 3.0)
+            ),
+            KnotVector.clamped(Interval(3.0, 4.0), 3, 9)
+        )
         assertThat(a, `is`(closeTo(e)))
     }
 
@@ -100,8 +93,15 @@ class BSplineTest {
         println("ToCrisp")
         val a = clamped.toCrisp()
         val e = BSpline(
-                listOf(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
-                KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
+            listOf(
+                Point.xy(-1.0, 0.0),
+                Point.xy(-1.0, 1.0),
+                Point.xy(0.0, 1.0),
+                Point.xy(0.0, 0.0),
+                Point.xy(1.0, 0.0)
+            ),
+            KnotVector.clamped(Interval(3.0, 4.0), 3, 9)
+        )
         assertThat(a, `is`(closeTo(e)))
     }
 
@@ -109,33 +109,54 @@ class BSplineTest {
     fun testRestrict() {
         println("Restrict")
         val e0 = BSpline(
-                listOf(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(-0.125, 5 / 8.0, 1.5), Point.xyr(-1 / 16.0, 7 / 16.0, 11 / 8.0), Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0)),
-                KnotVector.clamped(Interval(3.5, 3.75), 3, 8))
+            listOf(
+                Point.xyr(-0.25, 0.75, 1.5),
+                Point.xyr(-0.125, 5 / 8.0, 1.5),
+                Point.xyr(-1 / 16.0, 7 / 16.0, 11 / 8.0),
+                Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0)
+            ),
+            KnotVector.clamped(Interval(3.5, 3.75), 3, 8)
+        )
         assertThat(clamped.restrict(Interval(3.5, 3.75)), `is`(closeTo(e0)))
 
         val e1 = BSpline(
-                listOf(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(-0.125, 5 / 8.0, 1.5), Point.xyr(-1 / 16.0, 7 / 16.0, 11 / 8.0), Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0)),
-                KnotVector.clamped(Interval(3.5, 3.75), 3, 8))
+            listOf(
+                Point.xyr(-0.25, 0.75, 1.5),
+                Point.xyr(-0.125, 5 / 8.0, 1.5),
+                Point.xyr(-1 / 16.0, 7 / 16.0, 11 / 8.0),
+                Point.xyr(3 / 32.0, 9 / 32.0, 9 / 8.0)
+            ),
+            KnotVector.clamped(Interval(3.5, 3.75), 3, 8)
+        )
         assertThat(clamped.restrict(3.5, 3.75), `is`(closeTo(e1)))
 
         assertThat(clamped.restrict(3.0, 4.0), `is`(closeTo(clamped)))
-
-        val e2 = BSpline(
-                listOf(Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.5, 0.0)),
-                KnotVector.clamped(Interval(3.0, 4.0), 2, 8))
-        assertThat(uniform.restrict(3.0, 4.0), `is`(closeTo(e2)))
     }
 
     @Test
     fun testReverse() {
         println("Reverse")
         val r = BSpline(
-                listOf(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
-                .reverse()
+            listOf(
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 1.0, 1.0),
+                Point.xyr(0.0, 1.0, 2.0),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(1.0, 0.0, 0.0)
+            ),
+            KnotVector.clamped(Interval(0.0, 2.0), 3, 9)
+        )
+            .reverse()
         val e = BSpline(
-                listOf(Point.xyr(1.0, 0.0, 0.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-1.0, 0.0, 0.0)),
-                KnotVector.clamped(Interval(0.0, 2.0), 3, 9))
+            listOf(
+                Point.xyr(1.0, 0.0, 0.0),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(0.0, 1.0, 2.0),
+                Point.xyr(-1.0, 1.0, 1.0),
+                Point.xyr(-1.0, 0.0, 0.0)
+            ),
+            KnotVector.clamped(Interval(0.0, 2.0), 3, 9)
+        )
 
         assertThat(r, `is`(closeTo(e)))
     }
@@ -144,47 +165,74 @@ class BSplineTest {
     fun testToBeziers() {
         println("ToBeziers")
         val beziers0 = clamped.toBeziers()
+        val e00 = Bezier(
+            Point.xyr(-1.0, 0.0, 0.0),
+            Point.xyr(-1.0, 1.0, 1.0),
+            Point.xyr(-0.5, 1.0, 1.5),
+            Point.xyr(-0.25, 0.75, 1.5)
+        )
+        val e01 = Bezier(
+            Point.xyr(-0.25, 0.75, 1.5),
+            Point.xyr(0.0, 0.5, 1.5),
+            Point.xyr(0.0, 0.0, 1.0),
+            Point.xyr(1.0, 0.0, 0.0)
+        )
         assertThat(beziers0.size, `is`(2))
-        assertThat(beziers0[0], `is`(closeTo(Bezier(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)))))
-        assertThat(beziers0[1], `is`(closeTo(Bezier(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)))))
-
-        val beziers1 = uniform.toBeziers()
-        assertThat(beziers1.size, `is`(3))
-        assertThat(beziers1[0], `is`(closeTo(Bezier(Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(-0.5, 1.0)))))
-        assertThat(beziers1[1], `is`(closeTo(Bezier(Point.xy(-0.5, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.5)))))
-        assertThat(beziers1[2], `is`(closeTo(Bezier(Point.xy(0.0, 0.5), Point.xy(0.0, 0.0), Point.xy(0.5, 0.0)))))
+        assertThat(beziers0[0], `is`(closeTo(e00)))
+        assertThat(beziers0[1], `is`(closeTo(e01)))
     }
 
     @Test
     fun testSubdivide() {
         println("Subdivide")
         val (s01, s02) = clamped.subdivide(3.0)
-        assertThat(s01.isDefined, `is`(false))
-        assertThat(s02.orThrow(), `is`(closeTo(clamped)))
+        val e01 = BSpline(
+            listOf(
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 0.0, 0.0)
+            ), KnotVector.of(3, listOf(3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0))
+        )
+        val e02 = clamped
+        assertThat(s01, `is`(closeTo(e01)))
+        assertThat(s02, `is`(closeTo(e02)))
 
         val (s11, s12) = clamped.subdivide(3.5)
-        assertThat(s11.orThrow(), `is`(closeTo(BSpline(
-                listOf(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5)),
-                KnotVector.clamped(Interval(3.0, 3.5), 3, 8)))))
-        assertThat(s12.orThrow(), `is`(closeTo(BSpline(
-                listOf(Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector.clamped(Interval(3.5, 4.0), 3, 8)))))
+        val e11 = BSpline(
+            listOf(
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 1.0, 1.0),
+                Point.xyr(-0.5, 1.0, 1.5),
+                Point.xyr(-0.25, 0.75, 1.5)
+            ),
+            KnotVector.clamped(Interval(3.0, 3.5), 3, 8)
+        )
+        val e12 = BSpline(
+            listOf(
+                Point.xyr(-0.25, 0.75, 1.5),
+                Point.xyr(0.0, 0.5, 1.5),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(1.0, 0.0, 0.0)
+            ),
+            KnotVector.clamped(Interval(3.5, 4.0), 3, 8)
+        )
+        assertThat(s11, `is`(closeTo(e11)))
+        assertThat(s12, `is`(closeTo(e12)))
 
         val (s21, s22) = clamped.subdivide(4.0)
-        assertThat(s21.orThrow(), `is`(closeTo(clamped)))
-        assertThat(s22.isDefined, `is`(false))
-
-        val (s31, s32) = uniform.subdivide(3.0)
-        assertThat(s31.isDefined, `is`(false))
-        assertThat(s32.orThrow(), `is`(closeTo(BSpline(
-                listOf(Point.xy(-1.0, 0.5), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(1.0, 0.0)),
-                KnotVector(2, Knot(3.0, 3), Knot(10 / 3.0), Knot(11 / 3.0), Knot(4.0), Knot(13 / 3.0), Knot(14 / 3.0))))))
-
-        val (s41, s42) = uniform.subdivide(4.0)
-        assertThat(s41.orThrow(), `is`(closeTo(BSpline(
-                listOf(Point.xy(-1.0, 0.0), Point.xy(-1.0, 1.0), Point.xy(0.0, 1.0), Point.xy(0.0, 0.0), Point.xy(0.5, 0.0)),
-                KnotVector(2, Knot(7 / 3.0), Knot(8 / 3.0), Knot(3.0), Knot(10 / 3.0), Knot(11 / 3.0), Knot(4.0, 3))))))
-        assertThat(s42.isDefined, `is`(false))
+        val e21 = clamped
+        val e22 = BSpline(
+            listOf(
+                Point.xyr(1.0, 0.0, 0.0),
+                Point.xyr(1.0, 0.0, 0.0),
+                Point.xyr(1.0, 0.0, 0.0),
+                Point.xyr(1.0, 0.0, 0.0)
+            ),
+            KnotVector.of(3, listOf(4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0))
+        )
+        assertThat(s21, `is`(closeTo(e21)))
+        assertThat(s22, `is`(closeTo(e22)))
     }
 
     @Test
@@ -192,102 +240,48 @@ class BSplineTest {
         println("InsertKnot")
         val b0 = clamped.insertKnot(3.25)
         val e0 = BSpline(
-                listOf(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 0.5, 0.5), Point.xyr(-0.75, 1.0, 1.25), Point.xyr(0.0, 0.75, 1.75), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector(3, Knot(3.0, 4), Knot(3.25), Knot(3.5), Knot(4.0, 4)))
+            listOf(
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 0.5, 0.5),
+                Point.xyr(-0.75, 1.0, 1.25),
+                Point.xyr(0.0, 0.75, 1.75),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(1.0, 0.0, 0.0)
+            ),
+            KnotVector.of(3, listOf(3.0, 3.0, 3.0, 3.0, 3.25, 3.5, 4.0, 4.0, 4.0, 4.0))
+        )
         assertThat(b0, `is`(closeTo(e0)))
 
         val b1 = clamped.insertKnot(3.5, 2)
         val e1 = BSpline(
-                listOf(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector(3, Knot(3.0, 4), Knot(3.5, 3), Knot(4.0, 4)))
+            listOf(
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 1.0, 1.0),
+                Point.xyr(-0.5, 1.0, 1.5),
+                Point.xyr(-0.25, 0.75, 1.5),
+                Point.xyr(0.0, 0.5, 1.5),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(1.0, 0.0, 0.0)
+            ),
+            KnotVector.of(3, listOf(3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 3.5, 4.0, 4.0, 4.0, 4.0))
+        )
         assertThat(b1, `is`(closeTo(e1)))
 
         val b2 = clamped.insertKnot(3.5, 3)
         val e2 = BSpline(
-                listOf(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(-0.5, 1.0, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(-0.25, 0.75, 1.5), Point.xyr(0.0, 0.5, 1.5), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector(3, Knot(3.0, 4), Knot(3.5, 4), Knot(4.0, 4)))
+            listOf(
+                Point.xyr(-1.0, 0.0, 0.0),
+                Point.xyr(-1.0, 1.0, 1.0),
+                Point.xyr(-0.5, 1.0, 1.5),
+                Point.xyr(-0.25, 0.75, 1.5),
+                Point.xyr(-0.25, 0.75, 1.5),
+                Point.xyr(0.0, 0.5, 1.5),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(1.0, 0.0, 0.0)
+            ),
+            KnotVector.of(3, listOf(3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 3.5, 3.5, 4.0, 4.0, 4.0, 4.0))
+        )
         assertThat(b2, `is`(closeTo(e2)))
-    }
-
-    @Test
-    fun testRemoveKnot_Int_Int() {
-        println("RemoveKnot")
-        val clamped = clamped.toCrisp()
-
-        for (times in 0..4) {
-            val c = clamped.insertKnot(3.25, times).removeKnot(1, times)
-            assertThat(c, `is`(closeTo(clamped)))
-        }
-        for (times in 0..3) {
-            val c = clamped.insertKnot(3.5, times).removeKnot(1, times)
-            assertThat(c, `is`(closeTo(clamped)))
-        }
-        for (times in 0..4) {
-            val c = clamped.insertKnot(3.75, times).removeKnot(2, times)
-            assertThat(c, `is`(closeTo(clamped)))
-        }
-
-        for (times in 0..2) {
-            val u = uniform.insertKnot(3.0, times).removeKnot(2, times)
-            assertThat(u, `is`(closeTo(uniform)))
-        }
-        for (times in 0..2) {
-            val u = uniform.insertKnot(4.0, times).removeKnot(5, times)
-            assertThat(u, `is`(closeTo(uniform)))
-        }
-    }
-
-    @Test
-    fun testRemoveKnot_Double_Int() {
-        println("RemoveKnot")
-        val clamped = clamped.toCrisp()
-
-        for (times in 0..4) {
-            val c = clamped.insertKnot(3.25, times).removeKnot(3.25, times)
-            assertThat(c, `is`(closeTo(clamped)))
-        }
-        for (times in 0..3) {
-            val c = clamped.insertKnot(3.5, times).removeKnot(3.5, times)
-            assertThat(c, `is`(closeTo(clamped)))
-        }
-        for (times in 0..4) {
-            val c = clamped.insertKnot(3.75, times).removeKnot(3.75, times)
-            assertThat(c, `is`(closeTo(clamped)))
-        }
-
-        for (times in 0..2) {
-            val u = uniform.insertKnot(3.0, times).removeKnot(3.0, times)
-            assertThat(u, `is`(closeTo(uniform)))
-        }
-        for (times in 0..2) {
-            val u = uniform.insertKnot(4.0, times).removeKnot(4.0, times)
-            assertThat(u, `is`(closeTo(uniform)))
-        }
-    }
-
-    @Test
-    fun testClamp() {
-        println("Clamp")
-        val c = clamped
-        assertThat(c.clamp(), `is`(closeTo(c)))
-
-        val u = BSpline(
-                listOf(
-                        Point.xy(-1.0, 0.0),
-                        Point.xy(-1.0, 1.0),
-                        Point.xy(0.0, 1.0),
-                        Point.xy(0.0, 0.0),
-                        Point.xy(1.0, 0.0)),
-                KnotVector.uniform(Interval(3.0, 4.0), 2, 8))
-        val e = BSpline(
-                listOf(
-                        Point.xy(-1.0, 0.5),
-                        Point.xy(-1.0, 1.0),
-                        Point.xy(0.0, 1.0),
-                        Point.xy(0.0, 0.0),
-                        Point.xy(0.5, 0.0)),
-                KnotVector.clamped(Interval(3.0, 4.0), 2, 8))
-        assertThat(u.clamp(), `is`(closeTo(e)))
     }
 
     @Test
@@ -295,17 +289,17 @@ class BSplineTest {
         println("Close")
         val ac = clamped
         val ec = BSpline(
-                listOf(Point.xyr(0.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(0.0, 0.0, 0.0)),
-                KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
+            listOf(
+                Point.xyr(0.0, 0.0, 0.0),
+                Point.xyr(-1.0, 1.0, 1.0),
+                Point.xyr(0.0, 1.0, 2.0),
+                Point.xyr(0.0, 0.0, 1.0),
+                Point.xyr(0.0, 0.0, 0.0)
+            ),
+            KnotVector.clamped(Interval(3.0, 4.0), 3, 9)
+        )
         assertThat(ac.close(), `is`(closeTo(ec)))
 
-        val au = BSpline(
-                listOf(Point.xyr(-1.0, 0.0, 0.0), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(1.0, 0.0, 0.0)),
-                KnotVector.uniform(Interval(0.0, 2.0), 2, 8))
-        val eu = BSpline(
-                listOf(Point.xyr(-0.25, 0.25, 0.5), Point.xyr(-1.0, 1.0, 1.0), Point.xyr(0.0, 1.0, 2.0), Point.xyr(0.0, 0.0, 1.0), Point.xyr(-0.25, 0.25, 0.5)),
-                KnotVector.clamped(Interval(0.0, 2.0), 2, 8))
-        assertThat(au.close(), `is`(closeTo(eu)))
     }
 
     @Test

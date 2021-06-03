@@ -22,7 +22,7 @@ class BezierDerivative(bezier: Bezier) : Derivative, Differentiable {
 
     val degree: Int = curve.degree
 
-    override fun evaluate(t: Double): Vector = curve(t).toVector()
+    override fun invoke(t: Double): Vector = curve(t).toVector()
 
     override fun differentiate(): BezierDerivative = curve.differentiate()
 
