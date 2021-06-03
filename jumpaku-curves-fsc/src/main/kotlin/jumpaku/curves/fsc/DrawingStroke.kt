@@ -16,6 +16,8 @@ class DrawingStroke(polyline: Polyline) : Curve by polyline {
 
     val paramSpan: Double = domain.span
 
+    override fun toString(): String = "DrawingStroke(inputData=$inputData)"
+
     fun extend(paramPoint: ParamPoint): DrawingStroke = DrawingStroke(inputData + paramPoint)
 }
 
