@@ -10,7 +10,7 @@ import org.apache.commons.math3.linear.MatrixUtils
 object TransformJson : JsonConverterBase<Transform>() {
 
     override fun toJson(src: Transform): JsonElement = src.run {
-        jsonArray(matrix.data.map { jsonArray(it.asIterable()) })
+        jsonArray(matrix.data.map { jsonArray(it.asList()) })
     }
 
     override fun fromJson(json: JsonElement): Transform =

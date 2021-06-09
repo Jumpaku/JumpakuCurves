@@ -110,8 +110,8 @@ private fun extend(
         extendOuterSpan: Double,
         extendDegree: Int
 ): List<WeightedParamPoint> {
-    val innerData = transformParams(innerPoints.map { it.paramPoint }, domain = innerOuterBSpline, range = Interval.ZERO_ONE)
-    val bezier = BezierFitter(extendDegree).fit(innerData).restrict(outerBezier)
+    val innerData = transformParams(innerPoints.map { it.paramPoint }, domain = innerOuterBSpline, range = Interval.Unit)
+    val bezier = BezierFitter(extendDegree).fit(innerData).clipout(outerBezier)
     val points = bezier.sample(ceil(innerData.size * extendOuterSpan / extendInnerSpan).toInt())
     return transformParams(points, range = outerBSpline).map { it.weighted(weight) }
 }

@@ -129,14 +129,14 @@ class ConicSectionTest {
     }
 
     @Test
-    fun testRestrict() {
-        println("Restrict")
-        val r0 = cs.restrict(Interval(0.0, 0.5))
+    fun testClipout() {
+        println("Clipout")
+        val r0 = cs.clipout(Interval(0.0, 0.5))
         assertThat(r0, `is`(closeTo(ConicSection(
                 Point.xyr(0.0, 1.0, 1.0),
                 Point.xyr((3 * R2 + 1) / (10 + 3 * R2), (3 * R2 + 9) / (10 + 3 * R2), 2.3027176028699587),
                 Point.xyr(R2 / 2, R2 / 2, 2.0), Math.sqrt(2 + R2) / 2), 0.1)))
-        val r1 = cs.restrict(0.5, 1.0)
+        val r1 = cs.clipout(0.5, 1.0)
         assertThat(r1, `is`(closeTo(ConicSection(
                 Point.xyr(R2 / 2, R2 / 2, 2.0),
                 Point.xyr((3 * R2 + 9) / (10 + 3 * R2), (3 * R2 + 1) / (10 + 3 * R2), 2.3027176028699587),

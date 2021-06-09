@@ -5,7 +5,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.Transform
 
 
-class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
+class Polyline(paramPoints: List<ParamPoint>) : Curve {
 
     val paramPoints: List<ParamPoint> = paramPoints.sortedBy { it.param }
 
@@ -52,9 +52,9 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
     fun reverse(): Polyline =
         Polyline(points.reversed().zip(parameters.map { domain.end + domain.begin - it }.reversed(), ::ParamPoint))
 
-    fun restrict(i: Interval): Polyline = restrict(i.begin, i.end)
+    override fun restrict(interval: Interval): Polyline = restrict(interval.begin, interval.end)
 
-    fun restrict(begin: Double, end: Double): Polyline = subdivide(begin).second.subdivide(end).first
+    override fun restrict(begin: Double, end: Double): Polyline = subdivide(begin).second.subdivide(end).first
 
     fun subdivide(t: Double): Pair<Polyline, Polyline> {
         require(t in domain) { "t($t) is out of domain($domain)" }
@@ -74,12 +74,12 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
 
     companion object {
 
-        fun byIndices(vararg points: Point): Polyline = byIndices(points.asIterable())
+        fun byIndices(vararg points: Point): Polyline = byIndices(points.asList())
 
-        fun byIndices(points: Iterable<Point>): Polyline =
+        fun byIndices(points: List<Point>): Polyline =
             Polyline(points.mapIndexed { i, p -> ParamPoint(p, i.toDouble()) })
 
-        fun byArcLength(points: Iterable<Point>): Polyline {
+        fun byArcLength(points: List<Point>): Polyline {
             val arcLength = points.zipWithNext { a, b -> a.dist(b) }.sum()
             val paramPoints = chordalParametrize(points.toList())
                 .tryMap { transformParams(it, range = Interval(0.0, arcLength)) }
@@ -87,7 +87,7 @@ class Polyline(paramPoints: Iterable<ParamPoint>) : Curve {
             return Polyline(paramPoints.orThrow())
         }
 
-        fun byArcLength(vararg points: Point): Polyline = byArcLength(points.asIterable())
+        fun byArcLength(vararg points: Point): Polyline = byArcLength(points.asList())
 
     }
 }

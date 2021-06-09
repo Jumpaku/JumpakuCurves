@@ -4,7 +4,7 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.fuzzy.Grade
 
-class Chunk(samples: Iterable<ParamPoint>) {
+class Chunk(samples: List<ParamPoint>) {
 
     class Threshold(val necessity: Grade, val possibility: Grade) {
 

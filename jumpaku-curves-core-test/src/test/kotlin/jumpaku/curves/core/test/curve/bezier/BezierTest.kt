@@ -71,9 +71,9 @@ class BezierTest {
     }
 
     @Test
-    fun testRestrict() {
-        println("Restrict")
-        assertThat(bc.restrict(0.25, 0.5), `is`(closeTo(Bezier(
+    fun testClipout() {
+        println("Clipout")
+        assertThat(bc.clipout(0.25, 0.5), `is`(closeTo(Bezier(
                 Point.xyr(-1.0, 27 / 64.0, 161 / 128.0), Point.xyr(-3 / 4.0, 9 / 16.0, 39 / 32.0), Point.xyr(-1 / 2.0, 11 / 16.0, 37 / 32.0), Point.xyr(-1 / 4.0, 3 / 4.0, 9 / 8.0), Point.xyr(0.0, 3 / 4.0, 9 / 8.0)))))
     }
 

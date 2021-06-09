@@ -10,9 +10,9 @@ import jumpaku.curves.core.geom.Vector
 
 class BezierDerivative(bezier: Bezier) : Derivative, Differentiable {
 
-    constructor(controlVectors: Iterable<Vector>) : this(Bezier(controlVectors.map { Point(it) }))
+    constructor(controlVectors: List<Vector>) : this(Bezier(controlVectors.map { Point(it) }))
 
-    constructor(vararg controlVectors: Vector) : this(controlVectors.asIterable())
+    constructor(vararg controlVectors: Vector) : this(controlVectors.asList())
 
     val curve: Bezier = bezier.toCrisp()
 
@@ -28,9 +28,9 @@ class BezierDerivative(bezier: Bezier) : Derivative, Differentiable {
 
     override fun toString(): String = "BezierDerivative(controlVectors=$controlVectors)"
 
-    fun restrict(i: Interval): BezierDerivative = BezierDerivative(curve.restrict(i))
+    fun clipout(i: Interval): BezierDerivative = BezierDerivative(curve.clipout(i))
 
-    fun restrict(begin: Double, end: Double): BezierDerivative = BezierDerivative(curve.restrict(begin, end))
+    fun clipout(begin: Double, end: Double): BezierDerivative = BezierDerivative(curve.clipout(begin, end))
 
     fun reverse(): BezierDerivative = BezierDerivative(curve.reverse())
 

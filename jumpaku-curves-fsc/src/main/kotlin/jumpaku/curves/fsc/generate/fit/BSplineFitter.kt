@@ -1,12 +1,10 @@
 package jumpaku.curves.fsc.generate.fit
 
-import io.vavr.Tuple3
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.util.*
 import org.apache.commons.math3.linear.*
 import org.apache.commons.math3.util.Precision
 
@@ -35,7 +33,7 @@ class BSplineFitter(
 
         val distinct = data.distinctBy(WeightedParamPoint::param)
         if (distinct.size <= degree) {
-            val d = transformParams(data.map { it.paramPoint }, range = Interval.ZERO_ONE)
+            val d = transformParams(data.map { it.paramPoint }, range = Interval.Unit)
             val b = BezierFitter(degree).fit(d, distinct.map { it.weight })
             val knots = KnotVector
                 .clamped(Interval(distinct.first().param, distinct.last().param), degree, degree * 2 + 2)

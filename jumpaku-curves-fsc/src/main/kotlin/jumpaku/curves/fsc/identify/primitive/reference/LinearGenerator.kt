@@ -13,8 +13,8 @@ class LinearGenerator : ReferenceGenerator {
     override fun <C : Curve> generate(fsc: ReparametrizedCurve<C>, t0: Double, t1: Double): Reference {
         val s = fsc.originalCurve
         val base = reparametrize(ConicSection.lineSegment(s(t0), s(t1)))
-        val s0 = fsc.reparametrizer.toArcLengthRatio(t0)
-        val s1 = fsc.reparametrizer.toArcLengthRatio(t1)
+        val s0 = fsc.toArcLengthRatio(t0)
+        val s1 = fsc.toArcLengthRatio(t1)
         val c = base.originalCurve.complement().reverse()
         val l = base.originalCurve.begin.dist(c.end)
         val l0 = l * s0 / (s1 - s0)
@@ -38,6 +38,6 @@ class LinearGenerator : ReferenceGenerator {
         val s = fsc.originalCurve
         val (t0, t1) = s.domain
         val base = ConicSection.lineSegment(s(t0), s(t1))
-        return Reference(base, Interval.ZERO_ONE)
+        return Reference(base, Interval.Unit)
     }
 }
