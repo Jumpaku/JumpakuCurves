@@ -2,7 +2,6 @@ package jumpaku.curves.core.curve.bezier
 
 
 import jumpaku.curves.core.curve.Curve
-import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.Lerpable
@@ -16,9 +15,9 @@ import org.apache.commons.math3.util.FastMath
 class Bezier private constructor(private val rationalBezier: RationalBezier)
     : Curve by rationalBezier, Differentiable {
 
-    constructor(controlPoints: Iterable<Point>) : this(RationalBezier(controlPoints.map { it.weighted() }))
+    constructor(controlPoints: List<Point>) : this(RationalBezier(controlPoints.map { it.weighted() }))
 
-    constructor(vararg controlPoints: Point) : this(controlPoints.asIterable())
+    constructor(vararg controlPoints: Point) : this(controlPoints.asList())
 
     val controlPoints: List<Point> get() = rationalBezier.controlPoints
 
@@ -36,9 +35,9 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     fun transform(a: Transform): Bezier = Bezier(rationalBezier.transform(a))
 
-    fun restrict(i: Interval): Bezier = restrict(i.begin, i.end)
+    fun clipout(i: Interval): Bezier = clipout(i.begin, i.end)
 
-    fun restrict(begin: Double, end: Double): Bezier = Bezier(rationalBezier.restrict(begin, end))
+    fun clipout(begin: Double, end: Double): Bezier = Bezier(rationalBezier.clipout(begin, end))
 
     fun reverse(): Bezier = Bezier(rationalBezier.reverse())
 

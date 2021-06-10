@@ -36,14 +36,14 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
 
     fun fragmentCs(qs: List<ConicSection>, cs: List<Point>, isClosed: Boolean): List<Option<Interval>> {
         val begins = qs.zip(cs) { q, c ->
-            Interval.ZERO_ONE.sample(samplingFactor)
+            Interval.Unit.sample(samplingFactor)
                     .find { q(it).dist(c) > c.r * pruningFactor }.toOption()
                     .flatMap { Solver().solve(0.0..it) { q(it).dist(c) - c.r * pruningFactor }.value() }
                     .orDefault(1.0)
         }.toMutableList().apply { if (isClosed) set(0, 0.0) }
 
         val ends = qs.zip(cs.drop(1)) { q, c ->
-            Interval.ZERO_ONE.sample(samplingFactor)
+            Interval.Unit.sample(samplingFactor)
                     .findLast { q(it).dist(c) > c.r * pruningFactor }.toOption()
                     .flatMap { Solver().solve(it..1.0) { q(it).dist(c) - c.r * pruningFactor }.value() }
                     .orDefault(0.0)
@@ -80,7 +80,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
     fun remainConicSectionIndices(cis: List<Option<Interval>>): List<Int> = cis.withIndex().flatMap { (i, opt) -> opt.map { i } }
 
     fun remainCs(qs: List<ConicSection>, cis: List<Option<Interval>>, ks: List<Int>): List<ConicSection> =
-            ks.flatMap { cis[it].map { i -> qs[it].restrict(i) } }
+            ks.flatMap { cis[it].map { i -> qs[it].clipout(i) } }
 
     fun combineFscInterval(fsc: BSpline, fis: List<Interval>, ks: List<Int>): List<Interval> {
         if (ks.isEmpty()) return listOf(fsc.domain)
@@ -135,6 +135,6 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
     fun isClosed(s: BSpline): Boolean = s.invoke(Sampler(2)).let { (b, e) -> e.isPossible(b).value > 0.5 }
 
     fun parametrize(points: List<Point>): List<ParamPoint> =
-            chordalParametrize(points, range = Interval.ZERO_ONE)
-                    .tryRecover { uniformParametrize(points, range = Interval.ZERO_ONE) }.value().orThrow()
+            chordalParametrize(points, range = Interval.Unit)
+                    .tryRecover { uniformParametrize(points, range = Interval.Unit) }.value().orThrow()
 }

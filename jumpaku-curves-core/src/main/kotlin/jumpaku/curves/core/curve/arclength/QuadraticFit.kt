@@ -7,16 +7,25 @@ import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.geom.middle
-import jumpaku.curves.core.util.asVavr
 import org.apache.commons.math3.util.FastMath
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.component3
 
-class Reparametrizer private constructor(
-        val originalParams: List<Double>,
-        private val arcLengthParams: List<Double>,
-        private val quadratics: List<MonotonicQuadratic>) {
+
+class QuadraticFit private constructor(
+    val originalParams: List<Double>,
+    private val arcLengthParams: List<Double>,
+    private val quadratics: List<MonotonicQuadratic>
+) : ParamConverter {
+
+    class Inverse internal constructor(val reparametrizer: QuadraticFit) : ParamConverter {
+        override val domain: Interval = reparametrizer.range
+        override val range: Interval = reparametrizer.domain
+
+        override fun invoke(t: Double): Double = reparametrizer.toOriginal(t)
+
+    }
 
     init {
         require(originalParams.size > 1) { "originalToArcLength.size() is too small" }
@@ -26,33 +35,34 @@ class Reparametrizer private constructor(
         require(arcLengthParams.all { it.isFinite() }) { "arcLengthParams contains infinite value" }
     }
 
-    val domain: Interval = Interval(originalParams.first(), originalParams.last())
+    override val domain: Interval = Interval(originalParams.first(), originalParams.last())
 
-    val range: Interval = Interval.ZERO_ONE
+    override val range: Interval = Interval.Unit
 
     val chordLength: Double = arcLengthParams.last()
 
-    fun toOriginal(arcLengthRatio: Double): Double {
+    override fun invoke(t: Double): Double = toArcLengthRatio(t)
+
+    private fun toOriginal(arcLengthRatio: Double): Double {
         require(arcLengthRatio in range) { "arcLengthRatio($arcLengthRatio) is out of range($range)" }
 
         val s = (arcLengthRatio * chordLength).coerceIn(0.0..chordLength)
-        val i = arcLengthParams.asVavr()
-                .search(s)
-                .let { if (it < 0) -it - 1 else it }
+        val i = arcLengthParams.binarySearch(s)
+            .let { if (it < 0) -it - 1 else it }
         return if (i == 0) originalParams[0]
         else quadratics[i - 1].invert(s).coerceIn(domain)
     }
 
-    fun toArcLengthRatio(originalParam: Double): Double {
+    private fun toArcLengthRatio(originalParam: Double): Double {
         require(originalParam in domain) { "originalParam($originalParam) is out of domain($domain)" }
 
-        val i = originalParams.asVavr()
-                .search(originalParam)
-                .let { if (it < 0) -it - 1 else it }
+        val i = originalParams
+            .binarySearch(originalParam)
+            .let { if (it < 0) -it - 1 else it }
         return if (i == 0) 0.0
         else quadratics[i - 1].invoke(originalParam).tryDiv(chordLength).value()
-                .orDefault { 0.0 }
-                .coerceIn(range)
+            .orDefault { 0.0 }
+            .coerceIn(range)
     }
 
     companion object {
@@ -67,7 +77,7 @@ class Reparametrizer private constructor(
             return MonotonicQuadratic(s0, b1, s2, domain)
         }
 
-        fun of(curve: Curve, originalParams: Iterable<Double>): Reparametrizer {
+        fun of(curve: Curve, originalParams: List<Double>): QuadraticFit {
             require(originalParams.all { it.isFinite() }) { "originalParams contains infinite value" }
             val params = originalParams.toList()
             require(params.size > 1) { "originalToArcLength.size() is too small" }
@@ -80,13 +90,13 @@ class Reparametrizer private constructor(
             val quadratics = qs.zip(arcLengthParams) { q, l ->
                 q.copy(b0 = q.b0 + l, b1 = q.b1 + l, b2 = q.b2 + l)
             }
-            return Reparametrizer(params, arcLengthParams, quadratics)
+            return QuadraticFit(params, arcLengthParams, quadratics)
         }
     }
 }
 
-
-data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, val domain: Interval) : (Double) -> Double {
+data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, val domain: Interval) :
+        (Double) -> Double {
 
     val range: Interval = Interval(b0, b2)
 
@@ -120,6 +130,6 @@ data class MonotonicQuadratic(val b0: Double, val b1: Double, val b2: Double, va
             }
         }
 
-        return domain.let { (t0, t2) -> t0.lerp(newton(), t2) }.coerceIn(domain)
+        return domain.let { (t0, t2) -> t0.lerp(newton(times = 20), t2) }.coerceIn(domain)
     }
 }

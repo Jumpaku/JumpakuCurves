@@ -34,9 +34,9 @@ class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
     override fun invoke(sortedParams: List<Double>): List<Vector> =
         curve.invoke(sortedParams).map { it.toVector() }
 
-    fun restrict(begin: Double, end: Double): BSplineDerivative = BSplineDerivative(curve.restrict(begin, end))
+    override fun restrict(begin: Double, end: Double): BSplineDerivative = BSplineDerivative(curve.restrict(begin, end))
 
-    fun restrict(i: Interval): BSplineDerivative = BSplineDerivative(curve.restrict(i))
+    override fun restrict(i: Interval): BSplineDerivative = BSplineDerivative(curve.restrict(i))
 
     fun reverse(): BSplineDerivative = BSplineDerivative(curve.reverse())
 

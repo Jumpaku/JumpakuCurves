@@ -27,4 +27,8 @@ interface Curve : (Double) -> Point {
         override val domain: Interval = this@Curve.domain
         override fun invoke(t: Double): Point = this@Curve.invoke(t).toCrisp()
     }
+
+    fun restrict(subDomain: Interval): Curve = CurveRestriction(this, subDomain)
+
+    fun restrict(begin: Double, end: Double): Curve = restrict(Interval(begin, end))
 }

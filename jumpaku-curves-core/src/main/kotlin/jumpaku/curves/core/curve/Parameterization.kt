@@ -6,7 +6,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.lerp
 import kotlin.math.pow
 
-fun chordalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE, power: Double = 1.0): Result<List<ParamPoint>> = result {
+fun chordalParametrize(points: List<Point>, range: Interval = Interval.Unit, power: Double = 1.0): Result<List<ParamPoint>> = result {
     require(points.size >= 2) { "must be points.size(${points.size}) >= 2" }
     val ds = points.zipWithNext { p0, p1 -> p1.distSquare(p0).pow(power / 2) }
     val ls = ds.fold(listOf(0.0)) { acc, d -> acc + (acc.last() + d) }
@@ -15,10 +15,10 @@ fun chordalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE,
     ls.zip(points) { l, p -> ParamPoint(p, a.lerp(l / ls.last(), b).coerceIn(range)) }
 }
 
-fun centripetalParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE): Result<List<ParamPoint>> =
+fun centripetalParametrize(points: List<Point>, range: Interval = Interval.Unit): Result<List<ParamPoint>> =
         chordalParametrize(points, range, 0.5)
 
-fun uniformParametrize(points: List<Point>, range: Interval = Interval.ZERO_ONE): List<ParamPoint> =
+fun uniformParametrize(points: List<Point>, range: Interval = Interval.Unit): List<ParamPoint> =
         chordalParametrize(points, range, 0.0).orThrow()
 
 fun transformParams(

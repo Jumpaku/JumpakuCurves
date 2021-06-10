@@ -8,7 +8,7 @@ import jumpaku.curves.core.geom.Point
 
 class LineSegment(begin: ParamPoint, end: ParamPoint) : Curve by Polyline(listOf(begin, end)) {
 
-    constructor(begin: Point, end: Point, domain: Interval = Interval.ZERO_ONE) :
+    constructor(begin: Point, end: Point, domain: Interval = Interval.Unit) :
             this(ParamPoint(begin, domain.begin), ParamPoint(end, domain.end))
 
     init {

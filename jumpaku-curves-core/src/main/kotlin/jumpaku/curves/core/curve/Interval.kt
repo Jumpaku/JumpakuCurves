@@ -34,7 +34,7 @@ data class Interval(val begin: Double, val end: Double) : ClosedRange<Double> {
 
     companion object {
 
-        val ZERO_ONE = Interval(0.0, 1.0)
+        val Unit: Interval = Interval(0.0, 1.0)
 
     }
 }
