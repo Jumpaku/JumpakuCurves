@@ -52,13 +52,13 @@ class BezierDerivativeTest {
     }
 
     @Test
-    fun testRestrict() {
-        println("Restrict")
+    fun testClipout() {
+        println("Clipout")
         val b = BezierDerivative(Vector(-2.0, 0.0), Vector(-1.0, 0.0), Vector(0.0, 2.0), Vector(1.0, 0.0), Vector(2.0, 0.0))
 
-        assertThat(b.restrict(0.25, 0.5).curve,
+        assertThat(b.clipout(0.25, 0.5).curve,
                 `is`(closeTo(Bezier(Point.xy(-1.0, 27 / 64.0), Point.xy(-3 / 4.0, 9 / 16.0), Point.xy(-1 / 2.0, 11 / 16.0), Point.xy(-1 / 4.0, 3 / 4.0), Point.xy(0.0, 3 / 4.0)))))
-        assertThat(b.restrict(Interval(0.25, 0.5)).curve,
+        assertThat(b.clipout(Interval(0.25, 0.5)).curve,
                 `is`(closeTo(Bezier(Point.xy(-1.0, 27 / 64.0), Point.xy(-3 / 4.0, 9 / 16.0), Point.xy(-1 / 2.0, 11 / 16.0), Point.xy(-1 / 4.0, 3 / 4.0), Point.xy(0.0, 3 / 4.0)))))
     }
 

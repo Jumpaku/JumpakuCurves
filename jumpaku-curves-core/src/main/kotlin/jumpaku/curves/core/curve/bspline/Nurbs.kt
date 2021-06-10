@@ -91,12 +91,15 @@ class Nurbs(
 
     fun transform(a: Transform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
-    fun restrict(begin: Double, end: Double): Nurbs {
+    override fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
-        return subdivide(begin).second.subdivide(end).first
+        return restrict(Interval(begin,end))
     }
 
-    fun restrict(i: Interval): Nurbs = restrict(i.begin, i.end)
+    override fun restrict(interval: Interval): Nurbs {
+        require(interval in domain) { "$interval is out of domain($domain)" }
+        return subdivide(interval.begin).second.subdivide(interval.end).first
+    }
 
     fun reverse(): Nurbs = Nurbs(controlPoints.asReversed(), weights.asReversed(), knotVector)
 

@@ -15,7 +15,7 @@ class ChunkTest {
 
     val th = Chunk.Threshold(0.4, 0.6)
 
-    val knotVector = KnotVector.clamped(Interval.ZERO_ONE, 1, 6)
+    val knotVector = KnotVector.clamped(Interval.Unit, 1, 6)
     val s0 = BSpline((0..3).map { Point.xr(it.toDouble(), it * 3.0) }, knotVector)
     val s1 = BSpline((0..3).map { Point.xr(it.toDouble(), (3.0 - it) * 3) }, knotVector)
     val s2 = BSpline((0..3).map { Point.xr(it.toDouble(), 9.0) }, knotVector)
@@ -77,9 +77,9 @@ class ChunkTest {
     @Test
     fun testInterval() {
         println("Interval")
-        assertThat(c0.interval, `is`(closeTo(Interval.ZERO_ONE)))
-        assertThat(c1.interval, `is`(closeTo(Interval.ZERO_ONE)))
-        assertThat(c2.interval, `is`(closeTo(Interval.ZERO_ONE)))
-        assertThat(c3.interval, `is`(closeTo(Interval.ZERO_ONE)))
+        assertThat(c0.interval, `is`(closeTo(Interval.Unit)))
+        assertThat(c1.interval, `is`(closeTo(Interval.Unit)))
+        assertThat(c2.interval, `is`(closeTo(Interval.Unit)))
+        assertThat(c3.interval, `is`(closeTo(Interval.Unit)))
     }
 }

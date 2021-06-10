@@ -106,14 +106,14 @@ class RationalBezierTest {
     }
 
     @Test
-    fun testRestrict() {
-        println("Restrict")
+    fun testClipout() {
+        println("Clipout")
         val r1 = RationalBezier(
                 WeightedPoint(Point.xyr(0.0, 0.0, 2.0), 1.0),
                 WeightedPoint(Point.xyr(0.0, 1.0, 2.0), 2.0),
                 WeightedPoint(Point.xyr(1.0, 0.0, 2.0), 2.0),
                 WeightedPoint(Point.xyr(1.0, 1.0, 2.0), 1.0))
-                .restrict(0.25, 0.5)
+                .clipout(0.25, 0.5)
         assertThat(r1, `is`(closeTo(RationalBezier(
                 WeightedPoint(Point.xyr(0.19, 0.55, 2.0), 25 / 16.0),
                 WeightedPoint(Point.xyr(7.5 / 27, 15.5 / 27, 2.0), 27 / 16.0),
@@ -125,7 +125,7 @@ class RationalBezierTest {
                 WeightedPoint(Point.xyr(0.0, 1.0, 2.0), 2.0),
                 WeightedPoint(Point.xyr(1.0, 0.0, 2.0), 2.0),
                 WeightedPoint(Point.xyr(1.0, 1.0, 2.0), 1.0))
-                .restrict(Interval(0.25, 0.5))
+                .clipout(Interval(0.25, 0.5))
         assertThat(r2, `is`(closeTo(RationalBezier(
                 WeightedPoint(Point.xyr(0.19, 0.55, 2.0), 25 / 16.0),
                 WeightedPoint(Point.xyr(7.5 / 27, 15.5 / 27, 2.0), 27 / 16.0),

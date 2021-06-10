@@ -24,7 +24,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         val w = computeEllipticWeight(s, t0, t1, tf, s.domain, nSamples)
         val base = reparametrize(ConicSection(s(t0), s(tf), s(t1), w))
         val complement = reparametrize(base.originalCurve.complement())
-        val domain = fsc.reparametrizer.run {
+        val domain = fsc.run {
             ReferenceGenerator.ellipticDomain(toArcLengthRatio(t0), toArcLengthRatio(t1), base, complement)
         }
         return Reference(base.originalCurve, domain)
@@ -41,7 +41,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         val tf = computeEllipticFar(s, t0, t1, nSamples)
         val w = computeEllipticWeight(s, t0, t1, tf, s.domain, nSamples)
         val base = ConicSection(s(t0), s(tf), s(t1), w)
-        return Reference(base, Interval.ZERO_ONE)
+        return Reference(base, Interval.Unit)
     }
 
     companion object {

@@ -30,9 +30,8 @@ class IdentifierTest {
                 Point.xyr(600.0, 0.0, 0.0)),
                 KnotVector.clamped(Interval(3.0, 4.0), 3, 9))
         val c = reparametrize(b)
-        val r = c.reparametrizer
         val ds = Interval(0.0, 1.0).sample(15).zipWithNext { s0, s1 ->
-            approximateArcLength(b, 1000, Interval(r.toOriginal(s0), r.toOriginal(s1)))
+            approximateArcLength(b, 1000, Interval(c.toOriginal(s0), c.toOriginal(s1)))
         }
         val e = sum(ds) / ds.size
         ds.forEachIndexed { index, d ->
@@ -50,9 +49,8 @@ class IdentifierTest {
                 Point.xy(400.0, 200.0),
                 -R2 / 2)
         val c = reparametrize(cs)
-        val r = c.reparametrizer
         val ds = Interval(0.0, 1.0).sample(15).zipWithNext { s0, s1 ->
-            approximateArcLength(cs, 1000, Interval(r.toOriginal(s0), r.toOriginal(s1)))
+            approximateArcLength(cs, 10000, Interval(c.toOriginal(s0), c.toOriginal(s1)))
         }
         val e = sum(ds) / ds.size
         ds.forEachIndexed { index, d ->

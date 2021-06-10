@@ -30,7 +30,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
 
     val degree: Int = weightedControlPoints.size - 1
 
-    override val domain: Interval = Interval.ZERO_ONE
+    override val domain: Interval = Interval.Unit
 
     override fun differentiate(): Derivative {
         val ws = this@RationalBezier.weights
@@ -49,7 +49,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
                 return ((dpt - dwt * rt) / wt).orThrow()
             }
 
-            override val domain: Interval = Interval.ZERO_ONE
+            override val domain: Interval = Interval.Unit
         }
     }
 
@@ -67,9 +67,9 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
 
     override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)
 
-    fun restrict(i: Interval): RationalBezier = restrict(i.begin, i.end)
+    fun clipout(i: Interval): RationalBezier = clipout(i.begin, i.end)
 
-    fun restrict(begin: Double, end: Double): RationalBezier {
+    fun clipout(begin: Double, end: Double): RationalBezier {
         require(Interval(begin, end) in domain) { "Interval($begin, $end) is out of domain($domain)" }
 
         return subdivide(end).first.subdivide(begin / end).second

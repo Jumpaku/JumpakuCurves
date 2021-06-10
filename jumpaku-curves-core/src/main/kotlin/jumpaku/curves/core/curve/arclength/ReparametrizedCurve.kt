@@ -1,45 +1,37 @@
 package jumpaku.curves.core.curve.arclength
 
-import jumpaku.commons.control.orDefault
 import jumpaku.curves.core.curve.Curve
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.geom.line
+
 
 /**
  * maps arc-length ratio parameter to point on original curve.
  */
-class ReparametrizedCurve<C : Curve>(val originalCurve: C, val reparametrizer: Reparametrizer) : Curve {
+class ReparametrizedCurve<C : Curve>(
+    val originalCurve: C,
+    val toArcLengthRatio: ParamConverter,
+    val toOriginal: ParamConverter
+) : Curve {
 
-    val chordLength: Double = reparametrizer.chordLength
+    override val domain: Interval = Interval.Unit
 
-    override val domain: Interval = Interval.ZERO_ONE
+    val chordLength: Double
+        get() = when (toArcLengthRatio) {
+            is LinearFit -> originalCurve.invoke(toArcLengthRatio.originalParams).zipWithNext(Point::dist).sum()
+            is QuadraticFit -> originalCurve.invoke(toArcLengthRatio.originalParams).zipWithNext(Point::dist).sum()
+            else -> error("")
+        }
+
 
     override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
-        return originalCurve(reparametrizer.toOriginal(t.coerceIn(reparametrizer.range)))
+        return originalCurve(toOriginal(t))
     }
 
-    fun restrict(begin: Double, end: Double): ReparametrizedCurve<C> {
-        require(begin < end) { "must be begin($begin) < end($end)" }
-        require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }
-        return restrict(Interval(begin, end))
-    }
-
-    fun restrict(interval: Interval): ReparametrizedCurve<C> {
-        require(interval in domain) { "Interval($interval) is out of domain($domain)" }
-        val (s0, s1) = interval
-        val t0 = reparametrizer.toOriginal(s0)
-        val t1 = reparametrizer.toOriginal(s1)
-        val i0 = reparametrizer.originalParams
-            .binarySearch(t0).let { if (it < 0) -it - 1 else it }
-        val i1 = reparametrizer.originalParams
-            .binarySearch(t1).let { if (it < 0) -it - 1 else it }
-        val params = listOf(t0) + reparametrizer.originalParams.slice(i0 until i1) + listOf(t1)
-        return of(originalCurve, params)
-    }
+    override fun invoke(sortedParams: List<Double>): List<Point> = originalCurve(toOriginal(sortedParams))
 
     fun <O : Curve> isPossible(other: ReparametrizedCurve<O>, n: Int): Grade =
         invoke(Sampler(n))
@@ -53,30 +45,21 @@ class ReparametrizedCurve<C : Curve>(val originalCurve: C, val reparametrizer: R
 
     companion object {
 
-        fun <C : Curve> of(originalCurve: C, originalParams: Iterable<Double>): ReparametrizedCurve<C> =
-            ReparametrizedCurve(originalCurve, Reparametrizer.of(originalCurve, originalParams))
+        fun <C : Curve> of(originalCurve: C, originalParams: List<Double>): ReparametrizedCurve<C> {
+            val ds = originalParams.map(originalCurve).zipWithNext(Point::dist)
+            val ls = ds.scan(0.0) { acc, d -> acc + d }
+            val rs = ls.map { (it / ls.last()).coerceIn(Interval.Unit) }
+            val samples = if (rs.all { it.isFinite() }) originalParams.zip(rs) else originalParams.map { it to 0.0 }
+            val toArcLengthRatio = LinearFit(samples)
+            val toOriginal = LinearFit(samples.map { (t, s) -> s to t })
+            return ReparametrizedCurve(originalCurve, toArcLengthRatio, toOriginal)
+        }
 
-        fun <C : Curve> approximate(curve: C, tolerance: Double): ReparametrizedCurve<C> =
-            of(curve, repeatBisect(curve, tolerance).map { it.begin } + curve.domain.end)
+        fun <C : Curve> of2(originalCurve: C, originalParams: List<Double>): ReparametrizedCurve<C> {
+            val r = QuadraticFit.of(originalCurve, originalParams)
 
-        fun repeatBisect(curve: Curve, tolerance: Double): Iterable<Interval> =
-            repeatBisect(curve) { subDomain ->
-                val (p0, p1, p2) = curve.invoke(subDomain.sample(3))
-                line(p0, p2).tryMap { p1.dist(it) }.value().orDefault { p1.dist(p0) } > tolerance
-            }
+            return ReparametrizedCurve(originalCurve, r, QuadraticFit.Inverse(r))
 
-        fun repeatBisect(curve: Curve, shouldBisect: (Interval) -> Boolean): Iterable<Interval> =
-            repeatBisectImpl(curve, curve.domain, shouldBisect)
-
-        private fun repeatBisectImpl(
-            curve: Curve,
-            domain: Interval,
-            shouldBisect: (Interval) -> Boolean
-        ): Iterable<Interval> = domain.sample(3)
-            .let { (t0, t1, t2) -> listOf(Interval(t0, t1), Interval(t1, t2)) }
-            .flatMap { subDomain ->
-                if (shouldBisect(subDomain)) repeatBisectImpl(curve, subDomain, shouldBisect)
-                else listOf(subDomain)
-            }
+        }
     }
 }
