@@ -52,7 +52,7 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
     fun reverse(): Polyline =
         Polyline(points.reversed().zip(parameters.map { domain.end + domain.begin - it }.reversed(), ::ParamPoint))
 
-    override fun restrict(interval: Interval): Polyline = restrict(interval.begin, interval.end)
+    override fun restrict(subDomain: Interval): Polyline = restrict(subDomain.begin, subDomain.end)
 
     override fun restrict(begin: Double, end: Double): Polyline = subdivide(begin).second.subdivide(end).first
 

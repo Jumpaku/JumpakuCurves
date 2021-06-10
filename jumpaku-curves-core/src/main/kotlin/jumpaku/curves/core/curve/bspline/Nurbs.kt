@@ -96,9 +96,9 @@ class Nurbs(
         return restrict(Interval(begin,end))
     }
 
-    override fun restrict(interval: Interval): Nurbs {
-        require(interval in domain) { "$interval is out of domain($domain)" }
-        return subdivide(interval.begin).second.subdivide(interval.end).first
+    override fun restrict(subDomain: Interval): Nurbs {
+        require(subDomain in domain) { "$subDomain is out of domain($domain)" }
+        return subdivide(subDomain.begin).second.subdivide(subDomain.end).first
     }
 
     fun reverse(): Nurbs = Nurbs(controlPoints.asReversed(), weights.asReversed(), knotVector)

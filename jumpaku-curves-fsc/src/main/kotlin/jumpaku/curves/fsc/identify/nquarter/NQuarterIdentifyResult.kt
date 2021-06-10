@@ -25,7 +25,7 @@ class NQuarterIdentifyResult(grades: Map<NQuarterClass, Grade>,
     val grades: Map<NQuarterClass, Grade> = grades.toMap()
 
 
-    val nQuarterClass: NQuarterClass = grades.maxBy { (_, grade) -> grade }!!.key
+    val nQuarterClass: NQuarterClass = grades.maxByOrNull { (_, grade) -> grade }!!.key
 
     val grade: Grade = grades[nQuarterClass]!!
 }

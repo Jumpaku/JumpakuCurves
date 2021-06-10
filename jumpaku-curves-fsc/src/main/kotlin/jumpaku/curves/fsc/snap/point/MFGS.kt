@@ -24,8 +24,8 @@ class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0) : PointSnappe
         val necessities = candidates.map { it.necessity }
         val mus = necessities.mapIndexed { i, ni -> necessities.take(i).fold(ni) { n, nj -> n and !nj } }
         return candidates.zip(mus)
-                .maxBy { (_, grade) -> grade }.toOption()
-                .map { (result, mu) -> PointSnapResult(result.resolution, result.gridPoint, mu) }
-                .filter { it.grade.toBoolean() }
+            .maxByOrNull { (_, grade) -> grade }.toOption()
+            .map { (result, mu) -> PointSnapResult(result.resolution, result.gridPoint, mu) }
+            .filter { it.grade.toBoolean() }
     }
 }

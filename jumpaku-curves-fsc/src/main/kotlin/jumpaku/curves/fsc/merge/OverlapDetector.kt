@@ -56,18 +56,18 @@ class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
                     !isAvailable(i, j) -> none()
                     i == 0 && j == 0 -> some(DpValue(muij, 0, listOf(key)))
                     i == 0 -> (dpSearch(DpKey(i, j - 1)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
-                            .maxWith(compare).toOption()
+                        .maxWithOrNull(compare).toOption()
                     j == 0 -> (dpSearch(DpKey(i - 1, j)).map { it.extend(key, muij) } + DpValue(muij, 0, listOf(key)))
-                            .maxWith(compare).toOption()
+                        .maxWithOrNull(compare).toOption()
                     else -> listOf(DpKey(i - 1, j - 1), DpKey(i - 1, j), DpKey(i, j - 1))
-                            .flatMap { dpSearch(it).map { value -> value.extend(key, muij) } }
-                            .maxWith(compare).toOption()
+                        .flatMap { dpSearch(it).map { value -> value.extend(key, muij) } }
+                        .maxWithOrNull(compare).toOption()
                 }
             }
 
             val right = (0 until osm.rowSize).map { DpKey(it, osm.columnLastIndex) }
             val bottom = (0 until osm.columnSize).map { DpKey(osm.rowLastIndex, it) }
-            return (right + bottom).flatMap { dpSearch(it) }.maxWith(compare).toOption()
+            return (right + bottom).flatMap { dpSearch(it) }.maxWithOrNull(compare).toOption()
         }
 
         fun collectRange(osm: OverlapMatrix, ridge: List<Pair<Int, Int>>, threshold: Grade): Set<Pair<Int, Int>> {
