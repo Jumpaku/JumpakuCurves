@@ -54,7 +54,7 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     override fun restrict(begin: Double, end: Double): BSpline = BSpline(nurbs.restrict(begin, end))
 
-    override fun restrict(interval: Interval): BSpline = restrict(interval.begin, interval.end)
+    override fun restrict(subDomain: Interval): BSpline = restrict(subDomain.begin, subDomain.end)
 
     fun reverse(): BSpline = BSpline(nurbs.reverse())
 

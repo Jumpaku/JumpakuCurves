@@ -26,7 +26,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter()
         maven {
             url = "https://nexus.jumpaku.net/repository/maven-public/"
         }

@@ -36,7 +36,7 @@ class BSplineDerivative(bSpline: BSpline) : Derivative, Differentiable {
 
     override fun restrict(begin: Double, end: Double): BSplineDerivative = BSplineDerivative(curve.restrict(begin, end))
 
-    override fun restrict(i: Interval): BSplineDerivative = BSplineDerivative(curve.restrict(i))
+    override fun restrict(subDomain: Interval): BSplineDerivative = BSplineDerivative(curve.restrict(subDomain))
 
     fun reverse(): BSplineDerivative = BSplineDerivative(curve.reverse())
 
