@@ -10,7 +10,7 @@ import org.junit.Test
 
 class BlenderJsonTest {
 
-    val merger: Blender = Blender(
+    val blender: Blender = Blender(
             degree = 3,
             knotSpan = 0.1,
             extendDegree = 2,
@@ -22,8 +22,8 @@ class BlenderJsonTest {
     @Test
     fun testBlenderJson() {
         println("BlenderJson")
-        val a = BlenderJson.fromJson(BlenderJson.toJsonStr(merger).parseJson())
-        Assert.assertThat(a, Matchers.`is`(closeTo(merger)))
+        val a = BlenderJson.fromJson(BlenderJson.toJsonStr(blender).parseJson())
+        Assert.assertThat(a, Matchers.`is`(closeTo(blender)))
     }
 
 

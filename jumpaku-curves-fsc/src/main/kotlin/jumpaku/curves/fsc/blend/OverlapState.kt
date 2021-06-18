@@ -16,3 +16,4 @@ sealed class OverlapState {
 
     val isDetected: Boolean get() = this is Detected
 }
+

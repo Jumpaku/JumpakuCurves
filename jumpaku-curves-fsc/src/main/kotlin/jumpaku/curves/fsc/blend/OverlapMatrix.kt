@@ -4,7 +4,8 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 
 
-class OverlapMatrix private constructor(val rowSize: Int, val columnSize: Int, val buffer: DoubleArray) {
+class OverlapMatrix internal constructor(val rowSize: Int, val columnSize: Int, val buffer: DoubleArray) :
+    Iterable<Grade> {
 
     data class Key(val row: Int, val column: Int)
 
@@ -23,6 +24,10 @@ class OverlapMatrix private constructor(val rowSize: Int, val columnSize: Int, v
     }
 
     operator fun get(key: Key): Grade = get(key.row, key.column)
+
+    override fun iterator(): Iterator<Grade> = sequence {
+        for (i in 0 until rowSize) for (j in 0 until columnSize) yield(get(i, j))
+    }.iterator()
 
     companion object {
 

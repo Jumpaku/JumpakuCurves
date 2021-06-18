@@ -30,29 +30,6 @@ sealed class BlendResult {
     class Blended(override val overlapState: OverlapState.Detected, val blended: BSpline) : BlendResult()
 }
 
-data class SmallInterval(val begin: Double, val end: Double) : ClosedRange<Double> by Interval(begin, end) {
-
-    val representative: Double = begin.middle(end)
-
-    val span: Double = end - begin
-
-    fun lerp(t: Double, that: SmallInterval): SmallInterval =
-        SmallInterval(begin.lerp(t, that.begin), end.lerp(t, that.end))
-}
-
-class SampledCurve(val curve: BSpline, val spans: List<SmallInterval>) {
-
-    val representativeParams: List<Double> = spans.map { it.representative }
-
-    val representativePoints: List<Point> = curve(representativeParams)
-
-    companion object {
-
-        fun sample(curve: BSpline, samplingSpan: Double): SampledCurve =
-            SampledCurve(curve, curve.domain.sample(samplingSpan).zipWithNext(::SmallInterval))
-    }
-}
-
 class Blender(
     val degree: Int = 3,
     val knotSpan: Double = 0.1,
@@ -69,6 +46,28 @@ class Blender(
     )
 ) {
 
+    data class SmallInterval(val begin: Double, val end: Double) : ClosedRange<Double> by Interval(begin, end) {
+
+        val representative: Double = begin.middle(end)
+
+        val span: Double = end - begin
+
+        fun lerp(t: Double, that: SmallInterval): SmallInterval =
+            SmallInterval(begin.lerp(t, that.begin), end.lerp(t, that.end))
+    }
+
+    class SampledCurve(val curve: BSpline, val spans: List<SmallInterval>) {
+
+        val representativeParams: List<Double> = spans.map { it.representative }
+
+        val representativePoints: List<Point> = curve(representativeParams)
+
+        companion object {
+
+            fun sample(curve: BSpline, samplingSpan: Double): SampledCurve =
+                SampledCurve(curve, curve.domain.sample(samplingSpan).zipWithNext(::SmallInterval))
+        }
+    }
     init {
         require(degree >= 0)
         require(knotSpan > 0.0)
@@ -83,7 +82,7 @@ class Blender(
     val detector: OverlapDetector = OverlapDetector(overlapThreshold, blendRate)
     val parametrizer: OverlapParametrizer = OverlapParametrizer(samplingSpan, blendRate)
 
-    fun tryMerge(existing: BSpline, overlapping: BSpline): BlendResult {
+    fun tryBlend(existing: BSpline, overlapping: BSpline): BlendResult {
         val existingSampled =
             SampledCurve(existing, existing.domain.sample(samplingSpan).zipWithNext(::SmallInterval))
         val overlappingSampled =

@@ -14,8 +14,8 @@ import kotlin.random.Random
 class OverlapDetector(val overlapThreshold: Grade, val blendRate: Double) {
 
     fun detect(
-        existSpans: SampledCurve,
-        overlapSpans: SampledCurve
+        existSpans: Blender.SampledCurve,
+        overlapSpans: Blender.SampledCurve
     ): OverlapState {
         val osm = OverlapMatrix.create(existSpans.representativePoints, overlapSpans.representativePoints)
         val pathBeginEnd = findPathBeginEnd(existSpans.spans, overlapSpans.spans, osm).orNull()
@@ -32,8 +32,8 @@ class OverlapDetector(val overlapThreshold: Grade, val blendRate: Double) {
     )
 
     fun findPathBeginEnd(
-        existSpans: List<SmallInterval>,
-        overlapSpans: List<SmallInterval>,
+        existSpans: List<Blender.SmallInterval>,
+        overlapSpans: List<Blender.SmallInterval>,
         osm: OverlapMatrix
     ): Option<PathBeginEnd> {
 

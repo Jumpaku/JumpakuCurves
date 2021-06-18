@@ -9,6 +9,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.blend.*
+import jumpaku.curves.fsc.blend.Blender.SmallInterval
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.graphics.*
@@ -60,7 +61,7 @@ object Settings {
         generator,
         samplingSpan = 0.01,
         blendRate = 0.25,
-        overlapThreshold = Grade(0.5)
+        overlapThreshold = Grade(1e-5)
     )
 }
 
@@ -106,12 +107,12 @@ class DemoPanel : JPanel() {
         }
         if (s0 !is Some || s1 !is Some) return@with
         val existingSampled =
-            SampledCurve(
+            Blender.SampledCurve(
                 s0.orThrow(),
                 s0.orThrow().domain.sample(blender.samplingSpan).zipWithNext(::SmallInterval)
             )
         val overlappingSampled =
-            SampledCurve(
+            Blender.SampledCurve(
                 s1.orThrow(),
                 s1.orThrow().domain.sample(blender.samplingSpan).zipWithNext(::SmallInterval)
             )
@@ -178,8 +179,8 @@ class DemoPanel : JPanel() {
                 drawLineSegment(LineSegment(a0, a1))
             }
         }
-        val blended = blender.tryMerge(s0.orThrow(), s1.orThrow())
-        when (blended) {
+        /*
+        when (val blended = blender.tryBlend(s0.orThrow(), s1.orThrow())) {
             is BlendResult.NotBlended -> return@with
             is BlendResult.Blended -> {
                 drawCubicBSpline(blended.blended, DrawStyle(Color.BLACK))
@@ -189,5 +190,6 @@ class DemoPanel : JPanel() {
                 )
             }
         }
+        */
     }
 }

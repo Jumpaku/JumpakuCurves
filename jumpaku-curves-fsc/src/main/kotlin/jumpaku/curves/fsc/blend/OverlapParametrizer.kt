@@ -24,14 +24,14 @@ class BlendPair(
 class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
 
     fun resample0(
-        existingSampled: SampledCurve,
-        overlappingSampled: SampledCurve,
+        existingSampled: Blender.SampledCurve,
+        overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
     ): List<BlendPair> {
         val existingSpans0 = existingSampled.spans
-            .take(overlapState.front.firstOrNull()?.row ?: 0)
+            .take(overlapState.run { (front + middle).firstOrNull()?.row ?: 0 })
         val overlappingSpans0 = overlappingSampled.spans
-            .take(overlapState.front.firstOrNull()?.column ?: 0)
+            .take(overlapState.run { (front + middle).firstOrNull()?.column ?: 0 })
         return when {
             existingSpans0.isEmpty() && overlappingSpans0.isEmpty() -> emptyList()
             existingSpans0.isNotEmpty() -> existingSampled.curve.sample(existingSpans0.run {
@@ -45,19 +45,20 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
     }
 
     fun resample1(
-        existingSampled: SampledCurve,
-        overlappingSampled: SampledCurve,
+        existingSampled: Blender.SampledCurve,
+        overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
     ): List<BlendPair> {
         val begin = overlapState.middle.first()
         val existingSpans1 = integrateSpans(existingSampled.spans, overlapState.front, { it.row })
         val overlappingSpans1 = integrateSpans(overlappingSampled.spans, overlapState.front, { it.column })
         return when {
-            begin == OverlapMatrix.Key(0, 0) -> return emptyList()
+            begin == OverlapMatrix.Key(0, 0) -> emptyList()
+            begin.column == 0 && existingSpans1.isEmpty() -> emptyList()
+            begin.row == 0 && overlappingSpans1.isEmpty() -> emptyList()
             begin.column == 0 -> {
-                val existingSamples = existingSampled.curve.sample(existingSpans1.run {
-                    Interval(first().begin, last().end).sample(samplingSpan)
-                })
+                val existingParams = existingSpans1.run { Interval(first().begin, last().end).sample(samplingSpan) }
+                val existingSamples = existingSampled.curve.sample(existingParams)
                 val overlappingBegin = overlappingSampled.curve.run { invoke(domain.begin) }
                 val diff = overlappingBegin - existingSamples.last().point
                 val n = existingSamples.size
@@ -67,9 +68,9 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
                 }
             }
             begin.row == 0 -> {
-                val overlappingSamples = overlappingSampled.curve.sample(overlappingSpans1.run {
-                    Interval(first().begin, last().end).sample(samplingSpan)
-                })
+                val overlappingParams =
+                    overlappingSpans1.run { Interval(first().begin, last().end).sample(samplingSpan) }
+                val overlappingSamples = overlappingSampled.curve.sample(overlappingParams)
                 val existingBegin = existingSampled.curve.run { invoke(domain.begin) }
                 val diff = existingBegin - overlappingSamples.last().point
                 val n = overlappingSamples.size
@@ -83,8 +84,8 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
     }
 
     fun resample2(
-        existingSampled: SampledCurve,
-        overlappingSampled: SampledCurve,
+        existingSampled: Blender.SampledCurve,
+        overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
     ): List<BlendPair> {
         val existingSpans2 = integrateSpans(existingSampled.spans, overlapState.middle, { it.row })
@@ -99,8 +100,8 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
     }
 
     fun resample3(
-        existingSampled: SampledCurve,
-        overlappingSampled: SampledCurve,
+        existingSampled: Blender.SampledCurve,
+        overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
     ): List<BlendPair> {
         val end = overlapState.middle.last()
@@ -108,10 +109,11 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
         val overlappingSpans3 = integrateSpans(overlappingSampled.spans, overlapState.back, { it.column })
         return when {
             end == overlapState.osm.run { OverlapMatrix.Key(rowLastIndex, columnLastIndex) } -> emptyList()
+            end.column == overlapState.osm.columnLastIndex && existingSpans3.isEmpty() -> emptyList()
+            end.row == overlapState.osm.rowLastIndex && overlappingSpans3.isEmpty() -> emptyList()
             end.column == overlapState.osm.columnLastIndex -> {
-                val existingSamples = existingSampled.curve.sample(existingSpans3.run {
-                    Interval(first().begin, last().end).sample(samplingSpan)
-                })
+                val existingParams = existingSpans3.run { Interval(first().begin, last().end).sample(samplingSpan) }
+                val existingSamples = existingSampled.curve.sample(existingParams)
                 val overlappingEnd = overlappingSampled.curve.run { invoke(domain.end) }
                 val diff = overlappingEnd - existingSamples.first().point
                 val n = existingSamples.size
@@ -121,9 +123,9 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
                 }
             }
             end.row == overlapState.osm.rowLastIndex -> {
-                val overlappingSamples = overlappingSampled.curve.sample(overlappingSpans3.run {
-                    Interval(first().begin, last().end).sample(samplingSpan)
-                })
+                val overlappingParams =
+                    overlappingSpans3.run { Interval(first().begin, last().end).sample(samplingSpan) }
+                val overlappingSamples = overlappingSampled.curve.sample(overlappingParams)
                 val existingEnd = existingSampled.curve.run { invoke(domain.end) }
                 val diff = existingEnd - overlappingSamples.first().point
                 val n = overlappingSamples.size
@@ -137,14 +139,14 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
     }
 
     fun resample4(
-        existingSampled: SampledCurve,
-        overlappingSampled: SampledCurve,
+        existingSampled: Blender.SampledCurve,
+        overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
     ): List<BlendPair> {
         val existingSpans4 = existingSampled.spans
-            .drop((overlapState.back.lastOrNull()?.row ?: existingSampled.spans.lastIndex) + 1)
+            .drop(overlapState.run { ((middle + back).lastOrNull()?.row ?: existingSampled.spans.lastIndex) + 1 })
         val overlappingSpans4 = overlappingSampled.spans
-            .drop((overlapState.back.lastOrNull()?.column ?: overlappingSampled.spans.lastIndex) + 1)
+            .drop(overlapState.run { ((middle + back).lastOrNull()?.column ?: overlappingSampled.spans.lastIndex) + 1 })
         return when {
             existingSpans4.isEmpty() && overlappingSpans4.isEmpty() -> emptyList()
             existingSpans4.isNotEmpty() -> existingSampled.curve.sample(existingSpans4.run {
@@ -158,8 +160,8 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
     }
 
     fun parametrize(
-        existingSampled: SampledCurve,
-        overlappingSampled: SampledCurve,
+        existingSampled: Blender.SampledCurve,
+        overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
     ): List<WeightedParamPoint> {
         val data2 = resample2(existingSampled, overlappingSampled, overlapState).map { it.blend() }
@@ -184,7 +186,7 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
     companion object {
 
         fun integrateSpans(
-            spans: List<SmallInterval>,
+            spans: List<Blender.SmallInterval>,
             keys: List<OverlapMatrix.Key>,
             getIndex: (OverlapMatrix.Key) -> Int
         ): List<Interval> {
