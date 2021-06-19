@@ -2,6 +2,7 @@ package jumpaku.curves.fsc.blend
 
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.core.geom.lerp
 import jumpaku.curves.core.geom.times
 import jumpaku.curves.core.transform.Translate
@@ -18,7 +19,7 @@ class BlendPair(
     val blendRate: Double
 ) {
     fun blend(): WeightedParamPoint =
-        existing.lerp(blendRate, overlapping).weighted(existing.point.isPossible(overlapping.point).value)
+        existing.lerp(blendRate, overlapping).weighted(/*existing.point.isPossible(overlapping.point).value*/)
 }
 
 class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
@@ -44,6 +45,17 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
         }
     }
 
+    fun stretchAccordingToChordLength(data: List<BlendPair>): List<BlendPair> {
+        val l0 = data.zipWithNext { a, b -> a.existing.point.dist(b.existing.point) }.sum()
+        val l1 = data.zipWithNext { a, b -> a.blend().point.dist(b.blend().point) }.sum()
+        val domain = data.run { Interval(first().existing.param, last().existing.param) }
+        val range = Interval(0.0, domain.span * l1 / l0)
+        return data.map { d ->
+            val t = 0.0.lerp((d.existing.param - domain.begin) / domain.span, range.span).coerceIn(range)
+            BlendPair(d.existing.copy(param = t), d.overlapping.copy(param = t), d.blendRate)
+        }
+    }
+
     fun resample1(
         existingSampled: Blender.SampledCurve,
         overlappingSampled: Blender.SampledCurve,
@@ -62,10 +74,11 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
                 val overlappingBegin = overlappingSampled.curve.run { invoke(domain.begin) }
                 val diff = overlappingBegin - existingSamples.last().point
                 val n = existingSamples.size
-                existingSamples.mapIndexed { i, p ->
+                val data = existingSamples.mapIndexed { i, p ->
                     val q = p.copy(point = (p.point + diff).copy(r = p.point.r))
                     BlendPair(p, q, i * blendRate / (n - 1.0))
                 }
+                stretchAccordingToChordLength(data)
             }
             begin.row == 0 -> {
                 val overlappingParams =
@@ -74,10 +87,12 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
                 val existingBegin = existingSampled.curve.run { invoke(domain.begin) }
                 val diff = existingBegin - overlappingSamples.last().point
                 val n = overlappingSamples.size
-                overlappingSamples.mapIndexed { i, p ->
+                val data = overlappingSamples.mapIndexed { i, p ->
                     val q = p.copy(point = (p.point + diff).copy(r = p.point.r))
                     BlendPair(q, p, (i * blendRate + n - i - 1) / (n - 1))
                 }
+                stretchAccordingToChordLength(data)
+
             }
             else -> error("")
         }
@@ -117,10 +132,12 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
                 val overlappingEnd = overlappingSampled.curve.run { invoke(domain.end) }
                 val diff = overlappingEnd - existingSamples.first().point
                 val n = existingSamples.size
-                existingSamples.mapIndexed { i, p ->
+                val data = existingSamples.mapIndexed { i, p ->
                     val q = p.copy(point = (p.point + diff).copy(r = p.point.r))
                     BlendPair(p, q, (n - i - 1) * blendRate / (n - 1.0))
                 }
+                stretchAccordingToChordLength(data)
+
             }
             end.row == overlapState.osm.rowLastIndex -> {
                 val overlappingParams =
@@ -129,10 +146,11 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
                 val existingEnd = existingSampled.curve.run { invoke(domain.end) }
                 val diff = existingEnd - overlappingSamples.first().point
                 val n = overlappingSamples.size
-                overlappingSamples.mapIndexed { i, p ->
+                val data = overlappingSamples.mapIndexed { i, p ->
                     val q = p.copy(point = (p.point + diff).copy(r = p.point.r))
                     BlendPair(q, p, ((n - i - 1) * blendRate + i) / (n - 1))
                 }
+                stretchAccordingToChordLength(data)
             }
             else -> error("")
         }

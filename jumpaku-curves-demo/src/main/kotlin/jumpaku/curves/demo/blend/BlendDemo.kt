@@ -40,7 +40,7 @@ fun main() = SwingUtilities.invokeLater {
 
 object Settings {
 
-    val width = 1280
+    val width = 720
 
     val height = 720
 
@@ -60,8 +60,9 @@ object Settings {
     val blender: Blender = Blender.derive(
         generator,
         samplingSpan = 0.01,
-        blendRate = 0.25,
-        overlapThreshold = Grade(1e-5)
+        blendRate = 0.5,
+        bandWidth = 0.05,
+        overlapThreshold = Grade(0.5)
     )
 }
 
@@ -172,24 +173,24 @@ class DemoPanel : JPanel() {
         blender.parametrizer.parametrize(existingSampled, overlappingSampled, overlapState).let {
             val b = it.first().param
             val e = it.last().param
-            it.let { Blender.weightByKde(it,blender.bandWidth) }.forEach {
-                val x = 50.0.lerp((it.param - b) / (e - b), 850.0)
+            val d = it.let { Blender.weightByKde(it, blender.bandWidth) }
+            val m = d.maxOfOrNull { it.weight }!!
+            d.forEach {
+                val x = 50.0.lerp((it.param - b) / (e - b), 650.0)
                 val a0 = Point.xy(x, 100.0)
-                val a1 = Point.xy(x, 100.0 - it.weight * 30)
+                val a1 = Point.xy(x, 100.0 - it.weight / m * 50)
                 drawLineSegment(LineSegment(a0, a1))
             }
         }
-        /*
         when (val blended = blender.tryBlend(s0.orThrow(), s1.orThrow())) {
             is BlendResult.NotBlended -> return@with
             is BlendResult.Blended -> {
-                drawCubicBSpline(blended.blended, DrawStyle(Color.BLACK))
+                /*drawCubicBSpline(blended.blended, DrawStyle(Color.BLACK))
                 drawPoints(
                     blended.blended(Sampler(0.01)).map { it.copy(r = it.r * (1 - blender.overlapThreshold.value)) },
                     DrawStyle(Color.BLACK)
-                )
+                )*/
             }
         }
-        */
     }
 }

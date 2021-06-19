@@ -39,7 +39,7 @@ class Blender(
     val samplingSpan: Double = 0.01,
     val overlapThreshold: Grade = Grade.FALSE,
     val blendRate: Double = 0.5,
-    val bandWidth: Double = 0.01,
+    val bandWidth: Double = 0.05,
     val fuzzifier: Fuzzifier = Fuzzifier.Linear(
         velocityCoefficient = 0.86,
         accelerationCoefficient = 0.77
@@ -117,12 +117,12 @@ class Blender(
             for ((i, p) in paramPoints.withIndex()) {
                 var density = kernel(0.0)
                 var j = i - 1
-                while (j >= 0 && abs(paramPoints[j].param - p.param) / bandWidth > 1) {
+                while (j >= 0 && abs(paramPoints[j].param - p.param) / bandWidth < 1) {
                     density += kernel((paramPoints[j].param - p.param) / bandWidth)
                     --j
                 }
                 var k = i + 1
-                while (k < paramPoints.size && abs(paramPoints[k].param - p.param) / bandWidth > 1) {
+                while (k < paramPoints.size && abs(paramPoints[k].param - p.param) / bandWidth < 1) {
                     density += kernel((paramPoints[k].param - p.param)/ bandWidth)
                     ++k
                 }
@@ -136,7 +136,7 @@ class Blender(
             samplingSpan: Double = 0.01,
             overlapThreshold: Grade = Grade.FALSE,
             blendRate: Double = 0.5,
-            bandWidth: Double = 0.01
+            bandWidth: Double = 0.05
         ): Blender = Blender(
             degree = generator.degree,
             knotSpan = generator.knotSpan,

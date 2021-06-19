@@ -46,7 +46,7 @@ class BlenderTest {
             if (actual is BlendResult.Blended) {
                 val a = reparametrize(actual.blended)
                 val e = reparametrize(expected.orThrow())
-                assertThat(a.isPossible(e, 50), `is`(greaterThan(Grade(0.6))))
+                assertThat(a.isPossible(e, 50), `is`(greaterThan(Grade(0.7))))
             }
         }
     }

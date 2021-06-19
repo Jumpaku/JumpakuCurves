@@ -112,7 +112,6 @@ open class BlenderBenchmark {
 
     @Test
     fun benchmark() {
-        println(System.nanoTime())
         fun merge(time: Int): Boolean {
             var r = true
             repeat(time) { r = r && blender1.tryMerge(existing[0], overlapping[0]).isDefined }
