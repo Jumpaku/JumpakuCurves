@@ -1,6 +1,7 @@
 package jumpaku.curves.fsc.generate
 
 import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
 import jumpaku.curves.core.curve.transformParams
 import jumpaku.curves.fsc.generate.fit.weighted
@@ -112,6 +113,6 @@ private fun extend(
 ): List<WeightedParamPoint> {
     val innerData = transformParams(innerPoints.map { it.paramPoint }, domain = innerOuterBSpline, range = Interval.Unit)
     val bezier = BezierFitter(extendDegree).fit(innerData).clipout(outerBezier)
-    val points = bezier.sample(ceil(innerData.size * extendOuterSpan / extendInnerSpan).toInt())
+    val points = bezier.sample(Sampler(ceil(innerData.size * extendOuterSpan / extendInnerSpan).toInt()))
     return transformParams(points, range = outerBSpline).map { it.weighted(weight) }
 }

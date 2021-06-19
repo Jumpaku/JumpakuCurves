@@ -2,6 +2,7 @@ package jumpaku.curves.fsc.merge
 
 import jumpaku.commons.control.*
 import jumpaku.curves.core.curve.ParamPoint
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 import java.util.*
@@ -11,8 +12,8 @@ import kotlin.math.abs
 class OverlapDetector(val overlapThreshold: Grade = Grade.FALSE) {
 
     fun detect(first: BSpline, second: BSpline, samplingSpan: Double): Option<OverlapState> {
-        val firstSamples = first.sample(samplingSpan)
-        val secondSamples = second.sample(samplingSpan)
+        val firstSamples = first.sample(Sampler(samplingSpan))
+        val secondSamples = second.sample(Sampler(samplingSpan))
         return detect(firstSamples, secondSamples)
     }
 

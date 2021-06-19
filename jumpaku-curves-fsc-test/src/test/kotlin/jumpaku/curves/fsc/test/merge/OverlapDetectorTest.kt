@@ -3,6 +3,7 @@ package jumpaku.curves.fsc.test.merge
 import jumpaku.commons.control.Some
 import jumpaku.commons.json.parseJson
 import jumpaku.commons.option.json.OptionJson
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSplineJson
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.merge.MergeData
@@ -29,8 +30,8 @@ class OverlapDetectorTest {
         for (i in 0..4) {
             val existing = resourceText("BlendExisting$i.json").parseJson().let { BSplineJson.fromJson(it) }
             val overlapping = resourceText("BlendOverlapping$i.json").parseJson().let { BSplineJson.fromJson(it) }
-            val eSampled = existing.sample(samplingSpan)
-            val aSampled = overlapping.sample(samplingSpan)
+            val eSampled = existing.sample(Sampler(samplingSpan))
+            val aSampled = overlapping.sample(Sampler(samplingSpan))
             val actual = overlapDetector.detect(eSampled, aSampled).map {
                 MergeData.parameterize(eSampled, aSampled, mergeRate, it)
             }
