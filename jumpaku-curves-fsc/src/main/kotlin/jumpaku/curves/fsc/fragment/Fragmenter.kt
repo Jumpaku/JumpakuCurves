@@ -1,16 +1,19 @@
 package jumpaku.curves.fsc.fragment
 
 import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 
 
 class Fragmenter(
-        val threshold: Chunk.Threshold = Chunk.Threshold(
-                necessity = Grade(0.35),
-                possibility = Grade(0.65)),
-        val chunkSize: Int = 4,
-        val minStayTimeSpan: Double = 0.04) {
+    val threshold: Chunk.Threshold = Chunk.Threshold(
+        necessity = Grade(0.35),
+        possibility = Grade(0.65)
+    ),
+    val chunkSize: Int = 4,
+    val minStayTimeSpan: Double = 0.04
+) {
 
     private enum class State {
 
@@ -42,26 +45,26 @@ class Fragmenter(
     fun fragment(fsc: BSpline): List<Fragment> {
         val samplingSpan = minStayTimeSpan / chunkSize
         val chunks = fsc.domain.sample(samplingSpan)
-                .windowed(chunkSize)
-                .map { Chunk(fsc.restrict(it.first(), it.last()).sample(chunkSize)) }
+            .windowed(chunkSize)
+            .map { Chunk(fsc.restrict(it.first(), it.last()).sample(Sampler(chunkSize))) }
         val states = chunks
-                .map { it.label(threshold) }
-                .fold(mutableListOf(State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
-                .drop(1)
+            .map { it.label(threshold) }
+            .fold(mutableListOf(State.STAY)) { l, n -> l.apply { add(l.last().transit(n)) } }
+            .drop(1)
         val initial = chunks.first().run { Triple(beginParam, endParam, states.first()) }
         return chunks.zip(states)
-                .fold(mutableListOf(initial)) { prev, (nextChunk, nextState) ->
-                    prev.apply {
-                        val (prevBegin, _, prevState) = last()
-                        if (prevState != nextState) add(Triple(nextChunk.beginParam, nextChunk.endParam, nextState))
-                        else set(prev.lastIndex, Triple(prevBegin, nextChunk.endParam, prevState))
-                    }
-                }.map { (begin, end, state) ->
-                    when (state) {
-                        State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
-                        State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
-                    }
+            .fold(mutableListOf(initial)) { prev, (nextChunk, nextState) ->
+                prev.apply {
+                    val (prevBegin, _, prevState) = last()
+                    if (prevState != nextState) add(Triple(nextChunk.beginParam, nextChunk.endParam, nextState))
+                    else set(prev.lastIndex, Triple(prevBegin, nextChunk.endParam, prevState))
                 }
+            }.map { (begin, end, state) ->
+                when (state) {
+                    State.MOVE -> Fragment(Interval(begin, end), Fragment.Type.Move)
+                    State.STAY -> Fragment(Interval(begin, end), Fragment.Type.Stay)
+                }
+            }
     }
 }
 

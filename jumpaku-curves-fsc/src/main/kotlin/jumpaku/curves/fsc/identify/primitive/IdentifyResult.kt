@@ -13,9 +13,9 @@ class IdentifyResult(
 
     val grades: Map<CurveClass, Grade> = grades.toMap()
 
-    val grade: Grade get() = grades.maxBy { it.value }!!.value
+    val grade: Grade get() = grades.maxByOrNull { it.value }!!.value
 
-    val curveClass: CurveClass get() = grades.maxBy { (_, m) -> m }!!.key
+    val curveClass: CurveClass get() = grades.maxByOrNull { (_, m) -> m }!!.key
 
     init {
         require(grades.isNotEmpty()) { "empty grades" }

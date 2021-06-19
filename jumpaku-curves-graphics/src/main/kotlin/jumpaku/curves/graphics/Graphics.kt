@@ -1,6 +1,7 @@
 package jumpaku.curves.graphics
 
 import jumpaku.curves.core.curve.Curve
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.polyline.LineSegment
@@ -153,5 +154,5 @@ fun Graphics2D.drawCurve(curve: Curve, nSamples: Int, style: (Graphics2D) -> Uni
     curve is Polyline -> drawPolyline(curve, style)
     curve is LineSegment -> drawLineSegment(curve, style)
     curve is DrawingStroke -> drawPolyline(Polyline(curve.inputData), style)
-    else -> drawPolyline(Polyline(curve.sample(nSamples)), style)
+    else -> drawPolyline(Polyline(curve.sample(Sampler(nSamples))), style)
 }

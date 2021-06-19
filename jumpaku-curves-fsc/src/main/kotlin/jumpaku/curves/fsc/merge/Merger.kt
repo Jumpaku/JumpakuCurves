@@ -2,6 +2,7 @@ package jumpaku.curves.fsc.merge
 
 import jumpaku.commons.control.Option
 import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.fuzzy.Grade
@@ -42,8 +43,8 @@ class Merger(
     val detector: OverlapDetector = OverlapDetector(overlapThreshold)
 
     fun tryMerge(existing: BSpline, overlapping: BSpline): Option<BSpline> {
-        val existSamples = existing.sample(samplingSpan)
-        val overlapSamples = overlapping.sample(samplingSpan)
+        val existSamples = existing.sample(Sampler(samplingSpan))
+        val overlapSamples = overlapping.sample(Sampler(samplingSpan))
         return detector.detect(existSamples, overlapSamples).map { overlapState ->
             val data = MergeData.parameterize(existSamples, overlapSamples, mergeRate, overlapState)
             generate(data)
