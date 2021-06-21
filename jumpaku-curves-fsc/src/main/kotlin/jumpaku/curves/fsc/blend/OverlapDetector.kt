@@ -136,9 +136,6 @@ class OverlapDetector(val overlapThreshold: Grade, val blendRate: Double) {
                 ).flatten()
             }
             val value = values.shuffled(random).maxWithOrNull(compare).toOption()
-            if (value.isEmpty) {
-                println()
-            }
             cache[i, j] = value
             return value
         }
