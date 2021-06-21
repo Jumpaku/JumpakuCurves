@@ -2,6 +2,7 @@ package jumpaku.curves.fsc.test.fragment
 
 import jumpaku.commons.math.test.closeTo
 import jumpaku.curves.core.curve.Interval
+import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.KnotVector
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
@@ -22,7 +23,7 @@ class ChunkTest {
     val s3 = BSpline((0..3).map { Point.xr(it.toDouble(), 3.0) }, knotVector)
 
 
-    fun chunk(fsc: BSpline, n: Int): Chunk = Chunk(fsc.restrict(fsc.domain).sample(n))
+    fun chunk(fsc: BSpline, n: Int): Chunk = Chunk(fsc.restrict(fsc.domain).sample(Sampler(n)))
 
     val c0 = chunk(s0, 4)
     val c1 = chunk(s1, 4)

@@ -1,16 +1,16 @@
-package jumpaku.curves.fsc.test.merge
+package jumpaku.curves.fsc.test.blend
 
 import jumpaku.commons.json.parseJson
 import jumpaku.curves.fsc.generate.Fuzzifier
-import jumpaku.curves.fsc.merge.Merger
-import jumpaku.curves.fsc.merge.MergerJson
+import jumpaku.curves.fsc.blend.Blender
+import jumpaku.curves.fsc.blend.BlenderJson
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Test
 
-class MergerJsonTest {
+class BlenderJsonTest {
 
-    val merger: Merger = Merger(
+    val blender: Blender = Blender(
             degree = 3,
             knotSpan = 0.1,
             extendDegree = 2,
@@ -20,10 +20,10 @@ class MergerJsonTest {
             fuzzifier = Fuzzifier.Linear(0.004, 0.003))
 
     @Test
-    fun testMergerJson() {
-        println("MergerJson")
-        val a = MergerJson.fromJson(MergerJson.toJsonStr(merger).parseJson())
-        Assert.assertThat(a, Matchers.`is`(closeTo(merger)))
+    fun testBlenderJson() {
+        println("BlenderJson")
+        val a = BlenderJson.fromJson(BlenderJson.toJsonStr(blender).parseJson())
+        Assert.assertThat(a, Matchers.`is`(closeTo(blender)))
     }
 
 

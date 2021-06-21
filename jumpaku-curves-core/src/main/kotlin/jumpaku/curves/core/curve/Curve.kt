@@ -17,9 +17,7 @@ interface Curve : (Double) -> Point {
 
     operator fun invoke(sortedParams: List<Double>): List<Point> = sortedParams.map { invoke(it) }
 
-    fun sample(n: Int): List<ParamPoint> = sample(domain.sample(n))
-
-    fun sample(delta: Double): List<ParamPoint> = sample(domain.sample(delta))
+    fun sample(sampler: Sampler): List<ParamPoint> = sample(sampler.sample(domain))
 
     fun sample(sortedParams: List<Double>): List<ParamPoint> = invoke(sortedParams).zip(sortedParams, ::ParamPoint)
 
