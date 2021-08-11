@@ -11,8 +11,8 @@ class ConicSectionSnapResultJsonTest {
 
     val urlString = "/jumpaku/curves/fsc/test/snap/conicsection/"
     init {
-        println(this::class.java.getResource(urlString + "snapResult.json"))
-        println(this::class.java.getResource(urlString))
+        System.err.println(this::class.java.getResource(urlString + "snapResult.json"))
+        System.err.println(this::class.java.getResource(urlString))
     }
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
