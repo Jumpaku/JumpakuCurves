@@ -11,4 +11,4 @@ jobs:
     - uses: actions/checkout@v2
     - run: pwd
     - name: Run tests on Docker
-      run: docker run -v $(pwd):/project gradle:jdk15 sh -c 'cd /project; ./gradlew :jumpaku-curves-fsc-text:test || true; ls -l ./jumpaku-curves-fsc-test/build/resources/test/jumpaku/curves/fsc/test/snap/conicsection/;'
+      run: docker run -v $(pwd):/project gradle:jdk15 sh -c 'cd /project; ./gradlew :jumpaku-curves-fsc-test:test || true; ls -l ./jumpaku-curves-fsc-test/build/resources/test/jumpaku/curves/fsc/test/snap/conicsection/;'
