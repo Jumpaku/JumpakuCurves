@@ -9,6 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: ls -l ./jumpaku-curves-fsc-test/src/test/resources/jumpaku/curves/fsc/test/snap/conicsection/
+    - run: pwd
     - name: Run tests on Docker
       run: docker run -v $(pwd):/project gradle:jdk15 sh -c 'cd /project; ./gradlew :jumpaku-curves-fsc-text:test || true; ls -l ./jumpaku-curves-fsc-test/build/resources/test/jumpaku/curves/fsc/test/snap/conicsection/;'
