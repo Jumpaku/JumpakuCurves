@@ -12,9 +12,7 @@ class ConicSectionSnapResultJsonTest {
     val urlString = "/jumpaku/curves/fsc/test/snap/conicsection/"
     init {
         val classPaths = System.getProperty("java.class.path").split(":")
-        if(!classPaths.any { it.endsWith("jumpaku-curves-fsc-test/build/resources/test") })
-            error("Error!:")
-        if(!classPaths.any { it.endsWith("jumpaku-curves-fsc-test/build/resources/main") })
+        if(!classPaths.any { it.endsWith("/home/runner/work/JumpakuCurves/JumpakuCurves/jumpaku-curves-fsc-test/build/resources/test") })
             error("Error!:")
         val t = "${this::class.java.getResource(urlString)}"
         if (!t.endsWith("/jumpaku/curves/fsc/test/snap/conicsection/"))
