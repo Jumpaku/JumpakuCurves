@@ -8,7 +8,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 
 class ConicSectionSnapResultJsonTest {
-
+/*
     val urlString = "/jumpaku/curves/fsc/test/snap/conicsection/"
     init {
         val classPaths = System.getProperty("java.class.path").split(":")
@@ -30,5 +30,5 @@ class ConicSectionSnapResultJsonTest {
         println("ConicSectionSnapResultJson")
         assertThat(ConicSectionSnapResultJson.toJsonStr(r).parseJson().let { ConicSectionSnapResultJson.fromJson(it) }, `is`(closeTo(r)))
     }
-
+*/
 }
