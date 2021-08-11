@@ -10,6 +10,10 @@ import org.junit.Test
 class ConicSectionSnapResultJsonTest {
 
     val urlString = "/jumpaku/curves/fsc/test/snap/conicsection/"
+    init {
+        println(this::class.java.getResource(urlString + "snapResult.json"))
+        println(this::class.java.getResource(urlString))
+    }
     fun resourceText(name: String): String = javaClass.getResource(urlString + name).readText()
 
     val r = resourceText("snapResult.json").parseJson().let { ConicSectionSnapResultJson.fromJson(it) }
