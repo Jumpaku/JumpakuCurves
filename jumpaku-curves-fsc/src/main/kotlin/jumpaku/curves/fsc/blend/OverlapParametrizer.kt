@@ -24,7 +24,7 @@ class BlendPair(
 
 class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
 
-    fun resample0(
+    private fun resample0(
         existingSampled: Blender.SampledCurve,
         overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
@@ -56,7 +56,7 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
         }
     }
 
-    fun resample1(
+    private fun resample1(
         existingSampled: Blender.SampledCurve,
         overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
@@ -98,7 +98,7 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
         }
     }
 
-    fun resample2(
+    private fun resample2(
         existingSampled: Blender.SampledCurve,
         overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
@@ -114,7 +114,7 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
         }.flatten()
     }
 
-    fun resample3(
+    private fun resample3(
         existingSampled: Blender.SampledCurve,
         overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
@@ -156,7 +156,7 @@ class OverlapParametrizer(val samplingSpan: Double, val blendRate: Double) {
         }
     }
 
-    fun resample4(
+    private fun resample4(
         existingSampled: Blender.SampledCurve,
         overlappingSampled: Blender.SampledCurve,
         overlapState: OverlapState.Detected
