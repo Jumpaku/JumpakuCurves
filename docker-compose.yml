@@ -13,7 +13,7 @@ services:
   # docker-compose up test
   test:
     image: 'gradle:7.0.2-jdk16'
-    command: ["./gradlew", "test"]
+    command: ["./gradlew", "build", "test"]
     working_dir: '/home/gradle/project'
     volumes:
       - './:/home/gradle/project'
