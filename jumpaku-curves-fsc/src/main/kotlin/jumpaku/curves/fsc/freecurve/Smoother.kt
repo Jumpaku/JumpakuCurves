@@ -40,7 +40,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
                     .find { q(it).dist(c) > c.r * pruningFactor }.toOption()
                     .flatMap { Solver().solve(0.0..it) { q(it).dist(c) - c.r * pruningFactor }.value() }
                     .orDefault(1.0)
-        }.toMutableList().apply { if (isClosed) set(0, 0.0) }
+        }.toMutableList().apply { if (!isClosed) set(0, 0.0) }
 
         val ends = qs.zip(cs.drop(1)) { q, c ->
             Interval.Unit.sample(samplingFactor)
@@ -48,7 +48,7 @@ class Smoother(val pruningFactor: Double = 1.0, val samplingFactor: Int = 33) {
                     .flatMap { Solver().solve(it..1.0) { q(it).dist(c) - c.r * pruningFactor }.value() }
                     .orDefault(0.0)
 
-        }.toMutableList().apply { if (isClosed) set(lastIndex, 1.0) }
+        }.toMutableList().apply { if (!isClosed) set(lastIndex, 1.0) }
 
         return begins.zip(ends) { b, e -> optionWhen(b < e) { Interval(b, e) } }
     }

@@ -1,0 +1,16 @@
+name: Build and test by Gradle
+on:
+  push:
+    branches: [ master, develop, release/* ]
+  pull_request:
+    branches: [ master, develop, release/* ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: git branch --show-current
+      - name: Build and test by Gradle on Docker
+        run: docker-compose run build

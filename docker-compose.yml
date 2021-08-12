@@ -2,18 +2,18 @@ version: '3'
 
 services:
 
-  # NEXUS_USER= NEXUS_PASSWORD= docker-compose up deploy
+  # NEXUS_USER= NEXUS_PASSWORD= docker-compose run deploy
   deploy:
-    image: 'gradle:7.0.2-jdk16'
-    command: ["./gradlew", "publish", "-Pargs=${NEXUS_USER} ${NEXUS_PASSWORD}"]
+    image: 'gradle:jdk15'
+    command: ["./gradlew", "build", "publish", "-Pargs=${NEXUS_USER} ${NEXUS_PASSWORD}"]
     working_dir: '/home/gradle/project'
     volumes:
       - './:/home/gradle/project'
 
-  # docker-compose up test
-  test:
-    image: 'gradle:7.0.2-jdk16'
-    command: ["./gradlew", "test"]
+  # docker-compose run build
+  build:
+    image: 'gradle:jdk15'
+    command: ["./gradlew", "build", "test"]
     working_dir: '/home/gradle/project'
     volumes:
       - './:/home/gradle/project'
