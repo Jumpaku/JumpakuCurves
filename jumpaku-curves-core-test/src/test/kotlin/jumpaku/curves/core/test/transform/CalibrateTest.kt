@@ -48,4 +48,12 @@ class CalibrateTest {
         println("Invoke1")
         assertThat(t1(p0.first), `is`(closeTo(p0.second)))
     }
+
+    @Test
+    fun testDegeneration() {
+        println("Degeneration")
+        val t = Calibrate(p0, p0, p1, p1)
+        assertThat(t(p0.first), `is`(closeTo(p0.second)))
+        assertThat(t(p1.first), `is`(closeTo(p1.second)))
+    }
 }

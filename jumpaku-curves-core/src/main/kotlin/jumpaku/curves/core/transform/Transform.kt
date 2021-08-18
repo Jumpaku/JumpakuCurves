@@ -62,7 +62,7 @@ interface Transform : (Point) -> Point{
             require(dimension in 0..3) { "dimension($dimension) must be in 0..3" }
 
             val (ps, qs) = pairs.let {
-                val (_, vB) = pcaCoordinateSystem(it.map { it.first }).also { println("(oB,vB): ${it}") }
+                val (_, vB) = pcaCoordinateSystem(it.map { it.first })
                 when (dimension) {
                     3 -> it
                     2 -> it.flatMap { (p, q) ->
@@ -100,7 +100,6 @@ interface Transform : (Point) -> Point{
                 vecF.copyOfRange(8, 12),
                 doubleArrayOf(0.0, 0.0, 0.0, 1.0),
             ).let(MatrixUtils::createRealMatrix)
-            println(matF)
             return ofMatrix(matF)
         }
 
