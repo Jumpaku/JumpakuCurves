@@ -49,5 +49,29 @@ class TransformTest {
         assertThat(Transform.Identity(p), `is`(closeTo(p)))
         assertThat(Transform.Identity.invert().orThrow()(p), `is`(closeTo(p)))
     }
+
+    @Test
+    fun testCalibrateByFitting() {
+        println("CalibrateByFitting")
+        val p0 = Point(1.0, -2.0, 3.0) to Point(-4.0, 5.0, -6.0)
+        val p1 = Point(-1.0, 2.0, -3.0) to Point(4.0, 5.0, 6.0)
+        val p2 = Point(-1.0, -2.0, -3.0) to Point(3.0, 2.0, 1.0)
+        val p3 = Point(1.0, 2.0, 33.0) to Point(-3.0, -2.0, -1.0)
+        val before = listOf(
+            Point.xyz(1.0, 2.0, 3.0),
+            Point.xyz(2.0, 3.0, 4.0),
+            Point.xyz(3.0, 4.0, 5.0),
+            Point.xyz(4.0, 5.0, 6.0),
+            Point.xyz(5.0, 6.0, 7.0),
+            Point.xyz(7.0, 8.0, 9.0),
+        )
+        val after = before.map(Calibrate(p0, p1, p2, p3))
+        val transform = Transform.calibrateByFitting(before.zip(after))
+        for (i in before.indices){
+            val a = transform(before[i])
+            val e = after[i]
+            assertThat(a, `is`(closeTo(e)))
+        }
+    }
 }
 

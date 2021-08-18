@@ -22,7 +22,6 @@ class ParamConverterTest {
         )
     )
 
-
     @Test
     fun testRange() {
         println("Range")
@@ -45,5 +44,14 @@ class ParamConverterTest {
         assertThat(r(3.0), `is`(closeTo(8.0, 1.0)))
         assertThat(r(3.5), `is`(closeTo(12.0, 1.0)))
         assertThat(r(4.0), `is`(closeTo(16.0, 1.0)))
+    }
+
+    @Test
+    fun testFinite() {
+        println("Finite")
+        val r = LinearFit(listOf(0.0 to 0.0, 0.5 to 0.2, 0.5 to 0.4, 0.5 to 0.6, 0.5 to 0.8, 1.0 to 1.0))
+        val u = r.invoke(0.5)
+        assertThat(u.isFinite(), `is`(true))
+
     }
 }

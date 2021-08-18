@@ -1,5 +1,6 @@
 package jumpaku.curves.core.curve.arclength
 
+import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.geom.lerp
@@ -80,7 +81,8 @@ class LinearFit(samples: List<Pair<Double, Double>>) : ParamConverter {
             val t1 = params[index + 1]
             val u0 = target[index]
             val u1 = target[index + 1]
-            return u0.lerp((t - t0) / (t1 - t0), u1).coerceIn(u0, u1)
+            val r = (t - t0).tryDiv(t1 - t0).orRecover { 0.5 }
+            return u0.lerp(r, u1).coerceIn(u0, u1)
         }
     }
 
