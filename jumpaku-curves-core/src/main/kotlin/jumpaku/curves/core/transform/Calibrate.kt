@@ -22,6 +22,7 @@ class Calibrate private constructor(override val matrix: RealMatrix) : Transform
     constructor(pair0: Pair<Point, Point>) : this(makeMatrix(pair0))
 
     companion object {
+
         fun makeMatrix(
             pair0: Pair<Point, Point>,
             pair1: Pair<Point, Point>,
