@@ -123,7 +123,7 @@ class Generator(
                     for (j in 0 until cpSize) {
                         val ks = max(beginIdx[i], beginIdx[j])..min(endIdx[i], endIdx[j])
                         if (ks.isEmpty()) continue
-                        setEntry(i, j, ks.sumByDouble { k -> b.getEntry(k, i) * w[k] * b.getEntry(k, j) })
+                        setEntry(i, j, ks.sumOf { k -> b.getEntry(k, i) * w[k] * b.getEntry(k, j) })
                     }
                 }
             }

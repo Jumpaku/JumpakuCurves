@@ -7,14 +7,6 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 
 operator fun Double.times(v: Vector): Vector = v.times(this)
 
-internal inline fun <T> List<T>.sumByVector(selector: (T) -> Vector): Vector {
-    var sum: Vector = Vector.Zero
-    for (element in this) {
-        sum += selector(element)
-    }
-    return sum
-}
-
 data class Vector(val x: Double = 0.0, val y: Double = 0.0, val z: Double = 0.0) : Lerpable<Vector> {
 
     private constructor(vector: Vector3D) : this(vector.x, vector.y, vector.z)

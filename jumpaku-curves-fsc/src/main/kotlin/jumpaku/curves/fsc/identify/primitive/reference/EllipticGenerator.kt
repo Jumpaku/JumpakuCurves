@@ -110,8 +110,8 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                 }
             }.value().orNull() ?: return 0.999
 
-            return xy_xx.sumByDouble { it.first }
-                .divOrDefault(xy_xx.sumByDouble { it.second }) { 0.999 }
+            return xy_xx.sumOf { it.first }
+                .divOrDefault(xy_xx.sumOf { it.second }) { 0.999 }
                 .coerceIn(-0.999, 0.999)
         }
     }
