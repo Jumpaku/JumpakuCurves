@@ -68,7 +68,6 @@ class CalibrateTest {
         val p4 = Point.xyz(0.5, 0.5, 0.0) to Point.xyz(0.0, 0.0, 0.0)
         val n = Vector(0.0, 0.0, 1.0) to Vector(1.0, 0.0, 0.0)
         val t = Calibrate.similarityWithNormal(p0, p1, n)
-        println(t.matrix)
         assertThat(t(p0.first), `is`(closeTo(p0.second)))
         assertThat(t(p1.first), `is`(closeTo(p1.second)))
         assertThat(t(p2.first), `is`(closeTo(p2.second)))
