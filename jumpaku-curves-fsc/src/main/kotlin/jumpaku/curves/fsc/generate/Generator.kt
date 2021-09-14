@@ -7,10 +7,7 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
-import org.apache.commons.math3.linear.CholeskyDecomposition
-import org.apache.commons.math3.linear.MatrixUtils
-import org.apache.commons.math3.linear.OpenMapRealMatrix
-import org.apache.commons.math3.linear.RealMatrix
+import org.apache.commons.math3.linear.*
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
@@ -46,10 +43,13 @@ class Generator(
     fun generate(data: List<WeightedParamPoint>): BSpline {
         val sorted = data.sortedBy { it.param }
         val domain = Interval(sorted.first().param, sorted.last().param)
-        val prepared = sorted
-            .let { fill(it, fillSpan) }
-            .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-            .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+        val filled = fill(sorted, fillSpan)
+        val back = extendBack(filled, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
+        val front = extendFront(filled, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
+        val prepared = front + filled + back
+        /*.let { fill(it, fillSpan) }
+        .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+        .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }*/
         val domainExtended = Interval(prepared.first().param, prepared.last().param)
         val kv = KnotVector.clamped(domainExtended, degree, knotSpan)
         return generate(prepared, kv, fuzzifier).restrict(domain)
@@ -61,7 +61,7 @@ class Generator(
         fun generate(data: List<WeightedParamPoint>, knotVector: KnotVector, fuzzifier: Fuzzifier): BSpline {
             val d = createPointDataMatrix(data)
             val (btwb, btw) = createModelMatrices(data, knotVector)
-            val solver = CholeskyDecomposition(btwb, 1e-10, 1e-10).solver
+            val solver = CholeskyDecomposition(btwb).solver
             val btwd = btw.multiply(d)
             val cps = solver.solve(btwd).data
             val f = createFuzzinessDataMatrix(

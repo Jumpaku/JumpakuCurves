@@ -1,9 +1,13 @@
 package jumpaku.curves.demo.generate
 
+import jumpaku.commons.control.result
+import jumpaku.commons.json.parseJson
 import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
+import jumpaku.curves.demo.generate.Settings.generator
 import jumpaku.curves.graphics.swing.DrawingPanel
 import jumpaku.curves.fsc.DrawingStroke
+import jumpaku.curves.fsc.DrawingStrokeJson
 import jumpaku.curves.fsc.generate.Fuzzifier
 import jumpaku.curves.fsc.generate.Generator
 import jumpaku.curves.graphics.drawCubicBezier
@@ -37,16 +41,17 @@ object Settings {
     val height = 720
 
     val generator: Generator = Generator(
-            degree = 3,
-            knotSpan = 0.075,
-            fillSpan = 0.0375,
-            extendInnerSpan = 0.075,
-            extendOuterSpan = 0.075,
-            extendDegree = 2,
-            fuzzifier = Fuzzifier.Linear(
-                    velocityCoefficient = 0.025,
-                    accelerationCoefficient = 0.001
-            ))
+        degree = 3,
+        knotSpan = 0.075,
+        fillSpan = 0.0375,
+        extendInnerSpan = 0.075,
+        extendOuterSpan = 0.075,
+        extendDegree = 2,
+        fuzzifier = Fuzzifier.Linear(
+            velocityCoefficient = 0.025,
+            accelerationCoefficient = 0.001
+        )
+    )
 }
 
 
@@ -59,7 +64,7 @@ class DemoPanel : JPanel() {
     private val results = mutableListOf<BSpline>()
 
     fun update(drawingStroke: DrawingStroke) {
-        val fsc = Settings.generator.generate(drawingStroke)
+        val fsc = generator.generate(drawingStroke)
         results += fsc
         repaint()
     }

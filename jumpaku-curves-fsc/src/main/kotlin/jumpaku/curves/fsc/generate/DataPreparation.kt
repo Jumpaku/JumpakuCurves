@@ -9,6 +9,8 @@ import jumpaku.curves.core.geom.middle
 import jumpaku.curves.fsc.generate.fit.BezierFitter
 import org.apache.commons.math3.util.FastMath
 import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.min
 
 
 /**
@@ -21,16 +23,18 @@ import kotlin.math.ceil
  * To avoid these problems, before FSC generation, lacks of data should be filled by linear interpolation.
  * And data points around beginning point and end point should be extended by quadratic bezier fitting.
  */
-fun prepareData(data: List<WeightedParamPoint>,
-                fillSpan: Double,
-                extendInnerSpan: Double,
-                extendOuterSpan: Double,
-                extendDegree: Int
-): List<WeightedParamPoint> = data
-        .sortedBy { it.param }
-        .let { fill(it, fillSpan) }
-        .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-        .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+fun prepareData(
+    data: List<WeightedParamPoint>,
+    fillSpan: Double,
+    extendInnerSpan: Double,
+    extendOuterSpan: Double,
+    extendDegree: Int
+): List<WeightedParamPoint> {
+    val filled = fill(data.sortedBy { it.param }, fillSpan)
+    val front = extendFront(filled, extendInnerSpan, extendOuterSpan, extendDegree)
+    val back = extendBack(filled, extendInnerSpan, extendOuterSpan, extendDegree)
+    return front + filled + back
+}
 
 fun fill(sortedData: List<WeightedParamPoint>, fillSpan: Double): List<WeightedParamPoint> {
     require(fillSpan > 0.0) { "must be fillSpan($fillSpan ) > 0.0" }
@@ -44,15 +48,17 @@ fun fill(sortedData: List<WeightedParamPoint>, fillSpan: Double): List<WeightedP
 }
 
 fun extendFront(
-        sortedData: List<WeightedParamPoint>,
-        extendInnerSpan: Double,
-        extendOuterSpan: Double,
-        extendDegree: Int
+    sortedData: List<WeightedParamPoint>,
+    extendInnerSpan: Double,
+    extendOuterSpan: Double,
+    extendDegree: Int,
+    fillSpan: Double = Double.MAX_VALUE
 ): List<WeightedParamPoint> {
     require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
     require(extendInnerSpan > 0.0) { "must be extendInnerSpan($extendInnerSpan) > 0" }
     require(extendOuterSpan > 0.0) { "must be extendOuterSpan($extendOuterSpan) > 0" }
     require(extendDegree >= 0) { "must be extendDegree($extendDegree ) >= 0" }
+    require(fillSpan > 0.0) { "must be fillSpan($fillSpan ) > 0" }
 
     val first = sortedData.first()
     val innerOuterBSpline = first.param.let { Interval(it - extendOuterSpan, it + extendInnerSpan) }
@@ -60,28 +66,31 @@ fun extendFront(
     val innerPoints = sortedData.filter { it.param <= end }
     val outerBezier = Interval(0.0, extendOuterSpan / (extendOuterSpan + extendInnerSpan))
     val outerBSpline = Interval(begin, first.param)
-    val outerData = extend(
-            innerPoints,
-            innerOuterBSpline,
-            outerBezier,
-            outerBSpline,
-            first.weight,
-            extendInnerSpan,
-            extendOuterSpan,
-            extendDegree)
-    return outerData + sortedData
+    return extend(
+        innerPoints,
+        innerOuterBSpline,
+        outerBezier,
+        outerBSpline,
+        first.weight,
+        extendInnerSpan,
+        extendOuterSpan,
+        extendDegree,
+        fillSpan
+    )
 }
 
 fun extendBack(
-        sortedData: List<WeightedParamPoint>,
-        extendInnerSpan: Double,
-        extendOuterSpan: Double,
-        extendDegree: Int
+    sortedData: List<WeightedParamPoint>,
+    extendInnerSpan: Double,
+    extendOuterSpan: Double,
+    extendDegree: Int,
+    fillSpan: Double = Double.MAX_VALUE
 ): List<WeightedParamPoint> {
     require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
     require(extendInnerSpan > 0.0) { "must be extendInnerSpan($extendInnerSpan) > 0" }
     require(extendOuterSpan > 0.0) { "must be extendOuterSpan($extendOuterSpan) > 0" }
     require(extendDegree >= 0) { "must be extendDegree($extendDegree ) >= 0" }
+    require(fillSpan > 0.0) { "must be fillSpan($fillSpan ) > 0" }
 
     val last = sortedData.last()
     val innerOuterBSpline = last.param.let { Interval(it - extendInnerSpan, it + extendOuterSpan) }
@@ -89,30 +98,38 @@ fun extendBack(
     val innerPoints = sortedData.filter { it.param >= begin }
     val outerBezier = Interval(extendInnerSpan / (extendOuterSpan + extendInnerSpan), 1.0)
     val outerBSpline = Interval(last.param, end)
-    val outerData = extend(
-            innerPoints,
-            innerOuterBSpline,
-            outerBezier,
-            outerBSpline,
-            last.weight,
-            extendInnerSpan,
-            extendOuterSpan,
-            extendDegree)
-    return sortedData + outerData
+    return extend(
+        innerPoints,
+        innerOuterBSpline,
+        outerBezier,
+        outerBSpline,
+        last.weight,
+        extendInnerSpan,
+        extendOuterSpan,
+        extendDegree,
+        fillSpan
+    )
 }
 
 private fun extend(
-        innerPoints: List<WeightedParamPoint>,
-        innerOuterBSpline: Interval,
-        outerBezier: Interval,
-        outerBSpline: Interval,
-        weight: Double,
-        extendInnerSpan: Double,
-        extendOuterSpan: Double,
-        extendDegree: Int
+    innerPoints: List<WeightedParamPoint>,
+    innerOuterBSpline: Interval,
+    outerBezier: Interval,
+    outerBSpline: Interval,
+    weight: Double,
+    extendInnerSpan: Double,
+    extendOuterSpan: Double,
+    extendDegree: Int,
+    fillSpan: Double
 ): List<WeightedParamPoint> {
-    val innerData = transformParams(innerPoints.map { it.paramPoint }, domain = innerOuterBSpline, range = Interval.Unit)
+    val innerData =
+        transformParams(innerPoints.map { it.paramPoint }, domain = innerOuterBSpline, range = Interval.Unit)
     val bezier = BezierFitter(extendDegree).fit(innerData).clipout(outerBezier)
-    val points = bezier.sample(Sampler(ceil(innerData.size * extendOuterSpan / extendInnerSpan).toInt()))
+    val nSamples = listOf(
+        ceil((extendOuterSpan) / fillSpan).toInt(),
+        ceil(innerData.size * extendOuterSpan / extendInnerSpan).toInt(),
+        2
+    ).maxOrNull()!!
+    val points = bezier.sample(Sampler(nSamples))
     return transformParams(points, range = outerBSpline).map { it.weighted(weight) }
 }
