@@ -79,7 +79,9 @@ class KnotVector internal constructor(val degree: Int, knots: List<Double>) : Li
             return clamped(domain, degree, knotSize)
         }
 
-        @Deprecated("This is for implementation", replaceWith = ReplaceWith("No replacement."))
-        fun of(degree: Int, knots: List<Double>): KnotVector = KnotVector(degree, knots)
+        fun of(degree: Int, sortedKnots: List<Double>): KnotVector {
+            require(sortedKnots.zipWithNext { a, b -> a <= b }.all { it }) { "sortedKnots($sortedKnots) must be sorted" }
+            return KnotVector(degree, sortedKnots)
+        }
     }
 }
