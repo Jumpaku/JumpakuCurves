@@ -68,6 +68,7 @@ class Blender(
                 SampledCurve(curve, curve.domain.sample(samplingSpan).zipWithNext(::SmallInterval))
         }
     }
+
     init {
         require(degree >= 0)
         require(knotSpan > 0.0)
@@ -98,10 +99,11 @@ class Blender(
 
     fun generate(blendData: List<WeightedParamPoint>): BSpline {
         val domain = blendData.run { Interval(first().param, last().param) }
-        val data = blendData
-            .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-            .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-            .let { weightByKde(it, bandWidth) }
+        val data = listOf(
+            extendFront(blendData, extendInnerSpan, extendOuterSpan, extendDegree, samplingSpan),
+            blendData,
+            extendBack(blendData, extendInnerSpan, extendOuterSpan, extendDegree, samplingSpan)
+        ).flatten().let { weightByKde(it, bandWidth) }
 
         val extendedDomain = Interval(data.first().param, data.last().param)
         val knotVector = KnotVector.clamped(extendedDomain, degree, knotSpan)
@@ -123,7 +125,7 @@ class Blender(
                 }
                 var k = i + 1
                 while (k < paramPoints.size && abs(paramPoints[k].param - p.param) / bandWidth < 1) {
-                    density += kernel((paramPoints[k].param - p.param)/ bandWidth)
+                    density += kernel((paramPoints[k].param - p.param) / bandWidth)
                     ++k
                 }
                 weights += n * bandWidth / density
