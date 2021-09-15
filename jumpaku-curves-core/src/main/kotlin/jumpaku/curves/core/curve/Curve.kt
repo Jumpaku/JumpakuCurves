@@ -1,8 +1,12 @@
 package jumpaku.curves.core.curve
 
 import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.AffineTransformable
+import jumpaku.curves.core.transform.SimilarityTransform
+import jumpaku.curves.core.transform.SimilarlyTransformable
 
-interface Curve : (Double) -> Point {
+interface Curve : (Double) -> Point, AffineTransformable<Curve>, SimilarlyTransformable<Curve> {
 
     val domain: Interval
 
@@ -26,7 +30,11 @@ interface Curve : (Double) -> Point {
         override fun invoke(t: Double): Point = this@Curve.invoke(t).toCrisp()
     }
 
-    fun restrict(subDomain: Interval): Curve = CurveRestriction(this, subDomain)
+    fun restrict(subDomain: Interval): CurveRestriction<Curve> = CurveRestriction(this, subDomain)
 
-    fun restrict(begin: Double, end: Double): Curve = restrict(Interval(begin, end))
+    fun restrict(begin: Double, end: Double): CurveRestriction<Curve> = restrict(Interval(begin, end))
+
+    override fun affineTransform(a: AffineTransform): AffineTransformed<Curve> = AffineTransformed(this, a)
+
+    override fun similarlyTransform(a: SimilarityTransform): SimilarlyTransformed<Curve> = SimilarlyTransformed(this, a)
 }

@@ -9,7 +9,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import kotlin.math.sqrt
 
-class TransformTest {
+class AffineTransformTest {
 
     val r2 = sqrt(2.0)
 
@@ -46,8 +46,8 @@ class TransformTest {
     @Test
     fun testIdentity() {
         println("Identity")
-        assertThat(Transform.Identity(p), `is`(closeTo(p)))
-        assertThat(Transform.Identity.invert().orThrow()(p), `is`(closeTo(p)))
+        assertThat(AffineTransform.Identity(p), `is`(closeTo(p)))
+        assertThat(AffineTransform.Identity.invert().orThrow()(p), `is`(closeTo(p)))
     }
 
     @Test
@@ -66,7 +66,7 @@ class TransformTest {
             Point.xyz(7.0, 8.0, 9.0),
         )
         val after = before.map(Calibrate(p0, p1, p2, p3))
-        val transform = Transform.calibrateByFitting(before.zip(after))
+        val transform = AffineTransform.calibrateByFitting(before.zip(after))
         for (i in before.indices){
             val a = transform(before[i])
             val e = after[i]

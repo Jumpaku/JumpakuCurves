@@ -22,7 +22,7 @@ open class Grid(
      *  scaling by spacing,
      *  translation to specified origin.
      */
-    fun localToWorld(resolution: Int): Transform = rotation
+    fun localToWorld(resolution: Int): AffineTransform = rotation
             .andThen(UniformlyScale(spacing(resolution)))
             .andThen(Translate(origin - Point.origin))
 

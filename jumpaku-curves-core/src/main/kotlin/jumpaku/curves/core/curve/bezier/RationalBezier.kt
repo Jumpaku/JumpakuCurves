@@ -6,7 +6,7 @@ import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.*
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.AffineTransform
 
 
 class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable {
@@ -62,7 +62,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
 
     override fun toString(): String = "RationalBezier(weightedControlPoints=$weightedControlPoints)"
 
-    fun transform(a: Transform): RationalBezier =
+    fun transform(a: AffineTransform): RationalBezier =
             RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)

@@ -10,7 +10,7 @@ import jumpaku.curves.core.curve.Derivative
 import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.*
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.AffineTransform
 import org.apache.commons.math3.util.FastMath
 
 
@@ -54,7 +54,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
         return far.lerp((1 - t) * (1 - 2 * t) / wt to begin, t * (2 * t - 1) / wt to end)
     }
 
-    fun transform(a: Transform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
+    fun transform(a: AffineTransform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
 
     override fun toString(): String = "ConicSection(begin=$begin, far=$far, end=$end, weight=$weight)"
 

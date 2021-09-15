@@ -10,28 +10,32 @@ import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.apache.commons.math3.linear.RealMatrix
 
-interface Transform : (Point) -> Point{
+interface AffineTransform : (Point) -> Point {
 
     val matrix: RealMatrix
 
     override operator fun invoke(p: Point): Point = matrix.operate(doubleArrayOf(p.x, p.y, p.z, 1.0))
-            .let { Point.xyz(it[0], it[1], it[2]) }
+        .let { Point.xyz(it[0], it[1], it[2]) }
 
-    fun andThen(a: Transform): Transform = ofMatrix(a.matrix.multiply(this@Transform.matrix))
+    fun andThen(a: AffineTransform): AffineTransform = ofMatrix(a.matrix.multiply(this@AffineTransform.matrix))
 
-    fun at(origin: Point): Transform = Translate(-origin.toVector()).andThen(this).andThen(Translate(origin.toVector()))
+    fun at(pivot: Point): AffineTransform {
+        val v = pivot.toVector()
+        return Translate(-v).andThen(this).andThen(Translate(v))
+    }
 
-    fun invert(): Option<Transform> = QRDecomposition(matrix).solver.run { optionWhen(isNonSingular) { ofMatrix(inverse) } }
+    fun invert(): Option<AffineTransform> =
+        QRDecomposition(matrix).solver.run { optionWhen(isNonSingular) { ofMatrix(inverse) } }
 
     companion object {
 
-        fun ofMatrix(m: RealMatrix): Transform = object : Transform {
+        fun ofMatrix(m: RealMatrix): AffineTransform = object : AffineTransform {
             override val matrix: RealMatrix = m
         }
 
         val Identity = ofMatrix(MatrixUtils.createRealIdentityMatrix(4))
 
-        fun calibrateByFitting(pairs: List<Pair<Point, Point>>): Transform {
+        fun calibrateByFitting(pairs: List<Pair<Point, Point>>): AffineTransform {
             require(pairs.isNotEmpty()) { "pairs(${pairs.size}) must be not empty" }
             return result { fit(pairs, 3) }
                 .tryRecover { fit(pairs, 2) }
@@ -49,7 +53,8 @@ interface Transform : (Point) -> Point{
         fun pcaCoordinateSystem(points: List<Point>): Pair<Point, Triple<Vector, Vector, Vector>> {
             val n = points.size
             val origin = points[0].lerp(points.drop(1).map { (1.0 / n) to it })
-            val matX = points.map { x -> (x - origin).toDoubleArray() }.toTypedArray().let(MatrixUtils::createRealMatrix)
+            val matX =
+                points.map { x -> (x - origin).toDoubleArray() }.toTypedArray().let(MatrixUtils::createRealMatrix)
             val solver = EigenDecomposition(matX.transpose().multiply(matX))
             val (axis0, axis1, axis2) = (0..2).map {
                 val axes = solver.getEigenvector(it)
@@ -58,7 +63,7 @@ interface Transform : (Point) -> Point{
             return origin to Triple(axis0, axis1, axis2)
         }
 
-        private fun fit(pairs: List<Pair<Point, Point>>, dimension: Int): Transform {
+        private fun fit(pairs: List<Pair<Point, Point>>, dimension: Int): AffineTransform {
             require(dimension in 0..3) { "dimension($dimension) must be in 0..3" }
 
             val (ps, qs) = pairs.let {

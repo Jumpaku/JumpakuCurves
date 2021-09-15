@@ -10,7 +10,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import kotlin.math.sqrt
 
-class SimilarityTest {
+class SimilarityTransformTest {
 
     val r2 = sqrt(2.0)
 
@@ -23,8 +23,8 @@ class SimilarityTest {
 
     @Test
     fun testIsSimilarity() {
-        val a0 = Similarity.isSimilarity(
-            Transform.ofMatrix(
+        val a0 = SimilarityTransform.isSimilarity(
+            AffineTransform.ofMatrix(
                 MatrixUtils.createRealMatrix(
                     arrayOf(
                         doubleArrayOf(1.0, 2.0, 3.0, 4.0),
@@ -37,8 +37,8 @@ class SimilarityTest {
         )
         assertThat(a0, `is`(false))
 
-        val a1 = Similarity.isSimilarity(
-            Transform.ofMatrix(
+        val a1 = SimilarityTransform.isSimilarity(
+            AffineTransform.ofMatrix(
                 MatrixUtils.createRealMatrix(
                     arrayOf(
                         doubleArrayOf(1.0, 3.0, 2.0, 4.0),
@@ -55,7 +55,7 @@ class SimilarityTest {
     @Test
     fun testSimilarity_Rotate() {
         println("Similarity_Rotate")
-        val a = r.similarity()
+        val a = r.asSimilarity()
         val e = r
         assertThat(a(p), `is`(closeTo(e(p))))
     }
@@ -63,7 +63,7 @@ class SimilarityTest {
     @Test
     fun testSimilarity_Translate() {
         println("Similarity_Translate")
-        val a = t.similarity()
+        val a = t.asSimilarity()
         val e = t
         assertThat(a(p), `is`(closeTo(e(p))))
     }
@@ -71,7 +71,7 @@ class SimilarityTest {
     @Test
     fun testSimilarity_Scale() {
         println("Similarity_Scale")
-        val a = s.similarity()
+        val a = s.asSimilarity()
         val e = s
         assertThat(a(p), `is`(closeTo(e(p))))
     }
@@ -79,16 +79,16 @@ class SimilarityTest {
     @Test
     fun testAndThenSimilarity() {
         println("AndThenSimilarity")
-        val f = Similarity().andThenSimilarly(r).andThenSimilarly(t).andThenSimilarly(s)
+        val f = SimilarityTransform().andThenSimilarly(r).andThenSimilarly(t).andThenSimilarly(s)
         assertThat(f(p), `is`(closeTo(Point(2.0, r2 * 4 + 4, -2.0))))
     }
 
     @Test
     fun testAt() {
         println("At")
-        assertThat(r.similarity().at(o)(p), `is`(closeTo(Point(r2, 2 + r2, 2.0))))
-        assertThat(t.similarity().at(o)(p), `is`(closeTo(Point(3.0, 4.0, -1.0))))
-        assertThat(s.similarity().at(o)(p), `is`(closeTo(Point(4.0, 2.0, 2.0))))
+        assertThat(r.asSimilarity().at(o)(p), `is`(closeTo(Point(r2, 2 + r2, 2.0))))
+        assertThat(t.asSimilarity().at(o)(p), `is`(closeTo(Point(3.0, 4.0, -1.0))))
+        assertThat(s.asSimilarity().at(o)(p), `is`(closeTo(Point(4.0, 2.0, 2.0))))
     }
 }
 

@@ -7,7 +7,7 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.weighted
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.AffineTransform
 
 
 class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differentiable {
@@ -50,7 +50,7 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     override fun toString(): String = "BSpline(knotVector=$knotVector, controlPoints=$controlPoints)"
 
-    fun transform(a: Transform): BSpline = BSpline(nurbs.transform(a))
+    fun transform(a: AffineTransform): BSpline = BSpline(nurbs.transform(a))
 
     override fun restrict(begin: Double, end: Double): BSpline = BSpline(nurbs.restrict(begin, end))
 

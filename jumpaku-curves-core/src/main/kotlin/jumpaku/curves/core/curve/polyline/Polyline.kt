@@ -2,7 +2,7 @@ package jumpaku.curves.core.curve.polyline
 
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.AffineTransform
 
 
 class Polyline(paramPoints: List<ParamPoint>) : Curve {
@@ -45,7 +45,7 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
     private fun evaluateInSpan(t: Double, index: Int): Point =
         points[index].lerp((t - parameters[index]) / (parameters[index + 1] - parameters[index]), points[index + 1])
 
-    fun transform(a: Transform): Polyline = Polyline(paramPoints.map { it.copy(point = a(it.point)) })
+    fun transform(a: AffineTransform): Polyline = Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 
