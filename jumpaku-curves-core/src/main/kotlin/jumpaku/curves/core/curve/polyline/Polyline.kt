@@ -33,13 +33,14 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
         val evaluated = ArrayList<Point>(n)
         val ts = params.subList(1, n - 1)
         var index = 0
+        evaluated += points.first()
         ts.forEach { t ->
             while (t >= parameters[index]) ++index
-            //index = parameters.indexOfFirst { } asVavr ().indexWhere({ t < it }, index)
             evaluated += evaluateInSpan(t, index - 1)
         }
+        evaluated += points.last()
 
-        return listOf(points.first()) + evaluated + listOf(points.last())
+        return evaluated
     }
 
     private fun evaluateInSpan(t: Double, index: Int): Point =
