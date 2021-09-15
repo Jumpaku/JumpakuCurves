@@ -61,7 +61,7 @@ class Generator(
         fun generate(data: List<WeightedParamPoint>, knotVector: KnotVector, fuzzifier: Fuzzifier): BSpline {
             val d = createPointDataMatrix(data)
             val (btwb, btw) = createModelMatrices(data, knotVector)
-            val solver = CholeskyDecomposition(btwb).solver
+            val solver = CholeskyDecomposition(btwb, 1e-15, 1e-10).solver
             val btwd = btw.multiply(d)
             val cps = solver.solve(btwd).data
             val f = createFuzzinessDataMatrix(

@@ -31,8 +31,8 @@ fun prepareData(
     extendDegree: Int
 ): List<WeightedParamPoint> {
     val filled = fill(data.sortedBy { it.param }, fillSpan)
-    val front = extendFront(filled, extendInnerSpan, extendOuterSpan, extendDegree)
-    val back = extendBack(filled, extendInnerSpan, extendOuterSpan, extendDegree)
+    val front = extendFront(filled, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
+    val back = extendBack(filled, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
     return front + filled + back
 }
 
@@ -57,8 +57,8 @@ fun extendFront(
     require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
     require(extendInnerSpan > 0.0) { "must be extendInnerSpan($extendInnerSpan) > 0" }
     require(extendOuterSpan > 0.0) { "must be extendOuterSpan($extendOuterSpan) > 0" }
-    require(extendDegree >= 0) { "must be extendDegree($extendDegree ) >= 0" }
-    require(fillSpan > 0.0) { "must be fillSpan($fillSpan ) > 0" }
+    require(extendDegree >= 0) { "must be extendDegree($extendDegree) >= 0" }
+    require(fillSpan > 0.0) { "must be fillSpan($fillSpan) > 0" }
 
     val first = sortedData.first()
     val innerOuterBSpline = first.param.let { Interval(it - extendOuterSpan, it + extendInnerSpan) }
@@ -89,8 +89,8 @@ fun extendBack(
     require(sortedData.size >= 2) { "data.size == ${sortedData.size}, too few data" }
     require(extendInnerSpan > 0.0) { "must be extendInnerSpan($extendInnerSpan) > 0" }
     require(extendOuterSpan > 0.0) { "must be extendOuterSpan($extendOuterSpan) > 0" }
-    require(extendDegree >= 0) { "must be extendDegree($extendDegree ) >= 0" }
-    require(fillSpan > 0.0) { "must be fillSpan($fillSpan ) > 0" }
+    require(extendDegree >= 0) { "must be extendDegree($extendDegree) >= 0" }
+    require(fillSpan > 0.0) { "must be fillSpan($fillSpan) > 0" }
 
     val last = sortedData.last()
     val innerOuterBSpline = last.param.let { Interval(it - extendInnerSpan, it + extendOuterSpan) }

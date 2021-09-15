@@ -100,9 +100,9 @@ class Blender(
     fun generate(blendData: List<WeightedParamPoint>): BSpline {
         val domain = blendData.run { Interval(first().param, last().param) }
         val data = listOf(
-            extendFront(blendData, extendInnerSpan, extendOuterSpan, extendDegree),
+            extendFront(blendData, extendInnerSpan, extendOuterSpan, extendDegree, samplingSpan),
             blendData,
-            extendBack(blendData, extendInnerSpan, extendOuterSpan, extendDegree)
+            extendBack(blendData, extendInnerSpan, extendOuterSpan, extendDegree, samplingSpan)
         ).flatten().let { weightByKde(it, bandWidth) }
 
         val extendedDomain = Interval(data.first().param, data.last().param)

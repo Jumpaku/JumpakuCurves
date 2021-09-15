@@ -80,7 +80,7 @@ class DataPreparationTest {
         val b = BSpline(
                 listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.5, 3.0).sample(21).map { ParamPoint(b(it), it).weighted(2.0) }
-        val extend = extendFront(data, extendInnerSpan, extendOuterSpan, extendDegree)
+        val extend = extendFront(data, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(extend + data).subdivide(1.0)
         assertThat(sub1, `is`(closeTo(b.subdivide(1.0).first)))
@@ -94,7 +94,7 @@ class DataPreparationTest {
         val b = BSpline(
                 listOf(Point.xy(-2.0, 0.0), Point.xy(-1.0, 0.0), Point.xy(0.0, 2.0), Point.xy(1.0, 0.0), Point.xy(2.0, 0.0)), knots)
         val data = Interval(0.0, 2.5).sample(100).map { ParamPoint(b(it), it).weighted(2.0) }
-        val extend = extendBack(data, extendInnerSpan, extendOuterSpan, extendDegree)
+        val extend = extendBack(data, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
         val (sub1, sub2) = BSplineFitter(2, knots)
                 .fit(data + extend).subdivide(1.0)
         assertThat(sub1, `is`(closeTo(b.subdivide(1.0).first)))
