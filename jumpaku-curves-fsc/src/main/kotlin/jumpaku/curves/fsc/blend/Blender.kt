@@ -30,6 +30,11 @@ sealed class BlendResult {
     class Blended(override val overlapState: OverlapState.Detected, val blended: BSpline) : BlendResult()
 }
 
+/**
+ * Blends two FSCs into a single FSC if they are overlapping.
+ * The concept of this process is proposed in the following paper:
+ * SATO, Y, YASUFUKU, N, SAGA, S. Sequential fuzzy spline curve generator for drawing interface by sketch. The Transactions of the Institute of Electronics, Information and Communication Engineers 2003;86(2):242–251. URL: https://ci.nii.ac.jp/naid/110003170883/en/
+ */
 class Blender(
     val degree: Int = 3,
     val knotSpan: Double = 0.1,
