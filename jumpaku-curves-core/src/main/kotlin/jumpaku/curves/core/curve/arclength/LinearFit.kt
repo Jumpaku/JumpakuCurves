@@ -6,15 +6,14 @@ import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.geom.lerp
 import kotlin.math.max
 
-class LinearFit(samples: List<Pair<Double, Double>>) : ParamConverter {
+class LinearFit(val originalParams: List<Double>, val targetParams: List<Double>) : ParamConverter {
+
+    private constructor(samples: List<Pair<Double, Double>>) : this(samples.map { it.first }, samples.map { it.second })
 
     init {
-        require(samples.size >= 2)
+        require(originalParams.size >= 2)
+        require(originalParams.size == targetParams.size)
     }
-
-    val originalParams = samples.map { it.first }
-
-    val targetParams = samples.map { it.second }
 
     override val domain: Interval = originalParams.run { Interval(first(), last()) }
 
@@ -85,5 +84,4 @@ class LinearFit(samples: List<Pair<Double, Double>>) : ParamConverter {
             return u0.lerp(r, u1).coerceIn(u0, u1)
         }
     }
-
 }

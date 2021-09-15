@@ -46,12 +46,19 @@ class ReparametrizedCurve<C : Curve>(
     companion object {
 
         fun <C : Curve> of(originalCurve: C, originalParams: List<Double>): ReparametrizedCurve<C> {
-            val ds = originalParams.map(originalCurve).zipWithNext(Point::dist)
-            val ls = ds.scan(0.0) { acc, d -> acc + d }
-            val rs = ls.map { (it / ls.last()).coerceIn(Interval.Unit) }
-            val samples = if (rs.all { it.isFinite() }) originalParams.zip(rs) else originalParams.map { it to 0.0 }
-            val toArcLengthRatio = LinearFit(samples)
-            val toOriginal = LinearFit(samples.map { (t, s) -> s to t })
+            val rs = MutableList(originalParams.size) { 0.0 }
+            var prev = originalCurve(originalParams[0])
+            for (i in 1..rs.lastIndex) {
+                val cur = originalCurve(originalParams[i])
+                rs[i] = rs[i - 1] + prev.dist(cur)
+                prev = cur
+            }
+            val l = rs.last()
+            for (i in rs.indices) {
+                rs[i] = (rs[i] / l).coerceIn(0.0..1.0)
+            }
+            val toArcLengthRatio = LinearFit(originalParams, rs)
+            val toOriginal = LinearFit(rs, originalParams)
             return ReparametrizedCurve(originalCurve, toArcLengthRatio, toOriginal)
         }
 
