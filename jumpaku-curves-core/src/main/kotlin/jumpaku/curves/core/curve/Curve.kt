@@ -30,9 +30,9 @@ interface Curve : (Double) -> Point, AffineTransformable<Curve>, SimilarlyTransf
         override fun invoke(t: Double): Point = this@Curve.invoke(t).toCrisp()
     }
 
-    fun restrict(subDomain: Interval): CurveRestriction<Curve> = CurveRestriction(this, subDomain)
+    fun restrict(subDomain: Interval): Curve = CurveRestriction(this, subDomain)
 
-    fun restrict(begin: Double, end: Double): CurveRestriction<Curve> = restrict(Interval(begin, end))
+    fun restrict(begin: Double, end: Double): Curve = restrict(Interval(begin, end))
 
     override fun affineTransform(a: AffineTransform): AffineTransformed<Curve> = AffineTransformed(this, a)
 

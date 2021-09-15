@@ -291,13 +291,13 @@ class PointTest {
     }
 
     @Test
-    fun testTransform() {
-        println("Affine")
-        val t = Point.xyz(3.3, -2.4, -1.0).transform(Translate(Vector(2.3, -5.4, -0.5)))
+    fun testAffineTransform() {
+        println("AffineTransform")
+        val t = Point.xyz(3.3, -2.4, -1.0).affineTransform(Translate(Vector(2.3, -5.4, -0.5)))
         assertThat(t, `is`(closeTo(Point.xyz(5.6, -7.8, -1.5))))
-        val r = Point.xyz(1.0, 1.0, -1.0).transform(Rotate(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
+        val r = Point.xyz(1.0, 1.0, -1.0).affineTransform(Rotate(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
         assertThat(r, `is`(closeTo(Point.xyz(-1.0, 1.0, 1.0))))
-        val s = Point.xyz(3.0, -2.0, -1.0).transform(UniformlyScale(0.5))
+        val s = Point.xyz(3.0, -2.0, -1.0).affineTransform(UniformlyScale(0.5))
         assertThat(s, `is`(closeTo(Point.xyz(1.5, -1.0, -0.5))))
     }
 }

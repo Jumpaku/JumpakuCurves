@@ -12,7 +12,7 @@ interface Derivative : (Double) -> Vector {
 
     operator fun invoke(sortedParams: List<Double>): List<Vector> = sortedParams.map { invoke(it) }
 
-    fun restrict(subDomain: Interval): DerivativeRestriction<Derivative> = DerivativeRestriction(this, subDomain)
+    fun restrict(subDomain: Interval): Derivative = DerivativeRestriction(this, subDomain)
 
-    fun restrict(begin: Double, end: Double): DerivativeRestriction<Derivative> = restrict(Interval(begin, end))
+    fun restrict(begin: Double, end: Double): Derivative = restrict(Interval(begin, end))
 }

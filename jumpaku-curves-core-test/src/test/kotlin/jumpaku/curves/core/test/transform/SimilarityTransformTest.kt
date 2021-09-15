@@ -77,9 +77,9 @@ class SimilarityTransformTest {
     }
 
     @Test
-    fun testAndThenSimilarity() {
-        println("AndThenSimilarity")
-        val f = SimilarityTransform().andThenSimilarly(r).andThenSimilarly(t).andThenSimilarly(s)
+    fun testAndThen() {
+        println("AndThen")
+        val f = SimilarityTransform().andThen(r.asSimilarity()).andThen(t.asSimilarity()).andThen(s.asSimilarity())
         assertThat(f(p), `is`(closeTo(Point(2.0, r2 * 4 + 4, -2.0))))
     }
 
