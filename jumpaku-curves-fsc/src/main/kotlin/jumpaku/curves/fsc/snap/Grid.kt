@@ -1,15 +1,15 @@
 package jumpaku.curves.fsc.snap
 
+import jumpaku.commons.control.Option
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.*
 import org.apache.commons.math3.util.FastMath
 
 class Grid(
-    val baseSpacingInWorld: Double,
     val baseFuzzinessInWorld: Double = 0.0,
     val magnification: Int = 2,
-    val gridToWorld: SimilarityTransform = SimilarityTransform.Identity
+    val baseGridToWorld: SimilarityTransform = SimilarityTransform.Identity
 ) : SimilarlyTransformable<Grid> {
 
     constructor(
@@ -19,7 +19,6 @@ class Grid(
         originInWorld: Point = Point(0.0, 0.0, 0.0, 0.0),
         rotationInWorld: Rotate = Rotate(Vector.K, 0.0)
     ) : this(
-        baseSpacingInWorld,
         baseFuzzinessInWorld,
         magnification,
         SimilarityTransform.Identity
@@ -29,10 +28,16 @@ class Grid(
     )
 
     init {
-        require(baseSpacingInWorld > 0.0)
         require(baseFuzzinessInWorld >= 0.0)
         require(magnification > 1)
+        require(baseGridToWorld.scale() > 0.0)
     }
+
+    val baseSpacingInWorld: Double = baseGridToWorld.scale()
+
+    val originInWorld: Point = Point(baseGridToWorld.move())
+
+    val worldToBaseGrid: SimilarityTransform = baseGridToWorld.invert().orThrow()
 
     fun spacingInWorld(resolution: Int): Double =
         baseSpacingInWorld * FastMath.pow(magnification.toDouble(), -resolution)
@@ -40,34 +45,30 @@ class Grid(
     fun fuzzinessInWorld(resolution: Int): Double =
         baseFuzzinessInWorld * FastMath.pow(magnification.toDouble(), -resolution)
 
-    fun originInWorld(): Point = Point(gridToWorld.move())
-
-    fun rotationInWorld(): SimilarityTransform = gridToWorld.rotation()
-
     /**
-     * localToWorld transforms coordinates in local(grid) to coordinates in world.
+     * gridToWorld transforms coordinates in a grid of the specified resolution to coordinates in world.
      * Coordinates in world is transformed by the following transformations;
-     *  scaling by spacing,
-     *  translation to specified origin.
+     *  rotation by baseGridToWorld.rotation()
+     *  scaling by baseSpacingInWorld,
+     *  translation to originInWorld.
      */
-    fun localToWorld(resolution: Int): SimilarityTransform = gridToWorld.rotation()
+    fun gridToWorld(resolution: Int): SimilarityTransform = baseGridToWorld.rotation()
         .andThen(UniformlyScale(spacingInWorld(resolution)))
-        .andThen(Translate(gridToWorld.move()))
+        .andThen(Translate(originInWorld.toVector()))
 
     fun snapToNearestGrid(cursor: Point, resolution: Int): GridPoint =
-        localToWorld(resolution).invert().orThrow()(cursor)
+        gridToWorld(resolution).invert().orThrow()(cursor)
             .let { (x, y, z) -> GridPoint(FastMath.round(x), FastMath.round(y), FastMath.round(z)) }
 
     fun transformToWorld(gridPoint: GridPoint, resolution: Int): Point = gridPoint.run {
-        localToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
+        gridToWorld(resolution)(Point.xyz(x.toDouble(), y.toDouble(), z.toDouble()))
             .copy(r = fuzzinessInWorld(resolution))
     }
 
     override fun similarlyTransform(a: SimilarityTransform): Grid = Grid(
-        baseSpacingInWorld = baseSpacingInWorld * a.scale(),
         baseFuzzinessInWorld = baseFuzzinessInWorld * a.scale(),
         magnification = magnification,
-        gridToWorld = gridToWorld.andThen(a)
+        baseGridToWorld = baseGridToWorld.andThen(a)
     )
 }
 

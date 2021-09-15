@@ -74,9 +74,9 @@ fun Graphics2D.drawGrid(
         w: Double,
         h: Double,
         style: (Graphics2D) -> Unit = DrawStyle()) {
-    val o = grid.originInWorld()
+    val o = Point(grid.baseGridToWorld.move())
     val s = grid.spacingInWorld(resolution)
-    val t = grid.rotationInWorld().at(o)
+    val t = grid.baseGridToWorld.rotation().at(o)
     val vs = (FastMath.ceil((x - o.x) / s).toInt()..FastMath.floor((x - o.x + w) / s).toInt())
             .map { o.x + s * it }
             .map { LineSegment(t(Point.xy(it, y)), t(Point.xy(it, y + h))) }
