@@ -2,6 +2,8 @@ package jumpaku.curves.core.transform
 
 import jumpaku.commons.control.Option
 import jumpaku.curves.core.geom.Point
+import jumpaku.curves.core.geom.Vector
+import org.apache.commons.math3.linear.MatrixUtils
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -21,8 +23,36 @@ class SimilarityTransform internal constructor(private val affine: AffineTransfo
 
     fun scale(): Double = scales(affine).average()
 
+    fun rotation(): SimilarityTransform {
+        val s = scale()
+        val m = affine.matrix.data
+        return SimilarityTransform(
+            AffineTransform.ofMatrix(
+                MatrixUtils.createRealMatrix(
+                    arrayOf(
+                        doubleArrayOf(m[0][0] / s, m[0][1] / s, m[0][2] / s, 0.0),
+                        doubleArrayOf(m[1][0] / s, m[1][1] / s, m[1][2] / s, 0.0),
+                        doubleArrayOf(m[2][0] / s, m[2][1] / s, m[2][2] / s, 0.0),
+                        doubleArrayOf(0.0, 0.0, 0.0, 1.0),
+                    )
+                )
+            )
+        )
+    }
+
+    fun move(): Vector {
+        val m = affine.matrix.data
+        return Vector(m[0][3], m[1][3], m[2][3])
+    }
+
     fun andThen(similarity: SimilarityTransform): SimilarityTransform =
         SimilarityTransform(affine.andThen(similarity.affine))
+
+    fun andThen(rotate: Rotate): SimilarityTransform = andThen(rotate.asSimilarity())
+
+    fun andThen(uniformlyScale: UniformlyScale): SimilarityTransform = andThen(uniformlyScale.asSimilarity())
+
+    fun andThen(translate: Translate): SimilarityTransform = andThen(translate.asSimilarity())
 
     fun at(pivot: Point): SimilarityTransform = SimilarityTransform(affine.at(pivot))
 

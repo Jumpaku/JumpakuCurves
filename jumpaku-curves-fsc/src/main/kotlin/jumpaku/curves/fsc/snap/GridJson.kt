@@ -5,22 +5,21 @@ import com.google.gson.JsonElement
 import jumpaku.commons.json.JsonConverterBase
 import jumpaku.curves.core.geom.PointJson
 import jumpaku.curves.core.transform.RotateJson
+import jumpaku.curves.core.transform.SimilarityTransformJson
 
 object GridJson : JsonConverterBase<Grid>() {
 
-    override fun toJson(src: Grid): JsonElement = src.run {
-        jsonObject(
-                "baseSpacing" to baseSpacing.toJson(),
-                "magnification" to magnification.toJson(),
-                "origin" to PointJson.toJson(origin),
-                "rotation" to RotateJson.toJson(rotation),
-                "baseFuzziness" to baseFuzziness.toJson())
-    }
+    override fun toJson(src: Grid): JsonElement = jsonObject(
+        "baseSpacingInWorld" to src.baseSpacingInWorld.toJson(),
+        "magnification" to src.magnification.toJson(),
+        "gridToWorld" to SimilarityTransformJson.toJson(src.gridToWorld),
+        "baseFuzzinessInWorld" to src.baseFuzzinessInWorld.toJson()
+    )
 
     override fun fromJson(json: JsonElement): Grid = Grid(
-            baseSpacing = json["baseSpacing"].double,
-            magnification = json["magnification"].int,
-            origin = PointJson.fromJson(json["origin"]),
-            rotation = RotateJson.fromJson(json["rotation"]),
-            baseFuzziness = json["baseFuzziness"].double)
+        baseSpacingInWorld = json["baseSpacingInWorld"].double,
+        magnification = json["magnification"].int,
+        gridToWorld = SimilarityTransformJson.fromJson(json["gridToWorld"]),
+        baseFuzzinessInWorld = json["baseFuzzinessInWorld"].double
+    )
 }
