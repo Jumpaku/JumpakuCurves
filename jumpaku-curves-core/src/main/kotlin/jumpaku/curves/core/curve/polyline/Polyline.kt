@@ -3,6 +3,7 @@ package jumpaku.curves.core.curve.polyline
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.SimilarityTransform
 
 
 class Polyline(paramPoints: List<ParamPoint>) : Curve {
@@ -16,7 +17,6 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
     override val domain: Interval = Interval(parameters.first(), parameters.last())
 
     override fun toString(): String = "Polyline(paramPoints=$paramPoints)"
-
 
     override fun invoke(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
@@ -45,7 +45,11 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
     private fun evaluateInSpan(t: Double, index: Int): Point =
         points[index].lerp((t - parameters[index]) / (parameters[index + 1] - parameters[index]), points[index + 1])
 
-    fun transform(a: AffineTransform): Polyline = Polyline(paramPoints.map { it.copy(point = a(it.point)) })
+    override fun affineTransform(a: AffineTransform): Polyline =
+        Polyline(paramPoints.map { it.copy(point = a(it.point)) })
+
+    override fun similarlyTransform(a: SimilarityTransform): Polyline =
+        Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 

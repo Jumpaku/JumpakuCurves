@@ -7,6 +7,7 @@ import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.geom.WeightedPoint
 import jumpaku.curves.core.geom.times
 import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.SimilarityTransform
 import java.lang.Math.min
 import kotlin.math.max
 
@@ -89,7 +90,9 @@ class Nurbs(
         return results
     }
 
-    fun transform(a: AffineTransform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
+    override fun affineTransform(a: AffineTransform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
+
+    override fun similarlyTransform(a: SimilarityTransform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
     override fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

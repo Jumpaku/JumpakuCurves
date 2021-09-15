@@ -7,6 +7,7 @@ import jumpaku.curves.core.curve.Differentiable
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.SimilarityTransform
 
 
 class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) : Curve, Differentiable {
@@ -56,14 +57,17 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
     override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
         tailrec fun createEvaluatedPoint(t: Double, cp: List<WeightedPoint>): WeightedPoint =
-                if (cp.size == 1) cp.first() else createEvaluatedPoint(t, Bezier.decasteljau(t, cp))
+            if (cp.size == 1) cp.first() else createEvaluatedPoint(t, Bezier.decasteljau(t, cp))
         return createEvaluatedPoint(t, weightedControlPoints).point
     }
 
     override fun toString(): String = "RationalBezier(weightedControlPoints=$weightedControlPoints)"
 
-    fun transform(a: AffineTransform): RationalBezier =
-            RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
+    override fun affineTransform(a: AffineTransform): RationalBezier =
+        RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
+
+    override fun similarlyTransform(a: SimilarityTransform): RationalBezier =
+        RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)
 
@@ -102,11 +106,11 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
                 val first = generateSequence(Pair(wcp.first(), 1)) { (qi, i) ->
                     Pair(wcp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
                 }.asIterable()
-                        .take(r + 1)
+                    .take(r + 1)
                 val second = generateSequence(Pair(wcp.last(), n - 2)) { (qi, i) ->
                     Pair(wcp[i + 1].lerp((i + 1 - n) / (i + 1.0), qi), i - 1)
                 }.asIterable()
-                        .take(r + 1)
+                    .take(r + 1)
                 (first + second.reversed()).map { it.first }
             }
             else -> {
@@ -114,11 +118,11 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
                 val first = generateSequence(Pair(wcp.first(), 1)) { (qi, i) ->
                     Pair(wcp[i].lerp(i / (i - n).toDouble(), qi), i + 1)
                 }.asIterable()
-                        .take(r).map { it.first }
+                    .take(r).map { it.first }
                 val second = generateSequence(Pair(wcp.last(), n - 2)) { (qi, i) ->
                     Pair(wcp[i + 1].lerp((i + 1 - n) / (i + 1.0), qi), i - 1)
                 }.asIterable()
-                        .take(r).map { it.first }
+                    .take(r).map { it.first }
                 val pl = wcp[r].lerp(r / (r - n).toDouble(), first.last())
                 val pr = wcp[r + 1].lerp((r + 1 - n) / (r + 1.0), second.last())
                 (first + listOf(pl.middle(pr)) + second.reversed())

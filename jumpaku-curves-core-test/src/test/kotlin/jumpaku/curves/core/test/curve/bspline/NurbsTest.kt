@@ -14,6 +14,7 @@ import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale
+import jumpaku.curves.core.transform.asSimilarity
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
@@ -93,13 +94,12 @@ class NurbsTest {
     }
 
     @Test
-    fun testTransform() {
-        println("Transform")
-        val a = n.transform(
-            UniformlyScale(2.0)
-                .andThen(Rotate(Vector(0.0, 0.0, 1.0), -FastMath.PI / 2))
-                .andThen(Translate(Vector(-200.0, 400.0)))
-        )
+    fun testAffineTransform() {
+        println("AffineTransform")
+        val t = UniformlyScale(2.0)
+            .andThen(Rotate(Vector(0.0, 0.0, 1.0), -FastMath.PI / 2))
+            .andThen(Translate(Vector(-200.0, 400.0)))
+        val a = n.affineTransform(t)
         val e = Nurbs(
             listOf(
                 WeightedPoint(Point.xy(400.0, 0.0), 1.0),
@@ -108,6 +108,27 @@ class NurbsTest {
                 WeightedPoint(Point.xy(800.0, -400.0), 1 / 27.0),
                 WeightedPoint(Point.xy(800.0, 0.0), 1 / 9.0),
                 WeightedPoint(Point.xy(400.0, 0.0), 1.0)
+            ),
+            KnotVector.of(3, listOf(0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
+        )
+        assertThat(a, `is`(closeTo(e)))
+    }
+
+    @Test
+    fun testSimilarlyTransform() {
+        println("SimilarlyTransform")
+        val t = UniformlyScale(2.0).asSimilarity()
+            .andThen(Rotate(Vector(0.0, 0.0, 1.0), -FastMath.PI / 2).asSimilarity())
+            .andThen(Translate(Vector(-200.0, 400.0)).asSimilarity())
+        val a = n.similarlyTransform(t)
+        val e = Nurbs(
+            listOf(
+                WeightedPoint(Point.xyr(400.0, 0.0, 20.0), 1.0),
+                WeightedPoint(Point.xyr(0.0, 0.0, 40.0), 1 / 9.0),
+                WeightedPoint(Point.xyr(0.0, -400.0, 60.0), 1 / 27.0),
+                WeightedPoint(Point.xyr(800.0, -400.0, 60.0), 1 / 27.0),
+                WeightedPoint(Point.xyr(800.0, 0.0, 40.0), 1 / 9.0),
+                WeightedPoint(Point.xyr(400.0, 0.0, 20.0), 1.0)
             ),
             KnotVector.of(3, listOf(0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0))
         )

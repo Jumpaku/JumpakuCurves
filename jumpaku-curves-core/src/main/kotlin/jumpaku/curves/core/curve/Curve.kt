@@ -34,7 +34,7 @@ interface Curve : (Double) -> Point, AffineTransformable<Curve>, SimilarlyTransf
 
     fun restrict(begin: Double, end: Double): Curve = restrict(Interval(begin, end))
 
-    override fun affineTransform(a: AffineTransform): AffineTransformed<Curve> = AffineTransformed(this, a)
+    override fun affineTransform(a: AffineTransform): Curve = AffineTransformed(this, a)
 
-    override fun similarlyTransform(a: SimilarityTransform): SimilarlyTransformed<Curve> = SimilarlyTransformed(this, a)
+    override fun similarlyTransform(a: SimilarityTransform): Curve = SimilarlyTransformed(this, a)
 }

@@ -33,7 +33,7 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
         val snapped = candidates.firstOrNull()
                 .toOption()
                 .filter { it.grade.value > 0.0 }
-                .map { conicSection.transform(it.candidate.transform) }
+                .map { conicSection.affineTransform(it.candidate.transform) }
         return ConicSectionSnapResult(snapped, candidates)
     }
 
@@ -109,12 +109,12 @@ class ConicSectionSnapper<C : FeaturePointsCombinator>(
 
         fun evaluateWithFsc(fsc: BSpline, original: ConicSection, nFmps: Int = 15)
                 : (ConicSectionSnapResult.Candidate) -> Grade = {
-            reparametrize(original.transform(it.transform)).isPossible(reparametrize(fsc), nFmps)
+            reparametrize(original.affineTransform(it.transform)).isPossible(reparametrize(fsc), nFmps)
         }
 
         fun evaluateWithReference(original: ConicSection, nFmps: Int = 15)
                 : (ConicSectionSnapResult.Candidate) -> Grade = {
-            reparametrize(original.transform(it.transform)).isPossible(reparametrize(original), nFmps)
+            reparametrize(original.affineTransform(it.transform)).isPossible(reparametrize(original), nFmps)
         }
     }
 }
