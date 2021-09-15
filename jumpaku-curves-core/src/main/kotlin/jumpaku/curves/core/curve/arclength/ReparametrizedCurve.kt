@@ -18,14 +18,6 @@ class ReparametrizedCurve<C : Curve>(
 
     override val domain: Interval = Interval.Unit
 
-    val chordLength: Double
-        get() = when (toArcLengthRatio) {
-            is LinearFit -> originalCurve.invoke(toArcLengthRatio.originalParams).zipWithNext(Point::dist).sum()
-            is QuadraticFit -> originalCurve.invoke(toArcLengthRatio.originalParams).zipWithNext(Point::dist).sum()
-            else -> error("")
-        }
-
-
     override fun invoke(t: Double): Point {
         require(t in domain) { "t($t) is out of domain($domain)" }
         return originalCurve(toOriginal(t))
