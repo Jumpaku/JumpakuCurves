@@ -18,17 +18,18 @@ class IdentifierBenchmark {
     val identifier = Open4Identifier(nSamples = 25, nFmps = 15)
 
     val data = listOf(
-            "FscCA0.json",
-            "FscCA1.json",
-            "FscCA2.json",
-            "FscEA0.json",
-            "FscEA1.json",
-            "FscEA2.json",
-            "FscEA3.json",
-            "FscEA4.json",
-            "FscFO0.json",
-            "FscL0.json",
-            "FscL1.json").associateWith { resourceText(it).parseJson().let { BSplineJson.fromJson(it) } }
+        "FscCA0.json",
+        "FscCA1.json",
+        "FscCA2.json",
+        "FscEA0.json",
+        "FscEA1.json",
+        "FscEA2.json",
+        "FscEA3.json",
+        "FscEA4.json",
+        "FscFO0.json",
+        "FscL0.json",
+        "FscL1.json"
+    ).associateWith { resourceText(it).parseJson().let { BSplineJson.fromJson(it) } }
 
     @Test
     fun benchmarkIdentifier() {
@@ -36,42 +37,15 @@ class IdentifierBenchmark {
         println("Identifier <= $time ms")
         data.forEach {
             val s = reparametrize(it.value)
-            repeat(1000){ identifier.identify(s) }
+            repeat(1000) { identifier.identify(s) }
         }
 
         val s = data.mapValues { reparametrize(it.value) }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscCA0.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscCA1.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscCA2.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscEA0.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscEA1.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscEA2.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscEA3.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscEA4.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscFO0.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscL0.json"]!!)
-        }
-        assertTimeout(Duration.ofMillis(time)) {
-            identifier.identify(s["FscL1.json"]!!)
+        for ((name, fsc) in s) {
+            println("Identify $name <= $time ms")
+            assertTimeout(Duration.ofMillis(time)) {
+                identifier.identify(fsc)
+            }
         }
     }
 }
