@@ -12,7 +12,12 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
 
-
+/**
+ * Generates an FSC from a DrawingStroke.
+ * The concept of this process is proposed in the following papers:
+ * - SAGA, S, MAKINO, H, Jun-ichi, S. A method for modeling freehand curves - the fuzzy spline interpolation - (in japanese). The Transactions of the Institute of Electronics, Information and Communication Engineers 1994;J77-D-II(8):1610–1619. URL: https://ci.nii.ac.jp/naid/110003228496/en/
+ * - Saga, S, Makino, H. Fuzzy spline interpolation and its application to online freehand curve identification. In: Proceedings 1993 Second IEEE International Conference on Fuzzy Systems; vol. 2. 1993, p. 1183–1190. DOI: doi:10.1109/FUZZY.1993.327560 URL: URL https://doi.org/10.1109/FUZZY.1993.327560
+ */
 class Generator(
     val degree: Int = 3,
     val knotSpan: Double = 0.1,

@@ -5,7 +5,11 @@ import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
 
-
+/**
+ * Fragments an FSC into sequence of stay and move FSCs.
+ * The concept of this process is proposed in the following paper:
+ * NISHIKAWA, A, SAGA, S, MAEDA, J. Performance improvement of geometric curve sequence recognition in the free-hand curve identifier fsci. Journal of Information Processing 2010;51(2):380–390. URL: https://ci.nii.ac.jp/naid/110007970646/en/
+ */
 class Fragmenter(
     val threshold: Chunk.Threshold = Chunk.Threshold(
         necessity = Grade(0.35),
