@@ -89,12 +89,12 @@ class BSplineTest {
     }
 
     @Test
-    fun testSimilarlyTransform() {
-        println("SimilarlyTransform")
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
         val t = UniformlyScale(2.0).asSimilarity()
             .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2).asSimilarity())
             .andThen(Translate(Vector(1.0, 1.0)).asSimilarity())
-        val a = clamped.similarlyTransform(t)
+        val a = clamped.similarityTransform(t)
         val e = BSpline(
             listOf(
                 Point.xyr(1.0, -1.0, 0.0),

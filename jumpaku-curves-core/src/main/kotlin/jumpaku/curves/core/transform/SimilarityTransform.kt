@@ -13,9 +13,11 @@ fun Rotate.asSimilarity(): SimilarityTransform = SimilarityTransform(this)
 
 fun UniformlyScale.asSimilarity(): SimilarityTransform = SimilarityTransform(this)
 
+/**
+ * Transforms a point by similarity transformation.
+ * This scales fuzziness of the point.
+ */
 class SimilarityTransform internal constructor(private val affine: AffineTransform) : (Point) -> Point {
-
-    constructor() : this(AffineTransform.Identity)
 
     override fun invoke(p: Point): Point = affine(p).copy(r = p.r * scale())
 

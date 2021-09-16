@@ -4,9 +4,9 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.transform.AffineTransform
 import jumpaku.curves.core.transform.AffineTransformable
 import jumpaku.curves.core.transform.SimilarityTransform
-import jumpaku.curves.core.transform.SimilarlyTransformable
+import jumpaku.curves.core.transform.SimilarityTransformable
 
-interface Curve : (Double) -> Point, AffineTransformable<Curve>, SimilarlyTransformable<Curve> {
+interface Curve : (Double) -> Point, AffineTransformable<Curve>, SimilarityTransformable<Curve> {
 
     val domain: Interval
 
@@ -36,5 +36,5 @@ interface Curve : (Double) -> Point, AffineTransformable<Curve>, SimilarlyTransf
 
     override fun affineTransform(a: AffineTransform): Curve = AffineTransformed(this, a)
 
-    override fun similarlyTransform(a: SimilarityTransform): Curve = SimilarlyTransformed(this, a)
+    override fun similarityTransform(a: SimilarityTransform): Curve = SimilarityTransformed(this, a)
 }

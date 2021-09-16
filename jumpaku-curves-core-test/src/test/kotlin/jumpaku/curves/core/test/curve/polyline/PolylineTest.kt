@@ -79,12 +79,12 @@ class PolylineTest {
     }
 
     @Test
-    fun testSimilarlyTransform() {
-        println("SimilarlyTransform")
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
         val t = UniformlyScale(2.0).asSimilarity()
             .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2).asSimilarity())
             .andThen(Translate(Vector(1.0, 1.0)).asSimilarity())
-        val a = pl.similarlyTransform(t)
+        val a = pl.similarityTransform(t)
         val e = Polyline.byArcLength(
             Point.xyr(-1.0, -1.0, 4.0),
             Point.xyr(-1.0, 3.0, 2.0),

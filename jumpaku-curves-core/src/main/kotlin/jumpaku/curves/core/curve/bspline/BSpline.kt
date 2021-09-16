@@ -53,7 +53,7 @@ class BSpline private constructor(val nurbs: Nurbs) : Curve by nurbs, Differenti
 
     override fun affineTransform(a: AffineTransform): BSpline = BSpline(nurbs.affineTransform(a))
 
-    override fun similarlyTransform(a: SimilarityTransform): BSpline = BSpline(nurbs.similarlyTransform(a))
+    override fun similarityTransform(a: SimilarityTransform): BSpline = BSpline(nurbs.similarityTransform(a))
 
     override fun restrict(begin: Double, end: Double): BSpline = BSpline(nurbs.restrict(begin, end))
 

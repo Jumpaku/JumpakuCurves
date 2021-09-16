@@ -6,7 +6,7 @@ import jumpaku.commons.control.orDefault
 import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.transform.SimilarityTransform
-import jumpaku.curves.core.transform.SimilarlyTransformable
+import jumpaku.curves.core.transform.SimilarityTransformable
 import jumpaku.curves.core.transform.AffineTransform
 import jumpaku.curves.core.transform.AffineTransformable
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
@@ -18,7 +18,7 @@ import kotlin.math.abs
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
     Lerpable<Point>,
     AffineTransformable<Point>,
-    SimilarlyTransformable<Point> {
+    SimilarityTransformable<Point> {
 
     constructor(v: Vector, r: Double = 0.0) : this(v.x, v.y, v.z, r)
 
@@ -155,7 +155,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     override fun affineTransform(a: AffineTransform): Point = a(this)
 
-    override fun similarlyTransform(a: SimilarityTransform): Point = a(this)
+    override fun similarityTransform(a: SimilarityTransform): Point = a(this)
 
     companion object {
 

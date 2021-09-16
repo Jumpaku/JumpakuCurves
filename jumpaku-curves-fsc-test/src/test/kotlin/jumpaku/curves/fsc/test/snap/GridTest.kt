@@ -89,7 +89,7 @@ class GridTest {
     fun testSimilarityTransform(){
         println("SimilarityTransform")
         val t = baseGrid.baseGridToWorld.invert().orThrow()
-        val a = baseGrid.similarlyTransform(t)
+        val a = baseGrid.similarityTransform(t)
         assertThat(a.baseFuzzinessInWorld, `is`(closeTo(0.5)))
         assertThat(a.baseSpacingInWorld, `is`(closeTo(1.0)))
         assertThat(a.originInWorld, `is`(closeTo(Point.origin)))

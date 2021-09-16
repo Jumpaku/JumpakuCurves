@@ -25,7 +25,7 @@ class DrawingStroke(polyline: Polyline) : Curve by polyline {
     override fun affineTransform(a: AffineTransform): DrawingStroke =
         DrawingStroke(inputData.map { it.copy(point = a(it.point)) })
 
-    override fun similarlyTransform(a: SimilarityTransform): DrawingStroke =
+    override fun similarityTransform(a: SimilarityTransform): DrawingStroke =
         DrawingStroke(inputData.map { it.copy(point = a(it.point)) })
 }
 

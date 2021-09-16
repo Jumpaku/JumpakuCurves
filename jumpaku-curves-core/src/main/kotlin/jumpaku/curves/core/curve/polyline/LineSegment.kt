@@ -25,7 +25,7 @@ class LineSegment(begin: ParamPoint, end: ParamPoint) : Curve by Polyline(listOf
 
     override fun affineTransform(a: AffineTransform): LineSegment = LineSegment(a(begin), a(end), domain)
 
-    override fun similarlyTransform(a: SimilarityTransform): LineSegment = LineSegment(a(begin), a(end), domain)
+    override fun similarityTransform(a: SimilarityTransform): LineSegment = LineSegment(a(begin), a(end), domain)
 
     override fun restrict(subDomain: Interval): LineSegment =
         LineSegment(invoke(subDomain.begin), invoke(subDomain.end), subDomain)

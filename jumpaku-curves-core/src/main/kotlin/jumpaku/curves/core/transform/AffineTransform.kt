@@ -10,6 +10,10 @@ import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.QRDecomposition
 import org.apache.commons.math3.linear.RealMatrix
 
+/**
+ * Transforms a point by affine transformation.
+ * This ignores fuzziness of the point.
+ */
 interface AffineTransform : (Point) -> Point {
 
     val matrix: RealMatrix

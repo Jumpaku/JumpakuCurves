@@ -36,7 +36,7 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     override fun affineTransform(a: AffineTransform):  Bezier = Bezier(rationalBezier.affineTransform(a))
 
-    override fun similarlyTransform(a: SimilarityTransform): Bezier = Bezier(rationalBezier.similarlyTransform(a))
+    override fun similarityTransform(a: SimilarityTransform): Bezier = Bezier(rationalBezier.similarityTransform(a))
 
     fun clipout(i: Interval): Bezier = clipout(i.begin, i.end)
 

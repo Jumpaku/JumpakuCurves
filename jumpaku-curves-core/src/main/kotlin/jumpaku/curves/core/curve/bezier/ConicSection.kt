@@ -60,7 +60,7 @@ class ConicSection(val begin: Point, val far: Point, val end: Point, val weight:
 
     override fun affineTransform(a: AffineTransform): ConicSection = ConicSection(a(begin), a(far), a(end), weight)
 
-    override fun similarlyTransform(a: SimilarityTransform): ConicSection =
+    override fun similarityTransform(a: SimilarityTransform): ConicSection =
         ConicSection(a(begin), a(far), a(end), weight)
 
     override fun toString(): String = "ConicSection(begin=$begin, far=$far, end=$end, weight=$weight)"

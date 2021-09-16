@@ -18,7 +18,6 @@ import jumpaku.curves.core.transform.asSimilarity
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.Assert.fail
 import org.junit.Test
 
 
@@ -115,12 +114,12 @@ class NurbsTest {
     }
 
     @Test
-    fun testSimilarlyTransform() {
-        println("SimilarlyTransform")
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
         val t = UniformlyScale(2.0).asSimilarity()
             .andThen(Rotate(Vector(0.0, 0.0, 1.0), -FastMath.PI / 2).asSimilarity())
             .andThen(Translate(Vector(-200.0, 400.0)).asSimilarity())
-        val a = n.similarlyTransform(t)
+        val a = n.similarityTransform(t)
         val e = Nurbs(
             listOf(
                 WeightedPoint(Point.xyr(400.0, 0.0, 20.0), 1.0),

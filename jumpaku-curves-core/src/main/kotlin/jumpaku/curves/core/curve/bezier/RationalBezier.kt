@@ -66,7 +66,7 @@ class RationalBezier(controlPoints: Iterable<Point>, weights: Iterable<Double>) 
     override fun affineTransform(a: AffineTransform): RationalBezier =
         RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
 
-    override fun similarlyTransform(a: SimilarityTransform): RationalBezier =
+    override fun similarityTransform(a: SimilarityTransform): RationalBezier =
         RationalBezier(weightedControlPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): RationalBezier = RationalBezier(controlPoints.map { it.toCrisp() }, weights)

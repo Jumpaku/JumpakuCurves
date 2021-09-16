@@ -81,12 +81,12 @@ class BezierTest {
     }
 
     @Test
-    fun testSimilarlyTransform() {
-        print("SimilarlyTransform")
+    fun testSimilarityTransform() {
+        print("SimilarityTransform")
         val t = UniformlyScale(2.0).asSimilarity()
             .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2).asSimilarity())
             .andThen(Translate(Vector(1.0, 1.0, 0.0)).asSimilarity())
-        val a = bc.similarlyTransform(t)
+        val a = bc.similarityTransform(t)
         val e = Bezier(
             Point.xyr(1.0, -3.0, 2.0),
             Point.xyr(1.0, -1.0, 4.0),

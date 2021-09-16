@@ -141,12 +141,12 @@ class RationalBezierTest {
     }
 
     @Test
-    fun testSimilarlyTransform() {
-        println("SimilarlyTransform")
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
         val t = UniformlyScale(2.0).asSimilarity()
             .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2).asSimilarity())
             .andThen(Translate(Vector(1.0, 1.0)).asSimilarity())
-        val a = rb.similarlyTransform(t)
+        val a = rb.similarityTransform(t)
         val e = RationalBezier(
             WeightedPoint(Point.xyr(-1.0, 1.0, 2.0), 1.0),
             WeightedPoint(Point.xyr(-1.0, 5 - 2 * R2, 6.0 - 2 * R2), (1 + R2) / 3),

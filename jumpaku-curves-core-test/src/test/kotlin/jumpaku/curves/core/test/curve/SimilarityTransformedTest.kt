@@ -1,6 +1,6 @@
 package jumpaku.curves.core.test.curve
 
-import jumpaku.curves.core.curve.SimilarlyTransformed
+import jumpaku.curves.core.curve.SimilarityTransformed
 import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.bezier.Bezier
 import jumpaku.curves.core.geom.Point
@@ -31,8 +31,8 @@ class SimilarityTransformedTest {
     @Test
     fun testSimilarityTransformed() {
         print("SimilarityTransformed")
-        val e = bc.similarlyTransform(transform)
-        val a = SimilarlyTransformed(bc, transform)
+        val e = bc.similarityTransform(transform)
+        val a = SimilarityTransformed(bc, transform)
         Interval.Unit.sample(10).forEach { t ->
             assertThat(a(t), `is`(closeTo(e(t))))
         }

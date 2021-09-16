@@ -103,7 +103,7 @@ class SimilarityTransformTest {
     @Test
     fun testAndThen() {
         println("AndThen")
-        val f = SimilarityTransform().andThen(r).andThen(t).andThen(s)
+        val f = SimilarityTransform.Identity.andThen(r).andThen(t).andThen(s)
         assertThat(f(p), `is`(closeTo(Point(2.0, r2 * 4 + 4, -2.0, p.r * s_affine.scale))))
     }
 

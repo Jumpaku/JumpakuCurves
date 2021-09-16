@@ -1,6 +1,5 @@
 package jumpaku.curves.fsc.snap
 
-import jumpaku.commons.control.Option
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import jumpaku.curves.core.transform.*
@@ -10,7 +9,7 @@ class Grid(
     val baseFuzzinessInWorld: Double = 0.0,
     val magnification: Int = 2,
     val baseGridToWorld: SimilarityTransform = SimilarityTransform.Identity
-) : SimilarlyTransformable<Grid> {
+) : SimilarityTransformable<Grid> {
 
     constructor(
         baseSpacingInWorld: Double,
@@ -65,7 +64,7 @@ class Grid(
             .copy(r = fuzzinessInWorld(resolution))
     }
 
-    override fun similarlyTransform(a: SimilarityTransform): Grid = Grid(
+    override fun similarityTransform(a: SimilarityTransform): Grid = Grid(
         baseFuzzinessInWorld = baseFuzzinessInWorld * a.scale(),
         magnification = magnification,
         baseGridToWorld = baseGridToWorld.andThen(a)

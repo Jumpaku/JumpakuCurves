@@ -112,13 +112,13 @@ class ConicSectionTest {
     }
 
     @Test
-    fun testSimilarlyTransform() {
-        println("SimilarlyTransform")
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
         val i = cs
         val t = UniformlyScale(2.0).asSimilarity()
             .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2).asSimilarity())
             .andThen(Translate(Vector(1.0, 1.0)).asSimilarity())
-        val a = i.similarlyTransform(t)
+        val a = i.similarityTransform(t)
         val e =
             ConicSection(Point.xyr(-1.0, 1.0, 2.0), Point.xyr(1 - R2, 1 + R2, 4.0), Point.xyr(1.0, 3.0, 6.0), R2 / 2)
         assertThat(a, `is`(closeTo(e)))

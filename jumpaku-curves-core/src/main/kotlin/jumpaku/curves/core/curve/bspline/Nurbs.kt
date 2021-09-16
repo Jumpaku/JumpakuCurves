@@ -92,7 +92,7 @@ class Nurbs(
 
     override fun affineTransform(a: AffineTransform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
-    override fun similarlyTransform(a: SimilarityTransform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
+    override fun similarityTransform(a: SimilarityTransform): Nurbs = Nurbs(controlPoints.map(a), weights, knotVector)
 
     override fun restrict(begin: Double, end: Double): Nurbs {
         require(Interval(begin, end) in domain) { "Interval([$begin, $end]) is out of domain($domain)" }

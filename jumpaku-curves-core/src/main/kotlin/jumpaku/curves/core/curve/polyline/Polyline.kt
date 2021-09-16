@@ -49,7 +49,7 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
     override fun affineTransform(a: AffineTransform): Polyline =
         Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
-    override fun similarlyTransform(a: SimilarityTransform): Polyline =
+    override fun similarityTransform(a: SimilarityTransform): Polyline =
         Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
