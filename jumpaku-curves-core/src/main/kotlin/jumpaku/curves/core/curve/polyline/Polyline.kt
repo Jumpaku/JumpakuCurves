@@ -2,7 +2,8 @@ package jumpaku.curves.core.curve.polyline
 
 import jumpaku.curves.core.curve.*
 import jumpaku.curves.core.geom.Point
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.SimilarityTransform
 
 
 class Polyline(paramPoints: List<ParamPoint>) : Curve {
@@ -16,7 +17,6 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
     override val domain: Interval = Interval(parameters.first(), parameters.last())
 
     override fun toString(): String = "Polyline(paramPoints=$paramPoints)"
-
 
     override fun invoke(t: Double): Point {
         require(t in domain) { "t=$t is out of $domain" }
@@ -33,19 +33,24 @@ class Polyline(paramPoints: List<ParamPoint>) : Curve {
         val evaluated = ArrayList<Point>(n)
         val ts = params.subList(1, n - 1)
         var index = 0
+        evaluated += points.first()
         ts.forEach { t ->
             while (t >= parameters[index]) ++index
-            //index = parameters.indexOfFirst { } asVavr ().indexWhere({ t < it }, index)
             evaluated += evaluateInSpan(t, index - 1)
         }
+        evaluated += points.last()
 
-        return listOf(points.first()) + evaluated + listOf(points.last())
+        return evaluated
     }
 
     private fun evaluateInSpan(t: Double, index: Int): Point =
         points[index].lerp((t - parameters[index]) / (parameters[index + 1] - parameters[index]), points[index + 1])
 
-    fun transform(a: Transform): Polyline = Polyline(paramPoints.map { it.copy(point = a(it.point)) })
+    override fun affineTransform(a: AffineTransform): Polyline =
+        Polyline(paramPoints.map { it.copy(point = a(it.point)) })
+
+    override fun similarityTransform(a: SimilarityTransform): Polyline =
+        Polyline(paramPoints.map { it.copy(point = a(it.point)) })
 
     override fun toCrisp(): Polyline = Polyline(paramPoints.map { it.copy(point = it.point.toCrisp()) })
 

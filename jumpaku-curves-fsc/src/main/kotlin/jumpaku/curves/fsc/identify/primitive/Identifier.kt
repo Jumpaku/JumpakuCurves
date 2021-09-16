@@ -8,7 +8,12 @@ import jumpaku.curves.core.curve.bezier.ConicSection
 import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.fsc.identify.primitive.reference.Reference
 
-
+/**
+ * Identifies an FSC as one of the seven classes (line segment, circle, circular arc, ellipse, elliptic arc, closed free curve, or open free curve) of geometric primitives.
+ * The concept of this process is proposed in the following papers:
+ * - SAGA, S, MAKINO, H, Jun-ichi, S. The fuzzy spline curve identifier (in japanese). The Transactions of the Institute of Electronics, Information and Communication Engineers 1994;J77-D-II(8):1620–1629. URL: https://ci.nii.ac.jp/naid/110003228497/en/
+ * - Saga, S, Makino, H. Fuzzy spline interpolation and its application to online freehand curve identification. In: Proceedings 1993 Second IEEE International Conference on Fuzzy Systems; vol. 2. 1993, p. 1183–1190. DOI: doi:10.1109/FUZZY.1993.327560 URL: URL https://doi.org/10.1109/FUZZY.1993.327560
+ */
 interface Identifier {
 
     val nFmps: Int

@@ -15,10 +15,16 @@ class ParamConverterTest {
 
     val r = LinearFit(
         listOf(
-            1.0 to 2.0,
-            2.0 to 4.0,
-            3.0 to 8.0,
-            4.0 to 16.0
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+        ),
+        listOf(
+            2.0,
+            4.0,
+            8.0,
+            16.0
         )
     )
 
@@ -49,7 +55,24 @@ class ParamConverterTest {
     @Test
     fun testFinite() {
         println("Finite")
-        val r = LinearFit(listOf(0.0 to 0.0, 0.5 to 0.2, 0.5 to 0.4, 0.5 to 0.6, 0.5 to 0.8, 1.0 to 1.0))
+        val r = LinearFit(
+            listOf(
+                0.0,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                1.0,
+            ),
+            listOf(
+                0.0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+                1.0
+            )
+        )
         val u = r.invoke(0.5)
         assertThat(u.isFinite(), `is`(true))
 

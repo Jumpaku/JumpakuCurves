@@ -19,11 +19,11 @@ import org.junit.Test
 class MFGSTest {
 
     val baseGrid = Grid(
-            baseSpacing = 2.0,
+            baseSpacingInWorld = 2.0,
             magnification = 2,
-            origin = Point.xyz(0.0, 0.0, 0.0),
-            rotation = Rotate(Vector.K, 0.0),
-            baseFuzziness = 0.5)
+            originInWorld = Point.xyz(0.0, 0.0, 0.0),
+            rotationInWorld = Rotate(Vector.K, 0.0),
+            baseFuzzinessInWorld = 0.5)
 
     val snapper = MFGS(-1, 1)
 

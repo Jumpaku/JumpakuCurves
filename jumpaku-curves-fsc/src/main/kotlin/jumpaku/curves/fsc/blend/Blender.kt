@@ -30,6 +30,11 @@ sealed class BlendResult {
     class Blended(override val overlapState: OverlapState.Detected, val blended: BSpline) : BlendResult()
 }
 
+/**
+ * Blends two FSCs into a single FSC if they are overlapping.
+ * The concept of this process is proposed in the following paper:
+ * SATO, Y, YASUFUKU, N, SAGA, S. Sequential fuzzy spline curve generator for drawing interface by sketch. The Transactions of the Institute of Electronics, Information and Communication Engineers 2003;86(2):242–251. URL: https://ci.nii.ac.jp/naid/110003170883/en/
+ */
 class Blender(
     val degree: Int = 3,
     val knotSpan: Double = 0.1,
@@ -68,6 +73,7 @@ class Blender(
                 SampledCurve(curve, curve.domain.sample(samplingSpan).zipWithNext(::SmallInterval))
         }
     }
+
     init {
         require(degree >= 0)
         require(knotSpan > 0.0)
@@ -98,10 +104,11 @@ class Blender(
 
     fun generate(blendData: List<WeightedParamPoint>): BSpline {
         val domain = blendData.run { Interval(first().param, last().param) }
-        val data = blendData
-            .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-            .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-            .let { weightByKde(it, bandWidth) }
+        val data = listOf(
+            extendFront(blendData, extendInnerSpan, extendOuterSpan, extendDegree, samplingSpan),
+            blendData,
+            extendBack(blendData, extendInnerSpan, extendOuterSpan, extendDegree, samplingSpan)
+        ).flatten().let { weightByKde(it, bandWidth) }
 
         val extendedDomain = Interval(data.first().param, data.last().param)
         val knotVector = KnotVector.clamped(extendedDomain, degree, knotSpan)
@@ -123,7 +130,7 @@ class Blender(
                 }
                 var k = i + 1
                 while (k < paramPoints.size && abs(paramPoints[k].param - p.param) / bandWidth < 1) {
-                    density += kernel((paramPoints[k].param - p.param)/ bandWidth)
+                    density += kernel((paramPoints[k].param - p.param) / bandWidth)
                     ++k
                 }
                 weights += n * bandWidth / density

@@ -5,7 +5,7 @@ import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 import org.apache.commons.math3.linear.*
 
-class Calibrate private constructor(override val matrix: RealMatrix) : Transform {
+class Calibrate private constructor(override val matrix: RealMatrix) : AffineTransform {
 
     constructor(
         pair0: Pair<Point, Point>,
@@ -22,6 +22,7 @@ class Calibrate private constructor(override val matrix: RealMatrix) : Transform
     constructor(pair0: Pair<Point, Point>) : this(makeMatrix(pair0))
 
     companion object {
+
         fun makeMatrix(
             pair0: Pair<Point, Point>,
             pair1: Pair<Point, Point>,
@@ -37,7 +38,7 @@ class Calibrate private constructor(override val matrix: RealMatrix) : Transform
                     .run { (MatrixUtils.createRealMatrix(toTypedArray())) }
                 QRDecomposition(from).solver.solve(to).transpose()
             }.orRecover {
-                Transform.calibrateByFitting(listOf(pair0, pair1, pair2, pair3)).matrix
+                AffineTransform.calibrateByFitting(listOf(pair0, pair1, pair2, pair3)).matrix
             }
 
         }

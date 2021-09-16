@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 import org.apache.commons.math3.util.FastMath
 
-class Rotate(val axis: Vector, val angleRadian: Double) : Transform {
+class Rotate(val axis: Vector, val angleRadian: Double) : AffineTransform {
 
     init {
         require(axis.run { div(length()).isSuccess }) { "axis($axis) is close to zero" }
@@ -14,7 +14,7 @@ class Rotate(val axis: Vector, val angleRadian: Double) : Transform {
 
     override val matrix: RealMatrix
         get() {
-            val (x, y, z) = axis.normalize().value().orNull() ?: return Transform.Identity.matrix
+            val (x, y, z) = axis.normalize().value().orNull() ?: return AffineTransform.Identity.matrix
             val cos = FastMath.cos(angleRadian)
             val sin = FastMath.sin(angleRadian)
             return MatrixUtils.createRealMatrix(arrayOf(

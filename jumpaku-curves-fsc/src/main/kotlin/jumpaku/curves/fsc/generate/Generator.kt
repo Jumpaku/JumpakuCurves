@@ -7,15 +7,17 @@ import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.DrawingStroke
 import jumpaku.curves.fsc.generate.fit.WeightedParamPoint
-import org.apache.commons.math3.linear.CholeskyDecomposition
-import org.apache.commons.math3.linear.MatrixUtils
-import org.apache.commons.math3.linear.OpenMapRealMatrix
-import org.apache.commons.math3.linear.RealMatrix
+import org.apache.commons.math3.linear.*
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
 
-
+/**
+ * Generates an FSC from a DrawingStroke.
+ * The concept of this process is proposed in the following papers:
+ * - SAGA, S, MAKINO, H, Jun-ichi, S. A method for modeling freehand curves - the fuzzy spline interpolation - (in japanese). The Transactions of the Institute of Electronics, Information and Communication Engineers 1994;J77-D-II(8):1610–1619. URL: https://ci.nii.ac.jp/naid/110003228496/en/
+ * - Saga, S, Makino, H. Fuzzy spline interpolation and its application to online freehand curve identification. In: Proceedings 1993 Second IEEE International Conference on Fuzzy Systems; vol. 2. 1993, p. 1183–1190. DOI: doi:10.1109/FUZZY.1993.327560 URL: URL https://doi.org/10.1109/FUZZY.1993.327560
+ */
 class Generator(
     val degree: Int = 3,
     val knotSpan: Double = 0.1,
@@ -46,10 +48,13 @@ class Generator(
     fun generate(data: List<WeightedParamPoint>): BSpline {
         val sorted = data.sortedBy { it.param }
         val domain = Interval(sorted.first().param, sorted.last().param)
-        val prepared = sorted
-            .let { fill(it, fillSpan) }
-            .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
-            .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+        val filled = fill(sorted, fillSpan)
+        val back = extendBack(filled, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
+        val front = extendFront(filled, extendInnerSpan, extendOuterSpan, extendDegree, fillSpan)
+        val prepared = front + filled + back
+        /*.let { fill(it, fillSpan) }
+        .let { extendBack(it, extendInnerSpan, extendOuterSpan, extendDegree) }
+        .let { extendFront(it, extendInnerSpan, extendOuterSpan, extendDegree) }*/
         val domainExtended = Interval(prepared.first().param, prepared.last().param)
         val kv = KnotVector.clamped(domainExtended, degree, knotSpan)
         return generate(prepared, kv, fuzzifier).restrict(domain)
@@ -61,7 +66,7 @@ class Generator(
         fun generate(data: List<WeightedParamPoint>, knotVector: KnotVector, fuzzifier: Fuzzifier): BSpline {
             val d = createPointDataMatrix(data)
             val (btwb, btw) = createModelMatrices(data, knotVector)
-            val solver = CholeskyDecomposition(btwb, 1e-10, 1e-10).solver
+            val solver = CholeskyDecomposition(btwb, 1e-15, 1e-10).solver
             val btwd = btw.multiply(d)
             val cps = solver.solve(btwd).data
             val f = createFuzzinessDataMatrix(
@@ -123,7 +128,7 @@ class Generator(
                     for (j in 0 until cpSize) {
                         val ks = max(beginIdx[i], beginIdx[j])..min(endIdx[i], endIdx[j])
                         if (ks.isEmpty()) continue
-                        setEntry(i, j, ks.sumByDouble { k -> b.getEntry(k, i) * w[k] * b.getEntry(k, j) })
+                        setEntry(i, j, ks.sumOf { k -> b.getEntry(k, i) * w[k] * b.getEntry(k, j) })
                     }
                 }
             }

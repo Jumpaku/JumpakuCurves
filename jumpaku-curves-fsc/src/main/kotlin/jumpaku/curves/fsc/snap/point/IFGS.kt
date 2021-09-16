@@ -8,7 +8,11 @@ import jumpaku.curves.core.fuzzy.Grade
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.fsc.snap.Grid
 
-
+/**
+ * Snaps a fuzzy point to an infinite-resolution fuzzy grid.
+ * The concept of this process is proposed in the following paper:
+ * Watanabe, T, Yoshikawa, T, Ito, T, Miwa, Y, Shibata, T, Saga, S. An infinite-resolution grid snapping technique based on fuzzy theory. Applied Soft Computing 2020;89:106112. URL: http://www.sciencedirect.com/science/article/pii/S1568494620300521. doi: https://doi.org/10.1016/j.asoc.2020.106112
+ */
 object IFGS : PointSnapper {
 
     override fun snap(grid: Grid, cursor: Point): Option<PointSnapResult> {

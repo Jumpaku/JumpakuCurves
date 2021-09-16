@@ -26,11 +26,11 @@ class ConicSectionSnapperTest {
     val h = 720.0
 
     val grid = Grid(
-            baseSpacing = 64.0,
+            baseSpacingInWorld = 64.0,
             magnification = 2,
-            origin = Point.xy(w / 2, h / 2),
-            rotation = Rotate(Vector.K, 0.0),
-            baseFuzziness = 16.0)
+            originInWorld = Point.xy(w / 2, h / 2),
+            rotationInWorld = Rotate(Vector.K, 0.0),
+            baseFuzzinessInWorld = 16.0)
 
     val conicSectionSnapper = ConicSectionSnapper(
             pointSnapper = MFGS(minResolution = -5, maxResolution = 5),

@@ -17,11 +17,11 @@ import org.junit.Test
 class PointSnapResultTest {
 
     val baseGrid = Grid(
-            baseSpacing = 4.0,
+            baseSpacingInWorld = 4.0,
             magnification = 2,
-            origin = Point.xyz(4.0, 4.0, 0.0),
-            rotation = Rotate(Vector.K, FastMath.PI / 2),
-            baseFuzziness = 2.0)
+            originInWorld = Point.xyz(4.0, 4.0, 0.0),
+            rotationInWorld = Rotate(Vector.K, FastMath.PI / 2),
+            baseFuzzinessInWorld = 2.0)
 
 
     @Test

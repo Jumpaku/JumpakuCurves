@@ -14,6 +14,7 @@ import jumpaku.curves.core.test.geom.closeTo
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale
+import jumpaku.curves.core.transform.asSimilarity
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
@@ -68,13 +69,12 @@ class BSplineTest {
     }
 
     @Test
-    fun testTransform() {
-        println("Transform")
-        val a = clamped.transform(
-            UniformlyScale(2.0)
-                .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2))
-                .andThen(Translate(Vector(1.0, 1.0)))
-        )
+    fun testAffineTransform() {
+        println("AffineTransform")
+        val t = UniformlyScale(2.0)
+            .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2))
+            .andThen(Translate(Vector(1.0, 1.0)))
+        val a = clamped.affineTransform(t)
         val e = BSpline(
             listOf(
                 Point.xy(1.0, -1.0),
@@ -82,6 +82,26 @@ class BSplineTest {
                 Point.xy(-1.0, 1.0),
                 Point.xy(1.0, 1.0),
                 Point.xy(1.0, 3.0)
+            ),
+            KnotVector.clamped(Interval(3.0, 4.0), 3, 9)
+        )
+        assertThat(a, `is`(closeTo(e)))
+    }
+
+    @Test
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
+        val t = UniformlyScale(2.0).asSimilarity()
+            .andThen(Rotate(Vector(0.0, 0.0, 1.0), FastMath.PI / 2).asSimilarity())
+            .andThen(Translate(Vector(1.0, 1.0)).asSimilarity())
+        val a = clamped.similarityTransform(t)
+        val e = BSpline(
+            listOf(
+                Point.xyr(1.0, -1.0, 0.0),
+                Point.xyr(-1.0, -1.0, 2.0),
+                Point.xyr(-1.0, 1.0, 4.0),
+                Point.xyr(1.0, 1.0, 2.0),
+                Point.xyr(1.0, 3.0, 0.0)
             ),
             KnotVector.clamped(Interval(3.0, 4.0), 3, 9)
         )

@@ -5,6 +5,7 @@ import jumpaku.curves.core.geom.*
 import jumpaku.curves.core.transform.Rotate
 import jumpaku.curves.core.transform.Translate
 import jumpaku.curves.core.transform.UniformlyScale
+import jumpaku.curves.core.transform.asSimilarity
 import org.apache.commons.math3.util.FastMath
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
@@ -245,7 +246,8 @@ class PointTest {
         assertThat(dp, `is`(closeTo(FastMath.sqrt(5.0))))
         val dl = Point.xyz(1.0, -1.0, 0.0).dist(Line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         assertThat(dl, `is`(closeTo(12 / 5.0)))
-        val dplane = Point.xyz(1.0, -1.0, -3.0).dist(Plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val dplane = Point.xyz(1.0, -1.0, -3.0)
+            .dist(Plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         assertThat(dplane, `is`(closeTo(3.0)))
     }
 
@@ -256,7 +258,8 @@ class PointTest {
         assertThat(dp, `is`(closeTo(5.0)))
         val dl = Point.xyz(1.0, -1.0, 0.0).distSquare(Line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         assertThat(dl, `is`(closeTo(144 / 25.0)))
-        val dplane = Point.xyz(1.0, -1.0, -3.0).distSquare(Plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val dplane = Point.xyz(1.0, -1.0, -3.0)
+            .distSquare(Plane(Point.xyz(2.0, -2.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         assertThat(dplane, `is`(closeTo(9.0)))
     }
 
@@ -265,7 +268,8 @@ class PointTest {
         println("ProjectTo")
         val pl = Point.xyz(1.0, -1.0, 0.0).projectTo(Line(Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 3.0, 0.0)))
         assertThat(pl, `is`(closeTo(Point.xyz(-1.0, 1.0, 0.0))))
-        val pp = Point.xyz(1.0, -1.0, -3.0).projectTo(Plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
+        val pp = Point.xyz(1.0, -1.0, -3.0)
+            .projectTo(Plane(Point.xyz(1.0, -1.0, 0.0), Point.xyz(-3.0, -1.0, 0.0), Point.xyz(1.0, 2.0, 0.0)))
         assertThat(pp, `is`(closeTo(Point.xyz(1.0, -1.0, 0.0))))
     }
 
@@ -279,7 +283,8 @@ class PointTest {
     @Test
     fun testVolume() {
         println("Volume")
-        val v = Point.xyz(0.0, 0.0, 0.0).volume(Point.xyz(1.0, 1.0, 0.0), Point.xyz(-1.0, 1.0, 0.0), Point.xyz(1.0, 1.0, -1.0))
+        val v = Point.xyz(0.0, 0.0, 0.0)
+            .volume(Point.xyz(1.0, 1.0, 0.0), Point.xyz(-1.0, 1.0, 0.0), Point.xyz(1.0, 1.0, -1.0))
         assertThat(v, `is`(closeTo(1.0 / 3.0)))
     }
 
@@ -291,14 +296,28 @@ class PointTest {
     }
 
     @Test
-    fun testTransform() {
-        println("Affine")
-        val t = Point.xyz(3.3, -2.4, -1.0).transform(Translate(Vector(2.3, -5.4, -0.5)))
+    fun testAffineTransform() {
+        println("AffineTransform")
+        val t = Point.xyz(3.3, -2.4, -1.0).affineTransform(Translate(Vector(2.3, -5.4, -0.5)))
         assertThat(t, `is`(closeTo(Point.xyz(5.6, -7.8, -1.5))))
-        val r = Point.xyz(1.0, 1.0, -1.0).transform(Rotate(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
+        val r = Point.xyz(1.0, 1.0, -1.0).affineTransform(Rotate(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0))
         assertThat(r, `is`(closeTo(Point.xyz(-1.0, 1.0, 1.0))))
-        val s = Point.xyz(3.0, -2.0, -1.0).transform(UniformlyScale(0.5))
+        val s = Point.xyz(3.0, -2.0, -1.0).affineTransform(UniformlyScale(0.5))
         assertThat(s, `is`(closeTo(Point.xyz(1.5, -1.0, -0.5))))
+    }
+
+    @Test
+    fun testSimilarityTransform() {
+        println("SimilarityTransform")
+        val t = Point.xyzr(3.3, -2.4, -1.0, 5.0)
+            .similarityTransform(Translate(Vector(2.3, -5.4, -0.5)).asSimilarity())
+        assertThat(t, `is`(closeTo(Point.xyzr(5.6, -7.8, -1.5, 5.0))))
+        val r = Point.xyzr(1.0, 1.0, -1.0, 5.0)
+            .similarityTransform(Rotate(Vector(1.0, 1.0, 1.0), -Math.PI * 4.0 / 3.0).asSimilarity())
+        assertThat(r, `is`(closeTo(Point.xyzr(-1.0, 1.0, 1.0, 5.0))))
+        val s = Point.xyzr(3.0, -2.0, -1.0, 5.0)
+            .similarityTransform(UniformlyScale(0.5).asSimilarity())
+        assertThat(s, `is`(closeTo(Point.xyzr(1.5, -1.0, -0.5, 2.5))))
     }
 }
 

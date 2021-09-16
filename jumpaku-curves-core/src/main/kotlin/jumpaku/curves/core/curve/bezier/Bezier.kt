@@ -7,7 +7,8 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.geom.Lerpable
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.weighted
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.SimilarityTransform
 import org.apache.commons.math3.util.CombinatoricsUtils
 import org.apache.commons.math3.util.FastMath
 
@@ -33,7 +34,9 @@ class Bezier private constructor(private val rationalBezier: RationalBezier)
 
     override fun toString(): String = "Bezier(controlPoints=${controlPoints})"
 
-    fun transform(a: Transform): Bezier = Bezier(rationalBezier.transform(a))
+    override fun affineTransform(a: AffineTransform):  Bezier = Bezier(rationalBezier.affineTransform(a))
+
+    override fun similarityTransform(a: SimilarityTransform): Bezier = Bezier(rationalBezier.similarityTransform(a))
 
     fun clipout(i: Interval): Bezier = clipout(i.begin, i.end)
 

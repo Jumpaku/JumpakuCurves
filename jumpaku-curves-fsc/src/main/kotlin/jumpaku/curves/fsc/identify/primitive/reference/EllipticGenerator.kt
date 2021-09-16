@@ -25,7 +25,7 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
         val base = reparametrize(ConicSection(s(t0), s(tf), s(t1), w))
         val complement = reparametrize(base.originalCurve.complement())
         val domain = fsc.run {
-            ReferenceGenerator.ellipticDomain(toArcLengthRatio(t0), toArcLengthRatio(t1), base, complement)
+            ReferenceGenerator.ellipticDomain(toArcLengthRatio(t0), toArcLengthRatio(t1), base, complement, nSamples)
         }
         return Reference(base.originalCurve, domain)
     }
@@ -110,8 +110,8 @@ class EllipticGenerator(val nSamples: Int = 25) : ReferenceGenerator {
                 }
             }.value().orNull() ?: return 0.999
 
-            return xy_xx.sumByDouble { it.first }
-                .divOrDefault(xy_xx.sumByDouble { it.second }) { 0.999 }
+            return xy_xx.sumOf { it.first }
+                .divOrDefault(xy_xx.sumOf { it.second }) { 0.999 }
                 .coerceIn(-0.999, 0.999)
         }
     }
