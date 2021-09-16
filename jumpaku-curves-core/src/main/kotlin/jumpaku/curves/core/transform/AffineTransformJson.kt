@@ -7,13 +7,13 @@ import com.google.gson.JsonElement
 import jumpaku.commons.json.JsonConverterBase
 import org.apache.commons.math3.linear.MatrixUtils
 
-object TransformJson : JsonConverterBase<Transform>() {
+object AffineTransformJson : JsonConverterBase<AffineTransform>() {
 
-    override fun toJson(src: Transform): JsonElement = src.run {
+    override fun toJson(src: AffineTransform): JsonElement = src.run {
         jsonArray(matrix.data.map { jsonArray(it.asList()) })
     }
 
-    override fun fromJson(json: JsonElement): Transform =
+    override fun fromJson(json: JsonElement): AffineTransform =
             json.array.map { it.array.map { it.double }.toDoubleArray() }.toTypedArray()
-                    .let { Transform.ofMatrix(MatrixUtils.createRealMatrix(it)) }
+                    .let { AffineTransform.ofMatrix(MatrixUtils.createRealMatrix(it)) }
 }

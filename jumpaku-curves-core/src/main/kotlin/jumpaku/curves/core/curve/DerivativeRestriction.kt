@@ -6,7 +6,7 @@ import jumpaku.curves.core.curve.ParamPoint
 import jumpaku.curves.core.geom.Point
 import jumpaku.curves.core.geom.Vector
 
-class DerivativeRestriction(val derivative: Derivative, subDomain: Interval) : Derivative {
+class DerivativeRestriction<D:Derivative>(val derivative: D, subDomain: Interval) : Derivative {
 
     override val domain: Interval = subDomain
 

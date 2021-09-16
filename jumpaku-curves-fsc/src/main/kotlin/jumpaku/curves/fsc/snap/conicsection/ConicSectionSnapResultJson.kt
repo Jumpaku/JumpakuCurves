@@ -10,7 +10,7 @@ import jumpaku.commons.option.json.OptionJson
 import jumpaku.curves.core.curve.bezier.ConicSectionJson
 import jumpaku.curves.core.fuzzy.GradeJson
 import jumpaku.curves.core.geom.PointJson
-import jumpaku.curves.core.transform.TransformJson
+import jumpaku.curves.core.transform.AffineTransformJson
 import jumpaku.curves.fsc.snap.point.PointSnapResultJson
 
 object ConicSectionSnapResultJson : JsonConverterBase<ConicSectionSnapResult>() {
@@ -42,13 +42,13 @@ object ConicSectionSnapResultJson : JsonConverterBase<ConicSectionSnapResult>() 
         override fun toJson(src: ConicSectionSnapResult.Candidate): JsonElement = src.run {
             jsonObject(
                     "featurePoints" to jsonArray(featurePoints.map { SnappedPointJson.toJson(it) }),
-                    "transform" to TransformJson.toJson(transform))
+                    "transform" to AffineTransformJson.toJson(transform))
         }
 
         override fun fromJson(json: JsonElement): ConicSectionSnapResult.Candidate =
                 ConicSectionSnapResult.Candidate(
                         json["featurePoints"].array.map { SnappedPointJson.fromJson(it) },
-                        TransformJson.fromJson(json["transform"]))
+                        AffineTransformJson.fromJson(json["transform"]))
     }
     object EvaluatedCandidateJson : JsonConverterBase<ConicSectionSnapResult.EvaluatedCandidate>() {
 

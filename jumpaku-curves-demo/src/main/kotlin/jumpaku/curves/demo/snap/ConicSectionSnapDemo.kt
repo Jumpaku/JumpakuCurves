@@ -66,11 +66,11 @@ object Settings {
     val identifier: Identifier = Open4Identifier(nSamples = 25, nFmps = 15)
 
     val baseGrid: Grid = Grid(
-        baseSpacing = 64.0,
-        baseFuzziness = 8.0,
+        baseSpacingInWorld = 64.0,
+        baseFuzzinessInWorld = 8.0,
         magnification = 2,
-        origin = Point.xy(width * 0.5, height * 0.5),
-        rotation = Rotate(Vector.K, 0.0)
+        originInWorld = Point.xy(width * 0.5, height * 0.5),
+        rotationInWorld = Rotate(Vector.K, 0.0)
     )
 
     val snapper: ConicSectionSnapper<*> = ConicSectionSnapper(

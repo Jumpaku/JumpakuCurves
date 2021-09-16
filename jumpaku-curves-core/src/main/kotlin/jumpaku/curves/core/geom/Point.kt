@@ -5,7 +5,10 @@ import jumpaku.commons.control.Result
 import jumpaku.commons.control.orDefault
 import jumpaku.commons.math.tryDiv
 import jumpaku.curves.core.fuzzy.Grade
-import jumpaku.curves.core.transform.Transform
+import jumpaku.curves.core.transform.SimilarityTransform
+import jumpaku.curves.core.transform.SimilarityTransformable
+import jumpaku.curves.core.transform.AffineTransform
+import jumpaku.curves.core.transform.AffineTransformable
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.util.FastMath
 import org.apache.commons.math3.util.Precision
@@ -13,7 +16,9 @@ import kotlin.math.abs
 
 
 data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.0) :
-        Lerpable<Point> {
+    Lerpable<Point>,
+    AffineTransformable<Point>,
+    SimilarityTransformable<Point> {
 
     constructor(v: Vector, r: Double = 0.0) : this(v.x, v.y, v.z, r)
 
@@ -29,14 +34,14 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     fun toDoubleArray(): DoubleArray = toVector().toDoubleArray()
 
     fun isPossible(u: Point): Grade = dist(u).tryDiv(r + u.r)
-            .tryMap { Grade.clamped(1 - it) }.value()
-            .orDefault(Grade(1.0.tryDiv(this.dist(u)).isFailure))
+        .tryMap { Grade.clamped(1 - it) }.value()
+        .orDefault(Grade(1.0.tryDiv(this.dist(u)).isFailure))
 
     fun isNecessary(u: Point): Grade {
         val d = this.dist(u)
         return d.tryDiv(r + u.r)
-                .tryMap { if (d < u.r) Grade.clamped(1 - (r + d) / (r + u.r)) else Grade.FALSE }.value()
-                .orDefault(Grade(isCloseTo(this, u)))
+            .tryMap { if (d < u.r) Grade.clamped(1 - (r + d) / (r + u.r)) else Grade.FALSE }.value()
+            .orDefault(Grade(isCloseTo(this, u)))
     }
 
     /**
@@ -57,15 +62,15 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
     }
 
     override fun lerp(t: Double, p: Point): Point = Point(
-            x.lerp(t, p.x),
-            y.lerp(t, p.y),
-            z.lerp(t, p.z),
-            abs(1 - t) * r + abs(t) * p.r
+        x.lerp(t, p.x),
+        y.lerp(t, p.y),
+        z.lerp(t, p.z),
+        abs(1 - t) * r + abs(t) * p.r
     )
 
 
     private fun isCloseTo(p1: Point, p2: Point, eps: Double = 1.0e-10): Boolean =
-            Precision.equals(p1.distSquare(p2), 0.0, eps * eps)
+        Precision.equals(p1.distSquare(p2), 0.0, eps * eps)
 
     /**
      * @param v
@@ -106,18 +111,20 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
 
     fun projectTo(line: Line): Point {
         val l = org.apache.commons.math3.geometry.euclidean.threed.Line(
-                Vector3D(line.p0.x, line.p0.y, line.p0.z),
-                Vector3D(line.p1.x, line.p1.y, line.p1.z),
-                0.0)
+            Vector3D(line.p0.x, line.p0.y, line.p0.z),
+            Vector3D(line.p1.x, line.p1.y, line.p1.z),
+            0.0
+        )
         return l.toSpace(l.toSubSpace(Vector3D(x, y, z))).let { Point(it.x, it.y, it.z) }
     }
 
     fun projectTo(plane: Plane): Point {
         val p = org.apache.commons.math3.geometry.euclidean.threed.Plane(
-                Vector3D(plane.p0.x, plane.p0.y, plane.p0.z),
-                Vector3D(plane.p1.x, plane.p1.y, plane.p1.z),
-                Vector3D(plane.p2.x, plane.p2.y, plane.p2.z),
-                0.0)
+            Vector3D(plane.p0.x, plane.p0.y, plane.p0.z),
+            Vector3D(plane.p1.x, plane.p1.y, plane.p1.z),
+            Vector3D(plane.p2.x, plane.p2.y, plane.p2.z),
+            0.0
+        )
         return p.toSpace(p.toSubSpace(Vector3D(x, y, z))).let { Point(it.x, it.y, it.z) }
     }
 
@@ -135,7 +142,7 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
      * @return volume of a Tetrahedron (this, p1, p2, p3)
      */
     fun volume(p1: Point, p2: Point, p3: Point): Double =
-            FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
+        FastMath.abs((this - p1).cross(this - p2).dot(this - p3) / 6)
 
     /**
      * @param p1
@@ -146,10 +153,9 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
         IllegalArgumentException("normal for undefined plane")
     }
 
-    /**
-     * @return A*p (crisp point)
-     */
-    fun transform(a: Transform): Point = a(this)
+    override fun affineTransform(a: AffineTransform): Point = a(this)
+
+    override fun similarityTransform(a: SimilarityTransform): Point = a(this)
 
     companion object {
 
@@ -168,5 +174,6 @@ data class Point(val x: Double, val y: Double, val z: Double, val r: Double = 0.
         fun xyzr(x: Double, y: Double, z: Double, r: Double): Point = Point(x, y, z, r)
 
     }
+
 }
 
