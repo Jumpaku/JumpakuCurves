@@ -10,7 +10,7 @@ import jumpaku.curves.fsc.snap.GridPoint
 /**
  * Snaps a fuzzy point to an multi-resolution fuzzy grid.
  * The concept of this process is proposed in the following paper:
- * S. Dematapitiya, M. Kawazoe, A. Nishikawa, M. Sakurai, S. Saga. Snapping of fuzzy objects using the multi-resolution fuzzy grid snapping technique, J. Inform. Process. 17 (2009) 47–58, http://dx.doi.org/10.2197/ipsjjip.17.47
+ * S. Dematapitiya, M. Kawazoe, A. Nishikawa, M. Sakurai, S. Saga. Snapping of fuzzy objects using the multi-resolution fuzzy grid snapping technique, J. Inform. Process. 17 (2009) 47–58, URL: https://doi.org/10.2197/ipsjjip.17.47
  */
 class MFGS(val minResolution: Int = 0, val maxResolution: Int = 0) : PointSnapper {
 
