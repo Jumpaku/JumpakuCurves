@@ -4,6 +4,10 @@ import jumpaku.curves.core.curve.Interval
 import jumpaku.curves.core.curve.Sampler
 import jumpaku.curves.core.curve.bspline.BSpline
 import jumpaku.curves.core.fuzzy.Grade
+import jumpaku.curves.core.geom.lerp
+import org.apache.commons.math3.util.FastMath
+import java.lang.Integer.max
+import kotlin.math.ceil
 
 /**
  * Fragments an FSC into sequence of stay and move FSCs.
@@ -48,7 +52,8 @@ class Fragmenter(
 
     fun fragment(fsc: BSpline): List<Fragment> {
         val samplingSpan = minStayTimeSpan / chunkSize
-        val chunks = fsc.domain.sample(samplingSpan)
+        val nSamples = max(chunkSize, 1 + FastMath.ceil(fsc.domain.span / samplingSpan).toInt())
+        val chunks = fsc.domain.sample(nSamples)
             .windowed(chunkSize)
             .map { Chunk(fsc.restrict(it.first(), it.last()).sample(Sampler(chunkSize))) }
         val states = chunks
