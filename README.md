@@ -91,7 +91,7 @@ class InputFsc : Application() {
 
 ## Releases
 
-* 2021-09-21 ver. 3.0.3
+* 2021-09-16 ver. 3.0.3
 * 2019-01-19 ver. 0.11.0
 * 2018-10-15 ver. 0.10
 * 2018-08-19 ver. 0.9
